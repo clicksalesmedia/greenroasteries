@@ -1,0 +1,89 @@
+// This is a sample database schema for multilingual content
+// You will need to modify your existing database schema accordingly
+
+// Example using Prisma schema (adapt to your actual database)
+
+// Product model with multilingual content
+model Product {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Default language fields (for backward compatibility)
+  name        String
+  description String?
+  shortDescription String?
+  
+  // Multilingual content
+  translations ProductTranslation[]
+  
+  // Other fields
+  slug        String?  @unique
+  price       Float
+  salePrice   Float?
+  sku         String?  @unique
+  stock       Int      @default(0)
+  isPublished Boolean  @default(false)
+  
+  // Relationships
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  
+  // Add other relationships and fields as needed
+}
+
+// Translation model for products
+model ProductTranslation {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // Language code (e.g., 'en', 'ar')
+  language    String
+  
+  // Translated fields
+  name        String
+  description String?
+  shortDescription String?
+  
+  // Ensure each product has only one translation per language
+  @@unique([productId, language])
+}
+
+// Category model with translations
+model Category {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Default language
+  name        String
+  description String?
+  
+  // Multilingual content
+  translations CategoryTranslation[]
+  
+  // Other fields
+  slug        String?  @unique
+  
+  // Relationships
+  products    Product[]
+}
+
+// Translation model for categories
+model CategoryTranslation {
+  id          String   @id @default(uuid())
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  // Language code
+  language    String
+  
+  // Translated fields
+  name        String
+  description String?
+  
+  @@unique([categoryId, language])
+}
+
+// Add similar translation models for other content types in your application 
