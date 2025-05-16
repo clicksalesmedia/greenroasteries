@@ -226,6 +226,183 @@ docker-compose up -d
 
 For production deployment, make sure to set the appropriate environment variables in your deployment environment.
 
+## Hetzner Server Deployment
+
+This guide explains how the Green Roasteries website is deployed to a Hetzner server and how to manage it.
+
+### Server Information
+- IP Address: 167.235.137.52
+- URL: http://167.235.137.52
+- Admin Area: http://167.235.137.52/backend
+
+### Deployment Architecture
+
+The website is deployed using Docker containers with the following components:
+
+1. **Next.js Application**: Running on port 3001 inside a Docker container
+2. **PostgreSQL Database**: Running on port 5432 inside a Docker container
+3. **Nginx**: Acting as a reverse proxy to route traffic from port 80 to the application
+
+### Server Setup Steps
+
+1. **Update server packages:**
+   ```bash
+   apt update && apt upgrade -y
+   ```
+
+2. **Install Docker and Docker Compose:**
+   ```bash
+   apt install -y docker.io docker-compose git
+   ```
+
+3. **Clone the repository:**
+   ```bash
+   mkdir -p /var/www && cd /var/www
+   git clone https://github.com/clicksalesmedia/greenroasteries.git
+   cd greenroasteries
+   ```
+
+4. **Set up environment:**
+   ```bash
+   cp .env.local .env
+   ```
+
+5. **Build and start Docker containers:**
+   ```bash
+   docker-compose build
+   docker-compose up -d
+   ```
+
+6. **Install and configure Nginx:**
+   ```bash
+   apt install -y nginx
+   ```
+
+   Create Nginx configuration file at `/etc/nginx/sites-available/greenroasteries`:
+   ```nginx
+   server {
+       listen 80;
+       server_name 167.235.137.52;
+
+       location / {
+           proxy_pass http://localhost:3001;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_cache_bypass $http_upgrade;
+       }
+   }
+   ```
+
+   Enable the site and restart Nginx:
+   ```bash
+   ln -s /etc/nginx/sites-available/greenroasteries /etc/nginx/sites-enabled/
+   rm /etc/nginx/sites-enabled/default
+   nginx -t
+   systemctl restart nginx
+   ```
+
+7. **Restore database data if needed:**
+   ```bash
+   docker exec -i greenroasteries-db psql -U postgres -d greenroasteries < /var/www/greenroasteries/greenroasteries_backup.sql
+   docker restart greenroasteries-app
+   ```
+
+### Updating the Website
+
+To update the website with new code:
+
+1. **Connect to the server:**
+   ```bash
+   ssh root@167.235.137.52
+   ```
+
+2. **Navigate to the application directory:**
+   ```bash
+   cd /var/www/greenroasteries
+   ```
+
+3. **Pull the latest changes:**
+   ```bash
+   git pull origin main
+   ```
+
+4. **Rebuild and restart the containers:**
+   ```bash
+   docker-compose build
+   docker-compose up -d
+   ```
+
+### Database Management in Production
+
+#### Making Database Changes
+
+To apply database schema changes:
+
+1. **Create migrations locally:**
+   ```bash
+   npx prisma migrate dev --name your_migration_name
+   ```
+
+2. **Commit the migration files to git**
+
+3. **On the server, pull the changes and apply migrations:**
+   ```bash
+   cd /var/www/greenroasteries
+   git pull origin main
+   docker exec -it greenroasteries-app npx prisma migrate deploy
+   docker restart greenroasteries-app
+   ```
+
+#### Backing Up the Database
+
+```bash
+# On the server
+docker exec greenroasteries-db pg_dump -U postgres greenroasteries > /var/www/greenroasteries/backups/backup_$(date +%Y%m%d).sql
+
+# Download backup to local machine
+scp root@167.235.137.52:/var/www/greenroasteries/backups/backup_YYYYMMDD.sql ./backups/
+```
+
+#### Restoring the Database
+
+```bash
+# Upload backup to server if needed
+scp backup.sql root@167.235.137.52:/var/www/greenroasteries/backups/
+
+# Restore from backup
+docker exec -i greenroasteries-db psql -U postgres -d greenroasteries < /var/www/greenroasteries/backups/backup_YYYYMMDD.sql
+
+# Restart the app container to refresh connections
+docker restart greenroasteries-app
+```
+
+### Troubleshooting Production Deployment
+
+If you encounter issues with the website:
+
+1. **Check application logs:**
+   ```bash
+   docker logs greenroasteries-app
+   ```
+
+2. **Check database status:**
+   ```bash
+   docker exec greenroasteries-db psql -U postgres -d greenroasteries -c 'SELECT COUNT(*) FROM "Product"'
+   ```
+
+3. **Restart the application container:**
+   ```bash
+   docker restart greenroasteries-app
+   ```
+
+4. **Check Nginx configuration:**
+   ```bash
+   nginx -t
+   systemctl status nginx
+   ```
+
 ## Environment Variables
 
 - `DATABASE_URL`: PostgreSQL connection string

@@ -1,3 +1,8 @@
+#!/bin/bash
+# Deployment script for Green Roasteries website to Hetzner server
+
+echo "# Update middleware.ts file"
+cat > middleware.ts << 'EOL'
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import * as jose from 'jose';
@@ -129,3 +134,11 @@ export const config = {
     '/api/users/:path*',
   ],
 };
+EOL
+
+echo "# Rebuild and restart Docker containers"
+docker-compose build
+docker-compose up -d
+
+echo "# Check logs"
+docker-compose logs -f app 

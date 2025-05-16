@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -78,10 +78,16 @@ interface FilterState {
 // Component that uses search params wrapped in Suspense
 function SearchParamsHandler({ onCategoryChange }: { onCategoryChange: (category: string | null) => void }) {
   const searchParams = useSearchParams();
+  const processedCategory = useRef<string | null>(null);
   
   useEffect(() => {
     const categoryParam = searchParams.get('category');
-    onCategoryChange(categoryParam);
+    
+    // Only call onCategoryChange if the category is different from what we've already processed
+    if (categoryParam !== processedCategory.current) {
+      processedCategory.current = categoryParam;
+      onCategoryChange(categoryParam);
+    }
   }, [searchParams, onCategoryChange]);
   
   return null; // This component doesn't render anything
@@ -124,10 +130,19 @@ export default function ShopPage() {
   // Handle category from URL
   const handleCategoryFromParams = (category: string | null) => {
     if (category) {
-      setFilters(prev => ({
-        ...prev,
-        category: [category]
-      }));
+      // Only update if the category is not already in filters
+      setFilters(prev => {
+        // Check if category is already in the filters
+        if (prev.category.includes(category)) {
+          return prev; // Return the same object to avoid re-render
+        }
+        
+        // Return a new object with the updated category
+        return {
+          ...prev,
+          category: [category] // Replace categories instead of adding
+        };
+      });
     }
   };
   
@@ -335,112 +350,113 @@ export default function ShopPage() {
 
   // Apply filters and sorting
   useEffect(() => {
-    let filteredProducts = [...products];
+    console.log('Applying filters and sorting');
     
-    // Apply size filter
-    if (filters.size.length > 0) {
-      filteredProducts = filteredProducts.filter(product => {
-        // Check if the product has any of the selected sizes
-        if (!product.variations) return false;
-        
-        if (Array.isArray(product.variations)) {
-          // Handle array of variations
-          const variationsArray = product.variations as ProductVariation[];
-          const sizes = [...new Set(variationsArray.map(v => extractValue(v.size)).filter(Boolean))];
-          return sizes.some(size => filters.size.includes(size));
-        } else {
-          // Handle object variations
-          return product.variations.size?.some(size => filters.size.includes(size)) || false;
-        }
-      });
-    }
-    
-    // Apply beans filter
-    if (filters.beans.length > 0) {
-      filteredProducts = filteredProducts.filter(product => {
-        // Check if the product has any of the selected bean types
-        if (!product.variations) return false;
-        
-        if (Array.isArray(product.variations)) {
-          // Handle array of variations
-          const variationsArray = product.variations as ProductVariation[];
-          const beans = [...new Set(variationsArray.map(v => extractValue(v.beans)).filter(Boolean))];
-          return beans.some(bean => filters.beans.includes(bean));
-        } else {
-          // Handle object variations
-          return product.variations.beans?.some(bean => filters.beans.includes(bean)) || false;
-        }
-      });
-    }
-    
-    // Apply category filter
-    if (filters.category.length > 0) {
-      console.log("Filtering by categories:", filters.category);
-      console.log("Before filtering:", filteredProducts.length);
+    // Create a debounced version of the filtering logic to prevent excessive calculations
+    const timeoutId = setTimeout(() => {
+      let filteredProducts = [...products];
       
-      filteredProducts = filteredProducts.filter(product => {
-        try {
-          // Log the first few products for debugging
-          if (filteredProducts.indexOf(product) < 3) {
-            console.log("Product:", product.id, "Category:", product.category, "Type:", typeof product.category);
-          }
+      // Apply size filter
+      if (filters.size.length > 0) {
+        filteredProducts = filteredProducts.filter(product => {
+          // Check if the product has any of the selected sizes
+          if (!product.variations) return false;
           
-          // Handle different category formats
-          let categoryName: string;
-          
-          if (product.category === undefined || product.category === null) {
-            return false; // Skip products with no category
-          } else if (typeof product.category === 'string') {
-            // If category is directly a string
-            categoryName = product.category;
-          } else if (typeof product.category === 'object' && 'name' in product.category) {
-            // If category is an object with a name property
-            categoryName = product.category.name;
+          if (Array.isArray(product.variations)) {
+            // Handle array of variations
+            const variationsArray = product.variations as ProductVariation[];
+            const sizes = [...new Set(variationsArray.map(v => extractValue(v.size)).filter(Boolean))];
+            return sizes.some(size => filters.size.includes(size));
           } else {
-            return false; // Skip if category format is unknown
+            // Handle object variations
+            return product.variations.size?.some(size => filters.size.includes(size)) || false;
           }
-          
-          // Case-insensitive comparison with the category name
-          return filters.category.some(cat => {
-            if (cat === undefined || cat === null) return false;
-            return categoryName.toLowerCase() === String(cat).toLowerCase();
-          });
-        } catch (error) {
-          console.error("Error filtering product", product.id, error);
-          return false; // Exclude product if there's an error
-        }
-      });
+        });
+      }
       
-      console.log("After filtering:", filteredProducts.length);
-    }
+      // Apply beans filter
+      if (filters.beans.length > 0) {
+        filteredProducts = filteredProducts.filter(product => {
+          // Check if the product has any of the selected bean types
+          if (!product.variations) return false;
+          
+          if (Array.isArray(product.variations)) {
+            // Handle array of variations
+            const variationsArray = product.variations as ProductVariation[];
+            const beans = [...new Set(variationsArray.map(v => extractValue(v.beans)).filter(Boolean))];
+            return beans.some(bean => filters.beans.includes(bean));
+          } else {
+            // Handle object variations
+            return product.variations.beans?.some(bean => filters.beans.includes(bean)) || false;
+          }
+        });
+      }
+      
+      // Apply category filter
+      if (filters.category.length > 0) {
+        filteredProducts = filteredProducts.filter(product => {
+          try {
+            // Handle different category formats
+            let categoryName: string;
+            
+            if (product.category === undefined || product.category === null) {
+              return false; // Skip products with no category
+            } else if (typeof product.category === 'string') {
+              // If category is directly a string
+              categoryName = product.category;
+            } else if (typeof product.category === 'object' && product.category !== null && 'name' in product.category) {
+              // If category is an object with a name property
+              categoryName = product.category.name;
+            } else {
+              console.warn('Unknown category format:', product.category);
+              return false; // Skip if category format is unknown
+            }
+            
+            // Case-insensitive comparison with the category name
+            return filters.category.some(cat => {
+              if (cat === undefined || cat === null) return false;
+              const catLower = String(cat).toLowerCase();
+              const categoryLower = categoryName.toLowerCase();
+              return categoryLower === catLower || categoryLower.includes(catLower) || catLower.includes(categoryLower);
+            });
+          } catch (error) {
+            console.error("Error filtering product by category:", product.id, error);
+            return false; // Exclude product if there's an error
+          }
+        });
+      }
+      
+      // Apply price filter
+      filteredProducts = filteredProducts.filter(
+        product => product.price >= filters.price.min && product.price <= filters.price.max
+      );
+      
+      // Apply sorting
+      switch (sortOption) {
+        case 'price-low':
+          filteredProducts.sort((a, b) => a.price - b.price);
+          break;
+        case 'price-high':
+          filteredProducts.sort((a, b) => b.price - a.price);
+          break;
+        case 'name-asc':
+          filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case 'name-desc':
+          filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
+          break;
+        case 'newest':
+        default:
+          // Assuming newer products have higher IDs
+          filteredProducts.sort((a, b) => b.id.localeCompare(a.id));
+          break;
+      }
+      
+      setDisplayedProducts(filteredProducts.slice(0, visibleProducts));
+    }, 50); // Small delay to batch multiple filter changes
     
-    // Apply price filter
-    filteredProducts = filteredProducts.filter(
-      product => product.price >= filters.price.min && product.price <= filters.price.max
-    );
-    
-    // Apply sorting
-    switch (sortOption) {
-      case 'price-low':
-        filteredProducts.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filteredProducts.sort((a, b) => b.price - a.price);
-        break;
-      case 'name-asc':
-        filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'name-desc':
-        filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      case 'newest':
-      default:
-        // Assuming newer products have higher IDs
-        filteredProducts.sort((a, b) => b.id.localeCompare(a.id));
-        break;
-    }
-    
-    setDisplayedProducts(filteredProducts.slice(0, visibleProducts));
+    // Cleanup function
+    return () => clearTimeout(timeoutId);
   }, [products, filters, sortOption, visibleProducts]);
 
   // Load more products
