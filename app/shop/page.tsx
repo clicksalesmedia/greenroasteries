@@ -352,23 +352,20 @@ export default function ShopPage() {
   useEffect(() => {
     console.log('Applying filters and sorting');
     
-    // Create a debounced version of the filtering logic to prevent excessive calculations
+    // Create a debounced version of the filtering logic with a longer delay
     const timeoutId = setTimeout(() => {
       let filteredProducts = [...products];
       
       // Apply size filter
       if (filters.size.length > 0) {
         filteredProducts = filteredProducts.filter(product => {
-          // Check if the product has any of the selected sizes
           if (!product.variations) return false;
           
           if (Array.isArray(product.variations)) {
-            // Handle array of variations
             const variationsArray = product.variations as ProductVariation[];
             const sizes = [...new Set(variationsArray.map(v => extractValue(v.size)).filter(Boolean))];
             return sizes.some(size => filters.size.includes(size));
           } else {
-            // Handle object variations
             return product.variations.size?.some(size => filters.size.includes(size)) || false;
           }
         });
@@ -377,16 +374,13 @@ export default function ShopPage() {
       // Apply beans filter
       if (filters.beans.length > 0) {
         filteredProducts = filteredProducts.filter(product => {
-          // Check if the product has any of the selected bean types
           if (!product.variations) return false;
           
           if (Array.isArray(product.variations)) {
-            // Handle array of variations
             const variationsArray = product.variations as ProductVariation[];
             const beans = [...new Set(variationsArray.map(v => extractValue(v.beans)).filter(Boolean))];
             return beans.some(bean => filters.beans.includes(bean));
           } else {
-            // Handle object variations
             return product.variations.beans?.some(bean => filters.beans.includes(bean)) || false;
           }
         });
@@ -394,6 +388,9 @@ export default function ShopPage() {
       
       // Apply category filter
       if (filters.category.length > 0) {
+        console.log('Filtering by categories:', filters.category);
+        console.log('Before filtering:', filteredProducts.length);
+        
         filteredProducts = filteredProducts.filter(product => {
           try {
             // Handle different category formats
@@ -402,10 +399,8 @@ export default function ShopPage() {
             if (product.category === undefined || product.category === null) {
               return false; // Skip products with no category
             } else if (typeof product.category === 'string') {
-              // If category is directly a string
               categoryName = product.category;
             } else if (typeof product.category === 'object' && product.category !== null && 'name' in product.category) {
-              // If category is an object with a name property
               categoryName = product.category.name;
             } else {
               console.warn('Unknown category format:', product.category);
@@ -413,17 +408,21 @@ export default function ShopPage() {
             }
             
             // Case-insensitive comparison with the category name
-            return filters.category.some(cat => {
+            const matches = filters.category.some(cat => {
               if (cat === undefined || cat === null) return false;
               const catLower = String(cat).toLowerCase();
               const categoryLower = categoryName.toLowerCase();
-              return categoryLower === catLower || categoryLower.includes(catLower) || catLower.includes(categoryLower);
+              return categoryLower === catLower;
             });
+            
+            return matches;
           } catch (error) {
             console.error("Error filtering product by category:", product.id, error);
             return false; // Exclude product if there's an error
           }
         });
+        
+        console.log('After filtering:', filteredProducts.length);
       }
       
       // Apply price filter
@@ -447,13 +446,19 @@ export default function ShopPage() {
           break;
         case 'newest':
         default:
-          // Assuming newer products have higher IDs
           filteredProducts.sort((a, b) => b.id.localeCompare(a.id));
           break;
       }
       
-      setDisplayedProducts(filteredProducts.slice(0, visibleProducts));
-    }, 50); // Small delay to batch multiple filter changes
+      // Only update if the filtered results are different
+      const currentDisplayedIds = new Set(displayedProducts.map(p => p.id));
+      const newDisplayedIds = new Set(filteredProducts.slice(0, visibleProducts).map(p => p.id));
+      
+      if (currentDisplayedIds.size !== newDisplayedIds.size || 
+          ![...currentDisplayedIds].every(id => newDisplayedIds.has(id))) {
+        setDisplayedProducts(filteredProducts.slice(0, visibleProducts));
+      }
+    }, 250); // Increased debounce delay to 250ms
     
     // Cleanup function
     return () => clearTimeout(timeoutId);
