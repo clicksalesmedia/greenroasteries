@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, Suspense, useRef } from 'react';
+import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -93,7 +94,59 @@ function SearchParamsHandler({ onCategoryChange }: { onCategoryChange: (category
   return null; // This component doesn't render anything
 }
 
-export default function ShopPage() {
+// Add this before the ShopPage component
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Shop page error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
+            <p className="text-gray-600 mb-4">We're sorry, but there was an error loading the shop page.</p>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false });
+                window.location.reload();
+              }}
+              className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// Wrap the export with the ErrorBoundary
+export default function ShopPageWithErrorBoundary() {
+  return (
+    <ErrorBoundary>
+      <ShopPage />
+    </ErrorBoundary>
+  );
+}
+
+function ShopPage() {
   const { language, contentByLang, t } = useLanguage();
   
   // State for products and loading
@@ -348,121 +401,108 @@ export default function ShopPage() {
     fetchFilters();
   }, []);
 
-  // Apply filters and sorting
+  // Add this at the top level of the component, before useEffect hooks
+  const memoizedFilterProducts = useCallback((
+    products: Product[],
+    filters: FilterState,
+    sortOption: string,
+    visibleProducts: number
+  ) => {
+    let filteredProducts = [...products];
+    
+    // Apply category filter first since it's the most selective
+    if (filters.category.length > 0) {
+      filteredProducts = filteredProducts.filter(product => {
+        try {
+          // Handle different category formats
+          let categoryName: string;
+          
+          if (!product.category) return false;
+          
+          if (typeof product.category === 'string') {
+            categoryName = product.category;
+          } else if (typeof product.category === 'object' && 'name' in product.category) {
+            categoryName = product.category.name;
+          } else {
+            return false;
+          }
+          
+          // Case-insensitive exact match
+          return filters.category.some(cat => 
+            categoryName.toLowerCase() === String(cat).toLowerCase()
+          );
+        } catch (error) {
+          console.error("Error filtering product by category:", error);
+          return false;
+        }
+      });
+    }
+    
+    // Apply other filters
+    if (filters.size.length > 0) {
+      filteredProducts = filteredProducts.filter(product => {
+        if (!product.variations) return false;
+        
+        const sizes = Array.isArray(product.variations)
+          ? [...new Set(product.variations.map(v => extractValue(v.size)).filter(Boolean))]
+          : product.variations.size || [];
+          
+        return sizes.some(size => filters.size.includes(size));
+      });
+    }
+    
+    if (filters.beans.length > 0) {
+      filteredProducts = filteredProducts.filter(product => {
+        if (!product.variations) return false;
+        
+        const beans = Array.isArray(product.variations)
+          ? [...new Set(product.variations.map(v => extractValue(v.beans)).filter(Boolean))]
+          : product.variations.beans || [];
+          
+        return beans.some(bean => filters.beans.includes(bean));
+      });
+    }
+    
+    // Apply price filter
+    filteredProducts = filteredProducts.filter(
+      product => product.price >= filters.price.min && product.price <= filters.price.max
+    );
+    
+    // Apply sorting
+    switch (sortOption) {
+      case 'price-low':
+        filteredProducts.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-high':
+        filteredProducts.sort((a, b) => b.price - a.price);
+        break;
+      case 'name-asc':
+        filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name-desc':
+        filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'newest':
+      default:
+        filteredProducts.sort((a, b) => b.id.localeCompare(a.id));
+        break;
+    }
+    
+    return filteredProducts.slice(0, visibleProducts);
+  }, []);
+
+  // Replace the existing filtering useEffect with this optimized version
   useEffect(() => {
-    console.log('Applying filters and sorting');
+    const newDisplayedProducts = memoizedFilterProducts(products, filters, sortOption, visibleProducts);
     
-    // Create a debounced version of the filtering logic with a longer delay
-    const timeoutId = setTimeout(() => {
-      let filteredProducts = [...products];
-      
-      // Apply size filter
-      if (filters.size.length > 0) {
-        filteredProducts = filteredProducts.filter(product => {
-          if (!product.variations) return false;
-          
-          if (Array.isArray(product.variations)) {
-            const variationsArray = product.variations as ProductVariation[];
-            const sizes = [...new Set(variationsArray.map(v => extractValue(v.size)).filter(Boolean))];
-            return sizes.some(size => filters.size.includes(size));
-          } else {
-            return product.variations.size?.some(size => filters.size.includes(size)) || false;
-          }
-        });
-      }
-      
-      // Apply beans filter
-      if (filters.beans.length > 0) {
-        filteredProducts = filteredProducts.filter(product => {
-          if (!product.variations) return false;
-          
-          if (Array.isArray(product.variations)) {
-            const variationsArray = product.variations as ProductVariation[];
-            const beans = [...new Set(variationsArray.map(v => extractValue(v.beans)).filter(Boolean))];
-            return beans.some(bean => filters.beans.includes(bean));
-          } else {
-            return product.variations.beans?.some(bean => filters.beans.includes(bean)) || false;
-          }
-        });
-      }
-      
-      // Apply category filter
-      if (filters.category.length > 0) {
-        console.log('Filtering by categories:', filters.category);
-        console.log('Before filtering:', filteredProducts.length);
-        
-        filteredProducts = filteredProducts.filter(product => {
-          try {
-            // Handle different category formats
-            let categoryName: string;
-            
-            if (product.category === undefined || product.category === null) {
-              return false; // Skip products with no category
-            } else if (typeof product.category === 'string') {
-              categoryName = product.category;
-            } else if (typeof product.category === 'object' && product.category !== null && 'name' in product.category) {
-              categoryName = product.category.name;
-            } else {
-              console.warn('Unknown category format:', product.category);
-              return false; // Skip if category format is unknown
-            }
-            
-            // Case-insensitive comparison with the category name
-            const matches = filters.category.some(cat => {
-              if (cat === undefined || cat === null) return false;
-              const catLower = String(cat).toLowerCase();
-              const categoryLower = categoryName.toLowerCase();
-              return categoryLower === catLower;
-            });
-            
-            return matches;
-          } catch (error) {
-            console.error("Error filtering product by category:", product.id, error);
-            return false; // Exclude product if there's an error
-          }
-        });
-        
-        console.log('After filtering:', filteredProducts.length);
-      }
-      
-      // Apply price filter
-      filteredProducts = filteredProducts.filter(
-        product => product.price >= filters.price.min && product.price <= filters.price.max
-      );
-      
-      // Apply sorting
-      switch (sortOption) {
-        case 'price-low':
-          filteredProducts.sort((a, b) => a.price - b.price);
-          break;
-        case 'price-high':
-          filteredProducts.sort((a, b) => b.price - a.price);
-          break;
-        case 'name-asc':
-          filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
-          break;
-        case 'name-desc':
-          filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
-          break;
-        case 'newest':
-        default:
-          filteredProducts.sort((a, b) => b.id.localeCompare(a.id));
-          break;
-      }
-      
-      // Only update if the filtered results are different
-      const currentDisplayedIds = new Set(displayedProducts.map(p => p.id));
-      const newDisplayedIds = new Set(filteredProducts.slice(0, visibleProducts).map(p => p.id));
-      
-      if (currentDisplayedIds.size !== newDisplayedIds.size || 
-          ![...currentDisplayedIds].every(id => newDisplayedIds.has(id))) {
-        setDisplayedProducts(filteredProducts.slice(0, visibleProducts));
-      }
-    }, 250); // Increased debounce delay to 250ms
+    // Only update if the products have actually changed
+    const hasProductsChanged = newDisplayedProducts.length !== displayedProducts.length ||
+      newDisplayedProducts.some((product, index) => product.id !== displayedProducts[index]?.id);
     
-    // Cleanup function
-    return () => clearTimeout(timeoutId);
-  }, [products, filters, sortOption, visibleProducts]);
+    if (hasProductsChanged) {
+      setDisplayedProducts(newDisplayedProducts);
+    }
+  }, [products, filters, sortOption, visibleProducts, memoizedFilterProducts]);
 
   // Load more products
   const handleLoadMore = () => {

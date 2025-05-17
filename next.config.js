@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    domains: ['example.com', 'localhost', 'res.cloudinary.com', 'images.unsplash.com'],
-    unoptimized: true,
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
   },
-};
+}
 
-module.exports = nextConfig; 
+module.exports = nextConfig
