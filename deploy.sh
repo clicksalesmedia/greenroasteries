@@ -44,7 +44,7 @@ print_warning() {
 
 # Function to confirm action
 confirm_action() {
-  read -p "$(echo -e ${YELLOW}$1 ${NC}(y/n): )" response
+  read -p "$(echo -e "${YELLOW}$1 ${NC}(y/n): ")" response
   case "$response" in
     [yY][eE][sS]|[yY]) 
       return 0
@@ -107,12 +107,12 @@ push_to_github() {
 
 # Function to create deployment package
 create_deployment_package() {
-  print_step "Creating deployment package"
+  echo "Creating deployment package"
   
   TIMESTAMP=$(date +%Y%m%d%H%M%S)
   PACKAGE_NAME="update-$TIMESTAMP.tar.gz"
   
-  print_info "Packaging codebase (excluding node_modules, .next, etc.)..."
+  echo "Packaging codebase (excluding node_modules, .next, etc.)..."
   tar --exclude="node_modules" \
       --exclude=".next" \
       --exclude=".git" \
@@ -120,13 +120,13 @@ create_deployment_package() {
       --exclude="*.tar.gz" \
       --exclude="backups" \
       -czf $PACKAGE_NAME . || {
-    print_error "Failed to create deployment package"
+    echo "Failed to create deployment package"
     exit 1
   }
   
-  print_success "Deployment package created: $PACKAGE_NAME"
+  echo "Deployment package created: $PACKAGE_NAME"
   
-  echo $PACKAGE_NAME  # Return the package name
+  echo "$PACKAGE_NAME"  # Return the package name
 }
 
 # Function to upload and deploy to server
@@ -137,7 +137,7 @@ deploy_to_server() {
   print_info "Uploading $package_name to $SERVER_USER@$SERVER_IP:$SERVER_DIR/"
   
   # Upload the package
-  if scp $package_name $SERVER_USER@$SERVER_IP:$SERVER_DIR/; then
+  if scp "$package_name" $SERVER_USER@$SERVER_IP:$SERVER_DIR/; then
     print_success "Package uploaded successfully"
   else
     print_error "Failed to upload package to server"
@@ -249,11 +249,12 @@ main() {
   # Push changes to GitHub if requested
   push_to_github
   
-  # Create deployment package
-  package_name=$(create_deployment_package)
+  # Create deployment package and store the result without using print functions
+  print_step "Creating deployment package"
+  PACKAGE_NAME=$(create_deployment_package)
   
-  # Deploy to server
-  deploy_to_server $package_name
+  # Deploy to server with the package name
+  deploy_to_server "$PACKAGE_NAME"
   
   # Verify deployment
   verify_deployment
