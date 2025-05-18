@@ -51,25 +51,43 @@ interface SelectedVariation extends ProductVariation {
 }
 
 // Helper function to extract display values from variation objects or strings
-const extractValue = (value: any): string => {
+const extractValue = (value: any, language = 'en'): string => {
   if (!value) return '';
+  
   if (typeof value === 'string') return value;
+  
   if (typeof value === 'object' && value !== null) {
-    // If it's an object with a name property, use that
-    if ('name' in value) return value.name;
-    // If it's an object with a displayName property, use that (for sizes)
-    if ('displayName' in value) return value.displayName;
+    // If it's an object with language-specific name properties
+    if (language === 'ar') {
+      // Try different Arabic name properties in order of preference
+      if ('nameAr' in value && value.nameAr) {
+        return value.nameAr;
+      } else if ('arabicName' in value && value.arabicName) {
+        return value.arabicName;
+      } else if ('displayNameAr' in value && value.displayNameAr) {
+        return value.displayNameAr;
+      }
+    }
+    
+    // If no Arabic name is found or language is English, use English names
+    if ('name' in value) {
+      return value.name;
+    } else if ('displayName' in value) {
+      return value.displayName;
+    }
+    
     // Otherwise, try to convert it to a string
     return String(value);
   }
+  
   return String(value);
 };
 
 // Helper function to match variation values
-const isMatch = (variationProp: any, selectionValue: string): boolean => {
+const isMatch = (variationProp: any, selectionValue: string, language = 'en'): boolean => {
   if (!selectionValue) return true; // No selection means any value matches
   
-  const extractedValue = extractValue(variationProp);
+  const extractedValue = extractValue(variationProp, language);
   // Use case-insensitive comparison to make matching more reliable
   return extractedValue.toLowerCase() === selectionValue.toLowerCase();
 };
@@ -175,10 +193,30 @@ export default function ProductPage() {
         
         const data = await response.json();
         console.log('Product data:', data);
+        console.log('Language:', language);
+        console.log('Arabic name:', data.nameAr);
+        console.log('Arabic description:', data.descriptionAr);
         console.log('Variations:', data.variations);
         
         // Check if variations have weight and additions properly mapped
         if (data.variations && data.variations.length > 0) {
+          // Log the Arabic properties of variations
+          data.variations.forEach((variation: ProductVariation, index: number) => {
+            console.log(`Variation ${index + 1}:`);
+            if (variation.beans && typeof variation.beans === 'object') {
+              console.log('  Beans:', variation.beans.name);
+              console.log('  Beans (Arabic):', variation.beans.nameAr || variation.beans.arabicName);
+            }
+            if (variation.additions && typeof variation.additions === 'object') {
+              console.log('  Additions:', variation.additions.name);
+              console.log('  Additions (Arabic):', variation.additions.nameAr || variation.additions.arabicName);
+            }
+            if (variation.weight && typeof variation.weight === 'object') {
+              console.log('  Weight:', variation.weight.displayName);
+              console.log('  Weight (Arabic):', variation.weight.displayNameAr);
+            }
+          });
+        
           // Convert old 'size' field to 'weight' if needed for backwards compatibility
           data.variations = data.variations.map((variation: any) => {
             // If we have size but not weight, use size as weight
@@ -195,29 +233,15 @@ export default function ProductPage() {
         
         setProduct(data);
         
-        // Extract unique variation options
+        // Initial variation selection if available
         if (data.variations && data.variations.length > 0) {
-          const weights = [...new Set(data.variations
-            .map((v: ProductVariation) => extractValue(v.weight))
-            .filter(Boolean))] as string[];
-          
-          const beans = [...new Set(data.variations
-            .map((v: ProductVariation) => extractValue(v.beans))
-            .filter(Boolean))] as string[];
-          
-          const additions = [...new Set(data.variations
-            .map((v: ProductVariation) => extractValue(v.additions))
-            .filter(Boolean))] as string[];
-          
-          console.log('Available options:', { weights, beans, additions });
-          
-          setAvailableWeights(weights);
-          setAvailableBeans(beans);
-          setAvailableAdditions(additions);
-          
-          // Select the first variation by default
+          // Select the first variation as default
           setSelectedVariation(data.variations[0]);
-          console.log('Initially selected variation:', data.variations[0]);
+          
+          // Set variation image if available
+          if (data.variations[0].imageUrl) {
+            setVariationImage(data.variations[0].imageUrl);
+          }
         }
         
         // In a real app, this would be an API call to increment the view count
@@ -238,7 +262,54 @@ export default function ProductPage() {
     };
     
     fetchProduct();
-  }, [slug]);
+  }, [slug, language]);
+  
+  // Extract available variation options and update when product or language changes
+  useEffect(() => {
+    if (product?.variations) {
+      console.log(`Extracting variations for language: ${language}`);
+      
+      // Extract available options with the current language
+      const weights = [...new Set(product.variations
+        .map(v => extractValue(v.weight || v.size, language))
+        .filter(Boolean))] as string[];
+      
+      const beans = [...new Set(product.variations
+        .map(v => extractValue(v.beans, language))
+        .filter(Boolean))] as string[];
+      
+      const additions = [...new Set(product.variations
+        .map(v => extractValue(v.additions || v.type, language))
+        .filter(Boolean))] as string[];
+      
+      console.log('Available options by language:', {
+        language,
+        weights,
+        beans,
+        additions
+      });
+      
+      // Log raw addition objects for debugging
+      console.log('Raw addition objects:', product.variations.map(v => v.additions || v.type));
+      
+      // Update available options
+      setAvailableWeights(weights);
+      setAvailableBeans(beans);
+      setAvailableAdditions(additions);
+      
+      // If there's a selected variation, update its display values
+      if (selectedVariation) {
+        console.log('Updating selected variation display values for language:', language);
+        
+        // Force a re-selection of the current variation with the new language context
+        const currentVariationId = selectedVariation.id;
+        const updatedVariation = product.variations.find(v => v.id === currentVariationId) || selectedVariation;
+        
+        // This will trigger a re-render with the proper translated values
+        setSelectedVariation({...updatedVariation});
+      }
+    }
+  }, [product, language]);
   
   const fetchRecommendedProducts = async (currentProduct: Product) => {
     try {
@@ -326,9 +397,9 @@ export default function ProductPage() {
     setProduct(dummyProduct);
     
     // Extract unique variation options
-    const weights = [...new Set(dummyProduct.variations?.map(v => extractValue(v.weight)).filter(Boolean))] as string[];
-    const beans = [...new Set(dummyProduct.variations?.map(v => extractValue(v.beans)).filter(Boolean))] as string[];
-    const additions = [...new Set(dummyProduct.variations?.map(v => extractValue(v.additions)).filter(Boolean))] as string[];
+    const weights = [...new Set(dummyProduct.variations?.map(v => extractValue(v.weight, language)).filter(Boolean))] as string[];
+    const beans = [...new Set(dummyProduct.variations?.map(v => extractValue(v.beans, language)).filter(Boolean))] as string[];
+    const additions = [...new Set(dummyProduct.variations?.map(v => extractValue(v.additions, language)).filter(Boolean))] as string[];
     
     console.log('Dummy product variations options:', { weights, beans, additions });
     
@@ -409,13 +480,13 @@ export default function ProductPage() {
   const handleVariationChange = (type: 'weight' | 'beans' | 'additions', value: string) => {
     if (!product || !product.variations) return;
     
-    console.log(`Changing ${type} to ${value}`);
+    console.log(`Changing ${type} to ${value} (Language: ${language})`);
     
     // Find a matching variation based on current selection plus the new change
     const newSelection = {
-      weight: selectedVariation?.weight ? extractValue(selectedVariation.weight) : '',
-      beans: selectedVariation?.beans ? extractValue(selectedVariation.beans) : '',
-      additions: selectedVariation?.additions ? extractValue(selectedVariation.additions) : '',
+      weight: selectedVariation?.weight ? extractValue(selectedVariation.weight, language) : '',
+      beans: selectedVariation?.beans ? extractValue(selectedVariation.beans, language) : '',
+      additions: selectedVariation?.additions ? extractValue(selectedVariation.additions, language) : '',
       [type]: value
     };
     
@@ -424,9 +495,9 @@ export default function ProductPage() {
     // Find the best matching variation by comparing string values or object names/displayNames
     const bestMatch = product.variations.find(variation => {
       // Extract the variation properties for easier comparison
-      const variationWeight = extractValue(variation.weight) || extractValue(variation.size);
-      const variationBeans = extractValue(variation.beans);
-      const variationAdditions = extractValue(variation.additions) || extractValue(variation.type);
+      const variationWeight = extractValue(variation.weight || variation.size, language);
+      const variationBeans = extractValue(variation.beans, language);
+      const variationAdditions = extractValue(variation.additions || variation.type, language);
       
       console.log('Checking variation:', {
         variationId: variation.id,
@@ -472,12 +543,14 @@ export default function ProductPage() {
       const partialMatches = product.variations.filter(variation => {
         let variationProp;
         if (type === 'weight') {
-          variationProp = extractValue(variation.weight) || extractValue(variation.size);
+          variationProp = extractValue(variation.weight || variation.size, language);
         } else if (type === 'additions') {
-          variationProp = extractValue(variation.additions) || extractValue(variation.type);
+          variationProp = extractValue(variation.additions || variation.type, language);
         } else {
-          variationProp = extractValue(variation[type]);
+          variationProp = extractValue(variation[type], language);
         }
+        
+        // Case insensitive comparison
         return variationProp.toLowerCase() === value.toLowerCase();
       });
       
@@ -516,9 +589,9 @@ export default function ProductPage() {
     
     // Format the selected variation options for display
     const variationOptions = [
-      extractValue(selectedVariation?.weight),
-      extractValue(selectedVariation?.beans),
-      extractValue(selectedVariation?.additions)
+      extractValue(selectedVariation?.weight, language),
+      extractValue(selectedVariation?.beans, language),
+      extractValue(selectedVariation?.additions, language)
     ].filter(Boolean).join(', ');
     
     // Add item to cart using our cart context
@@ -530,9 +603,9 @@ export default function ProductPage() {
       quantity: quantity,
       image: product.imageUrl || product.images[0] || '',
       variation: {
-        weight: extractValue(selectedVariation?.weight),
-        beans: extractValue(selectedVariation?.beans),
-        additions: extractValue(selectedVariation?.additions)
+        weight: extractValue(selectedVariation?.weight, language),
+        beans: extractValue(selectedVariation?.beans, language),
+        additions: extractValue(selectedVariation?.additions, language)
       }
     });
     
@@ -555,9 +628,9 @@ export default function ProductPage() {
       quantity: quantity,
       image: product.imageUrl || product.images[0] || '',
       variation: {
-        weight: extractValue(selectedVariation?.weight),
-        beans: extractValue(selectedVariation?.beans),
-        additions: extractValue(selectedVariation?.additions)
+        weight: extractValue(selectedVariation?.weight, language),
+        beans: extractValue(selectedVariation?.beans, language),
+        additions: extractValue(selectedVariation?.additions, language)
       }
     });
     
@@ -805,7 +878,7 @@ export default function ProductPage() {
                         key={weight}
                         onClick={() => handleVariationChange('weight', weight)}
                         className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors
-                          ${extractValue(selectedVariation?.weight) === weight
+                          ${extractValue(selectedVariation?.weight, language) === weight
                             ? 'bg-black text-white border-black' 
                             : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                           }`}
@@ -827,7 +900,7 @@ export default function ProductPage() {
                         key={bean}
                         onClick={() => handleVariationChange('beans', bean)}
                         className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors
-                          ${extractValue(selectedVariation?.beans) === bean
+                          ${extractValue(selectedVariation?.beans, language) === bean
                             ? 'bg-black text-white border-black' 
                             : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                           }`}
@@ -844,19 +917,25 @@ export default function ProductPage() {
                 <div>
                   <h2 className="text-lg font-medium mb-2">{t('additions', 'Additions')}</h2>
                   <div className="flex flex-wrap gap-2">
-                    {availableAdditions.map((addition) => (
-                      <button 
-                        key={addition}
-                        onClick={() => handleVariationChange('additions', addition)}
-                        className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors
-                          ${extractValue(selectedVariation?.additions) === addition
-                            ? 'bg-black text-white border-black' 
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                          }`}
-                      >
-                        {addition}
-                      </button>
-                    ))}
+                    {availableAdditions.map((addition) => {
+                      // Log details of each addition for debugging
+                      console.log(`Rendering addition: ${addition} (Language: ${language})`);
+                      
+                      return (
+                        <button 
+                          key={addition}
+                          onClick={() => handleVariationChange('additions', addition)}
+                          className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors
+                            ${extractValue(selectedVariation?.additions, language) === addition ||
+                              extractValue(selectedVariation?.type, language) === addition
+                              ? 'bg-black text-white border-black' 
+                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            }`}
+                        >
+                          {addition}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}

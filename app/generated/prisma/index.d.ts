@@ -18897,8 +18897,11 @@ export namespace Prisma {
   export type SliderMinAggregateOutputType = {
     id: string | null
     title: string | null
+    titleAr: string | null
     subtitle: string | null
+    subtitleAr: string | null
     buttonText: string | null
+    buttonTextAr: string | null
     buttonLink: string | null
     backgroundColor: string | null
     imageUrl: string | null
@@ -18911,8 +18914,11 @@ export namespace Prisma {
   export type SliderMaxAggregateOutputType = {
     id: string | null
     title: string | null
+    titleAr: string | null
     subtitle: string | null
+    subtitleAr: string | null
     buttonText: string | null
+    buttonTextAr: string | null
     buttonLink: string | null
     backgroundColor: string | null
     imageUrl: string | null
@@ -18925,8 +18931,11 @@ export namespace Prisma {
   export type SliderCountAggregateOutputType = {
     id: number
     title: number
+    titleAr: number
     subtitle: number
+    subtitleAr: number
     buttonText: number
+    buttonTextAr: number
     buttonLink: number
     backgroundColor: number
     imageUrl: number
@@ -18949,8 +18958,11 @@ export namespace Prisma {
   export type SliderMinAggregateInputType = {
     id?: true
     title?: true
+    titleAr?: true
     subtitle?: true
+    subtitleAr?: true
     buttonText?: true
+    buttonTextAr?: true
     buttonLink?: true
     backgroundColor?: true
     imageUrl?: true
@@ -18963,8 +18975,11 @@ export namespace Prisma {
   export type SliderMaxAggregateInputType = {
     id?: true
     title?: true
+    titleAr?: true
     subtitle?: true
+    subtitleAr?: true
     buttonText?: true
+    buttonTextAr?: true
     buttonLink?: true
     backgroundColor?: true
     imageUrl?: true
@@ -18977,8 +18992,11 @@ export namespace Prisma {
   export type SliderCountAggregateInputType = {
     id?: true
     title?: true
+    titleAr?: true
     subtitle?: true
+    subtitleAr?: true
     buttonText?: true
+    buttonTextAr?: true
     buttonLink?: true
     backgroundColor?: true
     imageUrl?: true
@@ -19078,8 +19096,11 @@ export namespace Prisma {
   export type SliderGroupByOutputType = {
     id: string
     title: string
+    titleAr: string | null
     subtitle: string
+    subtitleAr: string | null
     buttonText: string
+    buttonTextAr: string | null
     buttonLink: string
     backgroundColor: string
     imageUrl: string
@@ -19111,8 +19132,11 @@ export namespace Prisma {
   export type SliderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     title?: boolean
+    titleAr?: boolean
     subtitle?: boolean
+    subtitleAr?: boolean
     buttonText?: boolean
+    buttonTextAr?: boolean
     buttonLink?: boolean
     backgroundColor?: boolean
     imageUrl?: boolean
@@ -19125,8 +19149,11 @@ export namespace Prisma {
   export type SliderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     title?: boolean
+    titleAr?: boolean
     subtitle?: boolean
+    subtitleAr?: boolean
     buttonText?: boolean
+    buttonTextAr?: boolean
     buttonLink?: boolean
     backgroundColor?: boolean
     imageUrl?: boolean
@@ -19139,8 +19166,11 @@ export namespace Prisma {
   export type SliderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     title?: boolean
+    titleAr?: boolean
     subtitle?: boolean
+    subtitleAr?: boolean
     buttonText?: boolean
+    buttonTextAr?: boolean
     buttonLink?: boolean
     backgroundColor?: boolean
     imageUrl?: boolean
@@ -19153,8 +19183,11 @@ export namespace Prisma {
   export type SliderSelectScalar = {
     id?: boolean
     title?: boolean
+    titleAr?: boolean
     subtitle?: boolean
+    subtitleAr?: boolean
     buttonText?: boolean
+    buttonTextAr?: boolean
     buttonLink?: boolean
     backgroundColor?: boolean
     imageUrl?: boolean
@@ -19164,7 +19197,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type SliderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "subtitle" | "buttonText" | "buttonLink" | "backgroundColor" | "imageUrl" | "order" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["slider"]>
+  export type SliderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "titleAr" | "subtitle" | "subtitleAr" | "buttonText" | "buttonTextAr" | "buttonLink" | "backgroundColor" | "imageUrl" | "order" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["slider"]>
 
   export type $SliderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Slider"
@@ -19172,8 +19205,11 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       title: string
+      titleAr: string | null
       subtitle: string
+      subtitleAr: string | null
       buttonText: string
+      buttonTextAr: string | null
       buttonLink: string
       backgroundColor: string
       imageUrl: string
@@ -19606,8 +19642,11 @@ export namespace Prisma {
   interface SliderFieldRefs {
     readonly id: FieldRef<"Slider", 'String'>
     readonly title: FieldRef<"Slider", 'String'>
+    readonly titleAr: FieldRef<"Slider", 'String'>
     readonly subtitle: FieldRef<"Slider", 'String'>
+    readonly subtitleAr: FieldRef<"Slider", 'String'>
     readonly buttonText: FieldRef<"Slider", 'String'>
+    readonly buttonTextAr: FieldRef<"Slider", 'String'>
     readonly buttonLink: FieldRef<"Slider", 'String'>
     readonly backgroundColor: FieldRef<"Slider", 'String'>
     readonly imageUrl: FieldRef<"Slider", 'String'>
@@ -20210,8 +20249,11 @@ export namespace Prisma {
   export const SliderScalarFieldEnum: {
     id: 'id',
     title: 'title',
+    titleAr: 'titleAr',
     subtitle: 'subtitle',
+    subtitleAr: 'subtitleAr',
     buttonText: 'buttonText',
+    buttonTextAr: 'buttonTextAr',
     buttonLink: 'buttonLink',
     backgroundColor: 'backgroundColor',
     imageUrl: 'imageUrl',
@@ -21498,8 +21540,11 @@ export namespace Prisma {
     NOT?: SliderWhereInput | SliderWhereInput[]
     id?: StringFilter<"Slider"> | string
     title?: StringFilter<"Slider"> | string
+    titleAr?: StringNullableFilter<"Slider"> | string | null
     subtitle?: StringFilter<"Slider"> | string
+    subtitleAr?: StringNullableFilter<"Slider"> | string | null
     buttonText?: StringFilter<"Slider"> | string
+    buttonTextAr?: StringNullableFilter<"Slider"> | string | null
     buttonLink?: StringFilter<"Slider"> | string
     backgroundColor?: StringFilter<"Slider"> | string
     imageUrl?: StringFilter<"Slider"> | string
@@ -21512,8 +21557,11 @@ export namespace Prisma {
   export type SliderOrderByWithRelationInput = {
     id?: SortOrder
     title?: SortOrder
+    titleAr?: SortOrderInput | SortOrder
     subtitle?: SortOrder
+    subtitleAr?: SortOrderInput | SortOrder
     buttonText?: SortOrder
+    buttonTextAr?: SortOrderInput | SortOrder
     buttonLink?: SortOrder
     backgroundColor?: SortOrder
     imageUrl?: SortOrder
@@ -21529,8 +21577,11 @@ export namespace Prisma {
     OR?: SliderWhereInput[]
     NOT?: SliderWhereInput | SliderWhereInput[]
     title?: StringFilter<"Slider"> | string
+    titleAr?: StringNullableFilter<"Slider"> | string | null
     subtitle?: StringFilter<"Slider"> | string
+    subtitleAr?: StringNullableFilter<"Slider"> | string | null
     buttonText?: StringFilter<"Slider"> | string
+    buttonTextAr?: StringNullableFilter<"Slider"> | string | null
     buttonLink?: StringFilter<"Slider"> | string
     backgroundColor?: StringFilter<"Slider"> | string
     imageUrl?: StringFilter<"Slider"> | string
@@ -21543,8 +21594,11 @@ export namespace Prisma {
   export type SliderOrderByWithAggregationInput = {
     id?: SortOrder
     title?: SortOrder
+    titleAr?: SortOrderInput | SortOrder
     subtitle?: SortOrder
+    subtitleAr?: SortOrderInput | SortOrder
     buttonText?: SortOrder
+    buttonTextAr?: SortOrderInput | SortOrder
     buttonLink?: SortOrder
     backgroundColor?: SortOrder
     imageUrl?: SortOrder
@@ -21565,8 +21619,11 @@ export namespace Prisma {
     NOT?: SliderScalarWhereWithAggregatesInput | SliderScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Slider"> | string
     title?: StringWithAggregatesFilter<"Slider"> | string
+    titleAr?: StringNullableWithAggregatesFilter<"Slider"> | string | null
     subtitle?: StringWithAggregatesFilter<"Slider"> | string
+    subtitleAr?: StringNullableWithAggregatesFilter<"Slider"> | string | null
     buttonText?: StringWithAggregatesFilter<"Slider"> | string
+    buttonTextAr?: StringNullableWithAggregatesFilter<"Slider"> | string | null
     buttonLink?: StringWithAggregatesFilter<"Slider"> | string
     backgroundColor?: StringWithAggregatesFilter<"Slider"> | string
     imageUrl?: StringWithAggregatesFilter<"Slider"> | string
@@ -22818,8 +22875,11 @@ export namespace Prisma {
   export type SliderCreateInput = {
     id?: string
     title: string
+    titleAr?: string | null
     subtitle: string
+    subtitleAr?: string | null
     buttonText: string
+    buttonTextAr?: string | null
     buttonLink: string
     backgroundColor?: string
     imageUrl: string
@@ -22832,8 +22892,11 @@ export namespace Prisma {
   export type SliderUncheckedCreateInput = {
     id?: string
     title: string
+    titleAr?: string | null
     subtitle: string
+    subtitleAr?: string | null
     buttonText: string
+    buttonTextAr?: string | null
     buttonLink: string
     backgroundColor?: string
     imageUrl: string
@@ -22846,8 +22909,11 @@ export namespace Prisma {
   export type SliderUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
+    titleAr?: NullableStringFieldUpdateOperationsInput | string | null
     subtitle?: StringFieldUpdateOperationsInput | string
+    subtitleAr?: NullableStringFieldUpdateOperationsInput | string | null
     buttonText?: StringFieldUpdateOperationsInput | string
+    buttonTextAr?: NullableStringFieldUpdateOperationsInput | string | null
     buttonLink?: StringFieldUpdateOperationsInput | string
     backgroundColor?: StringFieldUpdateOperationsInput | string
     imageUrl?: StringFieldUpdateOperationsInput | string
@@ -22860,8 +22926,11 @@ export namespace Prisma {
   export type SliderUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
+    titleAr?: NullableStringFieldUpdateOperationsInput | string | null
     subtitle?: StringFieldUpdateOperationsInput | string
+    subtitleAr?: NullableStringFieldUpdateOperationsInput | string | null
     buttonText?: StringFieldUpdateOperationsInput | string
+    buttonTextAr?: NullableStringFieldUpdateOperationsInput | string | null
     buttonLink?: StringFieldUpdateOperationsInput | string
     backgroundColor?: StringFieldUpdateOperationsInput | string
     imageUrl?: StringFieldUpdateOperationsInput | string
@@ -22874,8 +22943,11 @@ export namespace Prisma {
   export type SliderCreateManyInput = {
     id?: string
     title: string
+    titleAr?: string | null
     subtitle: string
+    subtitleAr?: string | null
     buttonText: string
+    buttonTextAr?: string | null
     buttonLink: string
     backgroundColor?: string
     imageUrl: string
@@ -22888,8 +22960,11 @@ export namespace Prisma {
   export type SliderUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
+    titleAr?: NullableStringFieldUpdateOperationsInput | string | null
     subtitle?: StringFieldUpdateOperationsInput | string
+    subtitleAr?: NullableStringFieldUpdateOperationsInput | string | null
     buttonText?: StringFieldUpdateOperationsInput | string
+    buttonTextAr?: NullableStringFieldUpdateOperationsInput | string | null
     buttonLink?: StringFieldUpdateOperationsInput | string
     backgroundColor?: StringFieldUpdateOperationsInput | string
     imageUrl?: StringFieldUpdateOperationsInput | string
@@ -22902,8 +22977,11 @@ export namespace Prisma {
   export type SliderUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
+    titleAr?: NullableStringFieldUpdateOperationsInput | string | null
     subtitle?: StringFieldUpdateOperationsInput | string
+    subtitleAr?: NullableStringFieldUpdateOperationsInput | string | null
     buttonText?: StringFieldUpdateOperationsInput | string
+    buttonTextAr?: NullableStringFieldUpdateOperationsInput | string | null
     buttonLink?: StringFieldUpdateOperationsInput | string
     backgroundColor?: StringFieldUpdateOperationsInput | string
     imageUrl?: StringFieldUpdateOperationsInput | string
@@ -23931,8 +24009,11 @@ export namespace Prisma {
   export type SliderCountOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
+    titleAr?: SortOrder
     subtitle?: SortOrder
+    subtitleAr?: SortOrder
     buttonText?: SortOrder
+    buttonTextAr?: SortOrder
     buttonLink?: SortOrder
     backgroundColor?: SortOrder
     imageUrl?: SortOrder
@@ -23949,8 +24030,11 @@ export namespace Prisma {
   export type SliderMaxOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
+    titleAr?: SortOrder
     subtitle?: SortOrder
+    subtitleAr?: SortOrder
     buttonText?: SortOrder
+    buttonTextAr?: SortOrder
     buttonLink?: SortOrder
     backgroundColor?: SortOrder
     imageUrl?: SortOrder
@@ -23963,8 +24047,11 @@ export namespace Prisma {
   export type SliderMinOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
+    titleAr?: SortOrder
     subtitle?: SortOrder
+    subtitleAr?: SortOrder
     buttonText?: SortOrder
+    buttonTextAr?: SortOrder
     buttonLink?: SortOrder
     backgroundColor?: SortOrder
     imageUrl?: SortOrder

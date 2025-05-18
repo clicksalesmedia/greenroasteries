@@ -293,8 +293,11 @@ exports.Prisma.BundleItemScalarFieldEnum = {
 exports.Prisma.SliderScalarFieldEnum = {
   id: 'id',
   title: 'title',
+  titleAr: 'titleAr',
   subtitle: 'subtitle',
+  subtitleAr: 'subtitleAr',
   buttonText: 'buttonText',
+  buttonTextAr: 'buttonTextAr',
   buttonLink: 'buttonLink',
   backgroundColor: 'backgroundColor',
   imageUrl: 'imageUrl',

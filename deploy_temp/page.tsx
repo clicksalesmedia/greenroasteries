@@ -13,7 +13,7 @@ interface Product {
   name: string;
   nameAr?: string;
   price: number;
-  images: Array<{url: string} | string>;
+  images: string[];
   imageUrl?: string;
   slug: string;
   rating?: number;
@@ -82,15 +82,6 @@ export default function Home() {
   // Offers State
   const [offers, setOffers] = useState<Offer[]>([]);
   const [offersLoading, setOffersLoading] = useState(true);
-
-  // Slide change handlers
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev === heroSlides.length - 1 ? 0 : prev + 1));
-  };
-  
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? heroSlides.length - 1 : prev - 1));
-  };
 
   // Fetch sliders
   useEffect(() => {
@@ -212,232 +203,330 @@ export default function Home() {
   // Auto slide change - only start once slides are loaded
   useEffect(() => {
     if (heroSlides.length > 0) {
-      const slideInterval = setInterval(() => {
+      const interval = setInterval(() => {
         nextSlide();
       }, 5000);
       
-      return () => clearInterval(slideInterval);
+      return () => clearInterval(interval);
     }
-  }, [currentSlide, heroSlides.length, nextSlide]);
+  }, [currentSlide, heroSlides.length]);
+  
+  // Slide change handlers
+  const nextSlide = () => {
+    if (heroSlides.length === 0) return;
+    setDirection(1);
+    setCurrentSlide((prev) => (prev === heroSlides.length - 1 ? 0 : prev + 1));
+  };
+  
+  const prevSlide = () => {
+    if (heroSlides.length === 0) return;
+    setDirection(-1);
+    setCurrentSlide((prev) => (prev === 0 ? heroSlides.length - 1 : prev - 1));
+  };
 
   // Fetch featured products
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       try {
         setLoading(true);
-        console.log('Fetching featured products...');
-        
         // Fetch featured products from API
-        const response = await fetch('/api/products?limit=24&featured=true', {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          },
-        });
+        const response = await fetch('/api/products?limit=24&featured=true');
         
         if (response.ok) {
           const data = await response.json();
-          console.log('Fetched featured products:', data.length);
           
-          if (data && data.length > 0) {
-            // Process and normalize product data from the API
-            const processedProducts = data.map((product: any) => {
-              // Handle and normalize the images data
-              let imageUrl = product.imageUrl || '';
-              
-              // If images array exists and has items
-              if (product.images && product.images.length > 0) {
-                // Handle different image formats that might come from the database
-                const firstImage = product.images[0];
-                if (typeof firstImage === 'string') {
-                  imageUrl = firstImage || imageUrl;
-                } else if (firstImage && typeof firstImage === 'object') {
-                  // It could be a ProductImage object from the database
-                  if (firstImage.url) {
-                    imageUrl = firstImage.url;
-                  }
-                }
-              }
-              
-              // Create a normalized product object
-              return {
-                id: product.id,
-                name: product.name || '',
-                nameAr: product.nameAr || '',
-                price: product.price || 0,
-                // Store the original images array for reference
-                images: product.images || [],
-                // Use the processed imageUrl
-                imageUrl: imageUrl || '/images/coffee-placeholder.jpg',
-                slug: product.slug || product.name?.toLowerCase().replace(/\s+/g, '-') || 'product',
-                rating: product.rating || 0,
-                category: product.category || ''
-              };
-            });
+          // Ensure slugs are present or generated if missing
+          const productsWithSlugs = data.map((product: Product) => ({
+            ...product,
+            slug: product.slug || product.name.toLowerCase().replace(/\s+/g, '-') // Generate slug if missing
+          }));
 
-            // Shuffle products for random order on each refresh and limit to 12
-            const shuffledProducts = [...processedProducts].sort(() => Math.random() - 0.5).slice(0, 12);
-            console.log('Setting featured products:', shuffledProducts.length);
-            setFeaturedProducts(shuffledProducts);
-          } else {
-            console.warn('No featured products returned from API, using fallback data');
-            // Use fallback data if no products returned
-            setFeaturedProducts(getFallbackProducts());
-          }
+          // Shuffle products for random order on each refresh
+          const shuffledProducts = [...productsWithSlugs].sort(() => Math.random() - 0.5).slice(0, 12);
+          setFeaturedProducts(shuffledProducts);
         } else {
-          // If API call fails, log the error and use dummy data
-          console.error('Failed to fetch products, API returned:', response.status, response.statusText);
-          const responseText = await response.text();
-          console.error('Response body:', responseText);
-          setFeaturedProducts(getFallbackProducts());
+          // If API call fails, use dummy data
+          const dummyProducts = [
+            {
+              id: 'prod-1',
+              name: 'Ethiopian Yirgacheffe',
+              nameAr: 'إيثيوبي صرفيتي',
+              price: 24.99,
+              images: ['/images/coffee-1.jpg'],
+              imageUrl: '/images/coffee-1.jpg',
+              slug: 'ethiopian-yirgacheffe',
+              rating: 4.8,
+              category: { name: 'Single Origin', nameAr: 'أحادي المصدر' }
+            },
+            {
+              id: 'prod-2',
+              name: 'Colombian Supremo',
+              nameAr: 'كولومبي سوبريمو',
+              price: 19.99,
+              images: ['/images/coffee-2.jpg'],
+              imageUrl: '/images/coffee-2.jpg',
+              slug: 'colombian-supremo',
+              rating: 4.6,
+              category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
+            },
+            {
+              id: 'prod-3',
+              name: 'Espresso Blend',
+              nameAr: 'مزيج إسبريسو',
+              price: 22.99,
+              images: ['/images/coffee-3.jpg'],
+              imageUrl: '/images/coffee-3.jpg',
+              slug: 'espresso-blend',
+              rating: 4.9,
+              category: { name: 'Espresso Roast', nameAr: 'تحميص إسبريسو' }
+            },
+            {
+              id: 'prod-4',
+              name: 'Sumatra Mandheling',
+              nameAr: 'سوماترا ماندهلينغ',
+              price: 26.99,
+              images: ['/images/coffee-4.jpg'],
+              imageUrl: '/images/coffee-4.jpg',
+              slug: 'sumatra-mandheling',
+              rating: 4.7,
+              category: { name: 'Dark Roast', nameAr: 'تحميص داكن' }
+            },
+            {
+              id: 'prod-5',
+              name: 'Guatemalan Antigua',
+              nameAr: 'غواتيمالي أنتيغوا',
+              price: 23.99,
+              images: ['/images/coffee-1.jpg'],
+              imageUrl: '/images/coffee-1.jpg',
+              slug: 'guatemalan-antigua',
+              rating: 4.5,
+              category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
+            },
+            {
+              id: 'prod-6',
+              name: 'Kenya AA',
+              nameAr: 'كيني أا',
+              price: 27.99,
+              images: ['/images/coffee-2.jpg'],
+              imageUrl: '/images/coffee-2.jpg',
+              slug: 'kenya-aa',
+              rating: 4.8,
+              category: { name: 'Light Roast', nameAr: 'تحميص فاتح' }
+            },
+            {
+              id: 'prod-7',
+              name: 'Costa Rican Tarrazu',
+              nameAr: 'كوستاريكان تارازو',
+              price: 25.99,
+              images: ['/images/coffee-3.jpg'],
+              imageUrl: '/images/coffee-3.jpg',
+              slug: 'costa-rican-tarrazu',
+              rating: 4.7,
+              category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
+            },
+            {
+              id: 'prod-8',
+              name: 'French Roast',
+              nameAr: 'فرنسي حبوب',
+              price: 21.99,
+              images: ['/images/coffee-4.jpg'],
+              imageUrl: '/images/coffee-4.jpg',
+              slug: 'french-roast',
+              rating: 4.5,
+              category: { name: 'Dark Roast', nameAr: 'تحميص داكن' }
+            },
+            {
+              id: 'prod-9',
+              name: 'Jamaican Blue Mountain',
+              nameAr: 'جامايكي جبل المحيط',
+              price: 39.99,
+              images: ['/images/coffee-1.jpg'],
+              imageUrl: '/images/coffee-1.jpg',
+              slug: 'jamaican-blue-mountain',
+              rating: 4.9,
+              category: { name: 'Premium', nameAr: 'ممتاز' }
+            },
+            {
+              id: 'prod-10',
+              name: 'Breakfast Blend',
+              nameAr: 'مزيج صباحي',
+              price: 18.99,
+              images: ['/images/coffee-2.jpg'],
+              imageUrl: '/images/coffee-2.jpg',
+              slug: 'breakfast-blend',
+              rating: 4.4,
+              category: { name: 'Light Roast', nameAr: 'تحميص فاتح' }
+            },
+            {
+              id: 'prod-11',
+              name: 'Mexican Chiapas',
+              nameAr: 'تشيباس مكسيكي',
+              price: 22.99,
+              images: ['/images/coffee-3.jpg'],
+              imageUrl: '/images/coffee-3.jpg',
+              slug: 'mexican-chiapas',
+              rating: 4.6,
+              category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
+            },
+            {
+              id: 'prod-12',
+              name: 'Italian Espresso',
+              nameAr: 'إسبريسو إيطالي',
+              price: 23.99,
+              images: ['/images/coffee-4.jpg'],
+              imageUrl: '/images/coffee-4.jpg',
+              slug: 'italian-espresso',
+              rating: 4.8,
+              category: { name: 'Espresso', nameAr: 'إسبريسو' }
+            }
+          ];
+          // Shuffle dummy products for random order
+          const shuffledDummyProducts = [...dummyProducts].sort(() => Math.random() - 0.5).slice(0, 12);
+          setFeaturedProducts(shuffledDummyProducts);
         }
       } catch (error) {
         console.error('Error fetching featured products:', error);
-        // Set dummy products in case of error
-        setFeaturedProducts(getFallbackProducts());
+        // Set dummy products in case of error and shuffle them
+        const errorDummyProducts = [
+          {
+            id: 'prod-1',
+            name: 'Ethiopian Yirgacheffe',
+            nameAr: 'إيثيوبي صرفيتي',
+            price: 24.99,
+            images: ['/images/coffee-1.jpg'],
+            imageUrl: '/images/coffee-1.jpg',
+            slug: 'ethiopian-yirgacheffe',
+            rating: 4.8,
+            category: { name: 'Single Origin', nameAr: 'أحادي المصدر' }
+          },
+          {
+            id: 'prod-2',
+            name: 'Colombian Supremo',
+            nameAr: 'كولومبي سوبريمو',
+            price: 19.99,
+            images: ['/images/coffee-2.jpg'],
+            imageUrl: '/images/coffee-2.jpg',
+            slug: 'colombian-supremo',
+            rating: 4.6,
+            category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
+          },
+          {
+            id: 'prod-3',
+            name: 'Espresso Blend',
+            nameAr: 'مزيج إسبريسو',
+            price: 22.99,
+            images: ['/images/coffee-3.jpg'],
+            imageUrl: '/images/coffee-3.jpg',
+            slug: 'espresso-blend',
+            rating: 4.9,
+            category: { name: 'Espresso Roast', nameAr: 'تحميص إسبريسو' }
+          },
+          {
+            id: 'prod-4',
+            name: 'Sumatra Mandheling',
+            nameAr: 'سوماترا ماندهلينغ',
+            price: 26.99,
+            images: ['/images/coffee-4.jpg'],
+            imageUrl: '/images/coffee-4.jpg',
+            slug: 'sumatra-mandheling',
+            rating: 4.7,
+            category: { name: 'Dark Roast', nameAr: 'تحميص داكن' }
+          },
+          {
+            id: 'prod-5',
+            name: 'Brazilian Santos',
+            nameAr: 'سانتوس برازيلي',
+            price: 21.99,
+            images: ['/images/coffee-1.jpg'],
+            imageUrl: '/images/coffee-1.jpg',
+            slug: 'brazilian-santos',
+            rating: 4.5,
+            category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
+          },
+          {
+            id: 'prod-6',
+            name: 'Kenya AA',
+            nameAr: 'كيني أا',
+            price: 27.99,
+            images: ['/images/coffee-2.jpg'],
+            imageUrl: '/images/coffee-2.jpg',
+            slug: 'kenya-aa',
+            rating: 4.8,
+            category: { name: 'Light Roast', nameAr: 'تحميص فاتح' }
+          },
+          {
+            id: 'prod-7',
+            name: 'Costa Rican Tarrazu',
+            nameAr: 'كوستاريكان تارازو',
+            price: 25.99,
+            images: ['/images/coffee-3.jpg'],
+            imageUrl: '/images/coffee-3.jpg',
+            slug: 'costa-rican-tarrazu',
+            rating: 4.7,
+            category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
+          },
+          {
+            id: 'prod-8',
+            name: 'French Roast',
+            nameAr: 'فرنسي حبوب',
+            price: 21.99,
+            images: ['/images/coffee-4.jpg'],
+            imageUrl: '/images/coffee-4.jpg',
+            slug: 'french-roast',
+            rating: 4.5,
+            category: { name: 'Dark Roast', nameAr: 'تحميص داكن' }
+          },
+          {
+            id: 'prod-9',
+            name: 'Jamaican Blue Mountain',
+            nameAr: 'جامايكي جبل المحيط',
+            price: 39.99,
+            images: ['/images/coffee-1.jpg'],
+            imageUrl: '/images/coffee-1.jpg',
+            slug: 'jamaican-blue-mountain',
+            rating: 4.9,
+            category: { name: 'Premium', nameAr: 'ممتاز' }
+          },
+          {
+            id: 'prod-10',
+            name: 'Breakfast Blend',
+            nameAr: 'مزيج صباحي',
+            price: 18.99,
+            images: ['/images/coffee-2.jpg'],
+            imageUrl: '/images/coffee-2.jpg',
+            slug: 'breakfast-blend',
+            rating: 4.4,
+            category: { name: 'Light Roast', nameAr: 'تحميص فاتح' }
+          },
+          {
+            id: 'prod-11',
+            name: 'Mexican Chiapas',
+            nameAr: 'تشيباس مكسيكي',
+            price: 22.99,
+            images: ['/images/coffee-3.jpg'],
+            imageUrl: '/images/coffee-3.jpg',
+            slug: 'mexican-chiapas',
+            rating: 4.6,
+            category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
+          },
+          {
+            id: 'prod-12',
+            name: 'Italian Espresso',
+            nameAr: 'إسبريسو إيطالي',
+            price: 23.99,
+            images: ['/images/coffee-4.jpg'],
+            imageUrl: '/images/coffee-4.jpg',
+            slug: 'italian-espresso',
+            rating: 4.8,
+            category: { name: 'Espresso', nameAr: 'إسبريسو' }
+          }
+        ];
+        // Shuffle error fallback products
+        const shuffledErrorProducts = [...errorDummyProducts].sort(() => Math.random() - 0.5).slice(0, 12);
+        setFeaturedProducts(shuffledErrorProducts);
       } finally {
         setLoading(false);
       }
-    };
-
-    // Helper function to get fallback products data
-    const getFallbackProducts = () => {
-      const dummyProducts = [
-        {
-          id: 'prod-1',
-          name: 'Ethiopian Yirgacheffe',
-          nameAr: 'إيثيوبي صرفيتي',
-          price: 24.99,
-          images: ['/images/coffee-1.jpg'],
-          imageUrl: '/images/coffee-1.jpg',
-          slug: 'ethiopian-yirgacheffe',
-          rating: 4.8,
-          category: { name: 'Single Origin', nameAr: 'أحادي المصدر' }
-        },
-        {
-          id: 'prod-2',
-          name: 'Colombian Supremo',
-          nameAr: 'كولومبي سوبريمو',
-          price: 19.99,
-          images: ['/images/coffee-2.jpg'],
-          imageUrl: '/images/coffee-2.jpg',
-          slug: 'colombian-supremo',
-          rating: 4.6,
-          category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
-        },
-        {
-          id: 'prod-3',
-          name: 'Espresso Blend',
-          nameAr: 'مزيج إسبريسو',
-          price: 22.99,
-          images: ['/images/coffee-3.jpg'],
-          imageUrl: '/images/coffee-3.jpg',
-          slug: 'espresso-blend',
-          rating: 4.9,
-          category: { name: 'Espresso Roast', nameAr: 'تحميص إسبريسو' }
-        },
-        {
-          id: 'prod-4',
-          name: 'Sumatra Mandheling',
-          nameAr: 'سوماترا ماندهلينغ',
-          price: 26.99,
-          images: ['/images/coffee-4.jpg'],
-          imageUrl: '/images/coffee-4.jpg',
-          slug: 'sumatra-mandheling',
-          rating: 4.7,
-          category: { name: 'Dark Roast', nameAr: 'تحميص داكن' }
-        },
-        {
-          id: 'prod-5',
-          name: 'Guatemalan Antigua',
-          nameAr: 'غواتيمالي أنتيغوا',
-          price: 23.99,
-          images: ['/images/coffee-1.jpg'],
-          imageUrl: '/images/coffee-1.jpg',
-          slug: 'guatemalan-antigua',
-          rating: 4.5,
-          category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
-        },
-        {
-          id: 'prod-6',
-          name: 'Kenya AA',
-          nameAr: 'كيني أا',
-          price: 27.99,
-          images: ['/images/coffee-2.jpg'],
-          imageUrl: '/images/coffee-2.jpg',
-          slug: 'kenya-aa',
-          rating: 4.8,
-          category: { name: 'Light Roast', nameAr: 'تحميص فاتح' }
-        },
-        {
-          id: 'prod-7',
-          name: 'Costa Rican Tarrazu',
-          nameAr: 'كوستاريكان تارازو',
-          price: 25.99,
-          images: ['/images/coffee-3.jpg'],
-          imageUrl: '/images/coffee-3.jpg',
-          slug: 'costa-rican-tarrazu',
-          rating: 4.7,
-          category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
-        },
-        {
-          id: 'prod-8',
-          name: 'French Roast',
-          nameAr: 'فرنسي حبوب',
-          price: 21.99,
-          images: ['/images/coffee-4.jpg'],
-          imageUrl: '/images/coffee-4.jpg',
-          slug: 'french-roast',
-          rating: 4.5,
-          category: { name: 'Dark Roast', nameAr: 'تحميص داكن' }
-        },
-        {
-          id: 'prod-9',
-          name: 'Jamaican Blue Mountain',
-          nameAr: 'جامايكي جبل المحيط',
-          price: 39.99,
-          images: ['/images/coffee-1.jpg'],
-          imageUrl: '/images/coffee-1.jpg',
-          slug: 'jamaican-blue-mountain',
-          rating: 4.9,
-          category: { name: 'Premium', nameAr: 'ممتاز' }
-        },
-        {
-          id: 'prod-10',
-          name: 'Breakfast Blend',
-          nameAr: 'مزيج صباحي',
-          price: 18.99,
-          images: ['/images/coffee-2.jpg'],
-          imageUrl: '/images/coffee-2.jpg',
-          slug: 'breakfast-blend',
-          rating: 4.4,
-          category: { name: 'Light Roast', nameAr: 'تحميص فاتح' }
-        },
-        {
-          id: 'prod-11',
-          name: 'Mexican Chiapas',
-          nameAr: 'تشيباس مكسيكي',
-          price: 22.99,
-          images: ['/images/coffee-3.jpg'],
-          imageUrl: '/images/coffee-3.jpg',
-          slug: 'mexican-chiapas',
-          rating: 4.6,
-          category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
-        },
-        {
-          id: 'prod-12',
-          name: 'Italian Espresso',
-          nameAr: 'إسبريسو إيطالي',
-          price: 23.99,
-          images: ['/images/coffee-4.jpg'],
-          imageUrl: '/images/coffee-4.jpg',
-          slug: 'italian-espresso',
-          rating: 4.8,
-          category: { name: 'Espresso', nameAr: 'إسبريسو' }
-        }
-      ];
-      // Shuffle dummy products for random order
-      return [...dummyProducts].sort(() => Math.random() - 0.5).slice(0, 12);
     };
 
     fetchFeaturedProducts();
@@ -458,28 +547,28 @@ export default function Home() {
         setPromotionBanners([
           {
             id: 'banner-1',
-            title: 'Discover Premium Coffee at GreenRoasteries UAE',
-            titleAr: 'اكتشف القهوة المميزة مع GreenRoasteries في الإمارات',
-            description: 'Experience our single origin beans, roasted to perfection and delivered fresh to your doorstep. Elevate every cup with flavors crafted for true coffee connoisseurs.',
-            descriptionAr: 'استمتع بحبوبنا أحادية المنشأ المحمصة بإتقان والتوصيل الطازج إلى عتبة دارك. ارتقِ بكل فنجان بنكهات صُممت لعشاق القهوة الحقيقيين.',
-            imageUrl: '/images/coffee.webp',
-            buttonText: 'Shop Premium Coffee',
-            buttonTextAr: 'تسوق القهوة المميزة',
+            title: 'Weekend Coffee Special',
+            titleAr: 'Special Coffee Weekend',
+            description: 'Get your favorite blends delivered fresh for the perfect weekend brunch.',
+            descriptionAr: 'احصل على مزيجك المفضل توصيله مباشرة لكيفية الإفطار المثالية الأسبوعية.',
+            imageUrl: '/images/banner-coffee-beans.jpg', // Replace with actual image path
+            buttonText: 'Shop Now',
+            buttonTextAr: 'اشتري الآن',
             buttonLink: '/shop',
             alignment: 'left',
           },
           {
             id: 'banner-2',
-            title: 'Indulge in Luxury & Premium Nuts',
-            titleAr: 'دلل نفسك بالمكسرات الفاخرة والمميزة',
-            description: 'Savor our hand-selected nuts from creamy almonds to crunchy pistachios perfect for gifting or treating yourself to a gourmet snack.',
-            descriptionAr: 'استمتع بتشكيلة مختارة بعناية من المكسرات—من اللوز الكريمي إلى الفستق المقرمش—مثالية للإهداء أو للمتعة الشخصية.',
-            imageUrl: '/images/nuts.webp',
-            buttonText: 'Explore Nut Collection',
-            buttonTextAr: 'استكشف تشكيلتنا',
+            title: 'New Arrival: Single Origin Subscription',
+            titleAr: 'إضافة جديدة: اشتراك جوي أحادي',
+            description: 'Explore the world of coffee, one origin at a time. Delivered to your door.',
+            descriptionAr: 'استكشف عالم القهوة، جويًا واحدًا في المرة الواحدة. توصيل إلى بابك.',
+            imageUrl: '/images/banner-subscription.jpg', // Replace with actual image path
+            buttonText: 'Learn More',
+            buttonTextAr: 'إطلع على المزيد',
             buttonLink: '/subscriptions',
             alignment: 'right',
-          }
+          },
         ]);
         // }
       } catch (error) {
@@ -492,7 +581,7 @@ export default function Home() {
             titleAr: 'Special Coffee Weekend',
             description: 'Get your favorite blends delivered fresh for the perfect weekend brunch.',
             descriptionAr: 'احصل على مزيجك المفضل توصيله مباشرة لكيفية الإفطار المثالية الأسبوعية.',
-            imageUrl: '/images/coffee.webp',
+            imageUrl: '/images/banner-coffee-beans.jpg',
             buttonText: 'Shop Now',
             buttonTextAr: 'اشتري الآن',
             buttonLink: '/shop',
@@ -584,11 +673,7 @@ export default function Home() {
 
   // Get product name based on current language
   const getProductName = (product: Product) => {
-    if (!product) return '';
-    return contentByLang(
-      product.name || '', 
-      product.nameAr || product.name || ''
-    );
+    return contentByLang(product.name, product.nameAr || product.name);
   };
 
   // Get category name based on current language
@@ -610,9 +695,7 @@ export default function Home() {
         'Robusta': 'روبوستا',
         'Blend': 'مزيج',
         'Specialty': 'مميز',
-        'Decaf': 'منزوع الكافيين',
-        'Coffee Beans': 'حبوب القهوة',
-        'Nuts & Dried Fruits': 'المكسرات والفواكه المجففة'
+        'Decaf': 'منزوع الكافيين'
       };
       
       // If in Arabic mode and we have a translation, return it, otherwise return the original
@@ -621,15 +704,7 @@ export default function Home() {
         : category;
     }
     
-    // Handle case where category is an object
-    if (typeof category === 'object') {
-      return contentByLang(
-        category.name || '', 
-        category.nameAr || category.name || ''
-      );
-    }
-    
-    return '';
+    return contentByLang(category.name, category.nameAr || category.name);
   };
 
   // Render rating stars
@@ -767,41 +842,27 @@ export default function Home() {
         
         .slide-content-container { 
             position: absolute;
-            left: 5%; /* For LTR mode */
-            right: auto; 
+            left: 5%; /* Moved to left */
             top: 50%;
             transform: translateY(-50%);
             width: auto;
-            max-width: 42%; 
-            text-align: left; /* Default for LTR */
+            max-width: 42%; /* Adjusted width */
+            text-align: left; /* Text align left */
             z-index: 10;
             padding: 20px;
         }
 
-        /* RTL adjustments for slide content */
-        [dir="rtl"] .slide-content-container {
-            left: auto;
-            right: 5%;
-            text-align: right;
-        }
-
         .slide-image-container { 
             position: absolute;
-            right: 4%; /* For LTR mode */
-            left: auto; 
-            bottom: 0; 
+            right: 4%; /* Moved to right */
+            left: auto; /* Clear left */
+            bottom: 0; /* Aligned to bottom of slide */
             width: 52%; 
-            height: 90%; 
+            height: 90%; /* Image takes more height from bottom */
             display: flex;
             align-items: flex-end; 
             justify-content: center; 
             z-index: 5;
-        }
-
-        /* RTL adjustments for slide image */
-        [dir="rtl"] .slide-image-container {
-            right: auto;
-            left: 4%;
         }
 
         .slide-image { 
@@ -844,14 +905,6 @@ export default function Home() {
             z-index: 20;
             pointer-events: none;
         }
-
-        /* RTL adjustment for slide arrows container */
-        [dir="rtl"] .slide-arrows {
-            left: auto;
-            right: 25px;
-            flex-direction: row-reverse;
-        }
-
         .slide-arrow {
             width: 42px;
             height: 42px;
@@ -865,22 +918,15 @@ export default function Home() {
             transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
             pointer-events: auto;
         }
-        
         .slide-arrow:hover {
             background-color: #333333; /* Changed to a darker gray */
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transform: scale(1.05) translateY(-50%);
+            transform: scale(1.05) translateY(-50%); 
         }
-        
-        .slide-arrow svg {
+         .slide-arrow svg {
             width: 18px;
             height: 18px;
             color: #000000; /* Changed to black */
-        }
-
-        /* RTL adjustments for slide arrows */
-        [dir="rtl"] .slide-arrow svg {
-            transform: scaleX(-1);
         }
 
         .slide-title {
@@ -1023,7 +1069,7 @@ export default function Home() {
             border-radius: 0.5rem; /* Added border radius */
         }
         .promotion-banner {
-            background-color: #000; /* Dark background for banners */
+            background-color: #111827; /* Dark background for banners */
             color: white;
             border-radius: 0.5rem;
             overflow: hidden;
@@ -1283,10 +1329,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {promotionBanners.map((banner) => (
                 <div key={banner.id} className="promotion-banner">
-                  <div className={`flex flex-col md:flex-row ${language === 'ar' 
-                    ? (banner.alignment === 'right' ? '' : 'md:flex-row-reverse') 
-                    : (banner.alignment === 'right' ? 'md:flex-row-reverse' : '')
-                  } items-center`}>
+                  <div className={`flex flex-col md:flex-row ${banner.alignment === 'right' ? 'md:flex-row-reverse' : ''} items-center`}>
                     <div className="md:w-1/2 h-64 md:h-auto">
                       <Image
                         src={banner.imageUrl}
@@ -1299,8 +1342,8 @@ export default function Home() {
                           target.onerror = null; target.src = '/images/placeholder-banner.jpg'; // Fallback image
                         }}
                       />
-                    </div>
-                    <div className={`md:w-1/2 p-8 ${language === 'ar' ? 'text-right' : 'text-center md:text-left'}`}>
+            </div>
+                    <div className="md:w-1/2 p-8 text-center md:text-left">
                       <h3 className="text-2xl font-bold mb-3">
                         {contentByLang(banner.title, banner.titleAr || banner.title)}
                       </h3>
@@ -1310,9 +1353,9 @@ export default function Home() {
                       <Link href={banner.buttonLink} className="bg-white text-black px-6 py-2.5 inline-block hover:bg-gray-200 transition rounded font-medium text-sm">
                         {contentByLang(banner.buttonText, banner.buttonTextAr || banner.buttonText)}
                       </Link>
-                    </div>
-                  </div>
-                </div>
+              </div>
+            </div>
+              </div>
               ))}
             </div>
           ) : (
@@ -1358,19 +1401,31 @@ export default function Home() {
                 <div key={product.id}>
                   <Link href={`/product/${product.id}`} className="product-card block">
                     <div className="product-image-container">
-                      <Image 
-                        src={product.imageUrl || '/images/coffee-placeholder.jpg'} 
-                        alt={getProductName(product)} 
-                        fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                        className="product-image"
-                        priority={false}
-                        onError={(e) => {
-                          // Fallback if image fails to load
-                          const target = e.target as HTMLImageElement;
-                          target.src = "/images/coffee-placeholder.jpg";
-                        }}
-                      />
+                      {product.imageUrl ? (
+                        <Image 
+                          src={product.imageUrl} 
+                          alt={getProductName(product)} 
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                          className="product-image"
+                          priority={false}
+                        />
+                      ) : product.images && product.images.length > 0 ? (
+                        <Image 
+                          src={product.images[0]} 
+                          alt={getProductName(product)} 
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                          className="product-image"
+                          priority={false}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      )}
                     </div>
                     <div className="product-info">
                       <div className="product-category">
@@ -1380,7 +1435,7 @@ export default function Home() {
                       <div className="product-price">{formatPrice(product.price)}</div>
                     </div>
                   </Link>
-                </div>
+                  </div>
               ))}
             </div>
           )}
@@ -1422,8 +1477,8 @@ export default function Home() {
                       />
                     </div>
                   )}
-                  <div className={`flex-grow ${language === 'ar' ? 'text-right' : ''}`}>
-                    <div className={`flex ${language === 'ar' ? 'flex-row-reverse' : ''} justify-between items-start mb-2`}>
+                  <div className="flex-grow">
+                    <div className="flex justify-between items-start mb-2">
                       <h3 className="text-xl font-semibold text-black">
                         {contentByLang(offer.title, offer.titleAr || offer.title)}
                       </h3>
@@ -1433,7 +1488,7 @@ export default function Home() {
                       {contentByLang(offer.description, offer.descriptionAr || offer.description)}
                     </p>
                   </div>
-                  <div className={`mt-auto ${language === 'ar' ? 'text-right' : ''}`}>
+                  <div className="mt-auto">
                     {offer.code && (
                       <p className="text-sm text-gray-500 mb-1">{t('use_code', 'Use code')}: <strong className="text-black">{offer.code}</strong></p>
                     )}

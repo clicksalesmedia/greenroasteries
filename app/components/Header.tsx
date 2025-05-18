@@ -18,11 +18,130 @@ export default function Header() {
   const cartDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   
+  // Define the search results type
+  type SearchResultsType = {
+    products: any[];
+    categories: any[];
+    variations: any;
+    isLoading: boolean;
+  };
+
+  // Search state
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResultsType>({
+    products: [],
+    categories: [],
+    variations: { beans: [], types: [], sizes: [] },
+    isLoading: false
+  });
+  const searchRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  
   // Get cart data from context
   const { items, totalItems, totalPrice, removeItem } = useCart();
   
   // Get translation function from language context
   const { t, language } = useLanguage();
+
+  // At the beginning of the component, add a mapping object for category name translations
+  const getCategorySlug = (categoryName: string) => {
+    // Map of Arabic category names to their English equivalents for URLs
+    const categoryMappings: Record<string, string> = {
+      'المكسرات والفواكه المجففة': 'NUTS & DRIED FRUITS',
+      'مكسرات وفواكه مجففة': 'NUTS & DRIED FRUITS',
+      'قهوة عربية': 'ARABIC COFFEE',
+      'القهوة العربية': 'ARABIC COFFEE',
+      'قهوة مختصة': 'SPECIALTY COFFEE',
+      'قهوة مطحونة': 'GROUND COFFEE',
+      'قهوة اسبريسو': 'ESPRESSO ROAST',
+      'تحميص الإسبريسو': 'ESPRESSO ROAST',
+      'قهوة متوسطة التحميص': 'MEDIUM ROAST',
+      'تحميص متوسط': 'MEDIUM ROAST',
+      'قهوة داكنة التحميص': 'DARK ROAST',
+      'تحميص داكن': 'DARK ROAST',
+      'قهوة فاتحة التحميص': 'LIGHT ROAST',
+      'تحميص فاتح': 'LIGHT ROAST',
+      'أكسسوارات القهوة': 'COFFEE ACCESSORIES',
+      'تحميص تركي': 'TURKISH ROAST',
+      'قهوة تركية': 'TURKISH COFFEE',
+      'أرابيكا': 'ARABICA',
+      'روبوستا': 'ROBUSTA',
+      'خلطات': 'BLEND',
+      'أصل واحد': 'SINGLE ORIGIN',
+      'إسبريسو': 'ESPRESSO',
+      'خالية من الكافيين': 'DECAF'
+    };
+    
+    // Always use English category names in URLs, regardless of display language
+    return categoryMappings[categoryName] || categoryName;
+  };
+
+  // Handle search functionality
+  const toggleSearch = () => {
+    setSearchOpen(!searchOpen);
+    // Close other dropdowns
+    setShopDropdownOpen(false);
+    setCartDropdownOpen(false);
+    
+    // Focus the search input when opening
+    if (!searchOpen) {
+      setTimeout(() => {
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+        }
+      }, 100);
+    }
+  };
+  
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+  
+  const handleSearchSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!searchQuery.trim()) {
+      return;
+    }
+    
+    try {
+      setSearchResults((prev: SearchResultsType) => ({ ...prev, isLoading: true }));
+      
+      // Fetch products
+      const productsRes = await fetch(`/api/products?search=${encodeURIComponent(searchQuery)}`);
+      const products = await productsRes.json();
+      
+      // Fetch categories
+      const categoriesRes = await fetch(`/api/categories?search=${encodeURIComponent(searchQuery)}`);
+      const categories = await categoriesRes.json();
+      
+      // Fetch variations (beans, additions, etc.)
+      const variationsRes = await fetch(`/api/variations/search?query=${encodeURIComponent(searchQuery)}`);
+      const variations = await variationsRes.json();
+      
+      setSearchResults({
+        products: products.slice(0, 5), // Limit to 5 results for display
+        categories: Array.isArray(categories) ? categories.slice(0, 3) : [],
+        variations: variations || { beans: [], types: [], sizes: [] },
+        isLoading: false
+      });
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchResults({
+        products: [],
+        categories: [],
+        variations: { beans: [], types: [], sizes: [] },
+        isLoading: false
+      });
+    }
+  };
+  
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setSearchOpen(false);
+    }
+  };
 
   useEffect(() => {
     // Fetch categories for the dropdown
@@ -122,6 +241,9 @@ export default function Header() {
       if (cartDropdownRef.current && !cartDropdownRef.current.contains(event.target as Node)) {
         setCartDropdownOpen(false);
       }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setSearchOpen(false);
+      }
       
       // Don't close mobile menu when clicking inside the menu
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
@@ -133,6 +255,7 @@ export default function Header() {
     };
 
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown as unknown as EventListener);
     
     // Prevent body scrolling when mobile menu is open
     if (mobileMenuOpen) {
@@ -143,9 +266,10 @@ export default function Header() {
     
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown as unknown as EventListener);
       document.body.style.overflow = 'auto'; // Reset on unmount
     };
-  }, [mobileMenuOpen, language]);
+  }, [mobileMenuOpen, searchOpen, language]);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -261,7 +385,7 @@ export default function Header() {
                         {categories.map(category => (
                           <Link 
                             key={category.id}
-                            href={`/shop?category=${encodeURIComponent(category.name)}`}
+                            href={`/shop?category=${encodeURIComponent(getCategorySlug(category.name))}`}
                             className="block py-2 text-gray-800 hover:text-black"
                             onClick={() => setMobileMenuOpen(false)}
                           >
@@ -345,7 +469,7 @@ export default function Header() {
                       categories.map(category => (
                         <Link 
                           key={category.id}
-                          href={`/shop?category=${encodeURIComponent(category.name)}`}
+                          href={`/shop?category=${encodeURIComponent(getCategorySlug(category.name))}`}
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           onClick={() => setShopDropdownOpen(false)}
                         >
@@ -378,9 +502,176 @@ export default function Header() {
           
           {/* Icons on the right */}
           <div className="flex items-center space-x-6 order-3 md:flex-1 md:justify-end">
-            <Link href="/search" className="text-gray-800">
-              <MagnifyingGlassIcon className="h-5 w-5" />
-            </Link>
+            <div className="relative" ref={searchRef}>
+              <button 
+                onClick={toggleSearch}
+                className="text-gray-800 focus:outline-none"
+              >
+                <MagnifyingGlassIcon className="h-5 w-5" />
+              </button>
+              
+              {/* Search modal/dropdown */}
+              {searchOpen && (
+                <div className={`absolute ${language === 'ar' ? 'right-auto left-0' : 'right-0'} mt-2 w-80 md:w-96 bg-white shadow-lg rounded-md z-50 p-4 border border-gray-100`}>
+                  <form onSubmit={handleSearchSubmit}>
+                    <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
+                      <input
+                        type="text"
+                        ref={searchInputRef}
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        placeholder={t('search_placeholder', 'Search products, categories...')}
+                        className="w-full px-4 py-2 focus:outline-none"
+                      />
+                      <button 
+                        type="submit"
+                        className="bg-black text-white px-3 py-2"
+                      >
+                        <MagnifyingGlassIcon className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </form>
+                  
+                  {/* Search results */}
+                  {searchQuery && (
+                    <div className="mt-4 max-h-80 overflow-y-auto">
+                      {searchResults.isLoading ? (
+                        <div className="py-3 text-center text-gray-500">
+                          {t('loading', 'Loading...')}
+                        </div>
+                      ) : (
+                        <>
+                          {/* Products section */}
+                          {searchResults.products && searchResults.products.length > 0 && (
+                            <div className="mb-4">
+                              <h3 className="font-medium text-sm text-gray-500 mb-2">{t('products', 'Products')}</h3>
+                              <div className="space-y-3">
+                                {searchResults.products.map((product: any) => (
+                                  <Link 
+                                    key={product.id} 
+                                    href={`/product/${product.slug}`}
+                                    className="flex items-center p-2 hover:bg-gray-50 rounded-md"
+                                    onClick={() => setSearchOpen(false)}
+                                  >
+                                    <div className="w-10 h-10 bg-gray-100 rounded-md relative overflow-hidden flex-shrink-0">
+                                      {product.imageUrl ? (
+                                        <Image 
+                                          src={product.imageUrl} 
+                                          alt={product.name}
+                                          fill
+                                          className="object-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                          <ShoppingBagIcon className="h-5 w-5" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="ml-3">
+                                      <div className="text-sm font-medium">
+                                        {language === 'ar' && product.nameAr ? product.nameAr : product.name}
+                                      </div>
+                                      <div className="text-xs text-gray-500">
+                                        {product.price.toFixed(2)}D
+                                      </div>
+                                    </div>
+                                  </Link>
+                                ))}
+                                <Link 
+                                  href={`/shop?search=${encodeURIComponent(searchQuery)}`}
+                                  className="block text-sm text-center text-black underline py-1 hover:text-gray-600"
+                                  onClick={() => setSearchOpen(false)}
+                                >
+                                  {t('view_all_results', 'View all results')}
+                                </Link>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Categories section */}
+                          {searchResults.categories && searchResults.categories.length > 0 && (
+                            <div className="mb-4">
+                              <h3 className="font-medium text-sm text-gray-500 mb-2">{t('categories', 'Categories')}</h3>
+                              <div className="space-y-2">
+                                {searchResults.categories.map((category: any) => (
+                                  <Link 
+                                    key={category.id} 
+                                    href={`/shop?category=${encodeURIComponent(getCategorySlug(category.name))}`}
+                                    className="block p-2 hover:bg-gray-50 rounded-md"
+                                    onClick={() => setSearchOpen(false)}
+                                  >
+                                    <span className="text-sm font-medium">
+                                      {language === 'ar' && category.nameAr ? category.nameAr : category.name}
+                                    </span>
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Variations section (beans, additions, etc.) */}
+                          {searchResults.variations && (
+                            <>
+                              {/* Beans */}
+                              {searchResults.variations.beans && searchResults.variations.beans.length > 0 && (
+                                <div className="mb-4">
+                                  <h3 className="font-medium text-sm text-gray-500 mb-2">{t('coffee_beans', 'Coffee Beans')}</h3>
+                                  <div className="space-y-2">
+                                    {searchResults.variations.beans.map((bean: any) => (
+                                      <Link 
+                                        key={bean.id} 
+                                        href={`/shop?beans=${encodeURIComponent(bean.name)}`}
+                                        className="block p-2 hover:bg-gray-50 rounded-md"
+                                        onClick={() => setSearchOpen(false)}
+                                      >
+                                        <span className="text-sm font-medium">
+                                          {language === 'ar' && bean.arabicName ? bean.arabicName : bean.name}
+                                        </span>
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Additions (Types) */}
+                              {searchResults.variations.types && searchResults.variations.types.length > 0 && (
+                                <div className="mb-4">
+                                  <h3 className="font-medium text-sm text-gray-500 mb-2">{t('additions', 'Additions')}</h3>
+                                  <div className="space-y-2">
+                                    {searchResults.variations.types.map((type: any) => (
+                                      <Link 
+                                        key={type.id} 
+                                        href={`/shop?additions=${encodeURIComponent(type.name)}`}
+                                        className="block p-2 hover:bg-gray-50 rounded-md"
+                                        onClick={() => setSearchOpen(false)}
+                                      >
+                                        <span className="text-sm font-medium">
+                                          {language === 'ar' && type.arabicName ? type.arabicName : type.name}
+                                        </span>
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          )}
+                          
+                          {/* No results message */}
+                          {(!searchResults.products || searchResults.products.length === 0) && 
+                           (!searchResults.categories || searchResults.categories.length === 0) && 
+                           (!searchResults.variations.beans || searchResults.variations.beans.length === 0) && 
+                           (!searchResults.variations.types || searchResults.variations.types.length === 0) && (
+                            <div className="py-3 text-center text-gray-500">
+                              {t('no_results', 'No results found')}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
             
             {/* Add language switcher next to search icon */}
             <LanguageSwitcher />
@@ -408,7 +699,7 @@ export default function Header() {
               
               {/* Cart dropdown */}
               {cartDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-md z-50 py-2 border border-gray-100">
+                <div className={`absolute ${language === 'ar' ? 'right-auto left-0' : 'right-0'} mt-2 w-80 bg-white shadow-lg rounded-md z-50 py-2 border border-gray-100`}>
                   <div className="px-4 py-2 border-b border-gray-100">
                     <h3 className="font-medium text-lg">{t('your_cart', 'Your Cart')} ({totalItems})</h3>
                   </div>

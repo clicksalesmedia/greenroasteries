@@ -9,8 +9,11 @@ import BackendLayout from '../../components/BackendLayout';
 interface SliderItem {
   id: string;
   title: string;
+  titleAr?: string;
   subtitle: string;
+  subtitleAr?: string;
   buttonText: string;
+  buttonTextAr?: string;
   buttonLink: string;
   imageUrl: string;
   backgroundColor: string;
@@ -28,8 +31,11 @@ export default function SlidersPage() {
   
   // Form state
   const [title, setTitle] = useState('');
+  const [titleAr, setTitleAr] = useState('');
   const [subtitle, setSubtitle] = useState('');
+  const [subtitleAr, setSubtitleAr] = useState('');
   const [buttonText, setButtonText] = useState('');
+  const [buttonTextAr, setButtonTextAr] = useState('');
   const [buttonLink, setButtonLink] = useState('');
   const [backgroundColor, setBackgroundColor] = useState('#f4f6f8');
   const [order, setOrder] = useState(0);
@@ -68,8 +74,11 @@ export default function SlidersPage() {
       // Editing existing slider
       setCurrentSlider(slider);
       setTitle(slider.title);
+      setTitleAr(slider.titleAr || '');
       setSubtitle(slider.subtitle);
+      setSubtitleAr(slider.subtitleAr || '');
       setButtonText(slider.buttonText);
+      setButtonTextAr(slider.buttonTextAr || '');
       setButtonLink(slider.buttonLink);
       setBackgroundColor(slider.backgroundColor);
       setOrder(slider.order);
@@ -79,8 +88,11 @@ export default function SlidersPage() {
       // Adding new slider
       setCurrentSlider(null);
       setTitle('');
+      setTitleAr('');
       setSubtitle('');
+      setSubtitleAr('');
       setButtonText('');
+      setButtonTextAr('');
       setButtonLink('/shop');
       setBackgroundColor('#f4f6f8');
       setOrder(sliders.length);
@@ -142,14 +154,19 @@ export default function SlidersPage() {
       const sliderData = {
         id: currentSlider?.id,
         title,
+        titleAr,
         subtitle,
+        subtitleAr,
         buttonText,
+        buttonTextAr,
         buttonLink,
         backgroundColor,
         imageUrl,
         order,
         isActive
       };
+      
+      console.log('Submitting slider data:', JSON.stringify(sliderData, null, 2));
       
       // API endpoint and method
       const url = currentSlider ? `/api/sliders/${currentSlider.id}` : '/api/sliders';
@@ -165,7 +182,9 @@ export default function SlidersPage() {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to save slider');
+        const errorData = await response.text();
+        console.error('Server response:', response.status, errorData);
+        throw new Error(`Failed to save slider: ${response.status} ${errorData}`);
       }
       
       // Update local state
@@ -375,6 +394,19 @@ export default function SlidersPage() {
                   </div>
                   
                   <div>
+                    <label htmlFor="titleAr" className="block text-sm font-medium text-gray-700">
+                      {t('title_ar', 'Title (Arabic)')}
+                    </label>
+                    <input
+                      type="text"
+                      id="titleAr"
+                      value={titleAr}
+                      onChange={(e) => setTitleAr(e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
+                    />
+                  </div>
+                  
+                  <div>
                     <label htmlFor="subtitle" className="block text-sm font-medium text-gray-700">
                       {t('subtitle', 'Subtitle')} *
                     </label>
@@ -385,6 +417,19 @@ export default function SlidersPage() {
                       rows={3}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
                       required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="subtitleAr" className="block text-sm font-medium text-gray-700">
+                      {t('subtitle_ar', 'Subtitle (Arabic)')}
+                    </label>
+                    <textarea
+                      id="subtitleAr"
+                      value={subtitleAr}
+                      onChange={(e) => setSubtitleAr(e.target.value)}
+                      rows={3}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
                     />
                   </div>
                   
@@ -403,6 +448,21 @@ export default function SlidersPage() {
                       />
                     </div>
                     
+                    <div>
+                      <label htmlFor="buttonTextAr" className="block text-sm font-medium text-gray-700">
+                        {t('button_text_ar', 'Button Text (Arabic)')}
+                      </label>
+                      <input
+                        type="text"
+                        id="buttonTextAr"
+                        value={buttonTextAr}
+                        onChange={(e) => setButtonTextAr(e.target.value)}
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="buttonLink" className="block text-sm font-medium text-gray-700">
                         {t('button_link', 'Button Link')} *
@@ -525,29 +585,63 @@ export default function SlidersPage() {
                     <h3 className="text-sm font-medium text-gray-700 mb-2">
                       {t('slider_preview', 'Slider Preview')}
                     </h3>
-                    <div
-                      className="h-32 rounded-md flex items-center justify-end p-4 relative overflow-hidden"
-                      style={{ backgroundColor }}
-                    >
-                      <div className="text-right max-w-[60%] z-10">
-                        <h3 className="text-lg font-bold">{title || 'Slider Title'}</h3>
-                        <p className="text-sm">{subtitle || 'Slider subtitle text here'}</p>
-                        <button className="mt-2 bg-black text-white text-xs px-3 py-1 rounded inline-block">
-                          {buttonText || 'Button'}
-                        </button>
-                      </div>
-                      {imagePreview && (
-                        <div className="absolute left-4 bottom-0 h-full w-1/2 flex items-end">
-                          <div className="relative h-28 w-28">
-                            <Image
-                              src={imagePreview}
-                              alt="Preview"
-                              fill
-                              className="object-contain"
-                            />
-                          </div>
+                    
+                    {/* English Preview */}
+                    <div className="mb-3">
+                      <div className="text-xs text-gray-500 mb-1">English:</div>
+                      <div
+                        className="h-32 rounded-md flex items-center justify-end p-4 relative overflow-hidden"
+                        style={{ backgroundColor }}
+                      >
+                        <div className="text-right max-w-[60%] z-10">
+                          <h3 className="text-lg font-bold">{title || 'Slider Title'}</h3>
+                          <p className="text-sm">{subtitle || 'Slider subtitle text here'}</p>
+                          <button className="mt-2 bg-black text-white text-xs px-3 py-1 rounded inline-block">
+                            {buttonText || 'Button'}
+                          </button>
                         </div>
-                      )}
+                        {imagePreview && (
+                          <div className="absolute left-4 bottom-0 h-full w-1/2 flex items-end">
+                            <div className="relative h-28 w-28">
+                              <Image
+                                src={imagePreview}
+                                alt="Preview"
+                                fill
+                                className="object-contain"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Arabic Preview */}
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Arabic:</div>
+                      <div
+                        className="h-32 rounded-md flex items-center justify-start p-4 relative overflow-hidden rtl"
+                        style={{ backgroundColor }}
+                      >
+                        <div className="text-right max-w-[60%] z-10">
+                          <h3 className="text-lg font-bold">{titleAr || 'عنوان الشريحة'}</h3>
+                          <p className="text-sm">{subtitleAr || 'وصف الشريحة هنا'}</p>
+                          <button className="mt-2 bg-black text-white text-xs px-3 py-1 rounded inline-block">
+                            {buttonTextAr || 'زر'}
+                          </button>
+                        </div>
+                        {imagePreview && (
+                          <div className="absolute right-4 bottom-0 h-full w-1/2 flex items-end justify-end">
+                            <div className="relative h-28 w-28">
+                              <Image
+                                src={imagePreview}
+                                alt="Preview"
+                                fill
+                                className="object-contain"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
-import { cookies } from 'next/headers';
 import { compare } from 'bcrypt';
 import * as jose from 'jose';
 

@@ -41,13 +41,30 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const categoryId = searchParams.get('categoryId');
+    const category = searchParams.get('category');
     const inStock = searchParams.get('inStock');
-    const query = searchParams.get('query');
+    const search = searchParams.get('search');
+    const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
+    const featured = searchParams.get('featured') === 'true';
+    
+    console.log(`API Request: /api/products with params:`, { 
+      categoryId, category, inStock, search, limit, featured 
+    });
     
     const filters: any = {};
     
     if (categoryId) {
       filters.categoryId = categoryId;
+    }
+    
+    // Filter by category name
+    if (category) {
+      filters.category = {
+        OR: [
+          { name: { equals: category, mode: 'insensitive' } },
+          { nameAr: { equals: category, mode: 'insensitive' } }
+        ]
+      };
     }
     
     if (inStock === 'true') {
@@ -56,13 +73,57 @@ export async function GET(request: Request) {
       filters.inStock = false;
     }
     
-    if (query) {
+    if (featured) {
+      // Since there's no 'featured' field in the Product model,
+      // we'll use a workaround to get featured products
+      // For example, we can select products with specific categories or properties
+      
+      // Option 1: Get products from specific categories that you consider "featured"
+      const featuredCategories = ['Coffee Beans', 'Premium', 'Specialty']; // Adjust based on your categories
+      filters.OR = filters.OR || [];
+      filters.OR.push({
+        category: {
+          name: {
+            in: featuredCategories,
+            mode: 'insensitive'
+          }
+        }
+      });
+      
+      // Option 2: Get products with high stock priority or certain characteristics
+      // Example: products that are in stock and have images
+      filters.OR.push({
+        AND: [
+          { inStock: true },
+          { images: { some: {} } }, // Has at least one image
+          { stockQuantity: { gt: 0 } } // Has stock available
+        ]
+      });
+    }
+    
+    // Comprehensive search across multiple fields
+    if (search && search.trim() !== '') {
       filters.OR = [
-        { name: { contains: query, mode: 'insensitive' } },
-        { description: { contains: query, mode: 'insensitive' } },
+        // Search in product name and description (both English and Arabic)
+        { name: { contains: search, mode: 'insensitive' } },
+        { nameAr: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { descriptionAr: { contains: search, mode: 'insensitive' } },
+        { origin: { contains: search, mode: 'insensitive' } },
+        { sku: { contains: search, mode: 'insensitive' } },
+        
+        // Search by category
+        { category: { 
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { nameAr: { contains: search, mode: 'insensitive' } }
+          ]
+        }}
       ];
     }
     
+    // Query with filtering, include related data
+    console.log('Executing prisma query with filters:', JSON.stringify(filters, null, 2));
     const products = await prisma.product.findMany({
       where: filters,
       include: {
@@ -70,6 +131,7 @@ export async function GET(request: Request) {
           select: {
             id: true,
             name: true,
+            nameAr: true,
             slug: true,
           },
         },
@@ -78,13 +140,20 @@ export async function GET(request: Request) {
       orderBy: {
         updatedAt: 'desc',
       },
+      ...(limit ? { take: limit } : {})
     });
     
+    console.log(`Found ${products.length} products`);
     return NextResponse.json(products);
   } catch (error) {
     console.error('Failed to fetch products:', error);
+    // More detailed error information
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    console.error('Error details:', { message: errorMessage, stack: errorStack });
+    
     return NextResponse.json(
-      { error: 'Failed to fetch products' },
+      { error: 'Failed to fetch products', details: errorMessage },
       { status: 500 }
     );
   }

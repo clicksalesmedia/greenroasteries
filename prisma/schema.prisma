@@ -219,8 +219,11 @@ model BundleItem {
 model Slider {
   id              String   @id @default(uuid())
   title           String
+  titleAr         String?
   subtitle        String
+  subtitleAr      String?
   buttonText      String
+  buttonTextAr    String?
   buttonLink      String
   backgroundColor String   @default("#f4f6f8")
   imageUrl        String

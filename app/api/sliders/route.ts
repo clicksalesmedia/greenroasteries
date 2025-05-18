@@ -73,8 +73,11 @@ export async function POST(request: NextRequest) {
       data: {
         id: data.id,
         title: data.title,
+        titleAr: data.titleAr || null,
         subtitle: data.subtitle,
+        subtitleAr: data.subtitleAr || null,
         buttonText: data.buttonText,
+        buttonTextAr: data.buttonTextAr || null,
         buttonLink: data.buttonLink,
         backgroundColor: data.backgroundColor || '#f4f6f8',
         imageUrl: data.imageUrl,

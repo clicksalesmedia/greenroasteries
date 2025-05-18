@@ -42,6 +42,25 @@ export async function GET(request: NextRequest) {
     // Get the language from query params
     const { searchParams } = new URL(request.url);
     const lang = searchParams.get('lang') || 'en';
+    const search = searchParams.get('search');
+    
+    const whereCondition: any = {
+      parentId: null, // Get only top-level categories
+      isActive: true  // Only return active categories for public view
+    };
+    
+    // Add search filter if provided
+    if (search && search.trim() !== '') {
+      whereCondition.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { nameAr: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { descriptionAr: { contains: search, mode: 'insensitive' } }
+      ];
+      
+      // If searching, we want to return all matching categories, not just top-level ones
+      delete whereCondition.parentId;
+    }
     
     const categories = await prisma.category.findMany({
       include: {
@@ -62,10 +81,7 @@ export async function GET(request: NextRequest) {
           select: { products: true }
         }
       },
-      where: {
-        parentId: null, // Get only top-level categories
-        isActive: true  // Only return active categories for public view
-      },
+      where: whereCondition,
       orderBy: {
         name: 'asc'
       }
