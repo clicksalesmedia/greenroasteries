@@ -1,0 +1,72 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 167.235.137.52 >> ~/.ssh/known_hosts
+          
+      - name: Create deployment package
+        run: |
+          tar --exclude="node_modules" \
+              --exclude=".next" \
+              --exclude=".git" \
+              --exclude=".github" \
+              --exclude="*.tar.gz" \
+              -czf update.tar.gz .
+              
+      - name: Upload to server
+        run: |
+          scp update.tar.gz root@167.235.137.52:/var/www/greenroasteries/
+          
+      - name: Deploy on server
+        run: |
+          ssh root@167.235.137.52 << 'EOF'
+            cd /var/www/greenroasteries
+            
+            # Backup important files
+            mkdir -p backups
+            cp -f docker-compose.yml backups/docker-compose.yml.bak 2>/dev/null || true
+            cp -f Dockerfile backups/Dockerfile.bak 2>/dev/null || true
+            cp -f .env backups/.env.bak 2>/dev/null || true
+            
+            # Extract the package
+            tar -xzf update.tar.gz
+            
+            # Ensure Docker configuration is correct
+            # The Dockerfile is included in the repository so we don't need to create it here
+            
+            # Ensure environment variables are set
+            cat > .env << 'ENVFILE'
+            DATABASE_URL=postgresql://postgres:postgres@db:5432/greenroasteries
+            POSTGRES_USER=postgres
+            POSTGRES_PASSWORD=postgres
+            POSTGRES_DB=greenroasteries
+            JWT_SECRET=8Vgq2eXQ4XYwfvXf19GKrOdnw22Y69P71A9ceb6e24k=
+            NODE_ENV=production
+            NEXT_TELEMETRY_DISABLED=1
+            ENVFILE
+            
+            # Restart containers
+            docker-compose down
+            docker-compose up --build -d
+            
+            # Clean up
+            rm -f update.tar.gz
+          EOF 

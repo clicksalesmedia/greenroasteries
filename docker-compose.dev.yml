@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: greenroasteries-app-dev
+    restart: always
+    ports:
+      - "3001:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/greenroasteries
+      - JWT_SECRET=8Vgq2eXQ4XYwfvXf19GKrOdnw22Y69P71A9ceb6e24k=
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+    command: >
+      sh -c "npx prisma generate &&
+             npx prisma migrate deploy &&
+             npm run dev"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - greenroasteries-network
+
+  db:
+    image: postgres:16-alpine
+    container_name: greenroasteries-db-dev
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=greenroasteries
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - greenroasteries-network
+
+volumes:
+  postgres_data:
+    name: greenroasteries-data-dev
+
+networks:
+  greenroasteries-network:
+    name: greenroasteries-network-dev 
