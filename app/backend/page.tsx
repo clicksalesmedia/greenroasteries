@@ -39,6 +39,7 @@ export default function BackendDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState('');
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
   const authCheckDone = useRef(false);
   const { t, language } = useLanguage();
   
@@ -93,6 +94,41 @@ export default function BackendDashboard() {
     datasets: []
   });
   
+  // Check current maintenance mode status
+  useEffect(() => {
+    const checkMaintenanceMode = async () => {
+      try {
+        const res = await fetch('/api/maintenance');
+        const data = await res.json();
+        setMaintenanceMode(data.maintenanceMode);
+      } catch (error) {
+        console.error('Error checking maintenance mode:', error);
+      }
+    };
+
+    checkMaintenanceMode();
+  }, []);
+
+  // Toggle maintenance mode
+  const toggleMaintenanceMode = async () => {
+    try {
+      const res = await fetch('/api/maintenance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ enabled: !maintenanceMode }),
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setMaintenanceMode(data.maintenanceMode);
+      }
+    } catch (error) {
+      console.error('Error toggling maintenance mode:', error);
+    }
+  };
+
   useEffect(() => {
     // Check authentication status - but only once
     const checkAuth = async () => {
@@ -326,6 +362,26 @@ export default function BackendDashboard() {
   const dashboardContent = (
     <>
       <h1 className="text-2xl font-bold mb-6">{t('dashboard_overview', 'Dashboard Overview')}</h1>
+      
+      {/* Maintenance Mode Toggle */}
+      <div className="mb-8 p-4 bg-white rounded-lg border border-gray-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">{t('maintenance_mode', 'Maintenance Mode')}</h3>
+            <p className="text-sm text-gray-600">{t('maintenance_description', 'Toggle maintenance mode to show a coming soon page to non-admin users')}</p>
+          </div>
+          <button
+            onClick={toggleMaintenanceMode}
+            className={`px-4 py-2 rounded-md font-medium ${
+              maintenanceMode 
+                ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                : 'bg-red-100 text-red-700 hover:bg-red-200'
+            }`}
+          >
+            {maintenanceMode ? t('maintenance_enabled', 'Enabled') : t('maintenance_disabled', 'Disabled')}
+          </button>
+        </div>
+      </div>
       
       <div className="mb-4 text-gray-600">
         {formatDate(currentDate, language)}

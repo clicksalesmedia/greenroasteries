@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from './contexts/LanguageContext';
+import MaintenanceMode from './components/MaintenanceMode';
 
 interface Product {
   id: string;
@@ -72,6 +73,8 @@ export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [sliderLoading, setSliderLoading] = useState(true);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   
   // Hero slider state
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -818,6 +821,32 @@ export default function Home() {
     // If no mapping exists, format English to uppercase or return Arabic as is
     return language === 'ar' ? categoryName : categoryName.toUpperCase();
   };
+
+  // Check maintenance mode and admin status
+  useEffect(() => {
+    const checkMaintenanceAndAdmin = async () => {
+      try {
+        // Check maintenance mode
+        const maintenanceRes = await fetch('/api/maintenance');
+        const maintenanceData = await maintenanceRes.json();
+        setMaintenanceMode(maintenanceData.maintenanceMode);
+
+        // Check if user is admin
+        const sessionRes = await fetch('/api/auth/session');
+        const sessionData = await sessionRes.json();
+        setIsAdmin(sessionData?.user?.role === 'ADMIN');
+      } catch (error) {
+        console.error('Error checking maintenance mode:', error);
+      }
+    };
+
+    checkMaintenanceAndAdmin();
+  }, []);
+
+  // If in maintenance mode and not admin, show maintenance page
+  if (maintenanceMode && !isAdmin) {
+    return <MaintenanceMode />;
+  }
 
   return (
     <div className="bg-white" dir={language === 'ar' ? 'rtl' : 'ltr'}>
