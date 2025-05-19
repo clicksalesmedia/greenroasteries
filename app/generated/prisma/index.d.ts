@@ -18907,6 +18907,9 @@ export namespace Prisma {
     imageUrl: string | null
     order: number | null
     isActive: boolean | null
+    textAnimation: string | null
+    imageAnimation: string | null
+    transitionSpeed: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -18924,6 +18927,9 @@ export namespace Prisma {
     imageUrl: string | null
     order: number | null
     isActive: boolean | null
+    textAnimation: string | null
+    imageAnimation: string | null
+    transitionSpeed: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -18941,6 +18947,9 @@ export namespace Prisma {
     imageUrl: number
     order: number
     isActive: number
+    textAnimation: number
+    imageAnimation: number
+    transitionSpeed: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -18968,6 +18977,9 @@ export namespace Prisma {
     imageUrl?: true
     order?: true
     isActive?: true
+    textAnimation?: true
+    imageAnimation?: true
+    transitionSpeed?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -18985,6 +18997,9 @@ export namespace Prisma {
     imageUrl?: true
     order?: true
     isActive?: true
+    textAnimation?: true
+    imageAnimation?: true
+    transitionSpeed?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -19002,6 +19017,9 @@ export namespace Prisma {
     imageUrl?: true
     order?: true
     isActive?: true
+    textAnimation?: true
+    imageAnimation?: true
+    transitionSpeed?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -19106,6 +19124,9 @@ export namespace Prisma {
     imageUrl: string
     order: number
     isActive: boolean
+    textAnimation: string | null
+    imageAnimation: string | null
+    transitionSpeed: string | null
     createdAt: Date
     updatedAt: Date
     _count: SliderCountAggregateOutputType | null
@@ -19142,6 +19163,9 @@ export namespace Prisma {
     imageUrl?: boolean
     order?: boolean
     isActive?: boolean
+    textAnimation?: boolean
+    imageAnimation?: boolean
+    transitionSpeed?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["slider"]>
@@ -19159,6 +19183,9 @@ export namespace Prisma {
     imageUrl?: boolean
     order?: boolean
     isActive?: boolean
+    textAnimation?: boolean
+    imageAnimation?: boolean
+    transitionSpeed?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["slider"]>
@@ -19176,6 +19203,9 @@ export namespace Prisma {
     imageUrl?: boolean
     order?: boolean
     isActive?: boolean
+    textAnimation?: boolean
+    imageAnimation?: boolean
+    transitionSpeed?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["slider"]>
@@ -19193,11 +19223,14 @@ export namespace Prisma {
     imageUrl?: boolean
     order?: boolean
     isActive?: boolean
+    textAnimation?: boolean
+    imageAnimation?: boolean
+    transitionSpeed?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type SliderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "titleAr" | "subtitle" | "subtitleAr" | "buttonText" | "buttonTextAr" | "buttonLink" | "backgroundColor" | "imageUrl" | "order" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["slider"]>
+  export type SliderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "titleAr" | "subtitle" | "subtitleAr" | "buttonText" | "buttonTextAr" | "buttonLink" | "backgroundColor" | "imageUrl" | "order" | "isActive" | "textAnimation" | "imageAnimation" | "transitionSpeed" | "createdAt" | "updatedAt", ExtArgs["result"]["slider"]>
 
   export type $SliderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Slider"
@@ -19215,6 +19248,9 @@ export namespace Prisma {
       imageUrl: string
       order: number
       isActive: boolean
+      textAnimation: string | null
+      imageAnimation: string | null
+      transitionSpeed: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["slider"]>
@@ -19652,6 +19688,9 @@ export namespace Prisma {
     readonly imageUrl: FieldRef<"Slider", 'String'>
     readonly order: FieldRef<"Slider", 'Int'>
     readonly isActive: FieldRef<"Slider", 'Boolean'>
+    readonly textAnimation: FieldRef<"Slider", 'String'>
+    readonly imageAnimation: FieldRef<"Slider", 'String'>
+    readonly transitionSpeed: FieldRef<"Slider", 'String'>
     readonly createdAt: FieldRef<"Slider", 'DateTime'>
     readonly updatedAt: FieldRef<"Slider", 'DateTime'>
   }
@@ -20259,6 +20298,9 @@ export namespace Prisma {
     imageUrl: 'imageUrl',
     order: 'order',
     isActive: 'isActive',
+    textAnimation: 'textAnimation',
+    imageAnimation: 'imageAnimation',
+    transitionSpeed: 'transitionSpeed',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -21550,6 +21592,9 @@ export namespace Prisma {
     imageUrl?: StringFilter<"Slider"> | string
     order?: IntFilter<"Slider"> | number
     isActive?: BoolFilter<"Slider"> | boolean
+    textAnimation?: StringNullableFilter<"Slider"> | string | null
+    imageAnimation?: StringNullableFilter<"Slider"> | string | null
+    transitionSpeed?: StringNullableFilter<"Slider"> | string | null
     createdAt?: DateTimeFilter<"Slider"> | Date | string
     updatedAt?: DateTimeFilter<"Slider"> | Date | string
   }
@@ -21567,6 +21612,9 @@ export namespace Prisma {
     imageUrl?: SortOrder
     order?: SortOrder
     isActive?: SortOrder
+    textAnimation?: SortOrderInput | SortOrder
+    imageAnimation?: SortOrderInput | SortOrder
+    transitionSpeed?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -21587,6 +21635,9 @@ export namespace Prisma {
     imageUrl?: StringFilter<"Slider"> | string
     order?: IntFilter<"Slider"> | number
     isActive?: BoolFilter<"Slider"> | boolean
+    textAnimation?: StringNullableFilter<"Slider"> | string | null
+    imageAnimation?: StringNullableFilter<"Slider"> | string | null
+    transitionSpeed?: StringNullableFilter<"Slider"> | string | null
     createdAt?: DateTimeFilter<"Slider"> | Date | string
     updatedAt?: DateTimeFilter<"Slider"> | Date | string
   }, "id">
@@ -21604,6 +21655,9 @@ export namespace Prisma {
     imageUrl?: SortOrder
     order?: SortOrder
     isActive?: SortOrder
+    textAnimation?: SortOrderInput | SortOrder
+    imageAnimation?: SortOrderInput | SortOrder
+    transitionSpeed?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: SliderCountOrderByAggregateInput
@@ -21629,6 +21683,9 @@ export namespace Prisma {
     imageUrl?: StringWithAggregatesFilter<"Slider"> | string
     order?: IntWithAggregatesFilter<"Slider"> | number
     isActive?: BoolWithAggregatesFilter<"Slider"> | boolean
+    textAnimation?: StringNullableWithAggregatesFilter<"Slider"> | string | null
+    imageAnimation?: StringNullableWithAggregatesFilter<"Slider"> | string | null
+    transitionSpeed?: StringNullableWithAggregatesFilter<"Slider"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Slider"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Slider"> | Date | string
   }
@@ -22885,6 +22942,9 @@ export namespace Prisma {
     imageUrl: string
     order?: number
     isActive?: boolean
+    textAnimation?: string | null
+    imageAnimation?: string | null
+    transitionSpeed?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -22902,6 +22962,9 @@ export namespace Prisma {
     imageUrl: string
     order?: number
     isActive?: boolean
+    textAnimation?: string | null
+    imageAnimation?: string | null
+    transitionSpeed?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -22919,6 +22982,9 @@ export namespace Prisma {
     imageUrl?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    textAnimation?: NullableStringFieldUpdateOperationsInput | string | null
+    imageAnimation?: NullableStringFieldUpdateOperationsInput | string | null
+    transitionSpeed?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22936,6 +23002,9 @@ export namespace Prisma {
     imageUrl?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    textAnimation?: NullableStringFieldUpdateOperationsInput | string | null
+    imageAnimation?: NullableStringFieldUpdateOperationsInput | string | null
+    transitionSpeed?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22953,6 +23022,9 @@ export namespace Prisma {
     imageUrl: string
     order?: number
     isActive?: boolean
+    textAnimation?: string | null
+    imageAnimation?: string | null
+    transitionSpeed?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -22970,6 +23042,9 @@ export namespace Prisma {
     imageUrl?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    textAnimation?: NullableStringFieldUpdateOperationsInput | string | null
+    imageAnimation?: NullableStringFieldUpdateOperationsInput | string | null
+    transitionSpeed?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22987,6 +23062,9 @@ export namespace Prisma {
     imageUrl?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    textAnimation?: NullableStringFieldUpdateOperationsInput | string | null
+    imageAnimation?: NullableStringFieldUpdateOperationsInput | string | null
+    transitionSpeed?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -24019,6 +24097,9 @@ export namespace Prisma {
     imageUrl?: SortOrder
     order?: SortOrder
     isActive?: SortOrder
+    textAnimation?: SortOrder
+    imageAnimation?: SortOrder
+    transitionSpeed?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24040,6 +24121,9 @@ export namespace Prisma {
     imageUrl?: SortOrder
     order?: SortOrder
     isActive?: SortOrder
+    textAnimation?: SortOrder
+    imageAnimation?: SortOrder
+    transitionSpeed?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24057,6 +24141,9 @@ export namespace Prisma {
     imageUrl?: SortOrder
     order?: SortOrder
     isActive?: SortOrder
+    textAnimation?: SortOrder
+    imageAnimation?: SortOrder
+    transitionSpeed?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }

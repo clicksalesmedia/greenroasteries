@@ -83,6 +83,9 @@ export async function POST(request: NextRequest) {
         imageUrl: data.imageUrl,
         order: data.order || 0,
         isActive: data.isActive === undefined ? true : data.isActive,
+        textAnimation: data.textAnimation || 'fade-up',
+        imageAnimation: data.imageAnimation || 'fade-in',
+        transitionSpeed: data.transitionSpeed || 'medium',
       },
     });
     

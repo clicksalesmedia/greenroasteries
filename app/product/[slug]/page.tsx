@@ -4,12 +4,13 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { StarIcon, ShoppingCartIcon, EyeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { StarIcon, ShoppingCartIcon, EyeIcon, MagnifyingGlassIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { useCart } from '../../contexts/CartContext';
 import { useToast } from '../../contexts/ToastContext';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ProductVariation {
   id: string;
@@ -168,6 +169,10 @@ export default function ProductPage() {
   const [availableBeans, setAvailableBeans] = useState<string[]>([]);
   const [availableAdditions, setAvailableAdditions] = useState<string[]>([]);
   const [variationImage, setVariationImage] = useState<string | null>(null);
+  const [currentCarouselPage, setCurrentCarouselPage] = useState(0);
+  const ITEMS_PER_PAGE = 4; // Number of recommended products to show at once on desktop
+  const MOBILE_ITEMS_PER_PAGE = 2; // Number of recommended products to show at once on mobile
+  const [isMobile, setIsMobile] = useState(false);
   
   const { addItem } = useCart();
   const { showToast } = useToast();
@@ -695,6 +700,51 @@ export default function ProductPage() {
     return stars;
   };
   
+  // Check screen size for responsive carousel
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
+  }, []);
+  
+  // Carousel navigation
+  const nextCarouselPage = () => {
+    const totalItems = recommendedProducts.length;
+    const itemsPerPage = isMobile ? MOBILE_ITEMS_PER_PAGE : ITEMS_PER_PAGE;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    
+    setCurrentCarouselPage((prev) => (prev + 1) % totalPages);
+  };
+  
+  const prevCarouselPage = () => {
+    const totalItems = recommendedProducts.length;
+    const itemsPerPage = isMobile ? MOBILE_ITEMS_PER_PAGE : ITEMS_PER_PAGE;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    
+    setCurrentCarouselPage((prev) => (prev - 1 + totalPages) % totalPages);
+  };
+  
+  // Update the handleProductClick function
+  const handleProductClick = async (productSlug: string) => {
+    if (productSlug && productSlug !== slug) {
+      try {
+        // Navigate to the new product page
+        await router.push(`/product/${productSlug}`);
+        // Reload the page to ensure fresh data
+        window.location.reload();
+      } catch (error) {
+        console.error('Navigation error:', error);
+      }
+    }
+  };
+  
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-16 h-screen flex items-center justify-center">
@@ -996,35 +1046,99 @@ export default function ProductPage() {
         <div className="mt-16 sm:mt-24">
           <h2 className="text-2xl font-bold mb-8 text-center">{t('you_may_also_like', 'You May Also Like')}</h2>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
-            {recommendedProducts.map((product) => (
-              <Link href={`/product/${product.slug}`} key={product.id} className="group">
-                <div className="relative rounded-lg overflow-hidden aspect-square mb-3">
-                  <Image 
-                    src={product.imageUrl || product.images[0] || '/images/placeholder.jpg'} 
-                    alt={contentByLang(product.name, product.nameAr || product.name)} 
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                    className="object-contain group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                
-                <h3 className="font-medium text-gray-900 group-hover:text-black transition-colors duration-200 text-sm sm:text-base">
-                  {contentByLang(product.name, product.nameAr || product.name)}
-                </h3>
-                
-                <div className="flex justify-between items-center mt-1">
-                  <span className="font-medium text-black">{product.price.toFixed(2)}D</span>
-                  
-                  {product.rating && (
-                    <div className="flex items-center">
-                      <StarIconSolid className="h-3 w-3 text-yellow-400" />
-                      <span className="ml-1 text-xs text-gray-600">{product.rating.toFixed(1)}</span>
-                    </div>
-                  )}
-                </div>
-              </Link>
-            ))}
+          <div className="relative">
+            {/* Carousel Navigation Controls */}
+            <button 
+              onClick={prevCarouselPage}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition-colors"
+            >
+              <ChevronLeftIcon className="h-6 w-6" />
+            </button>
+            
+            <button 
+              onClick={nextCarouselPage}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition-colors"
+            >
+              <ChevronRightIcon className="h-6 w-6" />
+            </button>
+            
+            {/* Carousel Container */}
+            <div className="overflow-hidden px-8">
+              <AnimatePresence mode="wait">
+                <motion.div 
+                  key={currentCarouselPage}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 0.3 }}
+                  className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8"
+                >
+                  {recommendedProducts
+                    .slice(
+                      currentCarouselPage * (isMobile ? MOBILE_ITEMS_PER_PAGE : ITEMS_PER_PAGE),
+                      (currentCarouselPage + 1) * (isMobile ? MOBILE_ITEMS_PER_PAGE : ITEMS_PER_PAGE)
+                    )
+                    .map((recommendedProduct) => (
+                      <Link 
+                        key={recommendedProduct.id}
+                        href={`/product/${recommendedProduct.id}`}
+                        className="group block cursor-pointer"
+                        onClick={() => {
+                          // Reset states
+                          setLoading(true);
+                          setProduct(null);
+                          // Force page refresh
+                          setTimeout(() => window.location.reload(), 100);
+                        }}
+                      >
+                        <div className="relative rounded-lg overflow-hidden aspect-square mb-3">
+                          <Image 
+                            src={recommendedProduct.imageUrl || (recommendedProduct.images && recommendedProduct.images.length > 0 ? recommendedProduct.images[0] : '/images/placeholder.jpg')} 
+                            alt={contentByLang(recommendedProduct.name, recommendedProduct.nameAr || recommendedProduct.name)} 
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                            className="object-contain group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                        
+                        <h3 className="font-medium text-gray-900 group-hover:text-black transition-colors duration-200 text-sm sm:text-base">
+                          {contentByLang(recommendedProduct.name, recommendedProduct.nameAr || recommendedProduct.name)}
+                        </h3>
+                        
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="font-medium text-black">{recommendedProduct.price.toFixed(2)}D</span>
+                          
+                          {recommendedProduct.rating && (
+                            <div className="flex items-center">
+                              <StarIconSolid className="h-3 w-3 text-yellow-400" />
+                              <span className="ml-1 text-xs text-gray-600">{recommendedProduct.rating.toFixed(1)}</span>
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    ))}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            
+            {/* Pagination Dots */}
+            {recommendedProducts.length > (isMobile ? MOBILE_ITEMS_PER_PAGE : ITEMS_PER_PAGE) && (
+              <div className="flex justify-center mt-6 gap-2">
+                {Array.from(
+                  { length: Math.ceil(recommendedProducts.length / (isMobile ? MOBILE_ITEMS_PER_PAGE : ITEMS_PER_PAGE)) }, 
+                  (_, i) => (
+                    <button 
+                      key={i} 
+                      onClick={() => setCurrentCarouselPage(i)}
+                      className={`w-2 h-2 rounded-full transition-colors ${
+                        i === currentCarouselPage ? 'bg-black' : 'bg-gray-300'
+                      }`}
+                      aria-label={`Go to slide ${i + 1}`}
+                    />
+                  )
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

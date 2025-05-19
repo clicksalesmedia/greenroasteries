@@ -95,6 +95,9 @@ export async function PUT(
       imageUrl: data.imageUrl || existingSlider.imageUrl,
       order: data.order !== undefined ? data.order : existingSlider.order,
       isActive: data.isActive !== undefined ? data.isActive : existingSlider.isActive,
+      textAnimation: data.textAnimation || existingSlider.textAnimation || 'fade-up',
+      imageAnimation: data.imageAnimation || existingSlider.imageAnimation || 'fade-in',
+      transitionSpeed: data.transitionSpeed || existingSlider.transitionSpeed || 'medium',
     };
     
     console.log('Prepared update data:', JSON.stringify(updateData, null, 2));

@@ -303,6 +303,9 @@ exports.Prisma.SliderScalarFieldEnum = {
   imageUrl: 'imageUrl',
   order: 'order',
   isActive: 'isActive',
+  textAnimation: 'textAnimation',
+  imageAnimation: 'imageAnimation',
+  transitionSpeed: 'transitionSpeed',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

@@ -32,6 +32,9 @@ interface HeroSlide {
   buttonLink: string;
   image: string;
   backgroundColor: string;
+  textAnimation: string;
+  imageAnimation: string;
+  transitionSpeed: string;
 }
 
 // Promotion Banner Interface
@@ -114,7 +117,10 @@ export default function Home() {
             buttonTextAr: slide.buttonTextAr,
             buttonLink: slide.buttonLink,
             image: slide.imageUrl,
-            backgroundColor: slide.backgroundColor
+            backgroundColor: slide.backgroundColor,
+            textAnimation: slide.textAnimation || 'fade-up',
+            imageAnimation: slide.imageAnimation || 'fade-in',
+            transitionSpeed: slide.transitionSpeed || 'medium',
           }));
           
           setHeroSlides(slides);
@@ -131,7 +137,10 @@ export default function Home() {
               buttonTextAr: "استكشف المجموعة",
               buttonLink: "/shop",
               image: "/images/packages.png",
-              backgroundColor: "#f4f6f8"
+              backgroundColor: "#f4f6f8",
+              textAnimation: 'fade-up',
+              imageAnimation: 'fade-in',
+              transitionSpeed: 'medium',
             },
             {
               id: 2,
@@ -143,7 +152,10 @@ export default function Home() {
               buttonTextAr: "إطلع على المناطق",
               buttonLink: "/shop",
               image: "/images/packages.png",
-              backgroundColor: "#f8f4f4"
+              backgroundColor: "#f8f4f4",
+              textAnimation: 'fade-up',
+              imageAnimation: 'fade-in',
+              transitionSpeed: 'medium',
             },
             {
               id: 3,
@@ -155,7 +167,10 @@ export default function Home() {
               buttonTextAr: "اشتري المبيعات المميزة",
               buttonLink: "/shop",
               image: "/images/packages.png",
-              backgroundColor: "#f3f8f4"
+              backgroundColor: "#f3f8f4",
+              textAnimation: 'fade-up',
+              imageAnimation: 'fade-in',
+              transitionSpeed: 'medium',
             }
           ]);
         }
@@ -174,7 +189,10 @@ export default function Home() {
             buttonTextAr: "استكشف المجموعة",
             buttonLink: "/shop",
             image: "/images/packages.png",
-            backgroundColor: "#f4f6f8"
+            backgroundColor: "#f4f6f8",
+            textAnimation: 'fade-up',
+            imageAnimation: 'fade-in',
+            transitionSpeed: 'medium',
           },
           {
             id: 2,
@@ -186,7 +204,10 @@ export default function Home() {
             buttonTextAr: "إطلع على المناطق",
             buttonLink: "/shop",
             image: "/images/packages.png",
-            backgroundColor: "#f8f4f4"
+            backgroundColor: "#f8f4f4",
+            textAnimation: 'fade-up',
+            imageAnimation: 'fade-in',
+            transitionSpeed: 'medium',
           },
           {
             id: 3,
@@ -198,7 +219,10 @@ export default function Home() {
             buttonTextAr: "اشتري المبيعات المميزة",
             buttonLink: "/shop",
             image: "/images/packages.png",
-            backgroundColor: "#f3f8f4"
+            backgroundColor: "#f3f8f4",
+            textAnimation: 'fade-up',
+            imageAnimation: 'fade-in',
+            transitionSpeed: 'medium',
           }
         ]);
       } finally {
@@ -650,11 +674,11 @@ export default function Home() {
   };
 
   // Slider variants for animations
-  const sliderVariants = {
-    incoming: (direction: number) => ({
+  const getSliderVariants = (direction: number) => ({
+    incoming: {
       x: direction > 0 ? "100%" : "-100%",
       opacity: 0
-    }),
+    },
     active: {
       x: 0,
       opacity: 1,
@@ -663,21 +687,82 @@ export default function Home() {
         opacity: { duration: 0.5, ease: "easeIn" }
       }
     },
-    exit: (direction: number) => ({
+    exit: {
       x: direction < 0 ? "100%" : "-100%",
       opacity: 0,
       transition: {
         x: { type: "tween", ease: [0.4, 0, 0.2, 1], duration: 0.7 },
         opacity: { duration: 0.4, ease: "easeOut" }
       }
-    })
+    }
+  });
+
+  // Generate text variant based on animation type and speed
+  const getTextVariants = (animation: string, speed: string) => {
+    // Set up hidden state based on animation type
+    const hidden = animation === 'fade-up' ? { opacity: 0, y: 30 } :
+                   animation === 'fade-down' ? { opacity: 0, y: -30 } :
+                   animation === 'fade-left' ? { opacity: 0, x: -30 } :
+                   animation === 'fade-right' ? { opacity: 0, x: 30 } :
+                   animation === 'zoom-in' ? { opacity: 0, scale: 0.9 } :
+                   animation === 'slide-up' ? { opacity: 0, y: 50 } :
+                   { opacity: 0 };
+    
+    // Set up duration based on speed
+    const duration = speed === 'slow' ? 0.8 : speed === 'medium' ? 0.5 : 0.3;
+    
+    return {
+      hidden,
+      visible: {
+        opacity: 1,
+        y: 0,
+        x: 0,
+        scale: 1,
+        transition: { duration, ease: [0.4, 0, 0.2, 1] }
+      }
+    };
+  };
+
+  // Generate image variant based on animation type and speed
+  const getImageVariants = (animation: string, speed: string) => {
+    // Set up hidden state based on animation type
+    const hidden = animation === 'fade-in' ? { opacity: 0 } :
+                   animation === 'zoom-in' ? { opacity: 0, scale: 0.8 } :
+                   animation === 'slide-up' ? { opacity: 0, y: 40 } :
+                   animation === 'slide-in-right' ? { opacity: 0, x: 50 } :
+                   animation === 'slide-in-left' ? { opacity: 0, x: -50 } :
+                   animation === 'bounce' ? { opacity: 0, y: 50 } :
+                   { opacity: 0 };
+    
+    // Set up transition parameters based on speed and animation type
+    const duration = speed === 'slow' ? 0.9 : speed === 'medium' ? 0.6 : 0.4;
+    const delay = speed === 'slow' ? 0.3 : speed === 'medium' ? 0.2 : 0.1;
+    const type = animation === 'bounce' ? 'spring' : 'tween';
+    const bounce = animation === 'bounce' ? 0.5 : undefined;
+    
+    return {
+      hidden,
+      visible: {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        scale: 1,
+        transition: {
+          type,
+          bounce,
+          duration,
+          delay,
+          ease: [0.25, 0.1, 0.25, 1]
+        }
+      }
+    };
   };
 
   const contentBlockVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.3 } // Faster stagger
+      transition: { staggerChildren: 0.1, delayChildren: 0.3 }
     }
   };
 
@@ -758,11 +843,12 @@ export default function Home() {
             position: absolute; 
             top: 0;
             left: 0;
-            /* Subtle grid background */
+            /* Subtle grid background and gradient */
             background-image: 
               linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
-              linear-gradient(to right, rgba(0,0,0,0.02) 1px, transparent 1px);
-            background-size: 20px 20px;
+              linear-gradient(to right, rgba(0,0,0,0.02) 1px, transparent 1px),
+              linear-gradient(to right, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+            background-size: 20px 20px, 20px 20px, 100% 100%;
         }
         
         .slide-content-container { 
@@ -1163,7 +1249,7 @@ export default function Home() {
               <motion.div
                 key={currentSlide}
                 custom={direction}
-                variants={sliderVariants}
+                variants={getSliderVariants(direction)}
                 initial="incoming"
                 animate="active"
                 exit="exit"
@@ -1172,26 +1258,97 @@ export default function Home() {
               >
                 <motion.div 
                   className="slide-content-container"
-                  variants={contentBlockVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                 >
-                  <motion.h1 variants={textLineVariants} className="slide-title">
+                  <motion.h1 
+                    initial={{ 
+                      opacity: 0, 
+                      y: heroSlides[currentSlide].textAnimation === 'fade-up' ? 30 : 
+                         heroSlides[currentSlide].textAnimation === 'fade-down' ? -30 : 
+                         0,
+                      x: heroSlides[currentSlide].textAnimation === 'fade-left' ? -30 : 
+                         heroSlides[currentSlide].textAnimation === 'fade-right' ? 30 : 
+                         0,
+                      scale: heroSlides[currentSlide].textAnimation === 'zoom-in' ? 0.9 : 1
+                    }}
+                    animate={{ 
+                      opacity: 1, 
+                      y: 0, 
+                      x: 0, 
+                      scale: 1,
+                      transition: {
+                        duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.8 : 
+                                  heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.5 : 
+                                  0.3,
+                        ease: [0.4, 0, 0.2, 1]
+                      }
+                    }}
+                    className="slide-title"
+                  >
                     {contentByLang(
                       heroSlides[currentSlide].title,
                       heroSlides[currentSlide].titleAr || heroSlides[currentSlide].title
                     )}
                   </motion.h1>
                   
-                  <motion.p variants={textLineVariants} className="slide-subtitle">
+                  <motion.p 
+                    initial={{ 
+                      opacity: 0, 
+                      y: heroSlides[currentSlide].textAnimation === 'fade-up' ? 30 : 
+                         heroSlides[currentSlide].textAnimation === 'fade-down' ? -30 : 
+                         0,
+                      x: heroSlides[currentSlide].textAnimation === 'fade-left' ? -30 : 
+                         heroSlides[currentSlide].textAnimation === 'fade-right' ? 30 : 
+                         0,
+                      scale: heroSlides[currentSlide].textAnimation === 'zoom-in' ? 0.9 : 1
+                    }}
+                    animate={{ 
+                      opacity: 1, 
+                      y: 0, 
+                      x: 0, 
+                      scale: 1,
+                      transition: {
+                        duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.8 : 
+                                  heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.5 : 
+                                  0.3,
+                        delay: 0.1,
+                        ease: [0.4, 0, 0.2, 1]
+                      }
+                    }}
+                    className="slide-subtitle"
+                  >
                     {contentByLang(
                       heroSlides[currentSlide].subtitle,
                       heroSlides[currentSlide].subtitleAr || heroSlides[currentSlide].subtitle
                     )}
                   </motion.p>
                   
-                  <motion.div variants={textLineVariants}>
+                  <motion.div 
+                    initial={{ 
+                      opacity: 0, 
+                      y: heroSlides[currentSlide].textAnimation === 'fade-up' ? 30 : 
+                         heroSlides[currentSlide].textAnimation === 'fade-down' ? -30 : 
+                         0,
+                      x: heroSlides[currentSlide].textAnimation === 'fade-left' ? -30 : 
+                         heroSlides[currentSlide].textAnimation === 'fade-right' ? 30 : 
+                         0,
+                      scale: heroSlides[currentSlide].textAnimation === 'zoom-in' ? 0.9 : 1
+                    }}
+                    animate={{ 
+                      opacity: 1, 
+                      y: 0, 
+                      x: 0, 
+                      scale: 1,
+                      transition: {
+                        duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.8 : 
+                                  heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.5 : 
+                                  0.3,
+                        delay: 0.2,
+                        ease: [0.4, 0, 0.2, 1]
+                      }
+                    }}
+                  >
                     <Link href={heroSlides[currentSlide].buttonLink} className="slide-button">
                       {contentByLang(
                         heroSlides[currentSlide].buttonText,
@@ -1203,10 +1360,30 @@ export default function Home() {
 
                 <motion.div 
                   className="slide-image-container"
-                  variants={imageVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
+                  initial={{ 
+                    opacity: 0, 
+                    y: heroSlides[currentSlide].imageAnimation === 'slide-up' ? 40 : 0,
+                    x: heroSlides[currentSlide].imageAnimation === 'slide-in-right' ? 50 : 
+                       heroSlides[currentSlide].imageAnimation === 'slide-in-left' ? -50 : 0,
+                    scale: heroSlides[currentSlide].imageAnimation === 'zoom-in' ? 0.8 : 1
+                  }}
+                  animate={{ 
+                    opacity: 1, 
+                    y: 0, 
+                    x: 0, 
+                    scale: 1,
+                    transition: {
+                      type: heroSlides[currentSlide].imageAnimation === 'bounce' ? 'spring' : 'tween',
+                      bounce: heroSlides[currentSlide].imageAnimation === 'bounce' ? 0.5 : undefined,
+                      duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.9 : 
+                               heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.6 : 
+                               0.4,
+                      delay: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.3 : 
+                             heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.2 : 
+                             0.1,
+                      ease: [0.25, 0.1, 0.25, 1]
+                    }
+                  }}
                 >
                   <Image 
                     src={heroSlides[currentSlide].image} 
