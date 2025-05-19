@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import * as jose from 'jose';
 
 // JWT secret key should be stored in env variables
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET || '8Vgq2eXQ4XYwfvXf19GKrOdnw22Y69P71A9ceb6e24k= ';
 
 interface JwtPayload {
   id: string;
