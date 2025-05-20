@@ -69,6 +69,10 @@ update_code() {
         # Store the current git hash
         OLD_HASH=$(git rev-parse HEAD)
         
+        # Stash any local changes
+        echo "Stashing local changes..."
+        git stash
+        
         # Pull latest changes
         git pull origin main
         
