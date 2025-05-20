@@ -300,6 +300,11 @@ exports.Prisma.SliderScalarFieldEnum = {
   buttonTextAr: 'buttonTextAr',
   buttonLink: 'buttonLink',
   backgroundColor: 'backgroundColor',
+  textColor: 'textColor',
+  buttonColor: 'buttonColor',
+  overlayColor: 'overlayColor',
+  overlayOpacity: 'overlayOpacity',
+  overlayImageUrl: 'overlayImageUrl',
   imageUrl: 'imageUrl',
   order: 'order',
   isActive: 'isActive',
@@ -310,9 +315,27 @@ exports.Prisma.SliderScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.PageContentScalarFieldEnum = {
+  id: 'id',
+  pageType: 'pageType',
+  title: 'title',
+  titleAr: 'titleAr',
+  content: 'content',
+  contentAr: 'contentAr',
+  lastUpdated: 'lastUpdated',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -323,6 +346,12 @@ exports.Prisma.QueryMode = {
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 exports.UserRole = exports.$Enums.UserRole = {
   ADMIN: 'ADMIN',
@@ -348,6 +377,13 @@ exports.PromotionType = exports.$Enums.PromotionType = {
   FREE_SHIPPING: 'FREE_SHIPPING'
 };
 
+exports.PageType = exports.$Enums.PageType = {
+  PRIVACY_POLICY: 'PRIVACY_POLICY',
+  REFUND_POLICY: 'REFUND_POLICY',
+  TERMS_CONDITIONS: 'TERMS_CONDITIONS',
+  ABOUT_US: 'ABOUT_US'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Permission: 'Permission',
@@ -363,7 +399,8 @@ exports.Prisma.ModelName = {
   Promotion: 'Promotion',
   ProductPromotion: 'ProductPromotion',
   BundleItem: 'BundleItem',
-  Slider: 'Slider'
+  Slider: 'Slider',
+  PageContent: 'PageContent'
 };
 
 /**

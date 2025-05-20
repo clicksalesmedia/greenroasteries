@@ -19,6 +19,8 @@ interface Product {
   slug: string;
   rating?: number;
   category?: string | { name: string; nameAr?: string };
+  discount?: number;
+  discountType?: string;
 }
 
 // Hero banner slide interface
@@ -33,6 +35,11 @@ interface HeroSlide {
   buttonLink: string;
   image: string;
   backgroundColor: string;
+  textColor?: string;
+  buttonColor?: string;
+  overlayColor?: string;
+  overlayOpacity?: number;
+  overlayImageUrl?: string;
   textAnimation: string;
   imageAnimation: string;
   transitionSpeed: string;
@@ -89,6 +96,10 @@ export default function Home() {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [offersLoading, setOffersLoading] = useState(true);
 
+  // Add state for discounted products
+  const [discountedProducts, setDiscountedProducts] = useState<Product[]>([]);
+  const [discountedLoading, setDiscountedLoading] = useState(true);
+
   // Slide change handlers
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev === heroSlides.length - 1 ? 0 : prev + 1));
@@ -121,6 +132,11 @@ export default function Home() {
             buttonLink: slide.buttonLink,
             image: slide.imageUrl,
             backgroundColor: slide.backgroundColor,
+            textColor: slide.textColor || '#111111',
+            buttonColor: slide.buttonColor || '#111111',
+            overlayColor: slide.overlayColor || 'rgba(0,0,0,0)',
+            overlayOpacity: slide.overlayOpacity || 0,
+            overlayImageUrl: slide.overlayImageUrl || undefined,
             textAnimation: slide.textAnimation || 'fade-up',
             imageAnimation: slide.imageAnimation || 'fade-in',
             transitionSpeed: slide.transitionSpeed || 'medium',
@@ -141,6 +157,11 @@ export default function Home() {
               buttonLink: "/shop",
               image: "/images/packages.png",
               backgroundColor: "#f4f6f8",
+              textColor: "#111111",
+              buttonColor: "#ffffff",
+              overlayColor: "#555555",
+              overlayOpacity: 0.7,
+              overlayImageUrl: "/images/overlay-1.jpg",
               textAnimation: 'fade-up',
               imageAnimation: 'fade-in',
               transitionSpeed: 'medium',
@@ -156,6 +177,11 @@ export default function Home() {
               buttonLink: "/shop",
               image: "/images/packages.png",
               backgroundColor: "#f8f4f4",
+              textColor: "#555555",
+              buttonColor: "#ffffff",
+              overlayColor: "#555555",
+              overlayOpacity: 0.7,
+              overlayImageUrl: "/images/overlay-2.jpg",
               textAnimation: 'fade-up',
               imageAnimation: 'fade-in',
               transitionSpeed: 'medium',
@@ -171,6 +197,11 @@ export default function Home() {
               buttonLink: "/shop",
               image: "/images/packages.png",
               backgroundColor: "#f3f8f4",
+              textColor: "#555555",
+              buttonColor: "#ffffff",
+              overlayColor: "#555555",
+              overlayOpacity: 0.7,
+              overlayImageUrl: "/images/overlay-3.jpg",
               textAnimation: 'fade-up',
               imageAnimation: 'fade-in',
               transitionSpeed: 'medium',
@@ -193,6 +224,11 @@ export default function Home() {
             buttonLink: "/shop",
             image: "/images/packages.png",
             backgroundColor: "#f4f6f8",
+            textColor: "#111111",
+            buttonColor: "#ffffff",
+            overlayColor: "#555555",
+            overlayOpacity: 0.7,
+            overlayImageUrl: "/images/overlay-1.jpg",
             textAnimation: 'fade-up',
             imageAnimation: 'fade-in',
             transitionSpeed: 'medium',
@@ -208,6 +244,11 @@ export default function Home() {
             buttonLink: "/shop",
             image: "/images/packages.png",
             backgroundColor: "#f8f4f4",
+            textColor: "#555555",
+            buttonColor: "#ffffff",
+            overlayColor: "#555555",
+            overlayOpacity: 0.7,
+            overlayImageUrl: "/images/overlay-2.jpg",
             textAnimation: 'fade-up',
             imageAnimation: 'fade-in',
             transitionSpeed: 'medium',
@@ -223,6 +264,11 @@ export default function Home() {
             buttonLink: "/shop",
             image: "/images/packages.png",
             backgroundColor: "#f3f8f4",
+            textColor: "#555555",
+            buttonColor: "#ffffff",
+            overlayColor: "#555555",
+            overlayOpacity: 0.7,
+            overlayImageUrl: "/images/overlay-3.jpg",
             textAnimation: 'fade-up',
             imageAnimation: 'fade-in',
             transitionSpeed: 'medium',
@@ -298,7 +344,9 @@ export default function Home() {
                 imageUrl: imageUrl || '/images/coffee-placeholder.jpg',
                 slug: product.slug || product.name?.toLowerCase().replace(/\s+/g, '-') || 'product',
                 rating: product.rating || 0,
-                category: product.category || ''
+                category: product.category || '',
+                discount: product.discount || 0,
+                discountType: product.discountType || 'PERCENTAGE',
               };
             });
 
@@ -339,7 +387,9 @@ export default function Home() {
           imageUrl: '/images/coffee-1.jpg',
           slug: 'ethiopian-yirgacheffe',
           rating: 4.8,
-          category: { name: 'Single Origin', nameAr: 'أحادي المصدر' }
+          category: { name: 'Single Origin', nameAr: 'أحادي المصدر' },
+          discount: 0,
+          discountType: 'PERCENTAGE',
         },
         {
           id: 'prod-2',
@@ -350,7 +400,9 @@ export default function Home() {
           imageUrl: '/images/coffee-2.jpg',
           slug: 'colombian-supremo',
           rating: 4.6,
-          category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
+          category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' },
+          discount: 0,
+          discountType: 'PERCENTAGE',
         },
         {
           id: 'prod-3',
@@ -361,7 +413,9 @@ export default function Home() {
           imageUrl: '/images/coffee-3.jpg',
           slug: 'espresso-blend',
           rating: 4.9,
-          category: { name: 'Espresso Roast', nameAr: 'تحميص إسبريسو' }
+          category: { name: 'Espresso Roast', nameAr: 'تحميص إسبريسو' },
+          discount: 0,
+          discountType: 'PERCENTAGE',
         },
         {
           id: 'prod-4',
@@ -372,7 +426,9 @@ export default function Home() {
           imageUrl: '/images/coffee-4.jpg',
           slug: 'sumatra-mandheling',
           rating: 4.7,
-          category: { name: 'Dark Roast', nameAr: 'تحميص داكن' }
+          category: { name: 'Dark Roast', nameAr: 'تحميص داكن' },
+          discount: 0,
+          discountType: 'PERCENTAGE',
         },
         {
           id: 'prod-5',
@@ -383,7 +439,9 @@ export default function Home() {
           imageUrl: '/images/coffee-1.jpg',
           slug: 'guatemalan-antigua',
           rating: 4.5,
-          category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
+          category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' },
+          discount: 0,
+          discountType: 'PERCENTAGE',
         },
         {
           id: 'prod-6',
@@ -394,7 +452,9 @@ export default function Home() {
           imageUrl: '/images/coffee-2.jpg',
           slug: 'kenya-aa',
           rating: 4.8,
-          category: { name: 'Light Roast', nameAr: 'تحميص فاتح' }
+          category: { name: 'Light Roast', nameAr: 'تحميص فاتح' },
+          discount: 0,
+          discountType: 'PERCENTAGE',
         },
         {
           id: 'prod-7',
@@ -405,7 +465,9 @@ export default function Home() {
           imageUrl: '/images/coffee-3.jpg',
           slug: 'costa-rican-tarrazu',
           rating: 4.7,
-          category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
+          category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' },
+          discount: 0,
+          discountType: 'PERCENTAGE',
         },
         {
           id: 'prod-8',
@@ -416,7 +478,9 @@ export default function Home() {
           imageUrl: '/images/coffee-4.jpg',
           slug: 'french-roast',
           rating: 4.5,
-          category: { name: 'Dark Roast', nameAr: 'تحميص داكن' }
+          category: { name: 'Dark Roast', nameAr: 'تحميص داكن' },
+          discount: 0,
+          discountType: 'PERCENTAGE',
         },
         {
           id: 'prod-9',
@@ -427,7 +491,9 @@ export default function Home() {
           imageUrl: '/images/coffee-1.jpg',
           slug: 'jamaican-blue-mountain',
           rating: 4.9,
-          category: { name: 'Premium', nameAr: 'ممتاز' }
+          category: { name: 'Premium', nameAr: 'ممتاز' },
+          discount: 0,
+          discountType: 'PERCENTAGE',
         },
         {
           id: 'prod-10',
@@ -438,7 +504,9 @@ export default function Home() {
           imageUrl: '/images/coffee-2.jpg',
           slug: 'breakfast-blend',
           rating: 4.4,
-          category: { name: 'Light Roast', nameAr: 'تحميص فاتح' }
+          category: { name: 'Light Roast', nameAr: 'تحميص فاتح' },
+          discount: 0,
+          discountType: 'PERCENTAGE',
         },
         {
           id: 'prod-11',
@@ -449,7 +517,9 @@ export default function Home() {
           imageUrl: '/images/coffee-3.jpg',
           slug: 'mexican-chiapas',
           rating: 4.6,
-          category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' }
+          category: { name: 'Medium Roast', nameAr: 'تحميص متوسط' },
+          discount: 0,
+          discountType: 'PERCENTAGE',
         },
         {
           id: 'prod-12',
@@ -460,7 +530,9 @@ export default function Home() {
           imageUrl: '/images/coffee-4.jpg',
           slug: 'italian-espresso',
           rating: 4.8,
-          category: { name: 'Espresso', nameAr: 'إسبريسو' }
+          category: { name: 'Espresso', nameAr: 'إسبريسو' },
+          discount: 0,
+          discountType: 'PERCENTAGE',
         }
       ];
       // Shuffle dummy products for random order
@@ -468,6 +540,77 @@ export default function Home() {
     };
 
     fetchFeaturedProducts();
+  }, []);
+
+  // Fetch discounted products
+  useEffect(() => {
+    const fetchDiscountedProducts = async () => {
+      try {
+        setDiscountedLoading(true);
+        
+        // Fetch products with active promotions
+        const response = await fetch('/api/products?discounted=true', {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Fetched discounted products:', data.length);
+          
+          // Process the data similar to featured products
+          if (data && data.length > 0) {
+            const processedProducts = data.map((product: any) => {
+              // Handle and normalize the images data
+              let imageUrl = product.imageUrl || '';
+              
+              if (product.images && product.images.length > 0) {
+                const firstImage = product.images[0];
+                if (typeof firstImage === 'string') {
+                  imageUrl = firstImage || imageUrl;
+                } else if (firstImage && typeof firstImage === 'object') {
+                  if (firstImage.url) {
+                    imageUrl = firstImage.url;
+                  }
+                }
+              }
+              
+              return {
+                id: product.id,
+                name: product.name || '',
+                nameAr: product.nameAr || '',
+                price: product.price || 0,
+                discount: product.discount || 0,
+                discountType: product.discountType || 'PERCENTAGE',
+                images: product.images || [],
+                imageUrl: imageUrl || '/images/coffee-placeholder.jpg',
+                slug: product.slug || product.name?.toLowerCase().replace(/\s+/g, '-') || 'product',
+                rating: product.rating || 0,
+                category: product.category || ''
+              };
+            });
+
+            setDiscountedProducts(processedProducts);
+          } else {
+            console.warn('No discounted products returned from API, using fallback data');
+            // Use some fallback data or empty array
+            setDiscountedProducts([]);
+          }
+        } else {
+          console.error('Failed to fetch discounted products');
+          setDiscountedProducts([]);
+        }
+      } catch (error) {
+        console.error('Error fetching discounted products:', error);
+        setDiscountedProducts([]);
+      } finally {
+        setDiscountedLoading(false);
+      }
+    };
+
+    fetchDiscountedProducts();
   }, []);
 
   // Fetch Promotion Banners
@@ -848,6 +991,32 @@ export default function Home() {
     return <MaintenanceMode />;
   }
 
+  // Format discount display
+  const getDiscountDisplay = (product: any) => {
+    if (!product.discount) return null;
+    
+    if (product.discountType === 'PERCENTAGE') {
+      return `-${product.discount}%`;
+    } else if (product.discountType === 'FIXED_AMOUNT') {
+      return `-${product.discount}D`;
+    } else {
+      return 'Sale';
+    }
+  };
+
+  // Calculate discounted price
+  const getDiscountedPrice = (price: number, discount: number | undefined, discountType: string | undefined) => {
+    if (!discount) return price;
+    
+    if (discountType === 'PERCENTAGE') {
+      return price * (1 - discount / 100);
+    } else if (discountType === 'FIXED_AMOUNT') {
+      return Math.max(0, price - discount);
+    }
+    
+    return price;
+  };
+
   return (
     <div className="bg-white" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <style jsx global>{`
@@ -857,6 +1026,7 @@ export default function Home() {
             max-height: 750px;
             position: relative;
             overflow: hidden;
+            background-color: #fbfbfd;
         }
         .slider-container {
             position: relative;
@@ -872,37 +1042,37 @@ export default function Home() {
             position: absolute; 
             top: 0;
             left: 0;
-            /* Subtle grid background and gradient */
+            /* Subtle pattern and gradient background */
             background-image: 
-              linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
-              linear-gradient(to right, rgba(0,0,0,0.02) 1px, transparent 1px),
-              linear-gradient(to right, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+              radial-gradient(circle at 25% 25%, rgba(0,0,0,0.01) 1%, transparent 1%),
+              radial-gradient(circle at 75% 75%, rgba(0,0,0,0.01) 1%, transparent 1%),
+              linear-gradient(to right, rgba(255,255,255,0.2), rgba(255,255,255,0));
             background-size: 20px 20px, 20px 20px, 100% 100%;
         }
         
         .slide-content-container { 
             position: absolute;
-            left: 5%; /* For LTR mode */
+            left: 8%; /* Increased margin for modern look */
             right: auto; 
             top: 50%;
             transform: translateY(-50%);
             width: auto;
-            max-width: 42%; 
+            max-width: 40%; 
             text-align: left; /* Default for LTR */
             z-index: 10;
-            padding: 20px;
+            padding: 0;
         }
 
         /* RTL adjustments for slide content */
         [dir="rtl"] .slide-content-container {
             left: auto;
-            right: 5%;
+            right: 8%;
             text-align: right;
         }
 
         .slide-image-container { 
             position: absolute;
-            right: 4%; /* For LTR mode */
+            right: 8%; /* Increased margin for modern look */
             left: auto; 
             bottom: 0; 
             width: 52%; 
@@ -916,19 +1086,20 @@ export default function Home() {
         /* RTL adjustments for slide image */
         [dir="rtl"] .slide-image-container {
             right: auto;
-            left: 4%;
+            left: 8%;
         }
 
         .slide-image { 
             max-width: 100%;
             max-height: 100%;
             object-fit: contain; 
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.07)); /* Softer shadow */
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.05)); /* Softer, larger shadow for depth */
         }
 
+        /* New design for slide dots */
         .slide-dots {
             position: absolute;
-            bottom: 30px;
+            bottom: 40px; /* Increased distance from bottom */
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -936,23 +1107,41 @@ export default function Home() {
             z-index: 20;
         }
         .slide-dot {
-            width: 11px;
-            height: 11px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background-color: rgba(0, 0, 0, 0.15);
             cursor: pointer;
-            transition: background-color 0.3s ease, width 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border: 2px solid transparent;
+        }
+        .slide-dot:after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            background-color: transparent;
+            transition: all 0.3s ease;
         }
         .slide-dot.active {
-            background-color: #000000; /* Consistent dark color - Changed to black */
-            width: 30px;
-            border-radius: 5.5px;
+            background-color: #000000;
+            transform: scale(1.2);
         }
+        .slide-dot:hover:not(.active) {
+            background-color: rgba(0, 0, 0, 0.3);
+            transform: scale(1.1);
+        }
+        
+        /* Modern arrow navigation */
         .slide-arrows {
             position: absolute;
             top: 50%;
-            width: calc(100% - 50px); 
-            left: 25px; 
+            width: calc(100% - 40px); 
+            left: 20px; 
             display: flex;
             justify-content: space-between;
             transform: translateY(-50%);
@@ -963,71 +1152,128 @@ export default function Home() {
         /* RTL adjustment for slide arrows container */
         [dir="rtl"] .slide-arrows {
             left: auto;
-            right: 25px;
+            right: 20px;
             flex-direction: row-reverse;
         }
 
         .slide-arrow {
-            width: 42px;
-            height: 42px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.6);
+            background-color: rgba(255, 255, 255, 0.8);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: auto;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
         
         .slide-arrow:hover {
-            background-color: #333333; /* Changed to a darker gray */
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transform: scale(1.05) translateY(-50%);
+            background-color: #ffffff;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+            transform: scale(1.05);
         }
         
         .slide-arrow svg {
-            width: 18px;
-            height: 18px;
-            color: #000000; /* Changed to black */
+            width: 20px;
+            height: 20px;
+            color: #111111;
+            transition: transform 0.3s ease;
+        }
+        
+        .slide-arrow:hover svg {
+            transform: scale(1.1);
         }
 
         /* RTL adjustments for slide arrows */
         [dir="rtl"] .slide-arrow svg {
             transform: scaleX(-1);
         }
-
+        
+        /* Modern typography for slide content */
         .slide-title {
-            font-size: 2.6rem; 
-            line-height: 1.2;
-            font-weight: 700; 
-            color: #000000; /* Dark grey, almost black - Changed to black */
-            margin-bottom: 1rem;
+            font-size: 3.2rem; 
+            line-height: 1.1;
+            font-weight: 800; 
+            color: #111111;
+            margin-bottom: 1.2rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #111111, #555555);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
         }
+        
         .slide-subtitle {
-            font-size: 1.05rem; 
+            font-size: 1.1rem; 
             line-height: 1.65;
-            color: #333333; /* Softer grey for subtitle - Changed to darker gray */
-            margin-bottom: 1.75rem;
+            color: #555555;
+            margin-bottom: 2rem;
+            max-width: 90%;
         }
+        
         .slide-button {
-            background-color: #000000; /* Match title for strong CTA - Changed to black */
+            background-color: #111111;
             color: white;
-            padding: 0.75rem 1.75rem;
-            border-radius: 5px; 
-            font-weight: 500; 
-            letter-spacing: 0.2px;
-            display: inline-block;
-            transition: background-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            padding: 0.9rem 2rem;
+            border-radius: 30px; /* More rounded for modern look */
+            font-weight: 600; 
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             text-transform: none; 
-            font-size: 0.875rem;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .slide-button:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: rgba(255,255,255,0.1);
+            transition: width 0.4s ease;
+            z-index: 0;
+        }
+        
         .slide-button:hover {
-            background-color: #333333; /* Changed to a darker gray */
+            background-color: #000000;
             transform: translateY(-2px);
-            box-shadow: 0 3px 7px rgba(0,0,0,0.12);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+        
+        .slide-button:hover:after {
+            width: 100%;
+        }
+        
+        .slide-button span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .slide-button-icon {
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+        }
+        
+        .slide-button:hover .slide-button-icon {
+            transform: translateX(4px);
+        }
+
+        @media (max-width: 1280px) {
+            .slide-title {
+                font-size: 2.8rem;
+            }
         }
 
         @media (max-width: 1024px) { /* Tablet */
@@ -1037,40 +1283,44 @@ export default function Home() {
             }
             .slide-content-container {
                 max-width: 45%;
-                left: 4%;
+                left: 6%;
             }
             .slide-image-container {
                 width: 48%;
                 height: 85%;
-                right: 3%;
+                right: 4%;
             }
             .slide-title {
-                font-size: 2.2rem;
+                font-size: 2.4rem;
             }
             .slide-subtitle {
-                font-size: 0.95rem;
+                font-size: 1rem;
+            }
+            .slide-button {
+                padding: 0.8rem 1.8rem;
             }
         }
 
         @media (max-width: 768px) { /* Mobile */
-             .hero-banner {
+            .hero-banner {
                 height: auto; 
-                min-height: 85vh; 
+                min-height: 90vh; 
             }
             .slider-slide {
                 flex-direction: column-reverse; /* Text above image on mobile */
                 justify-content: center; /* Center content stack */
-                padding: 20px;
-                padding-bottom: 70px; /* Space for dots */
+                padding: 24px;
+                padding-bottom: 80px; /* Space for dots */
             }
             .slide-image-container {
                 position: relative; 
-                width: 80%; 
+                width: 85%; 
                 height: auto; 
-                max-height: 40vh; 
+                max-height: 45vh; 
                 order: 2; /* Image below text */
                 bottom: auto; left: auto; right: auto; /* Reset positioning */
-                margin-top: 1.5rem; /* Space between text and image */
+                margin-top: 2rem; /* Space between text and image */
+                margin-bottom: 2rem;
             }
             .slide-content-container {
                 position: relative; 
@@ -1082,34 +1332,66 @@ export default function Home() {
                 padding: 0;
             }
             .slide-title {
-                font-size: 1.9rem;
-                margin-bottom: 0.75rem;
+                font-size: 2rem;
+                margin-bottom: 1rem;
+                background: linear-gradient(to right, #000000, #555555);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-fill-color: transparent;
+            }
+            .slide-subtitle {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+                max-width: 100%;
+            }
+            .slide-button {
+                padding: 0.8rem 1.6rem;
+                font-size: 0.9rem;
+            }
+            .slide-arrows {
+                width: auto;
+                bottom: 120px;
+                top: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                justify-content: center;
+                gap: 20px;
+            }
+            .slide-arrow {
+                width: 44px;
+                height: 44px;
+            }
+            .slide-dots {
+                bottom: 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .slide-title {
+                font-size: 1.8rem;
             }
             .slide-subtitle {
                 font-size: 0.9rem;
-                margin-bottom: 1.25rem;
             }
-            .slide-button {
-                padding: 0.7rem 1.4rem;
-                font-size: 0.8rem;
-            }
-            .slide-arrows {
-                display: none; 
+            .hero-banner {
+                min-height: 85vh;
             }
         }
-
+        
+        /* Rest of the page styling */
         .featured-item {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid #e5e7eb; /* Light border for definition */
-            border-radius: 0.5rem; /* Rounded corners */
-            overflow: hidden; /* Ensure image corners are also rounded */
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
         }
         .featured-item:hover {
             transform: translateY(-5px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Enhanced shadow on hover */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .sale-badge {
-            background-color: #000000; /* Black sale badge */
+            background-color: #000000;
             color: white;
             padding: 2px 8px;
             font-size: 12px;
@@ -1129,16 +1411,16 @@ export default function Home() {
             bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #000000; /* Black underline for section heading */
+            background-color: #000000;
         }
         .newsletter-box {
-            background-color: #f9fafb; /* Lighter gray for newsletter */
-            border: 1px solid #e5e7eb; /* Light border */
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
             padding: 40px;
-            border-radius: 0.5rem; /* Added border radius */
+            border-radius: 0.5rem;
         }
         .promotion-banner {
-            background-color: #000; /* Dark background for banners */
+            background-color: #000;
             color: white;
             border-radius: 0.5rem;
             overflow: hidden;
@@ -1260,6 +1542,163 @@ export default function Home() {
                 margin-bottom: 2rem;
             }
         }
+        
+        /* Modern Carousel Styles */
+        .carousel-container {
+          position: relative;
+          overflow: hidden;
+          padding: 1rem 0;
+        }
+        
+        .carousel-track {
+          display: flex;
+          transition: transform 0.5s ease;
+        }
+        
+        .carousel-item {
+          flex: 0 0 auto;
+          padding: 0 10px;
+          box-sizing: border-box;
+        }
+        
+        .carousel-controls {
+          position: absolute;
+          top: 50%;
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          transform: translateY(-50%);
+          pointer-events: none;
+          z-index: 10;
+          padding: 0 1rem;
+        }
+        
+        .carousel-arrow {
+          width: 40px;
+          height: 40px;
+          background-color: rgba(255, 255, 255, 0.9);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          pointer-events: auto;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+          transition: all 0.2s ease;
+        }
+        
+        .carousel-arrow:hover {
+          background-color: rgba(0, 0, 0, 0.05);
+          transform: scale(1.1);
+        }
+        
+        /* Category Card Styles */
+        .category-card {
+          position: relative;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          height: 200px;
+        }
+        
+        .category-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        
+        .category-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .category-overlay {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+          padding: 1.5rem 1rem 1rem;
+          color: white;
+        }
+        
+        .category-title {
+          font-weight: 600;
+          font-size: 1.2rem;
+          margin-bottom: 0.25rem;
+        }
+        
+        .category-link {
+          display: inline-block;
+          color: white;
+          font-size: 0.85rem;
+          border-bottom: 1px solid rgba(255,255,255,0.5);
+          transition: all 0.2s ease;
+        }
+        
+        .category-link:hover {
+          border-bottom-color: white;
+        }
+        
+        /* Offer Carousel Styles */
+        .offer-carousel-item {
+          padding: 0.75rem;
+        }
+        
+        .offer-card {
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+          background: white;
+          transition: transform 0.3s ease;
+        }
+        
+        .offer-card:hover {
+          transform: translateY(-5px);
+        }
+        
+        .offer-image-container {
+          height: 160px;
+          position: relative;
+          background-color: #f8f8f8;
+        }
+        
+        .offer-content {
+          padding: 1.25rem;
+        }
+        
+        .offer-badge {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          background-color: #000;
+          color: white;
+          font-weight: 600;
+          padding: 5px 10px;
+          border-radius: 4px;
+          font-size: 0.875rem;
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+          .category-card {
+            height: 160px;
+          }
+          
+          .offer-image-container {
+            height: 130px;
+          }
+          
+          .carousel-arrow {
+            width: 36px;
+            height: 36px;
+          }
+          
+          .offer-carousel-item {
+            padding: 0.5rem;
+          }
+        }
       `}</style>
 
       {/* Hero Banner Slider */}
@@ -1275,6 +1714,7 @@ export default function Home() {
         ) : (
           <div className="slider-container">
             <AnimatePresence initial={false} custom={direction} mode="wait">
+              {heroSlides[currentSlide] && (
               <motion.div
                 key={currentSlide}
                 custom={direction}
@@ -1283,8 +1723,26 @@ export default function Home() {
                 animate="active"
                 exit="exit"
                 className="slider-slide"
-                style={{ backgroundColor: heroSlides[currentSlide].backgroundColor }}
+                style={{ 
+                  backgroundColor: heroSlides[currentSlide].backgroundColor || '#f4f6f8',
+                  position: 'relative',
+                }}
               >
+                {/* Background overlay */}
+                {(heroSlides[currentSlide].overlayOpacity ?? 0) > 0 && (
+                  <div 
+                    className="absolute inset-0 z-5" 
+                    style={{ 
+                      backgroundColor: heroSlides[currentSlide].overlayColor || 'rgba(0,0,0,0)',
+                      opacity: heroSlides[currentSlide].overlayOpacity || 0,
+                      mixBlendMode: 'multiply',
+                      backgroundImage: heroSlides[currentSlide].overlayImageUrl ? `url(${heroSlides[currentSlide].overlayImageUrl})` : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
+                )}
+                
                 <motion.div 
                   className="slide-content-container"
                   initial={{ opacity: 0 }}
@@ -1293,13 +1751,13 @@ export default function Home() {
                   <motion.h1 
                     initial={{ 
                       opacity: 0, 
-                      y: heroSlides[currentSlide].textAnimation === 'fade-up' ? 30 : 
-                         heroSlides[currentSlide].textAnimation === 'fade-down' ? -30 : 
+                      y: heroSlides[currentSlide].textAnimation === 'fade-up' ? 40 : 
+                         heroSlides[currentSlide].textAnimation === 'fade-down' ? -40 : 
                          0,
-                      x: heroSlides[currentSlide].textAnimation === 'fade-left' ? -30 : 
-                         heroSlides[currentSlide].textAnimation === 'fade-right' ? 30 : 
+                      x: heroSlides[currentSlide].textAnimation === 'fade-left' ? -40 : 
+                         heroSlides[currentSlide].textAnimation === 'fade-right' ? 40 : 
                          0,
-                      scale: heroSlides[currentSlide].textAnimation === 'zoom-in' ? 0.9 : 1
+                      scale: heroSlides[currentSlide].textAnimation === 'zoom-in' ? 0.85 : 1
                     }}
                     animate={{ 
                       opacity: 1, 
@@ -1307,13 +1765,20 @@ export default function Home() {
                       x: 0, 
                       scale: 1,
                       transition: {
-                        duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.8 : 
-                                  heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.5 : 
-                                  0.3,
-                        ease: [0.4, 0, 0.2, 1]
+                        duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.9 : 
+                                  heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.6 : 
+                                  0.4,
+                        ease: [0.22, 1, 0.36, 1] // Custom cubic-bezier for smoother feel
                       }
                     }}
                     className="slide-title"
+                    style={{ 
+                      color: heroSlides[currentSlide]?.textColor || '#111111',
+                      background: 'none',
+                      WebkitBackgroundClip: 'unset',
+                      WebkitTextFillColor: 'unset',
+                      backgroundClip: 'unset',
+                    }}
                   >
                     {contentByLang(
                       heroSlides[currentSlide].title,
@@ -1324,13 +1789,13 @@ export default function Home() {
                   <motion.p 
                     initial={{ 
                       opacity: 0, 
-                      y: heroSlides[currentSlide].textAnimation === 'fade-up' ? 30 : 
-                         heroSlides[currentSlide].textAnimation === 'fade-down' ? -30 : 
+                      y: heroSlides[currentSlide].textAnimation === 'fade-up' ? 40 : 
+                         heroSlides[currentSlide].textAnimation === 'fade-down' ? -40 : 
                          0,
-                      x: heroSlides[currentSlide].textAnimation === 'fade-left' ? -30 : 
-                         heroSlides[currentSlide].textAnimation === 'fade-right' ? 30 : 
+                      x: heroSlides[currentSlide].textAnimation === 'fade-left' ? -40 : 
+                         heroSlides[currentSlide].textAnimation === 'fade-right' ? 40 : 
                          0,
-                      scale: heroSlides[currentSlide].textAnimation === 'zoom-in' ? 0.9 : 1
+                      scale: heroSlides[currentSlide].textAnimation === 'zoom-in' ? 0.85 : 1
                     }}
                     animate={{ 
                       opacity: 1, 
@@ -1338,14 +1803,17 @@ export default function Home() {
                       x: 0, 
                       scale: 1,
                       transition: {
-                        duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.8 : 
-                                  heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.5 : 
-                                  0.3,
-                        delay: 0.1,
-                        ease: [0.4, 0, 0.2, 1]
+                        duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.9 : 
+                                  heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.6 : 
+                                  0.4,
+                        delay: 0.15,
+                        ease: [0.22, 1, 0.36, 1]
                       }
                     }}
                     className="slide-subtitle"
+                    style={{ 
+                      color: heroSlides[currentSlide].textColor || '#555555'
+                    }}
                   >
                     {contentByLang(
                       heroSlides[currentSlide].subtitle,
@@ -1356,13 +1824,13 @@ export default function Home() {
                   <motion.div 
                     initial={{ 
                       opacity: 0, 
-                      y: heroSlides[currentSlide].textAnimation === 'fade-up' ? 30 : 
-                         heroSlides[currentSlide].textAnimation === 'fade-down' ? -30 : 
+                      y: heroSlides[currentSlide].textAnimation === 'fade-up' ? 40 : 
+                         heroSlides[currentSlide].textAnimation === 'fade-down' ? -40 : 
                          0,
-                      x: heroSlides[currentSlide].textAnimation === 'fade-left' ? -30 : 
-                         heroSlides[currentSlide].textAnimation === 'fade-right' ? 30 : 
+                      x: heroSlides[currentSlide].textAnimation === 'fade-left' ? -40 : 
+                         heroSlides[currentSlide].textAnimation === 'fade-right' ? 40 : 
                          0,
-                      scale: heroSlides[currentSlide].textAnimation === 'zoom-in' ? 0.9 : 1
+                      scale: heroSlides[currentSlide].textAnimation === 'zoom-in' ? 0.85 : 1
                     }}
                     animate={{ 
                       opacity: 1, 
@@ -1370,19 +1838,42 @@ export default function Home() {
                       x: 0, 
                       scale: 1,
                       transition: {
-                        duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.8 : 
-                                  heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.5 : 
-                                  0.3,
-                        delay: 0.2,
-                        ease: [0.4, 0, 0.2, 1]
+                        duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.9 : 
+                                  heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.6 : 
+                                  0.4,
+                        delay: 0.3,
+                        ease: [0.22, 1, 0.36, 1]
                       }
                     }}
                   >
-                    <Link href={heroSlides[currentSlide].buttonLink} className="slide-button">
-                      {contentByLang(
-                        heroSlides[currentSlide].buttonText,
-                        heroSlides[currentSlide].buttonTextAr || heroSlides[currentSlide].buttonText
-                      )}
+                    <Link 
+                      href={heroSlides[currentSlide].buttonLink} 
+                      className="slide-button"
+                      style={{
+                        backgroundColor: heroSlides[currentSlide].buttonColor || '#111111',
+                        borderColor: heroSlides[currentSlide].buttonColor || '#111111',
+                      }}
+                    >
+                      <span>
+                        {contentByLang(
+                          heroSlides[currentSlide].buttonText,
+                          heroSlides[currentSlide].buttonTextAr || heroSlides[currentSlide].buttonText
+                        )}
+                      </span>
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        className="h-5 w-5 slide-button-icon" 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M14 5l7 7m0 0l-7 7m7-7H3" 
+                        />
+                      </svg>
                     </Link>
                   </motion.div>
                 </motion.div>
@@ -1391,9 +1882,9 @@ export default function Home() {
                   className="slide-image-container"
                   initial={{ 
                     opacity: 0, 
-                    y: heroSlides[currentSlide].imageAnimation === 'slide-up' ? 40 : 0,
-                    x: heroSlides[currentSlide].imageAnimation === 'slide-in-right' ? 50 : 
-                       heroSlides[currentSlide].imageAnimation === 'slide-in-left' ? -50 : 0,
+                    y: heroSlides[currentSlide].imageAnimation === 'slide-up' ? 60 : 0,
+                    x: heroSlides[currentSlide].imageAnimation === 'slide-in-right' ? 60 : 
+                       heroSlides[currentSlide].imageAnimation === 'slide-in-left' ? -60 : 0,
                     scale: heroSlides[currentSlide].imageAnimation === 'zoom-in' ? 0.8 : 1
                   }}
                   animate={{ 
@@ -1404,13 +1895,13 @@ export default function Home() {
                     transition: {
                       type: heroSlides[currentSlide].imageAnimation === 'bounce' ? 'spring' : 'tween',
                       bounce: heroSlides[currentSlide].imageAnimation === 'bounce' ? 0.5 : undefined,
-                      duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.9 : 
-                               heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.6 : 
-                               0.4,
-                      delay: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.3 : 
-                             heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.2 : 
-                             0.1,
-                      ease: [0.25, 0.1, 0.25, 1]
+                      duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 1 : 
+                               heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.7 : 
+                               0.5,
+                      delay: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.4 : 
+                             heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.3 : 
+                             0.2,
+                      ease: [0.22, 1, 0.36, 1]
                     }
                   }}
                 >
@@ -1432,6 +1923,7 @@ export default function Home() {
                   />
                 </motion.div>
               </motion.div>
+              )}
             </AnimatePresence>
             
             {heroSlides.length > 1 && (
@@ -1445,6 +1937,7 @@ export default function Home() {
                         setDirection(index > currentSlide ? 1 : -1);
                         setCurrentSlide(index);
                       }}
+                      aria-label={`Go to slide ${index + 1}`}
                     />
                   ))}
                 </div>
@@ -1455,9 +1948,10 @@ export default function Home() {
                     onClick={prevSlide}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
+                    aria-label="Previous slide"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                      <path fillRule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clipRule="evenodd" />
                     </svg>
                   </motion.div>
                   
@@ -1466,9 +1960,10 @@ export default function Home() {
                     onClick={nextSlide}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
+                    aria-label="Next slide"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                      <path fillRule="evenodd" d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z" clipRule="evenodd" />
                     </svg>
                   </motion.div>
                 </div>
@@ -1476,6 +1971,159 @@ export default function Home() {
             )}
           </div>
         )}
+      </section>
+
+      {/* Categories Section - New Modern Design */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="section-title text-black">{t('shop_by_category', 'Shop by Category')}</h2>
+            <p className="section-subtitle">{t('explore_categories', 'Explore our selection of premium products by category')}</p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {/* Coffee Beans Category */}
+            <Link href="/shop?category=coffee-beans" className="category-card">
+              <Image 
+                src="/images/coffee-beans.jpg" 
+                alt="Coffee Beans" 
+                fill
+                className="category-image"
+              />
+              <div className="category-overlay">
+                <h3 className="category-title">{t('coffee_beans', 'Coffee Beans')}</h3>
+                <span className="category-link">{t('explore', 'Explore')} →</span>
+              </div>
+            </Link>
+            
+            {/* Single Origin Category */}
+            <Link href="/shop?category=single-origin" className="category-card">
+              <Image 
+                src="/images/single-origin.jpg" 
+                alt="Single Origin" 
+                fill
+                className="category-image"
+              />
+              <div className="category-overlay">
+                <h3 className="category-title">{t('single_origin', 'Single Origin')}</h3>
+                <span className="category-link">{t('explore', 'Explore')} →</span>
+              </div>
+            </Link>
+            
+            {/* Espresso Category */}
+            <Link href="/shop?category=espresso" className="category-card">
+              <Image 
+                src="/images/espresso.jpg" 
+                alt="Espresso" 
+                fill
+                className="category-image"
+              />
+              <div className="category-overlay">
+                <h3 className="category-title">{t('espresso', 'Espresso')}</h3>
+                <span className="category-link">{t('explore', 'Explore')} →</span>
+              </div>
+            </Link>
+            
+            {/* Nuts & Dried Fruits Category */}
+            <Link href="/shop?category=nuts-dried-fruits" className="category-card">
+              <Image 
+                src="/images/nuts.jpg" 
+                alt="Nuts & Dried Fruits" 
+                fill
+                className="category-image"
+              />
+              <div className="category-overlay">
+                <h3 className="category-title">{t('nuts_dried_fruits', 'Nuts & Dried Fruits')}</h3>
+                <span className="category-link">{t('explore', 'Explore')} →</span>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Discounted Products Carousel - NEW SECTION */}
+      <section className="py-14 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="section-title text-black">{t('special_offers', 'Special Offers')}</h2>
+            <p className="section-subtitle">{t('exclusive_deals_description', 'Take advantage of our limited-time discounts on premium products')}</p>
+          </div>
+          
+          {discountedLoading ? (
+            <div className="flex justify-center items-center h-40">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+            </div>
+          ) : discountedProducts.length > 0 ? (
+            <div className="carousel-container">
+              <div className="carousel-controls">
+                <button className="carousel-arrow" onClick={() => document.getElementById('discounted-carousel')?.scrollBy({left: -280, behavior: 'smooth'})}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button className="carousel-arrow" onClick={() => document.getElementById('discounted-carousel')?.scrollBy({left: 280, behavior: 'smooth'})}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div 
+                id="discounted-carousel" 
+                className="flex overflow-x-auto snap-x scrollbar-hide gap-4 py-2 px-1"
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  WebkitOverflowScrolling: 'touch',
+                  scrollSnapType: 'x mandatory'
+                }}
+              >
+                {discountedProducts.map(product => (
+                  <div 
+                    key={product.id} 
+                    className="flex-none w-full sm:w-[calc(50%-16px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-16px)] snap-start offer-carousel-item"
+                  >
+                    <Link href={`/product/${product.id}`} className="product-card block h-full">
+                      <div className="product-image-container relative">
+                        <Image 
+                          src={product.imageUrl || '/images/coffee-placeholder.jpg'} 
+                          alt={getProductName(product)} 
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                          className="product-image"
+                          priority={false}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/images/coffee-placeholder.jpg";
+                          }}
+                        />
+                        {product.discount && (
+                          <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
+                            {getDiscountDisplay(product)}
+                          </div>
+                        )}
+                      </div>
+                      <div className="product-info">
+                        <div className="product-category">
+                          {getCategoryDisplayName(getCategoryName(product.category))}
+                        </div>
+                        <h3 className="product-title">{getProductName(product)}</h3>
+                        <div className="product-price flex items-center">
+                          <span className="font-bold text-black">{formatPrice(getDiscountedPrice(product.price, product.discount, product.discountType))}</span>
+                          {product.discount && (
+                            <span className="ml-2 text-sm text-gray-500 line-through">{formatPrice(product.price)}</span>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="text-center text-gray-500">{t('no_discounted_products', 'No discounted products available right now.')}</p>
+          )}
+        </div>
       </section>
 
       {/* Promotion Banners Section */}
@@ -1535,25 +2183,6 @@ export default function Home() {
             <p className="section-subtitle">{t('premium_coffee_beans', 'Handpicked premium coffee beans from around the world, roasted to perfection')}</p>
           </div>
           
-          {/* Add category header filtering option - ensure this is translated */}
-          <div className="flex justify-center mb-10 flex-wrap gap-3">
-            <button className="px-4 py-2 bg-black text-white text-sm rounded-full hover:bg-gray-800 transition-colors">
-              {t('all_products', 'All Products')}
-            </button>
-            <button className="px-4 py-2 bg-white text-black text-sm border border-gray-300 rounded-full hover:bg-gray-100 transition-colors">
-              {t('coffee_beans', 'COFFEE BEANS')}
-            </button>
-            <button className="px-4 py-2 bg-white text-black text-sm border border-gray-300 rounded-full hover:bg-gray-100 transition-colors">
-              {t('single_origin_header', 'SINGLE ORIGIN')}
-            </button>
-            <button className="px-4 py-2 bg-white text-black text-sm border border-gray-300 rounded-full hover:bg-gray-100 transition-colors">
-              {t('espresso_header', 'ESPRESSO')}
-            </button>
-            <button className="px-4 py-2 bg-white text-black text-sm border border-gray-300 rounded-full hover:bg-gray-100 transition-colors">
-              {t('nuts_dried_fruits', 'NUTS & DRIED FRUITS')}
-            </button>
-          </div>
-          
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
@@ -1594,63 +2223,8 @@ export default function Home() {
           <div className="text-center mt-12">
             <Link href="/shop" className="inline-block px-10 py-3.5 bg-black text-white font-medium rounded-full hover:bg-gray-800 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
               {t('view_all_products', 'View All Products')}
-                    </Link>
+            </Link>
           </div>
-        </div>
-      </section>
-                  
-      {/* Offers Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold section-heading text-black">{t('special_offers', 'Special Offers')}</h2>
-            <p className="text-gray-700 mt-6">{t('exclusive_deals', 'Don\'t miss out on our exclusive deals and discounts!')}</p>
-          </div>
-          {offersLoading ? (
-            <div className="flex justify-center items-center h-40">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
-            </div>
-          ) : offers.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {offers.map(offer => (
-                <div key={offer.id} className="offer-card flex flex-col">
-                  {offer.imageUrl && (
-                    <div className="relative h-48 w-full mb-4 rounded-t-md overflow-hidden">
-                      <Image 
-                        src={offer.imageUrl} 
-                        alt={contentByLang(offer.title, offer.titleAr || offer.title)} 
-                        fill
-                        className="object-cover"
-                        onError={(e) => {
-                           const target = e.target as HTMLImageElement;
-                           target.onerror = null; target.style.display = 'none'; // Hide if image fails
-                        }}
-                      />
-                    </div>
-                  )}
-                  <div className={`flex-grow ${language === 'ar' ? 'text-right' : ''}`}>
-                    <div className={`flex ${language === 'ar' ? 'flex-row-reverse' : ''} justify-between items-start mb-2`}>
-                      <h3 className="text-xl font-semibold text-black">
-                        {contentByLang(offer.title, offer.titleAr || offer.title)}
-                      </h3>
-                      <span className="offer-discount">{offer.discount}</span>
-                    </div>
-                    <p className="text-gray-600 text-sm mb-3 flex-grow">
-                      {contentByLang(offer.description, offer.descriptionAr || offer.description)}
-                    </p>
-                  </div>
-                  <div className={`mt-auto ${language === 'ar' ? 'text-right' : ''}`}>
-                    {offer.code && (
-                      <p className="text-sm text-gray-500 mb-1">{t('use_code', 'Use code')}: <strong className="text-black">{offer.code}</strong></p>
-                    )}
-                    <p className="text-xs text-gray-400">{contentByLang(offer.validity, offer.validityAr || offer.validity)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-             <p className="text-center text-gray-500">{t('no_offers', 'No special offers available right now.')}</p>
-          )}
         </div>
       </section>
       
@@ -1728,6 +2302,11 @@ export default function Home() {
       
       {/* External Scripts */}
       <Script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" strategy="beforeInteractive" />
+      <style jsx global>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 } 

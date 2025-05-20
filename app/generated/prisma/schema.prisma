@@ -226,6 +226,11 @@ model Slider {
   buttonTextAr    String?
   buttonLink      String
   backgroundColor String   @default("#f4f6f8")
+  textColor       String?  @default("#111111")
+  buttonColor     String?  @default("#111111")
+  overlayColor    String?  @default("rgba(0,0,0,0)")
+  overlayOpacity  Float?   @default(0)
+  overlayImageUrl String?
   imageUrl        String
   order           Int      @default(0)
   isActive        Boolean  @default(true)
@@ -234,6 +239,21 @@ model Slider {
   transitionSpeed String?  @default("medium")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model PageContent {
+  id          String   @id @default(uuid())
+  pageType    PageType
+  title       String
+  titleAr     String?
+  content     String   @db.Text
+  contentAr   String?  @db.Text
+  lastUpdated DateTime @default(now())
+  metadata    Json? // For storing additional page-specific data like hero images, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([pageType])
 }
 
 enum UserRole {
@@ -258,4 +278,11 @@ enum PromotionType {
   FIXED_AMOUNT
   BUY_X_GET_Y
   FREE_SHIPPING
+}
+
+enum PageType {
+  PRIVACY_POLICY
+  REFUND_POLICY
+  TERMS_CONDITIONS
+  ABOUT_US
 }

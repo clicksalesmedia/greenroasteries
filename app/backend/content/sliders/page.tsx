@@ -19,6 +19,11 @@ interface SliderItem {
   buttonLink: string;
   imageUrl: string;
   backgroundColor: string;
+  textColor?: string;
+  buttonColor?: string;
+  overlayColor?: string;
+  overlayOpacity?: number;
+  overlayImageUrl?: string;
   order: number;
   isActive: boolean;
   // Adding new fields for enhanced animation options
@@ -72,6 +77,12 @@ export default function SlidersPage() {
   const [buttonTextAr, setButtonTextAr] = useState('');
   const [buttonLink, setButtonLink] = useState('');
   const [backgroundColor, setBackgroundColor] = useState('#f4f6f8');
+  const [textColor, setTextColor] = useState('#111111');
+  const [buttonColor, setButtonColor] = useState('#111111');
+  const [overlayColor, setOverlayColor] = useState('rgba(0,0,0,0)');
+  const [overlayOpacity, setOverlayOpacity] = useState(0);
+  const [overlayImageFile, setOverlayImageFile] = useState<File | null>(null);
+  const [overlayImagePreview, setOverlayImagePreview] = useState<string | null>(null);
   const [order, setOrder] = useState(0);
   const [isActive, setIsActive] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -170,6 +181,11 @@ export default function SlidersPage() {
       setButtonTextAr(slider.buttonTextAr || '');
       setButtonLink(slider.buttonLink);
       setBackgroundColor(slider.backgroundColor);
+      setTextColor(slider.textColor || '#111111');
+      setButtonColor(slider.buttonColor || '#111111');
+      setOverlayColor(slider.overlayColor || 'rgba(0,0,0,0)');
+      setOverlayOpacity(slider.overlayOpacity || 0);
+      setOverlayImagePreview(slider.overlayImageUrl || null);
       setOrder(slider.order);
       setIsActive(slider.isActive);
       setImagePreview(slider.imageUrl);
@@ -188,6 +204,11 @@ export default function SlidersPage() {
       setButtonTextAr('');
       setButtonLink('/shop');
       setBackgroundColor('#f4f6f8');
+      setTextColor('#111111');
+      setButtonColor('#111111');
+      setOverlayColor('rgba(0,0,0,0)');
+      setOverlayOpacity(0);
+      setOverlayImagePreview(null);
       setOrder(sliders.length);
       setIsActive(true);
       setImagePreview(null);
@@ -198,6 +219,7 @@ export default function SlidersPage() {
     }
     
     setImageFile(null);
+    setOverlayImageFile(null);
     setIsModalOpen(true);
     setIsPreviewMode(false);
   };
@@ -217,6 +239,19 @@ export default function SlidersPage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  // Handle overlay image change
+  const handleOverlayImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setOverlayImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setOverlayImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -266,6 +301,27 @@ export default function SlidersPage() {
         imageUrl = uploadData.url;
       }
       
+      // Upload overlay image if selected
+      let overlayImageUrl = currentSlider?.overlayImageUrl || '';
+      
+      if (overlayImageFile) {
+        const overlayFormData = new FormData();
+        overlayFormData.append('file', overlayImageFile);
+        overlayFormData.append('folder', 'sliders/overlays');
+        
+        const overlayUploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: overlayFormData,
+        });
+        
+        if (!overlayUploadResponse.ok) {
+          throw new Error('Failed to upload overlay image');
+        }
+        
+        const overlayUploadData = await overlayUploadResponse.json();
+        overlayImageUrl = overlayUploadData.url;
+      }
+      
       // Prepare slider data
       const sliderData = {
         id: currentSlider?.id,
@@ -277,6 +333,11 @@ export default function SlidersPage() {
         buttonTextAr,
         buttonLink,
         backgroundColor,
+        textColor,
+        buttonColor,
+        overlayColor,
+        overlayOpacity,
+        overlayImageUrl,
         imageUrl,
         order,
         isActive,
@@ -500,9 +561,44 @@ export default function SlidersPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center text-sm">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                          {slider.order}
-                        </span>
+                        <div className="flex flex-col items-center space-y-2">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            {slider.order}
+                          </span>
+                          <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-1">
+                              <div 
+                                className="w-4 h-4 rounded-full border border-gray-300" 
+                                style={{ backgroundColor: slider.backgroundColor }}
+                                title="Background Color"
+                              ></div>
+                              <div 
+                                className="w-4 h-4 rounded-full border border-gray-300" 
+                                style={{ backgroundColor: slider.textColor || '#111111' }}
+                                title="Text Color"
+                              ></div>
+                              <div 
+                                className="w-4 h-4 rounded-full border border-gray-300" 
+                                style={{ backgroundColor: slider.buttonColor || '#111111' }}
+                                title="Button Color"
+                              ></div>
+                              {(slider.overlayOpacity ?? 0) > 0 && (
+                                <div 
+                                  className="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center" 
+                                  style={{ 
+                                    backgroundColor: slider.overlayColor || 'rgba(0,0,0,0)',
+                                    backgroundImage: slider.overlayImageUrl ? `url(${slider.overlayImageUrl})` : 'none',
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center'
+                                  }}
+                                  title={`Overlay: ${(slider.overlayOpacity ?? 0) * 100}%${slider.overlayImageUrl ? ' (with image)' : ''}`}
+                                >
+                                  <span className="text-white text-[8px]">{Math.round((slider.overlayOpacity ?? 0) * 100)}%</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-center">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -619,9 +715,25 @@ export default function SlidersPage() {
                         style={{ 
                           backgroundColor,
                           backgroundImage: 'linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px), linear-gradient(to right, rgba(0,0,0,0.02) 1px, transparent 1px)',
-                          backgroundSize: '20px 20px'
+                          backgroundSize: '20px 20px',
+                          position: 'relative'
                         }}
                       >
+                        {/* Background overlay */}
+                        {overlayOpacity > 0 && (
+                          <div 
+                            className="absolute inset-0 z-0" 
+                            style={{ 
+                              backgroundColor: overlayColor,
+                              opacity: overlayOpacity,
+                              mixBlendMode: 'multiply',
+                              backgroundImage: overlayImagePreview ? `url(${overlayImagePreview})` : 'none',
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center'
+                            }}
+                          />
+                        )}
+                        
                         {/* Preview slide content */}
                         <div className={`absolute ${previewIndex === 0 ? 'left-5% text-left' : 'right-5% text-right rtl'} top-1/2 transform -translate-y-1/2 max-w-[42%] z-10 p-5`}>
                           <motion.div
@@ -640,21 +752,26 @@ export default function SlidersPage() {
                             }}
                           >
                             <motion.h2 
-                              className="text-3xl font-bold text-black"
+                              className="text-3xl font-bold"
                               variants={previewSettings.textVariants}
+                              style={{ color: textColor }}
                             >
                               {previewIndex === 0 ? title || 'Slider Title' : titleAr || 'عنوان الشريحة'}
                             </motion.h2>
                             
                             <motion.p 
-                              className="text-base text-gray-700"
+                              className="text-base"
                               variants={previewSettings.textVariants}
+                              style={{ color: textColor }}
                             >
                               {previewIndex === 0 ? subtitle || 'Slider subtitle text goes here for preview. This is how it will look on your homepage.' : subtitleAr || 'نص العنوان الفرعي للشريحة يذهب هنا للمعاينة. هكذا سيبدو على صفحتك الرئيسية.'}
                             </motion.p>
                             
                             <motion.div variants={previewSettings.textVariants}>
-                              <button className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium">
+                              <button 
+                                className="px-4 py-2 rounded-md text-sm font-medium text-white"
+                                style={{ backgroundColor: buttonColor }}
+                              >
                                 {previewIndex === 0 ? buttonText || 'Button Text' : buttonTextAr || 'نص الزر'}
                               </button>
                             </motion.div>
@@ -861,6 +978,161 @@ export default function SlidersPage() {
                       </div>
                     </div>
                     
+                    <div>
+                      <label htmlFor="textColor" className="block text-sm font-medium text-gray-700">
+                        {t('text_color', 'Text Color')}
+                      </label>
+                      <div className="mt-1 flex">
+                        <input
+                          type="color"
+                          id="textColor"
+                          value={textColor}
+                          onChange={(e) => setTextColor(e.target.value)}
+                          className="h-10 w-20 border border-gray-300 rounded-l-md shadow-sm p-1 focus:ring-green-500 focus:border-green-500 cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={textColor}
+                          onChange={(e) => setTextColor(e.target.value)}
+                          className="flex-1 border border-gray-300 border-l-0 rounded-r-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="buttonColor" className="block text-sm font-medium text-gray-700">
+                        {t('button_color', 'Button Color')}
+                      </label>
+                      <div className="mt-1 flex">
+                        <input
+                          type="color"
+                          id="buttonColor"
+                          value={buttonColor}
+                          onChange={(e) => setButtonColor(e.target.value)}
+                          className="h-10 w-20 border border-gray-300 rounded-l-md shadow-sm p-1 focus:ring-green-500 focus:border-green-500 cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={buttonColor}
+                          onChange={(e) => setButtonColor(e.target.value)}
+                          className="flex-1 border border-gray-300 border-l-0 rounded-r-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t('background_overlay', 'Background Overlay')}
+                      </label>
+                      
+                      <div>
+                        <label htmlFor="overlayColor" className="block text-sm text-gray-600 mb-1">
+                          {t('overlay_color', 'Overlay Color')}
+                        </label>
+                        <div className="flex">
+                          <input
+                            type="color"
+                            id="overlayColor"
+                            value={overlayColor}
+                            onChange={(e) => setOverlayColor(e.target.value)}
+                            className="h-10 w-20 border border-gray-300 rounded-l-md shadow-sm p-1 focus:ring-green-500 focus:border-green-500 cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            value={overlayColor}
+                            onChange={(e) => setOverlayColor(e.target.value)}
+                            className="flex-1 border border-gray-300 border-l-0 rounded-r-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
+                            placeholder="rgba(0,0,0,0)"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="overlayOpacity" className="block text-sm text-gray-600 mb-1">
+                          {t('overlay_opacity', 'Overlay Opacity')} ({overlayOpacity})
+                        </label>
+                        <input
+                          type="range"
+                          id="overlayOpacity"
+                          min="0"
+                          max="1"
+                          step="0.05"
+                          value={overlayOpacity}
+                          onChange={(e) => setOverlayOpacity(parseFloat(e.target.value))}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">
+                          {t('overlay_image', 'Overlay Image')} ({t('optional', 'Optional')})
+                        </label>
+                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                          <div className="space-y-2 text-center">
+                            {overlayImagePreview ? (
+                              <div className="relative h-32 w-full rounded-md overflow-hidden mb-4">
+                                <Image
+                                  src={overlayImagePreview}
+                                  alt="Overlay Preview"
+                                  fill
+                                  className="object-cover"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setOverlayImagePreview(null);
+                                    setOverlayImageFile(null);
+                                  }}
+                                  className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
+                                >
+                                  <XMarkIcon className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <svg
+                                className="mx-auto h-10 w-10 text-gray-400"
+                                stroke="currentColor"
+                                fill="none"
+                                viewBox="0 0 48 48"
+                              >
+                                <path
+                                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                  strokeWidth={2}
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            )}
+                            
+                            <div className="flex text-sm justify-center">
+                              <label
+                                htmlFor="overlay-image-upload"
+                                className="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none"
+                              >
+                                <span className="px-3 py-2">{t('upload_overlay_image', 'Upload overlay image')}</span>
+                                <input
+                                  id="overlay-image-upload"
+                                  name="overlay-image-upload"
+                                  type="file"
+                                  accept="image/*"
+                                  className="sr-only"
+                                  onChange={handleOverlayImageChange}
+                                />
+                              </label>
+                            </div>
+                            
+                            <p className="text-xs text-gray-500">
+                              {t('image_formats', 'PNG, JPG, GIF up to 5MB')}
+                            </p>
+                            
+                            <p className="text-xs text-gray-500 pt-2">
+                              {t('overlay_image_rec', 'Images will be stretched to cover the entire background')}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label htmlFor="order" className="block text-sm font-medium text-gray-700">
@@ -1041,10 +1313,24 @@ export default function SlidersPage() {
                           className="h-40 rounded-md flex items-center p-4 relative overflow-hidden"
                           style={{ backgroundColor }}
                         >
+                          {/* Preview overlay in small English preview */}
+                          {overlayOpacity > 0 && (
+                            <div 
+                              className="absolute inset-0" 
+                              style={{ 
+                                backgroundColor: overlayColor,
+                                opacity: overlayOpacity,
+                                mixBlendMode: 'multiply',
+                                backgroundImage: overlayImagePreview ? `url(${overlayImagePreview})` : 'none',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center'
+                              }}
+                            />
+                          )}
                           <div className="text-left max-w-[55%] z-10">
-                            <h3 className="text-lg font-bold">{title || 'Slider Title'}</h3>
-                            <p className="text-sm line-clamp-2">{subtitle || 'Slider subtitle text here'}</p>
-                            <button className="mt-2 bg-black text-white text-xs px-3 py-1 rounded inline-block">
+                            <h3 className="text-lg font-bold" style={{ color: textColor }}>{title || 'Slider Title'}</h3>
+                            <p className="text-sm line-clamp-2" style={{ color: textColor }}>{subtitle || 'Slider subtitle text here'}</p>
+                            <button className="mt-2 text-white text-xs px-3 py-1 rounded inline-block" style={{ backgroundColor: buttonColor }}>
                               {buttonText || 'Button'}
                             </button>
                           </div>
@@ -1070,10 +1356,24 @@ export default function SlidersPage() {
                           className="h-40 rounded-md flex items-center p-4 relative overflow-hidden rtl"
                           style={{ backgroundColor }}
                         >
+                          {/* Preview overlay in small Arabic preview */}
+                          {overlayOpacity > 0 && (
+                            <div 
+                              className="absolute inset-0" 
+                              style={{ 
+                                backgroundColor: overlayColor,
+                                opacity: overlayOpacity,
+                                mixBlendMode: 'multiply',
+                                backgroundImage: overlayImagePreview ? `url(${overlayImagePreview})` : 'none',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center'
+                              }}
+                            />
+                          )}
                           <div className="text-right max-w-[55%] z-10">
-                            <h3 className="text-lg font-bold">{titleAr || 'عنوان الشريحة'}</h3>
-                            <p className="text-sm line-clamp-2">{subtitleAr || 'وصف الشريحة هنا'}</p>
-                            <button className="mt-2 bg-black text-white text-xs px-3 py-1 rounded inline-block">
+                            <h3 className="text-lg font-bold" style={{ color: textColor }}>{titleAr || 'عنوان الشريحة'}</h3>
+                            <p className="text-sm line-clamp-2" style={{ color: textColor }}>{subtitleAr || 'وصف الشريحة هنا'}</p>
+                            <button className="mt-2 text-white text-xs px-3 py-1 rounded inline-block" style={{ backgroundColor: buttonColor }}>
                               {buttonTextAr || 'زر'}
                             </button>
                           </div>

@@ -46,9 +46,10 @@ export async function GET(request: Request) {
     const search = searchParams.get('search');
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
     const featured = searchParams.get('featured') === 'true';
+    const discounted = searchParams.get('discounted') === 'true';
     
     console.log(`API Request: /api/products with params:`, { 
-      categoryId, category, inStock, search, limit, featured 
+      categoryId, category, inStock, search, limit, featured, discounted 
     });
     
     const filters: any = {};
@@ -101,9 +102,51 @@ export async function GET(request: Request) {
       });
     }
     
+    // Filter for discounted products with active promotions
+    if (discounted) {
+      // Get active promotions
+      const now = new Date();
+      const activePromotions = await prisma.promotion.findMany({
+        where: {
+          isActive: true,
+          startDate: { lte: now },
+          endDate: { gte: now },
+          type: {
+            in: ['PERCENTAGE', 'FIXED_AMOUNT'] // Only include discount types
+          }
+        },
+        include: {
+          products: {
+            select: {
+              productId: true
+            }
+          }
+        }
+      });
+      
+      if (activePromotions.length > 0) {
+        // Get all product IDs that have active promotions
+        const discountedProductIds = activePromotions.flatMap(promo => 
+          promo.products.map(p => p.productId)
+        );
+        
+        // Add to filters
+        if (discountedProductIds.length > 0) {
+          filters.id = { in: discountedProductIds };
+        } else {
+          // No discounted products found, return empty array early
+          return NextResponse.json([]);
+        }
+      } else {
+        // No active promotions, return empty array early
+        return NextResponse.json([]);
+      }
+    }
+    
     // Comprehensive search across multiple fields
     if (search && search.trim() !== '') {
-      filters.OR = [
+      filters.OR = filters.OR || [];
+      filters.OR.push(
         // Search in product name and description (both English and Arabic)
         { name: { contains: search, mode: 'insensitive' } },
         { nameAr: { contains: search, mode: 'insensitive' } },
@@ -119,7 +162,7 @@ export async function GET(request: Request) {
             { nameAr: { contains: search, mode: 'insensitive' } }
           ]
         }}
-      ];
+      );
     }
     
     // Query with filtering, include related data
@@ -136,6 +179,24 @@ export async function GET(request: Request) {
           },
         },
         images: true,
+        promotions: {
+          where: {
+            promotion: {
+              isActive: true,
+              startDate: { lte: new Date() },
+              endDate: { gte: new Date() }
+            }
+          },
+          include: {
+            promotion: {
+              select: {
+                id: true,
+                type: true,
+                value: true
+              }
+            }
+          }
+        }
       },
       orderBy: {
         updatedAt: 'desc',
@@ -143,8 +204,42 @@ export async function GET(request: Request) {
       ...(limit ? { take: limit } : {})
     });
     
-    console.log(`Found ${products.length} products`);
-    return NextResponse.json(products);
+    // Process promotion data to include discount information
+    const processedProducts = products.map(product => {
+      // Find the highest percentage discount or fixed amount discount
+      let highestPercentageDiscount = 0;
+      let highestFixedDiscount = 0;
+      let discountType = 'PERCENTAGE';
+      
+      if (product.promotions && product.promotions.length > 0) {
+        for (const promoLink of product.promotions) {
+          const promo = promoLink.promotion;
+          
+          if (promo.type === 'PERCENTAGE' && promo.value > highestPercentageDiscount) {
+            highestPercentageDiscount = promo.value;
+          } else if (promo.type === 'FIXED_AMOUNT' && promo.value > highestFixedDiscount) {
+            highestFixedDiscount = promo.value;
+          }
+        }
+        
+        // Determine which discount type to use (prefer percentage if both exist)
+        if (highestPercentageDiscount > 0) {
+          discountType = 'PERCENTAGE';
+        } else if (highestFixedDiscount > 0) {
+          discountType = 'FIXED_AMOUNT';
+        }
+      }
+      
+      // Add discount properties to the product
+      return {
+        ...product,
+        discount: highestPercentageDiscount > 0 ? highestPercentageDiscount : highestFixedDiscount,
+        discountType: discountType
+      };
+    });
+    
+    console.log(`Found ${processedProducts.length} products`);
+    return NextResponse.json(processedProducts);
   } catch (error) {
     console.error('Failed to fetch products:', error);
     // More detailed error information

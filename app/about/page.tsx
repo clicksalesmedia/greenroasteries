@@ -2,9 +2,88 @@
 
 import Image from 'next/image';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useState, useEffect } from 'react';
 
 export default function AboutPage() {
   const { t, language } = useLanguage();
+  const [pageContent, setPageContent] = useState<{
+    content: string;
+    contentAr: string | null;
+    title: string;
+    titleAr: string | null;
+    metadata: any;
+    isLoading: boolean;
+  }>({
+    content: '',
+    contentAr: null,
+    title: 'Our Story',
+    titleAr: null,
+    metadata: {
+      heroTitle: 'Our Story',
+      heroTagline: 'From bean to cup, our passion fuels every step of the journey.',
+      heroImage: '/images/coffee-beans-bg.jpg'
+    },
+    isLoading: true
+  });
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await fetch('/api/content/about_us');
+        if (!response.ok) {
+          throw new Error('Failed to fetch about us content');
+        }
+        
+        const data = await response.json();
+        setPageContent({
+          content: data.content || '',
+          contentAr: data.contentAr || null,
+          title: data.title || 'Our Story',
+          titleAr: data.titleAr || null,
+          metadata: data.metadata || {
+            heroTitle: 'Our Story',
+            heroTagline: 'From bean to cup, our passion fuels every step of the journey.',
+            heroImage: '/images/coffee-beans-bg.jpg'
+          },
+          isLoading: false
+        });
+      } catch (error) {
+        console.error('Error fetching about us content:', error);
+        setPageContent(prev => ({ ...prev, isLoading: false }));
+      }
+    };
+    
+    fetchContent();
+  }, []);
+
+  // Get the appropriate content based on language
+  const content = language === 'ar' && pageContent.contentAr 
+    ? pageContent.contentAr 
+    : pageContent.content;
+  
+  // Get the appropriate title based on language
+  const title = language === 'ar' && pageContent.titleAr
+    ? pageContent.titleAr
+    : pageContent.title;
+    
+  // Get hero section data from metadata
+  const heroTitle = language === 'ar' && pageContent.metadata?.heroTitleAr 
+    ? pageContent.metadata.heroTitleAr 
+    : (pageContent.metadata?.heroTitle || t('our_story', 'Our Story'));
+    
+  const heroTagline = language === 'ar' && pageContent.metadata?.heroTaglineAr 
+    ? pageContent.metadata.heroTaglineAr 
+    : (pageContent.metadata?.heroTagline || t('our_story_tagline', 'From bean to cup, our passion fuels every step of the journey.'));
+    
+  const heroImage = pageContent.metadata?.heroImage || '/images/coffee-beans-bg.jpg';
+
+  if (pageContent.isLoading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-900"></div>
+      </div>
+    );
+  }
   
   return (
     <div className="bg-white">
@@ -12,7 +91,7 @@ export default function AboutPage() {
       <div className="relative h-96 bg-gray-900">
         <div className="absolute inset-0 overflow-hidden opacity-40">
           <Image 
-            src="/images/coffee-beans-bg.jpg" 
+            src={heroImage}
             alt={t('coffee_beans', 'Coffee Beans')}
             fill
             className="object-cover"
@@ -21,68 +100,24 @@ export default function AboutPage() {
         </div>
         <div className="relative container mx-auto px-4 h-full flex items-center justify-center text-center">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{t('our_story', 'Our Story')}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{heroTitle}</h1>
             <p className="text-xl text-white max-w-3xl mx-auto">
-              {t('our_story_tagline', 'From bean to cup, our passion fuels every step of the journey.')}
+              {heroTagline}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Our Story Section */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl font-bold mb-8 relative inline-block">
-              {t('our_journey', 'Our Journey')}
-              <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-black"></span>
-            </h2>
-            <p className="text-lg text-gray-700 mb-6">
-              {t('our_journey_desc', 'Our story began from our love of coffee! We import the best coffee beans in the world & roast it carefully, We offer you an experience and quality products that are made with love.. For our coffee lovers.')}
-            </p>
+      {/* Dynamic Content Section */}
+      {content && (
+        <section className="py-16 md:py-24">
+          <div className="container mx-auto px-4">
+            <div className="prose prose-lg max-w-3xl mx-auto" 
+                 dangerouslySetInnerHTML={{ __html: content }} 
+                 dir={language === 'ar' ? 'rtl' : 'ltr'} />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-16">
-            <div className={language === 'ar' ? 'md:order-2' : 'md:order-1'}>
-              <h3 className={`text-2xl font-bold mb-4 ${language === 'ar' ? 'text-right' : ''}`}>{t('chosen_with_care', 'Chosen with care, roasted with love')}</h3>
-              <p className={`text-gray-700 mb-4 ${language === 'ar' ? 'text-right' : ''}`}>
-                {t('chosen_with_care_desc_1', "We strive for your ultimate happiness in trying our crops and making it an unforgettable experience. Our master roasters carefully craft each batch to bring out the unique character of every bean variety.")}
-              </p>
-              <p className={`text-gray-700 ${language === 'ar' ? 'text-right' : ''}`}>
-                {t('chosen_with_care_desc_2', "From here begins the journey to the peak of your mood. Every cup tells a story of dedication, quality, and passion that defines Green Roasteries.")}
-              </p>
-            </div>
-            <div className={`${language === 'ar' ? 'md:order-1' : 'md:order-2'} relative h-80 rounded-lg overflow-hidden shadow-xl`}>
-              <Image 
-                src="/images/coffee-roasting.jpg" 
-                alt={t('coffee_roasting', 'Coffee Roasting')}
-                fill
-                className="object-cover"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className={`${language === 'ar' ? 'md:order-2' : 'md:order-1'} relative h-80 rounded-lg overflow-hidden shadow-xl`}>
-              <Image 
-                src="/images/coffee-beans-selection.jpg" 
-                alt={t('coffee_bean_selection', 'Coffee Bean Selection')}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className={language === 'ar' ? 'md:order-1' : 'md:order-2'}>
-              <h3 className={`text-2xl font-bold mb-4 ${language === 'ar' ? 'text-right' : ''}`}>{t('our_coffee_philosophy', 'Our Coffee Philosophy')}</h3>
-              <p className={`text-gray-700 mb-4 ${language === 'ar' ? 'text-right' : ''}`}>
-                {t('our_coffee_philosophy_desc_1', "At Green Roasteries, we believe that exceptional coffee is born from respect for the bean, the farmer, and the craft of roasting. We work closely with farmers who share our values of sustainability and quality.")}
-              </p>
-              <p className={`text-gray-700 ${language === 'ar' ? 'text-right' : ''}`}>
-                {t('our_coffee_philosophy_desc_2', "Each origin we source from has its own unique story and flavor profile. We're committed to bringing these stories to life through our carefully crafted roasting processes.")}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Values Section */}
       <section className="py-16 bg-gray-100">
