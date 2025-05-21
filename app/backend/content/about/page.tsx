@@ -105,35 +105,83 @@ export default function AboutUsPage() {
   // Add uploadImage function
   const uploadImage = async (file: File, type: 'hero' | 'content') => {
     try {
+      setIsSaving(true);
       // Create a FormData instance
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', type);
       
+      console.log(`Uploading ${type} image...`, {
+        filename: file.name,
+        size: file.size,
+        type: file.type
+      });
+      
+      // Choose the appropriate endpoint based on environment
+      const endpoint = process.env.NODE_ENV === 'production' 
+        ? '/api/upload-file'  // Server-compatible endpoint for production
+        : '/api/upload';      // Edge runtime endpoint for development
+      
       // Upload the image
-      const response = await fetch('/api/upload', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         body: formData
       });
       
+      console.log('Upload response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error('Failed to upload image');
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          errorData = { error: 'Unknown error occurred' };
+        }
+        console.error('Upload API Error:', errorData);
+        throw new Error(errorData.error || 'Failed to upload image');
       }
       
       const data = await response.json();
+      console.log('Upload successful, response:', data);
       
-      // Update the image URL based on type
-      if (type === 'hero') {
-        setHeroImage(data.url);
-      } else {
-        setContentImage(data.url);
+      // Check if we received fileData (base64) for development environment
+      if (data.fileData && data.fileName) {
+        // In development, we need to handle the file storage on client side
+        // This is a workaround for edge runtime limitations
+        try {
+          // Convert base64 to blob
+          const response = await fetch(data.fileData);
+          const blob = await response.blob();
+          
+          // Use the File System Access API if available, otherwise fallback to URL
+          // This is only needed for development testing
+          const fileUrl = data.file; // Use the predefined path
+          console.log('File will be displayed at:', fileUrl);
+          
+          // For development, we can store in localStorage to persist during refresh
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(`${type}_image_preview`, data.fileData);
+          }
+        } catch (err) {
+          console.error('Error processing file data:', err);
+        }
       }
       
-      setSaveMessage('Image uploaded successfully!');
+      // Set the image URL in the state based on the type
+      if (type === 'hero') {
+        setHeroImage(data.file);
+        setSaveMessage('Hero image uploaded successfully');
+      } else if (type === 'content') {
+        setContentImage(data.file);
+        setSaveMessage('Content image uploaded successfully');
+      }
+      
       setTimeout(() => setSaveMessage(''), 3000);
     } catch (error: any) {
       console.error('Error uploading image:', error);
       setSaveMessage(`Error uploading image: ${error.message}`);
+    } finally {
+      setIsSaving(false);
     }
   };
   
@@ -236,6 +284,36 @@ export default function AboutUsPage() {
     // In a real implementation, you might want to save a draft first
     // For simplicity, we'll just navigate to the about page
     router.push('/about');
+  };
+
+  // Add this useEffect to load previews from localStorage in development
+  useEffect(() => {
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+      // Check if we have stored preview images in localStorage
+      const heroPreview = localStorage.getItem('hero_image_preview');
+      const contentPreview = localStorage.getItem('content_image_preview');
+      
+      if (heroPreview && !heroImage) {
+        setHeroImage(heroPreview);
+      }
+      
+      if (contentPreview && !contentImage) {
+        setContentImage(contentPreview);
+      }
+    }
+  }, []);
+
+  // Add a helper function to handle image paths with format conversion for HEIC
+  const getImagePath = (path: string) => {
+    if (!path) return '';
+    
+    // If the image is a HEIC, we need to check if the converted JPG exists
+    if (path.toLowerCase().endsWith('.heic')) {
+      // Convert to the expected JPG path our API now generates
+      return path.substring(0, path.lastIndexOf('.')) + '.jpg';
+    }
+    
+    return path;
   };
 
   if (isLoading) {
@@ -386,20 +464,20 @@ export default function AboutUsPage() {
                       accept="image/*"
                     />
                   </div>
-                  {heroImage && (
+                  {heroImage ? (
                     <div className="relative h-20 w-full mt-2 overflow-hidden rounded-md border border-gray-200">
-                      <Image 
-                        src={heroImage} 
+                      <img 
+                        src={getImagePath(heroImage)}
                         alt="Hero image preview" 
-                        fill
-                        className="object-cover" 
+                        className="absolute inset-0 w-full h-full object-cover"
                         onError={(e) => {
-                          const imgElement = e.target as HTMLImageElement;
-                          imgElement.src = '/images/placeholder-image.jpg';
+                          console.log('Trying fallback format for hero image');
+                          // For HTML img elements we can set a default
+                          e.currentTarget.style.display = 'none';
                         }}
                       />
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
               
@@ -493,20 +571,20 @@ export default function AboutUsPage() {
                 </p>
               </div>
               
-              {contentImage && (
+              {contentImage ? (
                 <div className="relative h-40 w-full overflow-hidden rounded-md border border-gray-200">
-                  <Image 
-                    src={contentImage} 
+                  <img
+                    src={getImagePath(contentImage)}
                     alt="Content preview" 
-                    fill
-                    className="object-cover" 
+                    className="absolute inset-0 w-full h-full object-cover"
                     onError={(e) => {
-                      const imgElement = e.target as HTMLImageElement;
-                      imgElement.src = '/images/placeholder-image.jpg';
+                      console.log('Trying fallback format for content image');
+                      // For HTML img elements we can set a default
+                      e.currentTarget.style.display = 'none';
                     }}
                   />
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
           

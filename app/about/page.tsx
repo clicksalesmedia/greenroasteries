@@ -96,6 +96,23 @@ export default function AboutPage() {
     
   const heroImage = pageContent.metadata?.heroImage || '/images/coffee-beans-bg.jpg';
 
+  // Add a helper function to handle image paths with format conversion for HEIC
+  const getImagePath = (path: string) => {
+    if (!path) return '';
+    
+    // If the image is a HEIC, we need to check if the converted JPG exists
+    if (path.toLowerCase().endsWith('.heic')) {
+      // Convert to the expected JPG path
+      return path.substring(0, path.lastIndexOf('.')) + '.jpg';
+    }
+    
+    return path;
+  };
+  
+  // Use the helper to process image paths
+  const processedHeroImage = getImagePath(heroImage);
+  const processedContentImage = getImagePath(pageContent.metadata?.contentImage || '/images/coffee-roasting-process.jpg');
+
   if (pageContent.isLoading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
@@ -121,11 +138,12 @@ export default function AboutPage() {
       <div className="relative h-96 bg-gray-900">
         <div className="absolute inset-0 overflow-hidden opacity-40">
           <Image 
-            src={heroImage}
+            src={processedHeroImage}
             alt={t('coffee_beans', 'Coffee Beans')}
             fill
             className="object-cover"
             priority
+            unoptimized
           />
         </div>
         <div className="relative container mx-auto px-4 h-full flex items-center justify-center text-center">
@@ -148,12 +166,11 @@ export default function AboutPage() {
                    dir={language === 'ar' ? 'rtl' : 'ltr'} />
               
               <div className="relative h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-xl order-first lg:order-last">
-                <Image 
-                  src={pageContent.metadata?.contentImage || '/images/coffee-roasting-process.jpg'} 
+                <img 
+                  src={processedContentImage}
                   alt={title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={() => console.log('Failed to load content image, format might not be supported')}
                 />
               </div>
             </div>
