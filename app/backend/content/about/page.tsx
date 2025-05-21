@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import BackendLayout from '../../components/BackendLayout';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 export default function AboutUsPage() {
   const { t } = useLanguage();
@@ -18,11 +17,13 @@ export default function AboutUsPage() {
   const [heroTitleAr, setHeroTitleAr] = useState('');
   const [heroTagline, setHeroTagline] = useState('');
   const [heroTaglineAr, setHeroTaglineAr] = useState('');
-  const [heroImage, setHeroImage] = useState('');
-  const [contentImage, setContentImage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [activeTab, setActiveTab] = useState('english');
+  
+  // Static image paths
+  const heroImage = '/images/about-hero.jpg';
+  const contentImage = '/images/about.jpg';
 
   // Fetch the current about us content
   useEffect(() => {
@@ -48,8 +49,6 @@ export default function AboutUsPage() {
           setHeroTitleAr(metadata.heroTitleAr || '');
           setHeroTagline(metadata.heroTagline || 'From bean to cup, our passion fuels every step of the journey.');
           setHeroTaglineAr(metadata.heroTaglineAr || '');
-          setHeroImage(metadata.heroImage || '/images/coffee-beans-bg.jpg');
-          setContentImage(metadata.contentImage || '/images/coffee-roasting-process.jpg');
         }
         
         setIsLoading(false);
@@ -92,129 +91,6 @@ export default function AboutUsPage() {
 
   const handleHeroTaglineArChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setHeroTaglineAr(e.target.value);
-  };
-
-  const handleHeroImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setHeroImage(e.target.value);
-  };
-
-  const handleContentImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setContentImage(e.target.value);
-  };
-
-  // Add a helper function to handle image paths with format conversion for HEIC
-  const getImagePath = (path: string) => {
-    if (!path) return '';
-    
-    // Handle data URLs directly (for previews)
-    if (path.startsWith('data:')) {
-      return path;
-    }
-    
-    // If the image is a HEIC, we need to check if the converted JPG exists
-    if (path.toLowerCase().endsWith('.heic')) {
-      // Convert to the expected JPG path our API now generates
-      return path.substring(0, path.lastIndexOf('.')) + '.jpg';
-    }
-    
-    return path;
-  };
-
-  const uploadImage = async (file: File, type: 'hero' | 'content') => {
-    try {
-      setIsSaving(true);
-      setSaveMessage(`Uploading ${type} image...`);
-      
-      // Create a FormData instance
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', type);
-      
-      console.log(`Uploading ${type} image...`, {
-        filename: file.name,
-        size: file.size,
-        type: file.type
-      });
-      
-      // Use the upload-file endpoint for both environments for consistency
-      const endpoint = '/api/upload-file';
-      
-      // Upload the image with a timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-      
-      try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          body: formData,
-          signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        
-        console.log('Upload response status:', response.status);
-        
-        if (!response.ok) {
-          let errorData;
-          try {
-            errorData = await response.json();
-          } catch (e) {
-            errorData = { error: 'Server returned an invalid response' };
-          }
-          console.error('Upload API Error:', errorData);
-          throw new Error(errorData.error || 'Failed to upload image');
-        }
-        
-        const data = await response.json();
-        console.log('Upload successful, response:', data);
-        
-        // Set the image URL in the state based on the type
-        if (type === 'hero') {
-          setHeroImage(data.file);
-          setSaveMessage('Hero image uploaded successfully');
-        } else if (type === 'content') {
-          setContentImage(data.file);
-          setSaveMessage('Content image uploaded successfully');
-        }
-        
-        setTimeout(() => setSaveMessage(''), 3000);
-      } catch (fetchError: any) {
-        if (fetchError.name === 'AbortError') {
-          throw new Error('Upload timed out. Please try again with a smaller image.');
-        }
-        throw fetchError;
-      }
-    } catch (error: any) {
-      console.error('Error uploading image:', error);
-      setSaveMessage(`Error uploading image: ${error.message || 'Unknown error'}`);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-  
-  // Refs for the file inputs
-  const heroImageInputRef = useRef<HTMLInputElement>(null);
-  const contentImageInputRef = useRef<HTMLInputElement>(null);
-  
-  // Handle file selection
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'hero' | 'content') => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      
-      // Check file type
-      if (!file.type.includes('image/')) {
-        setSaveMessage('Please select an image file');
-        return;
-      }
-      
-      // Check file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setSaveMessage('Image size should be less than 5MB');
-        return;
-      }
-      
-      uploadImage(file, type);
-    }
   };
 
   const handleSave = async () => {
@@ -292,23 +168,6 @@ export default function AboutUsPage() {
     // For simplicity, we'll just navigate to the about page
     router.push('/about');
   };
-
-  // Add this useEffect to load previews from localStorage in development
-  useEffect(() => {
-    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-      // Check if we have stored preview images in localStorage
-      const heroPreview = localStorage.getItem('hero_image_preview');
-      const contentPreview = localStorage.getItem('content_image_preview');
-      
-      if (heroPreview && !heroImage) {
-        setHeroImage(heroPreview);
-      }
-      
-      if (contentPreview && !contentImage) {
-        setContentImage(contentPreview);
-      }
-    }
-  }, []);
 
   if (isLoading) {
     return (
@@ -433,44 +292,25 @@ export default function AboutUsPage() {
                   <label htmlFor="heroImage" className="block text-sm font-medium text-gray-700 mb-2">
                     {t('hero_image', 'Hero Background Image')}
                   </label>
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center">
                     <input
                       type="text"
                       id="heroImage"
                       value={heroImage}
-                      onChange={handleHeroImageChange}
-                      className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                      placeholder="/images/your-image.jpg"
-                    />
-                    
-                    <button
-                      type="button"
-                      onClick={() => heroImageInputRef.current?.click()}
-                      className="flex-shrink-0 bg-green-700 text-white px-3 py-2 rounded-md hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    >
-                      Upload
-                    </button>
-                    <input
-                      type="file"
-                      ref={heroImageInputRef}
-                      onChange={(e) => handleFileSelect(e, 'hero')}
-                      className="hidden"
-                      accept="image/*"
+                      disabled
+                      className="w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-50"
                     />
                   </div>
-                  {heroImage ? (
-                    <div className="relative h-20 w-full mt-2 overflow-hidden rounded-md border border-gray-200">
-                      <img 
-                        src={getImagePath(heroImage)}
-                        alt="Hero image preview" 
-                        className="absolute inset-0 w-full h-full object-cover"
-                        onError={(e) => {
-                          console.log('Error loading hero image:', heroImage);
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  ) : null}
+                  <div className="relative h-20 w-full mt-2 overflow-hidden rounded-md border border-gray-200">
+                    <img 
+                      src={heroImage}
+                      alt="Hero image preview" 
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {t('static_image_note', 'Using static image from /images/about.jpg')}
+                  </p>
                 </div>
               </div>
               
@@ -534,49 +374,27 @@ export default function AboutUsPage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
               <div>
-                <div className="flex items-center space-x-3 mb-3">
+                <div className="flex items-center mb-3">
                   <input
                     type="text"
                     id="contentImage"
                     value={contentImage}
-                    onChange={handleContentImageChange}
-                    className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                    placeholder="/images/your-image.jpg"
-                  />
-                  
-                  <button
-                    type="button"
-                    onClick={() => contentImageInputRef.current?.click()}
-                    className="flex-shrink-0 bg-green-700 text-white px-3 py-2 rounded-md hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                  >
-                    Upload
-                  </button>
-                  <input
-                    type="file"
-                    ref={contentImageInputRef}
-                    onChange={(e) => handleFileSelect(e, 'content')}
-                    className="hidden"
-                    accept="image/*"
+                    disabled
+                    className="w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-50"
                   />
                 </div>
                 <p className="text-sm text-gray-500">
-                  {t('content_image_desc', 'This image will appear alongside your content in the About page.')}
+                  {t('static_content_image_note', 'Using static image from /images/about.jpg')}
                 </p>
               </div>
               
-              {contentImage ? (
-                <div className="relative h-40 w-full overflow-hidden rounded-md border border-gray-200">
-                  <img
-                    src={getImagePath(contentImage)}
-                    alt="Content preview" 
-                    className="absolute inset-0 w-full h-full object-cover"
-                    onError={(e) => {
-                      console.log('Error loading content image:', contentImage);
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
-              ) : null}
+              <div className="relative h-40 w-full overflow-hidden rounded-md border border-gray-200">
+                <img
+                  src={contentImage}
+                  alt="Content preview" 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </div>
             </div>
           </div>
           

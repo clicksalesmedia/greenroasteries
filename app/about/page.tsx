@@ -22,7 +22,7 @@ export default function AboutPage() {
     metadata: {
       heroTitle: 'Our Story',
       heroTagline: 'From bean to cup, our passion fuels every step of the journey.',
-      heroImage: '/images/coffee-beans-bg.jpg'
+      heroImage: '/images/about-hero.jpg'
     },
     isLoading: true,
     error: null
@@ -54,10 +54,10 @@ export default function AboutPage() {
           contentAr: data.contentAr || null,
           title: data.title || 'Our Story',
           titleAr: data.titleAr || null,
-          metadata: data.metadata || {
-            heroTitle: 'Our Story',
-            heroTagline: 'From bean to cup, our passion fuels every step of the journey.',
-            heroImage: '/images/coffee-beans-bg.jpg'
+          metadata: {
+            ...data.metadata,
+            heroImage: '/images/about-hero.jpg',
+            contentImage: '/images/about.jpg'
           },
           isLoading: false,
           error: null
@@ -93,33 +93,10 @@ export default function AboutPage() {
   const heroTagline = language === 'ar' && pageContent.metadata?.heroTaglineAr 
     ? pageContent.metadata.heroTaglineAr 
     : (pageContent.metadata?.heroTagline || t('our_story_tagline', 'From bean to cup, our passion fuels every step of the journey.'));
-    
-  const heroImage = pageContent.metadata?.heroImage || '/images/coffee-beans-bg.jpg';
-
-  // Add a better error fallback image
-  const fallbackImage = '/images/coffee-beans-bg.jpg';
-
-  // Add a helper function to handle image paths with format conversion for HEIC
-  const getImagePath = (path: string) => {
-    if (!path) return fallbackImage;
-    
-    // Handle data URLs directly (for previews)
-    if (path.startsWith('data:')) {
-      return path;
-    }
-    
-    // If the image is a HEIC, we need to check if the converted JPG exists
-    if (path.toLowerCase().endsWith('.heic')) {
-      // Convert to the expected JPG path
-      return path.substring(0, path.lastIndexOf('.')) + '.jpg';
-    }
-    
-    return path;
-  };
   
-  // Use the helper to process image paths
-  const processedHeroImage = getImagePath(heroImage);
-  const processedContentImage = getImagePath(pageContent.metadata?.contentImage || fallbackImage);
+  // Use static image
+  const heroImage = '/images/about-hero.jpg';
+  const contentImage = '/images/about.jpg';
 
   if (pageContent.isLoading) {
     return (
@@ -146,13 +123,9 @@ export default function AboutPage() {
       <div className="relative h-96 bg-gray-900">
         <div className="absolute inset-0 overflow-hidden opacity-40">
           <img 
-            src={processedHeroImage}
+            src={heroImage}
             alt={t('coffee_beans', 'Coffee Beans')}
             className="absolute inset-0 w-full h-full object-cover"
-            onError={(e) => {
-              console.log('Failed to load hero image, using fallback');
-              e.currentTarget.src = fallbackImage;
-            }}
           />
         </div>
         <div className="relative container mx-auto px-4 h-full flex items-center justify-center text-center">
@@ -176,13 +149,9 @@ export default function AboutPage() {
               
               <div className="relative h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-xl order-first lg:order-last">
                 <img 
-                  src={processedContentImage}
+                  src={contentImage}
                   alt={title}
                   className="absolute inset-0 w-full h-full object-cover"
-                  onError={(e) => {
-                    console.log('Failed to load content image, using fallback');
-                    e.currentTarget.src = '/images/coffee-roasting-process.jpg';
-                  }}
                 />
               </div>
             </div>
