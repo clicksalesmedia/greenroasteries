@@ -37,16 +37,23 @@ export async function POST(req: NextRequest) {
       );
     }
     
+    // Get type or folder parameter
     const type = formData.get('type') as string;
-    if (!type || !['hero', 'content'].includes(type)) {
-      console.error('Invalid type specified:', type);
+    const folder = formData.get('folder') as string;
+    
+    // Validate that we have either a type or folder
+    if (!type && !folder) {
+      console.error('No type or folder specified');
       return NextResponse.json(
-        { error: 'Invalid image type. Must be "hero" or "content"' },
+        { error: 'Either type or folder must be specified' },
         { status: 400 }
       );
     }
     
-    console.log(`Processing ${type} image upload:`, {
+    // Use type or folder for the file path
+    const uploadType = type || folder;
+    
+    console.log(`Processing ${uploadType} image upload:`, {
       filename: file.name,
       type: file.type,
       size: file.size
@@ -95,7 +102,7 @@ export async function POST(req: NextRequest) {
       extension = 'jpg';  // Keep the content but change extension for browsers
     }
     
-    const fileName = `${type}_${uuidv4()}.${extension}`;
+    const fileName = `${uploadType}_${uuidv4()}.${extension}`;
     
     // Ensure uploads directory exists
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
@@ -114,6 +121,7 @@ export async function POST(req: NextRequest) {
     const fileUrl = `/uploads/${fileName}`;
     return NextResponse.json({ 
       success: true, 
+      url: fileUrl, // Add url field for backward compatibility
       file: fileUrl,
       message: 'File uploaded successfully'
     });

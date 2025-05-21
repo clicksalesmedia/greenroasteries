@@ -147,21 +147,70 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
       formData.append('file', imageFile);
       formData.append('folder', 'categories');
       
-      // Send the image to your upload API
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
+      console.log('Uploading category image:', {
+        filename: imageFile.name,
+        size: imageFile.size,
+        type: imageFile.type
       });
       
-      if (!response.ok) {
-        throw new Error('Failed to upload image');
-      }
+      // Try the server-side upload endpoint first
+      const endpoint = '/api/upload-file';
       
-      const data = await response.json();
-      return data.url; // Return the URL of the uploaded image
+      // Upload the image with a timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        console.log('Upload response status:', response.status);
+        
+        if (!response.ok) {
+          let errorData;
+          try {
+            errorData = await response.json();
+          } catch (e) {
+            errorData = { error: 'Server returned an invalid response' };
+          }
+          console.error('Upload API Error:', errorData);
+          throw new Error(errorData.error || 'Failed to upload image');
+        }
+        
+        const data = await response.json();
+        console.log('Upload successful, response:', data);
+        
+        // Return the URL of the uploaded image
+        return data.url || data.file;
+      } catch (fetchError: any) {
+        if (fetchError.name === 'AbortError') {
+          throw new Error('Upload timed out. Please try again with a smaller image.');
+        }
+        
+        // If server-side upload fails, try the edge runtime upload as fallback
+        console.log('Server upload failed, trying edge runtime upload as fallback');
+        const fallbackResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!fallbackResponse.ok) {
+          const errorData = await fallbackResponse.json().catch(() => ({ error: 'Unknown error' }));
+          console.error('Fallback upload failed:', errorData);
+          throw new Error(errorData.error || 'Failed to upload image');
+        }
+        
+        const fallbackData = await fallbackResponse.json();
+        return fallbackData.url || fallbackData.file;
+      }
     } catch (err) {
       console.error('Error uploading image:', err);
-      throw new Error('Failed to upload image');
+      throw new Error(err instanceof Error ? err.message : 'Failed to upload image');
     } finally {
       setIsUploading(false);
     }

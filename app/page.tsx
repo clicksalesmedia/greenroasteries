@@ -133,6 +133,16 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string>('');
 
+  // Add state for categories
+  const [categories, setCategories] = useState<Array<{
+    id: string;
+    name: string;
+    nameAr?: string;
+    slug: string;
+    imageUrl?: string;
+  }>>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+
   // Slide change handlers - memoize callback functions to prevent unnecessary re-renders
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev === heroSlides.length - 1 ? 0 : prev + 1));
@@ -611,6 +621,141 @@ export default function Home() {
       </div>
     );
   }, [discountedProducts, discountedLoading, getProductName, getCategoryName, getCategoryDisplayName, formatPrice, getDiscountedPrice, getDiscountDisplay, openVariationModal, t]);
+
+  // Fetch categories from database
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setCategoriesLoading(true);
+        const response = await fetch('/api/categories?limit=8', {
+          next: { revalidate: 3600 }, // Revalidate every hour
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data && data.length > 0) {
+            // Process and normalize category data
+            const processedCategories = data.map((category: any) => ({
+              id: category.id,
+              name: category.name || '',
+              nameAr: category.nameAr || '',
+              slug: category.slug || category.name?.toLowerCase().replace(/\s+/g, '-') || 'category',
+              imageUrl: category.imageUrl || '/images/coffee-beans.jpg'
+            }));
+
+            // Shuffle categories and limit to 4
+            const shuffledCategories = [...processedCategories]
+              .sort(() => 0.5 - Math.random())
+              .slice(0, 4);
+              
+            setCategories(shuffledCategories);
+          } else {
+            // Use fallback categories if none returned
+            setCategories([
+              {
+                id: '1',
+                name: 'Coffee Beans',
+                nameAr: 'حبوب القهوة',
+                slug: 'coffee-beans',
+                imageUrl: '/images/coffee-beans.jpg'
+              },
+              {
+                id: '2',
+                name: 'Single Origin',
+                nameAr: 'أحادي المصدر',
+                slug: 'single-origin',
+                imageUrl: '/images/single-origin.jpg'
+              },
+              {
+                id: '3',
+                name: 'Espresso',
+                nameAr: 'إسبريسو',
+                slug: 'espresso',
+                imageUrl: '/images/espresso.jpg'
+              },
+              {
+                id: '4',
+                name: 'Nuts & Dried Fruits',
+                nameAr: 'المكسرات والفواكه المجففة',
+                slug: 'nuts-dried-fruits',
+                imageUrl: '/images/nuts.jpg'
+              }
+            ]);
+          }
+        } else {
+          // Use fallback categories on error
+          setCategories([
+            {
+              id: '1',
+              name: 'Coffee Beans',
+              nameAr: 'حبوب القهوة',
+              slug: 'coffee-beans',
+              imageUrl: '/images/coffee-beans.jpg'
+            },
+            {
+              id: '2',
+              name: 'Single Origin',
+              nameAr: 'أحادي المصدر',
+              slug: 'single-origin',
+              imageUrl: '/images/single-origin.jpg'
+            },
+            {
+              id: '3',
+              name: 'Espresso',
+              nameAr: 'إسبريسو',
+              slug: 'espresso',
+              imageUrl: '/images/espresso.jpg'
+            },
+            {
+              id: '4',
+              name: 'Nuts & Dried Fruits',
+              nameAr: 'المكسرات والفواكه المجففة',
+              slug: 'nuts-dried-fruits',
+              imageUrl: '/images/nuts.jpg'
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        // Use fallback categories on error
+        setCategories([
+          {
+            id: '1',
+            name: 'Coffee Beans',
+            nameAr: 'حبوب القهوة',
+            slug: 'coffee-beans',
+            imageUrl: '/images/coffee-beans.jpg'
+          },
+          {
+            id: '2',
+            name: 'Single Origin',
+            nameAr: 'أحادي المصدر',
+            slug: 'single-origin',
+            imageUrl: '/images/single-origin.jpg'
+          },
+          {
+            id: '3',
+            name: 'Espresso',
+            nameAr: 'إسبريسو',
+            slug: 'espresso',
+            imageUrl: '/images/espresso.jpg'
+          },
+          {
+            id: '4',
+            name: 'Nuts & Dried Fruits',
+            nameAr: 'المكسرات والفواكه المجففة',
+            slug: 'nuts-dried-fruits',
+            imageUrl: '/images/nuts.jpg'
+          }
+        ]);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   return (
     <div className="bg-white" dir={language === 'ar' ? 'rtl' : 'ltr'}>
@@ -1576,63 +1721,31 @@ export default function Home() {
             <p className="section-subtitle">{t('explore_categories', 'Explore our selection of premium products by category')}</p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {/* Coffee Beans Category */}
-            <Link href="/shop?category=coffee-beans" className="category-card">
-              <Image 
-                src="/images/coffee-beans.jpg" 
-                alt="Coffee Beans" 
-                fill
-                className="category-image"
-              />
-              <div className="category-overlay">
-                <h3 className="category-title">{t('coffee_beans', 'Coffee Beans')}</h3>
-                <span className="category-link">{t('explore', 'Explore')} →</span>
-              </div>
-            </Link>
-            
-            {/* Single Origin Category */}
-            <Link href="/shop?category=single-origin" className="category-card">
-              <Image 
-                src="/images/single-origin.jpg" 
-                alt="Single Origin" 
-                fill
-                className="category-image"
-              />
-              <div className="category-overlay">
-                <h3 className="category-title">{t('single_origin', 'Single Origin')}</h3>
-                <span className="category-link">{t('explore', 'Explore')} →</span>
-              </div>
-            </Link>
-            
-            {/* Espresso Category */}
-            <Link href="/shop?category=espresso" className="category-card">
-              <Image 
-                src="/images/espresso.jpg" 
-                alt="Espresso" 
-                fill
-                className="category-image"
-              />
-              <div className="category-overlay">
-                <h3 className="category-title">{t('espresso', 'Espresso')}</h3>
-                <span className="category-link">{t('explore', 'Explore')} →</span>
-              </div>
-            </Link>
-            
-            {/* Nuts & Dried Fruits Category */}
-            <Link href="/shop?category=nuts-dried-fruits" className="category-card">
-              <Image 
-                src="/images/nuts.jpg" 
-                alt="Nuts & Dried Fruits" 
-                fill
-                className="category-image"
-              />
-              <div className="category-overlay">
-                <h3 className="category-title">{t('nuts_dried_fruits', 'Nuts & Dried Fruits')}</h3>
-                <span className="category-link">{t('explore', 'Explore')} →</span>
-              </div>
-            </Link>
-          </div>
+          {categoriesLoading ? (
+            <div className="flex justify-center items-center h-40">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {categories.map(category => (
+                <Link key={category.id} href={`/shop?category=${category.slug}`} className="category-card">
+                  <Image 
+                    src={category.imageUrl || '/images/coffee-placeholder.jpg'} 
+                    alt={category.name} 
+                    fill
+                    className="category-image"
+                  />
+                  <div className="category-overlay">
+                    <h3 className="category-title">{contentByLang(
+                      category.name,
+                      category.nameAr || category.name
+                    )}</h3>
+                    <span className="category-link">{t('explore', 'Explore')} →</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
