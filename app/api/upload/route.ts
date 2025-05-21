@@ -8,6 +8,13 @@ import { v4 as uuidv4 } from 'uuid';
 // Max file size (5MB)
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
+// Set the correct export config for Next.js API routes to handle large files
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export async function POST(req: NextRequest) {
   try {
     // Simplified auth check - use headers or cookies
@@ -41,6 +48,14 @@ export async function POST(req: NextRequest) {
     if (!type || (type !== 'hero' && type !== 'content')) {
       return NextResponse.json(
         { error: 'Invalid image type. Must be "hero" or "content".' },
+        { status: 400 }
+      );
+    }
+
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: `File size exceeds the ${MAX_FILE_SIZE/1024/1024}MB limit` },
         { status: 400 }
       );
     }
@@ -90,13 +105,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-// Increase the limit for the request body
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-  },
-}; 
+} 
