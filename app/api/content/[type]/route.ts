@@ -37,7 +37,14 @@ export async function GET(
       });
     }
     
-    return NextResponse.json(pageContent);
+    // Ensure metadata is properly handled (convert from any if needed)
+    const metadata = pageContent.metadata || {};
+    console.log('Metadata retrieved:', metadata);
+    
+    return NextResponse.json({
+      ...pageContent,
+      metadata
+    });
   } catch (error) {
     console.error('Error fetching page content:', error);
     return NextResponse.json(
@@ -98,7 +105,8 @@ export async function PUT(
       type,
       title: data.title,
       hasContent: !!data.content,
-      contentLength: data.content?.length || 0
+      contentLength: data.content?.length || 0,
+      metadata: data.metadata
     });
     
     // Validate required fields
@@ -112,6 +120,12 @@ export async function PUT(
         { status: 400 }
       );
     }
+    
+    // Ensure metadata is a valid object
+    const metadata = data.metadata || {};
+    
+    // Log metadata content to help with debugging
+    console.log('Metadata being saved:', JSON.stringify(metadata, null, 2));
     
     // Check if page content exists
     const existingContent = await prisma.pageContent.findUnique({
@@ -133,7 +147,7 @@ export async function PUT(
             content: data.content,
             contentAr: data.contentAr || null,
             lastUpdated: new Date(),
-            metadata: data.metadata || existingContent.metadata,
+            metadata: metadata
           },
         });
         console.log('Updated existing content with ID:', pageContent.id);
@@ -147,13 +161,16 @@ export async function PUT(
             content: data.content,
             contentAr: data.contentAr || null,
             lastUpdated: new Date(),
-            metadata: data.metadata || {},
+            metadata: metadata
           },
         });
         console.log('Created new content with ID:', pageContent.id);
       }
       
-      return NextResponse.json(pageContent);
+      return NextResponse.json({
+        ...pageContent,
+        metadata: pageContent.metadata
+      });
     } catch (dbError: any) {
       console.error('Database error during content update:', dbError);
       return NextResponse.json(
