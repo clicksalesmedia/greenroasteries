@@ -1,20 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { writeFile, mkdir } from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
-// Edge-compatible configurations
-export const config = {
-  api: {
-    responseLimit: '8mb',
-    bodyParser: false,
-  },
-};
+// This version does NOT use edge runtime - it's for server environments
+// where we can access the filesystem directly
 
-// This route will handle file uploads from the browser
 export async function POST(req: NextRequest) {
   try {
-    console.log('Upload API called');
+    console.log('Server Upload API called');
     
-    // Basic authentication check - in development mode we'll allow all requests
+    // Basic authentication check
     const isDev = process.env.NODE_ENV === 'development';
     if (!isDev) {
       const authHeader = req.headers.get('authorization');
@@ -26,8 +23,6 @@ export async function POST(req: NextRequest) {
         );
       }
     }
-    
-    console.log('Authorization check passed');
     
     // Process the form data
     const formData = await req.formData();
@@ -58,6 +53,15 @@ export async function POST(req: NextRequest) {
     });
     
     // Check file type - be more permissive with image formats
+    const validImageTypes = [
+      'image/jpeg', 
+      'image/png', 
+      'image/gif', 
+      'image/webp', 
+      'image/svg+xml',
+      'image/heic'  // Include HEIC format
+    ];
+    
     const isImageMimeType = file.type.startsWith('image/');
     const hasImageExtension = /\.(jpg|jpeg|png|gif|webp|svg|heic)$/i.test(file.name);
     
@@ -78,11 +82,11 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    // In edge runtime, we can't directly access the filesystem
-    // Instead, we'll return a temporary URL and frontend will handle display
-    // For production, you'd want to use a proper storage service like AWS S3
+    // Create a buffer from the file
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
     
-    // Create a unique name based on the type
+    // Create unique filename with original extension - ensuring we have a valid extension
     let extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     
     // Convert HEIC to JPG extension for better browser compatibility
@@ -93,20 +97,25 @@ export async function POST(req: NextRequest) {
     
     const fileName = `${type}_${uuidv4()}.${extension}`;
     
-    // In development mode, we'll use a workaround - the caller will handle saving the file
+    // Ensure uploads directory exists
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    if (!existsSync(uploadsDir)) {
+      console.log('Creating uploads directory at:', uploadsDir);
+      await mkdir(uploadsDir, { recursive: true });
+    }
+    
+    // Write the file
+    const filePath = path.join(uploadsDir, fileName);
+    console.log('Saving file to:', filePath);
+    await writeFile(filePath, buffer);
+    console.log('File saved successfully');
+    
+    // Return the URL path
     const fileUrl = `/uploads/${fileName}`;
-    
-    // Return a success response with the file URL
-    // For development, we'll return the file blob as base64 for the client to save
-    const bytes = await file.arrayBuffer();
-    const base64 = Buffer.from(bytes).toString('base64');
-    
-    return NextResponse.json({
-      success: true,
+    return NextResponse.json({ 
+      success: true, 
       file: fileUrl,
-      fileName: fileName,
-      fileData: isDev ? `data:${file.type};base64,${base64}` : null,
-      message: 'File processed for upload'
+      message: 'File uploaded successfully'
     });
     
   } catch (error: any) {
