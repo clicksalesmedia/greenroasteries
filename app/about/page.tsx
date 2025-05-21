@@ -96,9 +96,17 @@ export default function AboutPage() {
     
   const heroImage = pageContent.metadata?.heroImage || '/images/coffee-beans-bg.jpg';
 
+  // Add a better error fallback image
+  const fallbackImage = '/images/coffee-beans-bg.jpg';
+
   // Add a helper function to handle image paths with format conversion for HEIC
   const getImagePath = (path: string) => {
-    if (!path) return '';
+    if (!path) return fallbackImage;
+    
+    // Handle data URLs directly (for previews)
+    if (path.startsWith('data:')) {
+      return path;
+    }
     
     // If the image is a HEIC, we need to check if the converted JPG exists
     if (path.toLowerCase().endsWith('.heic')) {
@@ -111,7 +119,7 @@ export default function AboutPage() {
   
   // Use the helper to process image paths
   const processedHeroImage = getImagePath(heroImage);
-  const processedContentImage = getImagePath(pageContent.metadata?.contentImage || '/images/coffee-roasting-process.jpg');
+  const processedContentImage = getImagePath(pageContent.metadata?.contentImage || fallbackImage);
 
   if (pageContent.isLoading) {
     return (
@@ -137,13 +145,14 @@ export default function AboutPage() {
       {/* Hero Section */}
       <div className="relative h-96 bg-gray-900">
         <div className="absolute inset-0 overflow-hidden opacity-40">
-          <Image 
+          <img 
             src={processedHeroImage}
             alt={t('coffee_beans', 'Coffee Beans')}
-            fill
-            className="object-cover"
-            priority
-            unoptimized
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={(e) => {
+              console.log('Failed to load hero image, using fallback');
+              e.currentTarget.src = fallbackImage;
+            }}
           />
         </div>
         <div className="relative container mx-auto px-4 h-full flex items-center justify-center text-center">
@@ -170,7 +179,10 @@ export default function AboutPage() {
                   src={processedContentImage}
                   alt={title}
                   className="absolute inset-0 w-full h-full object-cover"
-                  onError={() => console.log('Failed to load content image, format might not be supported')}
+                  onError={(e) => {
+                    console.log('Failed to load content image, using fallback');
+                    e.currentTarget.src = '/images/coffee-roasting-process.jpg';
+                  }}
                 />
               </div>
             </div>

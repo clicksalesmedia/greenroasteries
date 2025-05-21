@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 
-// Edge-compatible configurations
+// Edge-compatible configurations - remove runtime specification for better compatibility
 export const config = {
   api: {
-    responseLimit: '8mb',
     bodyParser: false,
   },
 };
@@ -78,10 +77,6 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    // In edge runtime, we can't directly access the filesystem
-    // Instead, we'll return a temporary URL and frontend will handle display
-    // For production, you'd want to use a proper storage service like AWS S3
-    
     // Create a unique name based on the type
     let extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     
@@ -92,27 +87,35 @@ export async function POST(req: NextRequest) {
     }
     
     const fileName = `${type}_${uuidv4()}.${extension}`;
-    
-    // In development mode, we'll use a workaround - the caller will handle saving the file
     const fileUrl = `/uploads/${fileName}`;
     
-    // Return a success response with the file URL
-    // For development, we'll return the file blob as base64 for the client to save
-    const bytes = await file.arrayBuffer();
-    const base64 = Buffer.from(bytes).toString('base64');
-    
-    return NextResponse.json({
-      success: true,
-      file: fileUrl,
-      fileName: fileName,
-      fileData: isDev ? `data:${file.type};base64,${base64}` : null,
-      message: 'File processed for upload'
-    });
-    
+    try {
+      // Try to create a data URL directly from the file for image preview
+      const arrayBuffer = await file.arrayBuffer();
+      const base64 = Buffer.from(arrayBuffer).toString('base64');
+      const dataUrl = `data:${file.type};base64,${base64}`;
+      
+      return NextResponse.json({
+        success: true,
+        file: fileUrl,
+        fileName: fileName,
+        fileData: dataUrl,
+        message: 'File processed for upload'
+      });
+    } catch (err) {
+      console.error('Error creating data URL:', err);
+      // Return a success response even if data URL creation failed
+      return NextResponse.json({
+        success: true,
+        file: fileUrl,
+        fileName: fileName,
+        message: 'File processed for upload (no preview available)'
+      });
+    }
   } catch (error: any) {
     console.error('Error processing upload:', error);
     return NextResponse.json(
-      { error: `Upload failed: ${error.message}` },
+      { error: `Upload failed: ${error.message || 'Unknown error'}` },
       { status: 500 }
     );
   }

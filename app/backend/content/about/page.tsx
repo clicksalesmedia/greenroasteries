@@ -102,10 +102,29 @@ export default function AboutUsPage() {
     setContentImage(e.target.value);
   };
 
-  // Add uploadImage function
+  // Add a helper function to handle image paths with format conversion for HEIC
+  const getImagePath = (path: string) => {
+    if (!path) return '';
+    
+    // Handle data URLs directly (for previews)
+    if (path.startsWith('data:')) {
+      return path;
+    }
+    
+    // If the image is a HEIC, we need to check if the converted JPG exists
+    if (path.toLowerCase().endsWith('.heic')) {
+      // Convert to the expected JPG path our API now generates
+      return path.substring(0, path.lastIndexOf('.')) + '.jpg';
+    }
+    
+    return path;
+  };
+
   const uploadImage = async (file: File, type: 'hero' | 'content') => {
     try {
       setIsSaving(true);
+      setSaveMessage(`Uploading ${type} image...`);
+      
       // Create a FormData instance
       const formData = new FormData();
       formData.append('file', file);
@@ -117,69 +136,57 @@ export default function AboutUsPage() {
         type: file.type
       });
       
-      // Choose the appropriate endpoint based on environment
-      const endpoint = process.env.NODE_ENV === 'production' 
-        ? '/api/upload-file'  // Server-compatible endpoint for production
-        : '/api/upload';      // Edge runtime endpoint for development
+      // Use the upload-file endpoint for both environments for consistency
+      const endpoint = '/api/upload-file';
       
-      // Upload the image
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        body: formData
-      });
+      // Upload the image with a timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
-      console.log('Upload response status:', response.status);
-      
-      if (!response.ok) {
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (e) {
-          errorData = { error: 'Unknown error occurred' };
-        }
-        console.error('Upload API Error:', errorData);
-        throw new Error(errorData.error || 'Failed to upload image');
-      }
-      
-      const data = await response.json();
-      console.log('Upload successful, response:', data);
-      
-      // Check if we received fileData (base64) for development environment
-      if (data.fileData && data.fileName) {
-        // In development, we need to handle the file storage on client side
-        // This is a workaround for edge runtime limitations
-        try {
-          // Convert base64 to blob
-          const response = await fetch(data.fileData);
-          const blob = await response.blob();
-          
-          // Use the File System Access API if available, otherwise fallback to URL
-          // This is only needed for development testing
-          const fileUrl = data.file; // Use the predefined path
-          console.log('File will be displayed at:', fileUrl);
-          
-          // For development, we can store in localStorage to persist during refresh
-          if (typeof window !== 'undefined') {
-            localStorage.setItem(`${type}_image_preview`, data.fileData);
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        console.log('Upload response status:', response.status);
+        
+        if (!response.ok) {
+          let errorData;
+          try {
+            errorData = await response.json();
+          } catch (e) {
+            errorData = { error: 'Server returned an invalid response' };
           }
-        } catch (err) {
-          console.error('Error processing file data:', err);
+          console.error('Upload API Error:', errorData);
+          throw new Error(errorData.error || 'Failed to upload image');
         }
+        
+        const data = await response.json();
+        console.log('Upload successful, response:', data);
+        
+        // Set the image URL in the state based on the type
+        if (type === 'hero') {
+          setHeroImage(data.file);
+          setSaveMessage('Hero image uploaded successfully');
+        } else if (type === 'content') {
+          setContentImage(data.file);
+          setSaveMessage('Content image uploaded successfully');
+        }
+        
+        setTimeout(() => setSaveMessage(''), 3000);
+      } catch (fetchError: any) {
+        if (fetchError.name === 'AbortError') {
+          throw new Error('Upload timed out. Please try again with a smaller image.');
+        }
+        throw fetchError;
       }
-      
-      // Set the image URL in the state based on the type
-      if (type === 'hero') {
-        setHeroImage(data.file);
-        setSaveMessage('Hero image uploaded successfully');
-      } else if (type === 'content') {
-        setContentImage(data.file);
-        setSaveMessage('Content image uploaded successfully');
-      }
-      
-      setTimeout(() => setSaveMessage(''), 3000);
     } catch (error: any) {
       console.error('Error uploading image:', error);
-      setSaveMessage(`Error uploading image: ${error.message}`);
+      setSaveMessage(`Error uploading image: ${error.message || 'Unknown error'}`);
     } finally {
       setIsSaving(false);
     }
@@ -302,19 +309,6 @@ export default function AboutUsPage() {
       }
     }
   }, []);
-
-  // Add a helper function to handle image paths with format conversion for HEIC
-  const getImagePath = (path: string) => {
-    if (!path) return '';
-    
-    // If the image is a HEIC, we need to check if the converted JPG exists
-    if (path.toLowerCase().endsWith('.heic')) {
-      // Convert to the expected JPG path our API now generates
-      return path.substring(0, path.lastIndexOf('.')) + '.jpg';
-    }
-    
-    return path;
-  };
 
   if (isLoading) {
     return (
@@ -471,8 +465,7 @@ export default function AboutUsPage() {
                         alt="Hero image preview" 
                         className="absolute inset-0 w-full h-full object-cover"
                         onError={(e) => {
-                          console.log('Trying fallback format for hero image');
-                          // For HTML img elements we can set a default
+                          console.log('Error loading hero image:', heroImage);
                           e.currentTarget.style.display = 'none';
                         }}
                       />
@@ -578,8 +571,7 @@ export default function AboutUsPage() {
                     alt="Content preview" 
                     className="absolute inset-0 w-full h-full object-cover"
                     onError={(e) => {
-                      console.log('Trying fallback format for content image');
-                      // For HTML img elements we can set a default
+                      console.log('Error loading content image:', contentImage);
                       e.currentTarget.style.display = 'none';
                     }}
                   />
