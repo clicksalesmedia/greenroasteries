@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import BackendLayout from '../../components/BackendLayout';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function AboutUsPage() {
   const { t } = useLanguage();
@@ -18,6 +19,7 @@ export default function AboutUsPage() {
   const [heroTagline, setHeroTagline] = useState('');
   const [heroTaglineAr, setHeroTaglineAr] = useState('');
   const [heroImage, setHeroImage] = useState('');
+  const [contentImage, setContentImage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [activeTab, setActiveTab] = useState('english');
@@ -47,6 +49,7 @@ export default function AboutUsPage() {
           setHeroTagline(metadata.heroTagline || 'From bean to cup, our passion fuels every step of the journey.');
           setHeroTaglineAr(metadata.heroTaglineAr || '');
           setHeroImage(metadata.heroImage || '/images/coffee-beans-bg.jpg');
+          setContentImage(metadata.contentImage || '/images/coffee-roasting-process.jpg');
         }
         
         setIsLoading(false);
@@ -95,6 +98,70 @@ export default function AboutUsPage() {
     setHeroImage(e.target.value);
   };
 
+  const handleContentImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setContentImage(e.target.value);
+  };
+
+  // Add uploadImage function
+  const uploadImage = async (file: File, type: 'hero' | 'content') => {
+    try {
+      // Create a FormData instance
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', type);
+      
+      // Upload the image
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+      
+      const data = await response.json();
+      
+      // Update the image URL based on type
+      if (type === 'hero') {
+        setHeroImage(data.url);
+      } else {
+        setContentImage(data.url);
+      }
+      
+      setSaveMessage('Image uploaded successfully!');
+      setTimeout(() => setSaveMessage(''), 3000);
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      setSaveMessage(`Error uploading image: ${error.message}`);
+    }
+  };
+  
+  // Refs for the file inputs
+  const heroImageInputRef = useRef<HTMLInputElement>(null);
+  const contentImageInputRef = useRef<HTMLInputElement>(null);
+  
+  // Handle file selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'hero' | 'content') => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      
+      // Check file type
+      if (!file.type.includes('image/')) {
+        setSaveMessage('Please select an image file');
+        return;
+      }
+      
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setSaveMessage('Image size should be less than 5MB');
+        return;
+      }
+      
+      uploadImage(file, type);
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     setSaveMessage('');
@@ -110,7 +177,8 @@ export default function AboutUsPage() {
           heroTitleAr: heroTitleAr,
           heroTagline: heroTagline,
           heroTaglineAr: heroTaglineAr,
-          heroImage: heroImage
+          heroImage: heroImage,
+          contentImage: contentImage
         },
         lastUpdated: new Date().toISOString(),
       };
@@ -291,16 +359,47 @@ export default function AboutUsPage() {
                 
                 <div>
                   <label htmlFor="heroImage" className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('hero_image', 'Hero Background Image URL')}
+                    {t('hero_image', 'Hero Background Image')}
                   </label>
-                  <input
-                    type="text"
-                    id="heroImage"
-                    value={heroImage}
-                    onChange={handleHeroImageChange}
-                    className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                    placeholder="/images/your-image.jpg"
-                  />
+                  <div className="flex items-center space-x-3">
+                    <input
+                      type="text"
+                      id="heroImage"
+                      value={heroImage}
+                      onChange={handleHeroImageChange}
+                      className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
+                      placeholder="/images/your-image.jpg"
+                    />
+                    
+                    <button
+                      type="button"
+                      onClick={() => heroImageInputRef.current?.click()}
+                      className="flex-shrink-0 bg-green-700 text-white px-3 py-2 rounded-md hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    >
+                      Upload
+                    </button>
+                    <input
+                      type="file"
+                      ref={heroImageInputRef}
+                      onChange={(e) => handleFileSelect(e, 'hero')}
+                      className="hidden"
+                      accept="image/*"
+                    />
+                  </div>
+                  {heroImage && (
+                    <div className="relative h-20 w-full mt-2 overflow-hidden rounded-md border border-gray-200">
+                      <Image 
+                        src={heroImage} 
+                        alt="Hero image preview" 
+                        fill
+                        className="object-cover" 
+                        onError={(e) => {
+                          const imgElement = e.target as HTMLImageElement;
+                          imgElement.src = '/images/placeholder-image.jpg';
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -357,6 +456,60 @@ export default function AboutUsPage() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-medium text-gray-900 mb-4">{t('page_content', 'Page Content')}</h2>
           
+          <div className="mb-6">
+            <label htmlFor="contentImage" className="block text-sm font-medium text-gray-700 mb-2">
+              {t('content_image', 'Content Section Image')}
+            </label>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              <div>
+                <div className="flex items-center space-x-3 mb-3">
+                  <input
+                    type="text"
+                    id="contentImage"
+                    value={contentImage}
+                    onChange={handleContentImageChange}
+                    className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
+                    placeholder="/images/your-image.jpg"
+                  />
+                  
+                  <button
+                    type="button"
+                    onClick={() => contentImageInputRef.current?.click()}
+                    className="flex-shrink-0 bg-green-700 text-white px-3 py-2 rounded-md hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  >
+                    Upload
+                  </button>
+                  <input
+                    type="file"
+                    ref={contentImageInputRef}
+                    onChange={(e) => handleFileSelect(e, 'content')}
+                    className="hidden"
+                    accept="image/*"
+                  />
+                </div>
+                <p className="text-sm text-gray-500">
+                  {t('content_image_desc', 'This image will appear alongside your content in the About page.')}
+                </p>
+              </div>
+              
+              {contentImage && (
+                <div className="relative h-40 w-full overflow-hidden rounded-md border border-gray-200">
+                  <Image 
+                    src={contentImage} 
+                    alt="Content preview" 
+                    fill
+                    className="object-cover" 
+                    onError={(e) => {
+                      const imgElement = e.target as HTMLImageElement;
+                      imgElement.src = '/images/placeholder-image.jpg';
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+          
           {activeTab === 'english' && (
             <div>
               <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
@@ -372,6 +525,44 @@ export default function AboutUsPage() {
               <p className="mt-2 text-sm text-gray-500">
                 {t('html_allowed', 'HTML formatting is allowed. Use proper heading tags (h2, h3) for section titles.')}
               </p>
+              
+              {/* HTML Example Section */}
+              <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-md">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">HTML Example:</h4>
+                <pre className="text-xs overflow-x-auto p-2 bg-gray-100 rounded">
+                  {`<h2>Our Journey</h2>
+<p>Green Roasteries was founded in 2012 with a simple mission: to bring the finest specialty coffee to coffee lovers across the UAE.</p>
+
+<h3>Our Commitment to Quality</h3>
+<p>We source our beans directly from farmers around the world, ensuring the highest quality and ethical practices.</p>
+
+<ul>
+  <li>Single-origin beans from Ethiopia, Colombia, and Brazil</li>
+  <li>Small-batch roasting for maximum freshness</li>
+  <li>Sustainable and fair-trade practices</li>
+</ul>`}
+                </pre>
+                <button
+                  type="button"
+                  onClick={() => setContent(prevContent => 
+                    prevContent + (prevContent ? '\n\n' : '') + 
+                    `<h2>Our Journey</h2>
+<p>Green Roasteries was founded in 2012 with a simple mission: to bring the finest specialty coffee to coffee lovers across the UAE.</p>
+
+<h3>Our Commitment to Quality</h3>
+<p>We source our beans directly from farmers around the world, ensuring the highest quality and ethical practices.</p>
+
+<ul>
+  <li>Single-origin beans from Ethiopia, Colombia, and Brazil</li>
+  <li>Small-batch roasting for maximum freshness</li>
+  <li>Sustainable and fair-trade practices</li>
+</ul>`
+                  )}
+                  className="mt-2 text-sm text-green-700 hover:text-green-900 underline"
+                >
+                  {t('add_example', 'Add this example to content')}
+                </button>
+              </div>
             </div>
           )}
           

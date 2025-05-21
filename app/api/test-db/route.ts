@@ -1,29 +1,30 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../lib/prisma';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Test database connection by running a simple query
-    const result = await prisma.$queryRaw`SELECT 1 as test`;
-    
-    // Get all PageContent records
+    // Test database connection
     const pageContents = await prisma.pageContent.findMany();
+    
+    // Check if PageContent model exists
+    const models = await prisma.$queryRaw`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public'
+    `;
     
     return NextResponse.json({
       status: 'success',
       message: 'Database connection successful',
-      testQuery: result,
-      pageContentCount: pageContents.length,
-      pageContents: pageContents
+      pageContents: pageContents,
+      models: models
     });
   } catch (error: any) {
-    console.error('Database connection test failed:', error);
-    
+    console.error('Database test error:', error);
     return NextResponse.json({
       status: 'error',
-      message: 'Database connection failed',
-      error: error.message,
-      stack: error.stack
+      message: `Database connection failed: ${error.message}`,
+      error: error
     }, { status: 500 });
   }
 } 

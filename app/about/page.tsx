@@ -13,6 +13,7 @@ export default function AboutPage() {
     titleAr: string | null;
     metadata: any;
     isLoading: boolean;
+    error: string | null;
   }>({
     content: '',
     contentAr: null,
@@ -23,18 +24,31 @@ export default function AboutPage() {
       heroTagline: 'From bean to cup, our passion fuels every step of the journey.',
       heroImage: '/images/coffee-beans-bg.jpg'
     },
-    isLoading: true
+    isLoading: true,
+    error: null
   });
 
   useEffect(() => {
     const fetchContent = async () => {
       try {
+        console.log('Fetching about us content...');
         const response = await fetch('/api/content/about_us');
+        
+        console.log('Response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch about us content');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('API Error Response:', errorData);
+          throw new Error(`Failed to fetch about us content: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
+        console.log('About us data received:', {
+          hasContent: !!data.content,
+          contentLength: data.content?.length || 0,
+          hasMetadata: !!data.metadata
+        });
+        
         setPageContent({
           content: data.content || '',
           contentAr: data.contentAr || null,
@@ -45,11 +59,16 @@ export default function AboutPage() {
             heroTagline: 'From bean to cup, our passion fuels every step of the journey.',
             heroImage: '/images/coffee-beans-bg.jpg'
           },
-          isLoading: false
+          isLoading: false,
+          error: null
         });
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching about us content:', error);
-        setPageContent(prev => ({ ...prev, isLoading: false }));
+        setPageContent(prev => ({ 
+          ...prev, 
+          isLoading: false, 
+          error: error.message || 'Failed to load about us content' 
+        }));
       }
     };
     
@@ -84,6 +103,17 @@ export default function AboutPage() {
       </div>
     );
   }
+
+  if (pageContent.error) {
+    return (
+      <div className="min-h-screen flex justify-center items-center p-4">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded max-w-lg w-full">
+          <h2 className="text-xl font-medium mb-2">Error Loading Content</h2>
+          <p>{pageContent.error}</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="bg-white">
@@ -112,9 +142,21 @@ export default function AboutPage() {
       {content && (
         <section className="py-16 md:py-24">
           <div className="container mx-auto px-4">
-            <div className="prose prose-lg max-w-3xl mx-auto" 
-                 dangerouslySetInnerHTML={{ __html: content }} 
-                 dir={language === 'ar' ? 'rtl' : 'ltr'} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="prose prose-lg max-w-none" 
+                   dangerouslySetInnerHTML={{ __html: content }} 
+                   dir={language === 'ar' ? 'rtl' : 'ltr'} />
+              
+              <div className="relative h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-xl order-first lg:order-last">
+                <Image 
+                  src={pageContent.metadata?.contentImage || '/images/coffee-roasting-process.jpg'} 
+                  alt={title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              </div>
+            </div>
           </div>
         </section>
       )}

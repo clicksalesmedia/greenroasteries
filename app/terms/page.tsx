@@ -6,17 +6,29 @@ export default function TermsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [content, setContent] = useState('');
   const [lastUpdated, setLastUpdated] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTermsConditions = async () => {
       try {
+        console.log('Fetching terms and conditions...');
         const response = await fetch('/api/content/terms_conditions');
         
+        console.log('Response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch terms and conditions');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('API Error Response:', errorData);
+          throw new Error(`Failed to fetch terms and conditions: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
+        console.log('Terms data received:', {
+          hasContent: !!data.content,
+          contentLength: data.content?.length || 0,
+          hasLastUpdated: !!data.lastUpdated
+        });
+        
         setContent(data.content || '');
         setLastUpdated(data.lastUpdated ? new Date(data.lastUpdated).toLocaleDateString('en-US', {
           year: 'numeric',
@@ -24,8 +36,9 @@ export default function TermsPage() {
           day: 'numeric'
         }) : 'May 15, 2025');
         setIsLoading(false);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching terms and conditions:', error);
+        setError(error.message || 'Failed to load terms and conditions');
         setIsLoading(false);
       }
     };
@@ -51,6 +64,11 @@ export default function TermsPage() {
           {isLoading ? (
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-900"></div>
+            </div>
+          ) : error ? (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              <p className="font-medium">Error loading content</p>
+              <p className="text-sm">{error}</p>
             </div>
           ) : (
             <div className="prose prose-lg">

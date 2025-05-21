@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCart } from '../contexts/CartContext';
 import { ShoppingCartIcon } from '@heroicons/react/24/outline';
+import ProductVariationModal from './ProductVariationModal';
 
 // Define Product interface
 interface Product {
@@ -26,6 +27,10 @@ export default function ShopContent() {
   const categoryParam = searchParams.get('category');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // State for the variation modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -53,6 +58,19 @@ export default function ShopContent() {
     
     fetchProducts();
   }, [categoryParam]);
+
+  // Function to open the variation modal
+  const openVariationModal = (productId: string, e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation to product page
+    e.stopPropagation(); // Prevent event bubbling
+    setSelectedProductId(productId);
+    setIsModalOpen(true);
+  };
+
+  // Function to close the variation modal
+  const closeVariationModal = () => {
+    setIsModalOpen(false);
+  };
 
   if (loading) {
     return (
@@ -100,18 +118,7 @@ export default function ShopContent() {
                   </p>
                   
                   <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      addItem({
-                        id: product.id,
-                        productId: product.id,
-                        name: language === 'ar' && product.nameAr ? product.nameAr : product.name,
-                        price: product.price,
-                        quantity: 1,
-                        image: product.imageUrl || (product.images && product.images.length > 0 ? product.images[0] : ''),
-                        variation: {}
-                      });
-                    }}
+                    onClick={(e) => openVariationModal(product.id, e)}
                     className="bg-black text-white p-2 rounded-full hover:bg-gray-800 transition-colors"
                     aria-label={t('add_to_cart', 'Add to Cart')}
                   >
@@ -123,6 +130,13 @@ export default function ShopContent() {
           </div>
         ))}
       </div>
+      
+      {/* Variation selection modal */}
+      <ProductVariationModal 
+        isOpen={isModalOpen}
+        onClose={closeVariationModal}
+        productId={selectedProductId}
+      />
     </div>
   );
 } 
