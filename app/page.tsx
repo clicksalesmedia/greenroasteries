@@ -128,7 +128,7 @@ export default function Home() {
   // Add state for discounted products
   const [discountedProducts, setDiscountedProducts] = useState<Product[]>([]);
   const [discountedLoading, setDiscountedLoading] = useState(true);
-  
+
   // State for the variation modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string>('');
@@ -1649,8 +1649,8 @@ export default function Home() {
           <div className="text-center mt-12">
             <Link href="/shop" className="inline-block px-10 py-3.5 bg-black text-white font-medium rounded-full hover:bg-gray-800 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
               {t('view_all_products', 'View All Products')}
-            </Link>
-          </div>
+                    </Link>
+                  </div>
         </div>
       </section>
 
@@ -1665,7 +1665,7 @@ export default function Home() {
           {renderDiscountedProducts}
         </div>
       </section>
-
+      
       {/* Features Section - Modern Design */}
       <section className="py-16 bg-white border-t border-gray-100">
         <div className="container mx-auto px-4">
