@@ -520,6 +520,19 @@ export default function ProductVariations({
   const handleVariationImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
+      if (!validTypes.includes(file.type)) {
+        setFormError(`Invalid file type: ${file.type}. Please use JPG, PNG, WEBP, or AVIF.`);
+        return;
+      }
+      
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        setFormError('File size exceeds 5MB limit.');
+        return;
+      }
+      
       setVariationImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -532,6 +545,19 @@ export default function ProductVariations({
   const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
+      if (!validTypes.includes(file.type)) {
+        alert(`Invalid file type: ${file.type}. Please use JPG, PNG, WEBP, or AVIF.`);
+        return;
+      }
+      
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size exceeds 5MB limit.');
+        return;
+      }
+      
       setEditImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -545,21 +571,72 @@ export default function ProductVariations({
   const uploadImage = async (file: File): Promise<string> => {
     setIsUploadingImage(true);
     try {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
+      if (!validTypes.includes(file.type)) {
+        throw new Error(`Invalid file type: ${file.type}. Please use JPG, PNG, WEBP, or AVIF.`);
+      }
+      
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File size exceeds 5MB limit.');
+      }
+      
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', 'products/variations');
       
-      const response = await fetch('/api/upload', {
+      console.log('Uploading variation image:', {
+        filename: file.name,
+        size: file.size,
+        type: file.type
+      });
+      
+      // Add authorization header for debugging
+      const response = await fetch('/api/upload-file', {
         method: 'POST',
         body: formData,
+        headers: {
+          'Authorization': 'Bearer temp-auth-for-upload'
+        }
       });
       
       if (!response.ok) {
-        throw new Error('Failed to upload variation image');
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          errorData = { error: 'Server returned an invalid response' };
+        }
+        console.error('Variation upload API Error:', errorData);
+        throw new Error(errorData.error || 'Failed to upload variation image');
       }
       
       const data = await response.json();
-      return data.url;
+      console.log('Variation upload successful, response:', data);
+      
+      // Get the URL of the uploaded image
+      let imageUrl = data.url || data.file;
+      
+      // Ensure the URL starts with a slash
+      if (imageUrl && !imageUrl.startsWith('/') && !imageUrl.startsWith('http')) {
+        imageUrl = `/${imageUrl}`;
+      }
+      
+      console.log('Using variation image URL:', imageUrl);
+      
+      // Save the raw file data to localStorage for recovery if needed
+      if (data.fileData) {
+        try {
+          const key = `file_data_${imageUrl.replace(/[^a-zA-Z0-9]/g, '_')}`;
+          localStorage.setItem(key, data.fileData);
+          console.log('Variation file data saved to localStorage for recovery if needed');
+        } catch (e) {
+          console.warn('Could not save variation file data to localStorage:', e);
+        }
+      }
+      
+      return imageUrl;
     } catch (error) {
       console.error('Error uploading variation image:', error);
       throw error;
@@ -698,7 +775,7 @@ export default function ProductVariations({
                 id="variationImage"
                 onChange={handleVariationImageChange}
                 className="hidden"
-                accept="image/*"
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
               />
               <label
                 htmlFor="variationImage"
@@ -709,7 +786,20 @@ export default function ProductVariations({
                     <img 
                       src={variationImagePreview} 
                       alt="Variation preview" 
-                      className="h-14 w-14 object-cover mx-auto rounded-md border" 
+                      className="h-14 w-14 object-cover mx-auto rounded-md border"
+                      onError={(e) => {
+                        console.error(`Failed to load image preview`);
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        target.style.display = 'none';
+                        const container = target.parentElement;
+                        if (container) {
+                          const fallback = document.createElement('div');
+                          fallback.className = 'h-14 w-14 bg-gray-200 flex items-center justify-center rounded-md border mx-auto';
+                          fallback.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
+                          container.appendChild(fallback);
+                        }
+                      }}
                     />
                   </div>
                 ) : (
@@ -875,7 +965,7 @@ export default function ProductVariations({
                             id={`edit-image-${variation.id}`}
                             onChange={handleEditImageChange}
                             className="hidden"
-                            accept="image/*"
+                            accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
                           />
                           <label
                             htmlFor={`edit-image-${variation.id}`}
@@ -886,12 +976,38 @@ export default function ProductVariations({
                                 src={editImagePreview} 
                                 alt="Variation" 
                                 className="h-12 w-12 object-cover mx-auto rounded-md border hover:opacity-80"
+                                onError={(e) => {
+                                  console.error(`Failed to load image preview`);
+                                  const target = e.target as HTMLImageElement;
+                                  target.onerror = null;
+                                  target.style.display = 'none';
+                                  const container = target.parentElement;
+                                  if (container) {
+                                    const fallback = document.createElement('div');
+                                    fallback.className = 'h-12 w-12 bg-gray-200 flex items-center justify-center rounded-md border mx-auto hover:opacity-80';
+                                    fallback.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
+                                    container.appendChild(fallback);
+                                  }
+                                }}
                               />
                             ) : variation.imageUrl ? (
                               <img 
                                 src={variation.imageUrl} 
                                 alt="Variation" 
                                 className="h-12 w-12 object-cover mx-auto rounded-md border hover:opacity-80"
+                                onError={(e) => {
+                                  console.error(`Failed to load variation image: ${variation.imageUrl}`);
+                                  const target = e.target as HTMLImageElement;
+                                  target.onerror = null;
+                                  target.style.display = 'none';
+                                  const container = target.parentElement;
+                                  if (container) {
+                                    const fallback = document.createElement('div');
+                                    fallback.className = 'h-12 w-12 bg-gray-200 flex items-center justify-center rounded-md border mx-auto hover:opacity-80';
+                                    fallback.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
+                                    container.appendChild(fallback);
+                                  }
+                                }}
                               />
                             ) : (
                               <div className="h-12 w-12 bg-gray-100 flex items-center justify-center rounded-md border mx-auto hover:bg-gray-200">
@@ -907,6 +1023,19 @@ export default function ProductVariations({
                           src={variation.imageUrl} 
                           alt="Variation" 
                           className="h-12 w-12 object-cover mx-auto rounded-md border"
+                          onError={(e) => {
+                            console.error(`Failed to load variation image: ${variation.imageUrl}`);
+                            const target = e.target as HTMLImageElement;
+                            target.onerror = null;
+                            target.style.display = 'none';
+                            const container = target.parentElement;
+                            if (container) {
+                              const fallback = document.createElement('div');
+                              fallback.className = 'h-12 w-12 bg-gray-200 flex items-center justify-center rounded-md border mx-auto';
+                              fallback.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
+                              container.appendChild(fallback);
+                            }
+                          }}
                         />
                       ) : (
                         <div className="text-gray-400 text-xs">No image</div>

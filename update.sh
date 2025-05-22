@@ -51,47 +51,80 @@ setup_uploads_directory() {
     
     # Execute a series of commands on the server to properly set up the uploads directory
     ssh $SERVER_USER@$SERVER_IP << EOF
-    # Create uploads directory if it doesn't exist
+    echo "Starting uploads directory setup on server..."
+    
+    # Create uploads directory with parent directories if they don't exist
     mkdir -p $DEPLOY_PATH/public/uploads
+    echo "Created uploads directory structure"
     
-    # Ensure directory has very permissive permissions during setup
+    # Set very permissive temporary permissions for setup
     chmod -R 777 $DEPLOY_PATH/public/uploads
+    echo "Set temporary permissions for setup"
     
-    # Make nginx the owner (www-data)
+    # Ensure nginx user owns the directory
     chown -R www-data:www-data $DEPLOY_PATH/public/uploads
+    echo "Set www-data as owner of uploads directory"
     
-    # Verify the directory exists and show permissions
-    echo "Directory structure:"
+    # Fix SELinux contexts if applicable
+    if command -v restorecon >/dev/null 2>&1; then
+        restorecon -Rv $DEPLOY_PATH/public/uploads
+        echo "Fixed SELinux contexts"
+    fi
+    
+    # Verify directory structure and permissions
+    echo "Current directory structure:"
     ls -la $DEPLOY_PATH/public/
     
-    echo "Uploads directory permissions:"
+    echo "Current uploads directory permissions:"
     ls -la $DEPLOY_PATH/public/uploads/
     
-    # Make the directory writable by the web server
-    chmod -R 775 $DEPLOY_PATH/public/uploads
+    # Double-check that www-data has access
+    echo "Making sure nginx user (www-data) has proper access..."
+    usermod -a -G www-data root
     
-    # Fix any SELinux contexts if applicable
-    command -v restorecon >/dev/null 2>&1 && restorecon -R $DEPLOY_PATH/public/uploads
+    # Create a test file to verify permissions
+    touch $DEPLOY_PATH/public/uploads/test_permission.txt
+    chown www-data:www-data $DEPLOY_PATH/public/uploads/test_permission.txt
+    chmod 664 $DEPLOY_PATH/public/uploads/test_permission.txt
+    echo "Created test permission file"
     
-    # Make sure nginx has proper permissions
+    # Restart nginx to ensure it picks up any permission changes
     systemctl restart nginx
+    echo "Restarted nginx"
     
-    echo "Uploads directory setup complete on server"
+    echo "Uploads directory setup completed on server"
 EOF
     
     # Sync uploads directory to server with detailed output
     echo -e "${YELLOW}Syncing uploads directory to server...${NC}"
-    rsync -avz --progress public/uploads/ $SERVER_USER@$SERVER_IP:$DEPLOY_PATH/public/uploads/
+    
+    # Use rsync with archive mode to preserve permissions, verbose output, and compression
+    rsync -avz --progress --perms --chmod=ugo+rwX public/uploads/ $SERVER_USER@$SERVER_IP:$DEPLOY_PATH/public/uploads/
     
     # Set final permissions after sync
     ssh $SERVER_USER@$SERVER_IP << EOF
-    # Final permission adjustment
-    chown -R www-data:www-data $DEPLOY_PATH/public/uploads
-    chmod -R 775 $DEPLOY_PATH/public/uploads
+    echo "Setting final permissions after sync..."
     
-    # Verify the uploads directory content
-    echo "Uploads directory content:"
+    # Ensure the www-data user owns everything in uploads
+    chown -R www-data:www-data $DEPLOY_PATH/public/uploads
+    
+    # Set directory permissions to 775 (owner+group can write, others can read/execute)
+    find $DEPLOY_PATH/public/uploads -type d -exec chmod 775 {} \;
+    
+    # Set file permissions to 664 (owner+group can write, others can read)
+    find $DEPLOY_PATH/public/uploads -type f -exec chmod 664 {} \;
+    
+    # Clean up test file
+    rm -f $DEPLOY_PATH/public/uploads/test_permission.txt
+    
+    # Final verification
+    echo "Final uploads directory content and permissions:"
     ls -la $DEPLOY_PATH/public/uploads/
+    
+    # Extra check that nginx user can access these files
+    echo "Verifying nginx configuration and testing access..."
+    nginx -t
+    curl -s -I http://localhost/uploads/ | head -1
 EOF
     
     echo -e "${GREEN}Upload directory setup and sync complete${NC}"
@@ -116,7 +149,7 @@ check_database_changes
 echo -e "${YELLOW}Updating code...${NC}"
 ssh $SERVER_USER@$SERVER_IP "cd $DEPLOY_PATH && git stash && git fetch origin && git reset --hard origin/main"
 
-# Setup uploads directory first to ensure it exists
+# Setup uploads directory first to ensure it exists with proper permissions
 setup_uploads_directory
 
 # Detect if code has changed
@@ -132,6 +165,10 @@ ssh $SERVER_USER@$SERVER_IP "sudo -u postgres pg_dump -d greenroasteries > $DEPL
 # Run database migrations
 echo -e "${YELLOW}Running database migrations...${NC}"
 ssh $SERVER_USER@$SERVER_IP "cd $DEPLOY_PATH && npx prisma migrate deploy"
+
+# Final permissions check for uploads directory
+echo -e "${YELLOW}Performing final permissions check...${NC}"
+ssh $SERVER_USER@$SERVER_IP "chmod -R 775 $DEPLOY_PATH/public/uploads && chown -R www-data:www-data $DEPLOY_PATH/public/uploads"
 
 echo -e "${GREEN}Database updated successfully${NC}"
 

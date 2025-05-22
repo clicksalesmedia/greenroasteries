@@ -332,17 +332,57 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
         formData.append('file', mainImageFile);
         formData.append('folder', 'products');
         
-        const response = await fetch('/api/upload', {
+        console.log('Uploading main product image:', {
+          filename: mainImageFile.name,
+          size: mainImageFile.size,
+          type: mainImageFile.type
+        });
+        
+        // Add authorization header for debugging
+        const response = await fetch('/api/upload-file', {
           method: 'POST',
           body: formData,
+          headers: {
+            'Authorization': 'Bearer temp-auth-for-upload'
+          }
         });
         
         if (!response.ok) {
-          throw new Error('Failed to upload main image');
+          let errorData;
+          try {
+            errorData = await response.json();
+          } catch (e) {
+            errorData = { error: 'Server returned an invalid response' };
+          }
+          console.error('Upload API Error:', errorData);
+          throw new Error(errorData.error || 'Failed to upload main image');
         }
         
         const data = await response.json();
-        results.mainImageUrl = data.url;
+        console.log('Upload successful, response:', data);
+        
+        // Return the URL of the uploaded image
+        let imageUrl = data.url || data.file;
+        
+        // Ensure the URL starts with a slash
+        if (imageUrl && !imageUrl.startsWith('/') && !imageUrl.startsWith('http')) {
+          imageUrl = `/${imageUrl}`;
+        }
+        
+        console.log('Using image URL:', imageUrl);
+        
+        // Save the raw file data to localStorage for recovery if needed
+        if (data.fileData) {
+          try {
+            const key = `file_data_${imageUrl.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            localStorage.setItem(key, data.fileData);
+            console.log('File data saved to localStorage for recovery if needed');
+          } catch (e) {
+            console.warn('Could not save file data to localStorage:', e);
+          }
+        }
+        
+        results.mainImageUrl = imageUrl;
       }
       
       // Upload gallery images if new ones were added
@@ -354,17 +394,55 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
           formData.append('file', file);
           formData.append('folder', 'products/gallery');
           
-          const response = await fetch('/api/upload', {
+          console.log('Uploading gallery image:', {
+            filename: file.name,
+            size: file.size,
+            type: file.type
+          });
+          
+          // Add authorization header for debugging
+          const response = await fetch('/api/upload-file', {
             method: 'POST',
             body: formData,
+            headers: {
+              'Authorization': 'Bearer temp-auth-for-upload'
+            }
           });
           
           if (!response.ok) {
-            throw new Error('Failed to upload gallery image');
+            let errorData;
+            try {
+              errorData = await response.json();
+            } catch (e) {
+              errorData = { error: 'Server returned an invalid response' };
+            }
+            console.error('Gallery upload API Error:', errorData);
+            throw new Error(errorData.error || 'Failed to upload gallery image');
           }
           
           const data = await response.json();
-          uploadedUrls.push(data.url);
+          console.log('Gallery upload successful, response:', data);
+          
+          // Get the URL of the uploaded image
+          let imageUrl = data.url || data.file;
+          
+          // Ensure the URL starts with a slash
+          if (imageUrl && !imageUrl.startsWith('/') && !imageUrl.startsWith('http')) {
+            imageUrl = `/${imageUrl}`;
+          }
+          
+          // Save the raw file data to localStorage for recovery if needed
+          if (data.fileData) {
+            try {
+              const key = `file_data_${imageUrl.replace(/[^a-zA-Z0-9]/g, '_')}`;
+              localStorage.setItem(key, data.fileData);
+              console.log('Gallery file data saved to localStorage for recovery if needed');
+            } catch (e) {
+              console.warn('Could not save gallery file data to localStorage:', e);
+            }
+          }
+          
+          uploadedUrls.push(imageUrl);
         }
         
         results.galleryUrls = uploadedUrls;
@@ -373,7 +451,7 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
       return results;
     } catch (err) {
       console.error('Error uploading images:', err);
-      throw new Error('Failed to upload images');
+      throw new Error(err instanceof Error ? err.message : 'Failed to upload images');
     } finally {
       setIsUploading(false);
     }
@@ -751,11 +829,26 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
                 </label>
                 <div className="mt-1 border-2 border-gray-300 border-dashed rounded-md p-4">
                   {mainImagePreview ? (
-                    <div className="mb-3 text-center">
+                    <div className="mb-3 text-center image-preview-container">
                       <img
                         src={mainImagePreview}
                         alt="Product preview"
                         className="mx-auto h-40 w-40 object-cover rounded"
+                        onError={(e) => {
+                          console.error(`Failed to load image: ${mainImagePreview}`);
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = null;
+                          // Add a colored background
+                          target.style.display = 'none';
+                          // Create a replacement div with background color
+                          const parent = target.parentElement;
+                          if (parent) {
+                            const replacementDiv = document.createElement('div');
+                            replacementDiv.className = 'mx-auto h-40 w-40 rounded bg-gray-200 flex items-center justify-center';
+                            replacementDiv.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
+                            parent.appendChild(replacementDiv);
+                          }
+                        }}
                       />
                       <button
                         type="button"
@@ -793,7 +886,7 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
                     type="file"
                     className="sr-only"
                     onChange={handleMainImageChange}
-                    accept="image/*"
+                    accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
                   />
                   <label
                     htmlFor="main-image"
@@ -817,6 +910,21 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
                             src={preview}
                             alt={`Gallery ${index + 1}`}
                             className="h-20 w-full object-cover rounded"
+                            onError={(e) => {
+                              console.error(`Failed to load gallery image: ${preview}`);
+                              const target = e.target as HTMLImageElement;
+                              target.onerror = null;
+                              // Add a colored background
+                              target.style.display = 'none';
+                              // Create a replacement div with background color
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const replacementDiv = document.createElement('div');
+                                replacementDiv.className = 'h-20 w-full rounded bg-gray-200 flex items-center justify-center';
+                                replacementDiv.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
+                                parent.appendChild(replacementDiv);
+                              }
+                            }}
                           />
                           <button
                             type="button"
@@ -835,7 +943,7 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
                       type="file"
                       className="sr-only"
                       onChange={handleGalleryImageChange}
-                      accept="image/*"
+                      accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
                       multiple
                     />
                     <label
