@@ -491,16 +491,22 @@ export default function Home() {
             <Link href={`/product/${product.id}`} className="product-card block">
               <div className="product-image-container">
                 <Image 
-                  src={product.imageUrl || '/images/coffee-placeholder.jpg'} 
+                  src={product.imageUrl || ''} 
                   alt={getProductName(product)} 
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                   className="product-image"
                   loading="lazy"
                   onError={(e) => {
-                    // Fallback if image fails to load
+                    // Use background color instead of placeholder image
                     const target = e.target as HTMLImageElement;
-                    target.src = "/images/coffee-placeholder.jpg";
+                    target.onerror = null;
+                    target.style.display = 'none';
+                    // Add a colored background to the container
+                    const container = target.parentElement;
+                    if (container) {
+                      container.style.backgroundColor = '#f3f4f6';
+                    }
                   }}
                 />
               </div>
@@ -576,15 +582,22 @@ export default function Home() {
               <Link href={`/product/${product.id}`} className="product-card block h-full">
                 <div className="product-image-container relative">
                   <Image 
-                    src={product.imageUrl || '/images/coffee-placeholder.jpg'} 
+                    src={product.imageUrl || ''} 
                     alt={getProductName(product)} 
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                     className="product-image"
                     loading="lazy"
                     onError={(e) => {
+                      // Use background color instead of placeholder image
                       const target = e.target as HTMLImageElement;
-                      target.src = "/images/coffee-placeholder.jpg";
+                      target.onerror = null;
+                      target.style.display = 'none';
+                      // Add a colored background to the container
+                      const container = target.parentElement;
+                      if (container) {
+                        container.style.backgroundColor = '#f3f4f6';
+                      }
                     }}
                   />
                   {product.discount && (
@@ -1740,7 +1753,7 @@ export default function Home() {
                 <Link key={category.id} href={`/shop?category=${category.slug}`} className="category-card">
                   <div className="relative w-full h-full">
                     <Image 
-                      src={category.imageUrl || '/images/coffee-placeholder.jpg'} 
+                      src={category.imageUrl || ''}
                       alt={category.name} 
                       fill
                       className="category-image"
@@ -1748,7 +1761,8 @@ export default function Home() {
                         console.error(`Failed to load category image: ${category.imageUrl} for category: ${category.name}`);
                         const target = e.target as HTMLImageElement;
                         target.onerror = null;
-                        target.src = '/images/coffee-placeholder.jpg';
+                        // Just use a background color instead of trying to load a placeholder
+                        target.style.backgroundColor = '#f3f4f6';
                       }}
                     />
                   </div>

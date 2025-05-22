@@ -469,11 +469,17 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({ isOpen, o
             <div className="flex items-center mb-4">
               <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden relative mr-3">
                 <Image 
-                  src={product.imageUrl || (product.images && product.images.length > 0 ? product.images[0] : '/images/placeholder.jpg')}
+                  src={product.imageUrl || (product.images && product.images.length > 0 ? product.images[0] : '')}
                   alt={product.name}
                   fill
                   sizes="64px"
                   className="object-contain"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.style.display = 'none';
+                    // The parent already has a gray background
+                  }}
                 />
               </div>
               <div>

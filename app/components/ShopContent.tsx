@@ -95,14 +95,15 @@ export default function ShopContent() {
             <Link href={`/product/${product.id}`} className="block">
               <div className="aspect-square bg-[#e9e9e9] relative overflow-hidden">
                 <img 
-                  src={product.imageUrl || (product.images && product.images.length > 0 ? product.images[0] : '/images/placeholder.jpg')}
+                  src={product.imageUrl || (product.images && product.images.length > 0 ? product.images[0] : '')}
                   alt={product.name}
                   className="object-contain w-full h-full transition-all duration-500 hover:scale-105"
                   style={{ objectPosition: 'center', width: '100%', height: '100%' }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
-                    target.src = '/images/placeholder.jpg';
+                    target.style.display = 'none';
+                    // The parent already has a gray background
                   }}
                 />
               </div>
