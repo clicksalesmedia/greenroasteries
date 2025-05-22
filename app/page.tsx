@@ -1734,6 +1734,11 @@ export default function Home() {
                     alt={category.name} 
                 fill
                 className="category-image"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null;
+                  target.src = '/images/coffee-placeholder.jpg';
+                }}
               />
               <div className="category-overlay">
                     <h3 className="category-title">{contentByLang(

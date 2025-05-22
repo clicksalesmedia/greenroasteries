@@ -38,6 +38,25 @@ check_database_changes() {
     return 1
 }
 
+# Function to ensure uploads directory exists and has proper permissions
+ensure_uploads_directory() {
+    echo -e "${YELLOW}Ensuring uploads directory exists and has proper permissions...${NC}"
+    
+    # Make sure uploads directory exists on the server
+    ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
+        mkdir -p /var/www/greenroasteries/public/uploads
+        chmod 755 /var/www/greenroasteries/public/uploads
+        chown -R www-data:www-data /var/www/greenroasteries/public/uploads
+        echo "Uploads directory checked and permissions set"
+ENDSSH
+
+    # Copy any new local uploads to the server
+    echo -e "${YELLOW}Syncing uploads directory to server...${NC}"
+    rsync -avz --progress ./public/uploads/ $SERVER_USER@$SERVER_IP:/var/www/greenroasteries/public/uploads/
+    
+    echo -e "${GREEN}Upload directory setup complete${NC}"
+}
+
 # Function to update database
 update_database() {
     echo -e "${YELLOW}Updating database...${NC}"
@@ -145,6 +164,9 @@ main() {
     if [ "$DB_CHANGES" = true ]; then
         update_database
     fi
+    
+    # Ensure uploads directory exists and sync uploads
+    ensure_uploads_directory
     
     # Clean up temporary files
     rm -f local_schema.sql remote_schema.sql schema_diff.txt

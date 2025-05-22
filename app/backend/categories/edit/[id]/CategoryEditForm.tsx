@@ -186,7 +186,9 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
         console.log('Upload successful, response:', data);
         
         // Return the URL of the uploaded image
-        return data.url || data.file;
+        const imageUrl = data.url || data.file;
+        console.log('Using image URL:', imageUrl);
+        return imageUrl;
       } catch (fetchError: any) {
         if (fetchError.name === 'AbortError') {
           throw new Error('Upload timed out. Please try again with a smaller image.');
@@ -206,7 +208,9 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
         }
         
         const fallbackData = await fallbackResponse.json();
-        return fallbackData.url || fallbackData.file;
+        const imageUrl = fallbackData.url || fallbackData.file;
+        console.log('Using fallback image URL:', imageUrl);
+        return imageUrl;
       }
     } catch (err) {
       console.error('Error uploading image:', err);

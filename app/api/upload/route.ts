@@ -97,6 +97,8 @@ export async function POST(req: NextRequest) {
       const base64 = Buffer.from(arrayBuffer).toString('base64');
       const dataUrl = `data:${file.type};base64,${base64}`;
       
+      console.log('Upload complete. File will be available at:', fileUrl);
+      
       return NextResponse.json({
         success: true,
         url: fileUrl, // Add url field for backward compatibility
@@ -108,6 +110,8 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       console.error('Error creating data URL:', err);
       // Return a success response even if data URL creation failed
+      console.log('Upload complete without preview. File will be available at:', fileUrl);
+      
       return NextResponse.json({
         success: true,
         url: fileUrl, // Add url field for backward compatibility

@@ -119,6 +119,8 @@ export async function POST(req: NextRequest) {
     
     // Return the URL path
     const fileUrl = `/uploads/${fileName}`;
+    console.log('File will be accessible at URL:', fileUrl);
+    
     return NextResponse.json({ 
       success: true, 
       url: fileUrl, // Add url field for backward compatibility
