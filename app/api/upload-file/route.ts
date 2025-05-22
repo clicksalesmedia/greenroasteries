@@ -3,6 +3,7 @@ import { writeFile, mkdir } from 'fs/promises';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { fixUploadPermissions } from '@/lib/fix-permissions';
 
 // This version does NOT use edge runtime - it's for server environments
 // where we can access the filesystem directly
@@ -134,6 +135,11 @@ export async function POST(req: NextRequest) {
     // e.g., /uploads/categories/guid.webp or /uploads/products/variations/guid.webp
     const fileUrl = `/uploads/${uploadFolderSpecifier}/${uniqueFileName}`;
     console.log('File will be accessible at URL:', fileUrl);
+    
+    // Fix permissions for the uploaded file
+    const relativeUploadPath = `${uploadFolderSpecifier}/${uniqueFileName}`;
+    await fixUploadPermissions(relativeUploadPath);
+    console.log('Permissions fixed for uploaded file:', relativeUploadPath);
     
     // Try to check if the file is actually written (sanity check)
     if (existsSync(filePathOnServer)) {

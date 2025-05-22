@@ -147,6 +147,10 @@ setup_server_uploads_directory
 # consider adding them to a different source directory and rsyncing that, or 
 # handle them via a separate seeding mechanism if they are truly static assets.
 
+# Make the permissions fix script executable
+echo -e "${YELLOW}Making permission fix script executable...${NC}"
+ssh $SERVER_USER@$SERVER_IP "cd $DEPLOY_PATH_BASE && chmod +x scripts/fix-upload-permissions.sh"
+
 # Rebuild and restart application on server
 echo -e "${YELLOW}Rebuilding and restarting application on server...${NC}"
 ssh $SERVER_USER@$SERVER_IP "cd $DEPLOY_PATH_BASE && npm ci && npm run build && pm2 restart greenroasteries"
