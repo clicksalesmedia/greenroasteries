@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
     const type = formData.get('type') as string;
     const folder = formData.get('folder') as string;
     
-    // Validate that we have either a type or folder
-    if (!type && !folder) {
+    const uploadFolderSpecifier = type || folder;
+    if (!uploadFolderSpecifier) {
       console.error('No type or folder specified');
       return NextResponse.json(
         { error: 'Either type or folder must be specified' },
@@ -44,10 +44,7 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    // Use type or folder for the file path
-    const uploadType = type || folder;
-    
-    console.log(`Processing ${uploadType} image upload:`, {
+    console.log(`Processing upload for specifier "${uploadFolderSpecifier}":`, {
       filename: file.name,
       type: file.type,
       size: file.size
@@ -90,32 +87,39 @@ export async function POST(req: NextRequest) {
     
     // Validate extension and convert if necessary
     if (!['jpg', 'jpeg', 'png', 'webp', 'avif'].includes(extension)) {
-      console.log(`Unsupported extension ${extension}, converting to jpg for better compatibility`);
+      console.log(`Unsupported extension ${extension}, using jpg as default`);
       extension = 'jpg';
     }
     
-    const fileName = `${uploadType}_${uuidv4()}.${extension}`;
+    const uniqueFileName = `${uuidv4()}.${extension}`;
     
     // Base uploads directory
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    const baseUploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    
+    // targetDirectory will be like /public/uploads/categories or /public/uploads/products/variations
+    const targetDirectory = path.join(baseUploadsDir, uploadFolderSpecifier);
+    
+    // filePathOnServer is the absolute path on the server
+    // e.g., /var/www/greenroasteries/public/uploads/categories/guid.webp
+    const filePathOnServer = path.join(targetDirectory, uniqueFileName);
     
     try {
       // First make sure the main uploads directory exists
-      if (!existsSync(uploadsDir)) {
-        console.log('Creating main uploads directory at:', uploadsDir);
-        mkdirSync(uploadsDir, { recursive: true });
+      if (!existsSync(baseUploadsDir)) {
+        console.log('Creating main uploads directory at:', baseUploadsDir);
+        mkdirSync(baseUploadsDir, { recursive: true });
       }
       
       // Handle nested paths for different types of uploads
-      let targetDir = uploadsDir;
+      let targetDir = targetDirectory;
       
-      // Check if uploadType contains slashes indicating a nested directory
-      if (uploadType.includes('/')) {
+      // Check if uploadFolderSpecifier contains slashes indicating a nested directory
+      if (uploadFolderSpecifier.includes('/')) {
         // Split the path and create each subdirectory as needed
-        const pathParts = uploadType.split('/');
+        const pathParts = uploadFolderSpecifier.split('/');
         
         // Pop the last part which would be used in the filename
-        const filenamePrefix = pathParts.pop() || uploadType;
+        const filenamePrefix = pathParts.pop() || uploadFolderSpecifier;
         
         // Build the subdirectory path
         for (const part of pathParts) {
@@ -144,24 +148,23 @@ export async function POST(req: NextRequest) {
         const fileName = `${filenamePrefix}_${uuidv4()}.${extension}`;
       }
       
-      const filePath = path.join(uploadsDir, fileName);
-      console.log('Saving file to:', filePath);
+      console.log('Attempting to save file to server path:', filePathOnServer);
       
       // Ensure directory exists once more right before writing
-      const fileDir = path.dirname(filePath);
+      const fileDir = path.dirname(filePathOnServer);
       if (!existsSync(fileDir)) {
         console.log('Creating directory before writing:', fileDir);
         mkdirSync(fileDir, { recursive: true });
       }
       
       // Write the file
-      await writeFile(filePath, buffer);
-      console.log('File saved successfully to:', filePath);
+      await writeFile(filePathOnServer, buffer);
+      console.log('File saved successfully to server path:', filePathOnServer);
       
       // Set proper permissions for the file
       try {
         const { exec } = require('child_process');
-        exec(`chmod 664 ${filePath}`, (err: Error) => {
+        exec(`chmod 664 ${filePathOnServer}`, (err: Error) => {
           if (err) {
             console.warn('Warning: Could not set file permissions:', err);
             // Don't fail on permission setting
@@ -178,12 +181,13 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    // Return the URL path - always start with / to ensure it's an absolute path from the domain root
-    const fileUrl = `/uploads/${fileName}`;
+    // Construct the URL for client access
+    // e.g., /uploads/categories/guid.webp or /uploads/products/variations/guid.webp
+    const fileUrl = `/uploads/${uploadFolderSpecifier}/${uniqueFileName}`;
     console.log('File will be accessible at URL:', fileUrl);
     
     // Try to check if the file is actually written (sanity check)
-    if (existsSync(path.join(uploadsDir, fileName))) {
+    if (existsSync(filePathOnServer)) {
       console.log('File exists on disk verification passed');
     } else {
       console.error('Warning: File does not exist on disk after writing');
@@ -200,17 +204,28 @@ export async function POST(req: NextRequest) {
     
     return NextResponse.json({ 
       success: true, 
-      url: fileUrl, // Add url field for backward compatibility
-      file: fileUrl,
-      fileName: fileName,
+      url: fileUrl,
+      file: fileUrl, // Keep 'file' for backward compatibility if some frontend parts use it
+      fileName: uniqueFileName, // The actual unique name of the saved file
+      originalFilename: file.name, // Original name for reference if needed
       fileData: dataUrl,
       message: 'File uploaded successfully'
     });
     
   } catch (error: any) {
     console.error('Error processing upload:', error);
+    // Ensure a clear error message is sent back
+    let errorMessage = 'Upload failed due to an unexpected error.';
+    if (error.message) {
+        errorMessage = error.message;
+    } else if (typeof error === 'string') {
+        errorMessage = error;
+    }
+    // Log the full error for server-side debugging
+    console.error('Full error object during upload:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    
     return NextResponse.json(
-      { error: `Upload failed: ${error.message}` },
+      { error: `Upload failed: ${errorMessage}` },
       { status: 500 }
     );
   }
