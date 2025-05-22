@@ -174,57 +174,66 @@ export default function Header() {
                 return { id: 'unknown', name: 'Other' };
               }
             });
-            console.log('Processed categories:', processedCategories);
-            setCategories(processedCategories);
+            
+            // Sort the categories in the specific order requested
+            const orderedCategories = sortCategoriesInCustomOrder(processedCategories);
+            
+            console.log('Processed categories:', orderedCategories);
+            setCategories(orderedCategories);
           }
         } else {
           console.error('Failed to fetch categories from API, status:', response.status);
-          // Fallback to default categories if API fails
-          const fallbackCategories = language === 'ar' ? 
+          // Fallback to default categories in the specified order
+          const fallbackCategories = sortCategoriesInCustomOrder(language === 'ar' ? 
             [
+              { id: 'arabic-coffee', name: 'قهوة عربية' },
+              { id: 'filter-coffee', name: 'قهوة مطحونة' },
+              { id: 'espresso-roast', name: 'قهوة اسبريسو' },
+              { id: 'turkish-coffee', name: 'قهوة تركية' },
+              { id: 'nuts-dried-fruits', name: 'المكسرات والفواكه المجففة' },
               { id: 'arabica', name: 'أرابيكا' },
               { id: 'robusta', name: 'روبوستا' },
               { id: 'blend', name: 'خلطات' },
               { id: 'specialty', name: 'قهوة متخصصة' },
               { id: 'single-origin', name: 'أصل واحد' },
-              { id: 'espresso', name: 'إسبريسو' },
               { id: 'decaf', name: 'خالية من الكافيين' }
             ] : 
             [
+              { id: 'arabic-coffee', name: 'ARABIC COFFEE' },
+              { id: 'filter-coffee', name: 'FILTER COFFEE' },
+              { id: 'espresso-roast', name: 'ESPRESSO ROAST' },
+              { id: 'turkish-coffee', name: 'TURKISH COFFEE' },
+              { id: 'nuts-dried-fruits', name: 'NUTS & DRIED FRUITS' },
               { id: 'arabica', name: 'Arabica' },
               { id: 'robusta', name: 'Robusta' },
               { id: 'blend', name: 'Blend' },
               { id: 'specialty', name: 'Specialty' },
               { id: 'single-origin', name: 'Single Origin' },
-              { id: 'espresso', name: 'Espresso' },
               { id: 'decaf', name: 'Decaf' }
-            ];
+            ]
+          );
           console.log('Using fallback categories:', fallbackCategories);
           setCategories(fallbackCategories);
         }
       } catch (error) {
         console.error('Error fetching categories:', error);
-        // Fallback categories
+        // Fallback categories in the specified order
         setCategories(
-          language === 'ar' ? 
+          sortCategoriesInCustomOrder(language === 'ar' ? 
           [
-            { id: 'arabica', name: 'أرابيكا' },
-            { id: 'robusta', name: 'روبوستا' },
-            { id: 'blend', name: 'خلطات' },
-            { id: 'specialty', name: 'قهوة متخصصة' },
-            { id: 'single-origin', name: 'أصل واحد' },
-            { id: 'espresso', name: 'إسبريسو' },
-            { id: 'decaf', name: 'خالية من الكافيين' }
+            { id: 'arabic-coffee', name: 'قهوة عربية' },
+            { id: 'filter-coffee', name: 'قهوة مطحونة' },
+            { id: 'espresso-roast', name: 'قهوة اسبريسو' },
+            { id: 'turkish-coffee', name: 'قهوة تركية' },
+            { id: 'nuts-dried-fruits', name: 'المكسرات والفواكه المجففة' }
           ] : 
           [
-            { id: 'arabica', name: 'Arabica' },
-            { id: 'robusta', name: 'Robusta' },
-            { id: 'blend', name: 'Blend' },
-            { id: 'specialty', name: 'Specialty' },
-            { id: 'single-origin', name: 'Single Origin' },
-            { id: 'espresso', name: 'Espresso' },
-            { id: 'decaf', name: 'Decaf' }
-          ]
+            { id: 'arabic-coffee', name: 'ARABIC COFFEE' },
+            { id: 'filter-coffee', name: 'FILTER COFFEE' },
+            { id: 'espresso-roast', name: 'ESPRESSO ROAST' },
+            { id: 'turkish-coffee', name: 'TURKISH COFFEE' },
+            { id: 'nuts-dried-fruits', name: 'NUTS & DRIED FRUITS' }
+          ])
         );
       } finally {
         setIsLoading(false);
@@ -295,6 +304,32 @@ export default function Header() {
   // Format price to 2 decimal places
   const formatPrice = (price: number) => {
     return price.toFixed(2);
+  };
+
+  // Add the new function to sort categories in the specific order
+  const sortCategoriesInCustomOrder = (categories: {id: string, name: string}[]) => {
+    const categoryOrder: {[key: string]: number} = {
+      'ARABIC COFFEE': 1,
+      'قهوة عربية': 1,
+      'القهوة العربية': 1,
+      'FILTER COFFEE': 2,
+      'قهوة مطحونة': 2,
+      'ESPRESSO ROAST': 3,
+      'قهوة اسبريسو': 3,
+      'تحميص الإسبريسو': 3,
+      'TURKISH COFFEE': 4,
+      'قهوة تركية': 4,
+      'تحميص تركي': 4,
+      'NUTS & DRIED FRUITS': 5,
+      'المكسرات والفواكه المجففة': 5,
+      'مكسرات وفواكه مجففة': 5
+    };
+
+    return [...categories].sort((a, b) => {
+      const orderA = categoryOrder[a.name] || 999;
+      const orderB = categoryOrder[b.name] || 999;
+      return orderA - orderB;
+    });
   };
 
   return (
