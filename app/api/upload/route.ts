@@ -11,14 +11,12 @@ export const config = {
 // This route will handle file uploads from the browser
 export async function POST(req: NextRequest) {
   try {
-    console.log('Upload API called');
+    console.log('Edge Upload API called');
     
-    // Skip authentication for now to fix the immediate issue
-    // We'll log attempts but allow them to proceed
+    // Skip authentication check - log but don't block
     const authHeader = req.headers.get('authorization');
     if (!authHeader) {
-      // Log the unauthorized attempt but continue processing
-      console.log('Note: Upload request without authorization header');
+      console.log('Note: Upload request without authorization header - allowing anyway');
     }
     
     console.log('Processing upload request');
@@ -104,7 +102,8 @@ export async function POST(req: NextRequest) {
       const base64 = Buffer.from(arrayBuffer).toString('base64');
       const dataUrl = `data:${file.type};base64,${base64}`;
       
-      console.log('Upload complete. File will be available at:', fileUrl);
+      console.log('Edge upload complete. File will be available at:', fileUrl);
+      console.log('NOTE: Edge runtime cannot write to filesystem; rely on server-side sync');
       
       return NextResponse.json({
         success: true,
@@ -112,19 +111,19 @@ export async function POST(req: NextRequest) {
         file: fileUrl,
         fileName: fileName,
         fileData: dataUrl,
-        message: 'File processed for upload'
+        message: 'File processed for upload - server sync required'
       });
     } catch (err) {
       console.error('Error creating data URL:', err);
       // Return a success response even if data URL creation failed
-      console.log('Upload complete without preview. File will be available at:', fileUrl);
+      console.log('Edge upload complete without preview. File will be available at:', fileUrl);
       
       return NextResponse.json({
         success: true,
         url: fileUrl, // Add url field for backward compatibility
         file: fileUrl,
         fileName: fileName,
-        message: 'File processed for upload (no preview available)'
+        message: 'File processed for upload (no preview available) - server sync required'
       });
     }
   } catch (error: any) {

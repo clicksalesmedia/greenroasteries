@@ -221,6 +221,18 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
         }
         
         console.log('Using image URL:', imageUrl);
+        
+        // Save the raw file data to localStorage for recovery if needed
+        if (data.fileData) {
+          try {
+            const key = `file_data_${imageUrl.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            localStorage.setItem(key, data.fileData);
+            console.log('File data saved to localStorage for recovery if needed');
+          } catch (e) {
+            console.warn('Could not save file data to localStorage:', e);
+          }
+        }
+        
         return imageUrl;
       } catch (fetchError: any) {
         if (fetchError.name === 'AbortError') {
@@ -249,6 +261,33 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
         }
         
         console.log('Using fallback image URL:', imageUrl);
+        
+        // Edge runtime can't save files to disk, so we need to store the data URL
+        // in localStorage for recovery later
+        if (fallbackData.fileData) {
+          try {
+            const key = `file_data_${imageUrl.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            localStorage.setItem(key, fallbackData.fileData);
+            console.log('File data saved to localStorage for recovery if needed');
+            
+            // Create a recovery file element for admin use
+            const recoveryDiv = document.createElement('div');
+            recoveryDiv.className = 'mt-2 p-2 bg-yellow-50 border border-yellow-300 rounded text-xs';
+            recoveryDiv.innerHTML = `
+              <p class="font-semibold text-yellow-800">File uploaded using edge API</p>
+              <p class="text-yellow-700">Images will appear after next server deployment</p>
+            `;
+            
+            // Add the recovery div near the image preview
+            const previewContainer = document.querySelector('.image-preview-container');
+            if (previewContainer) {
+              previewContainer.appendChild(recoveryDiv);
+            }
+          } catch (e) {
+            console.warn('Could not save file data to localStorage:', e);
+          }
+        }
+        
         return imageUrl;
       }
     } catch (err) {
@@ -514,7 +553,7 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
               <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                 <div className="space-y-1 text-center">
                   {imagePreview ? (
-                    <div className="mb-4">
+                    <div className="mb-4 image-preview-container">
                       {currentImageUrl && !imageFile ? (
                         <div>
                           <Image 

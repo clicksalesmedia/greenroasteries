@@ -24,156 +24,80 @@ check_database_changes() {
     ssh $SERVER_USER@$SERVER_IP "sudo -u postgres pg_dump -d greenroasteries --schema-only" > remote_schema.sql
     
     # Compare schemas
-    if ! diff local_schema.sql remote_schema.sql > schema_diff.txt; then
+    DIFF=$(diff local_schema.sql remote_schema.sql)
+    
+    if [ -n "$DIFF" ]; then
         echo -e "${YELLOW}Database schema changes detected:${NC}"
-        cat schema_diff.txt
+        echo "$DIFF"
+        
         read -p "Do you want to apply these schema changes to the server? (y/n) " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            return 0
+            # We don't actually apply the schema changes automatically
+            # That will be handled by Prisma in the server setup
+            echo "Schema changes will be applied during deployment"
         fi
     else
-        echo -e "${GREEN}No schema changes detected${NC}"
+        echo -e "${GREEN}No database schema changes detected.${NC}"
     fi
-    return 1
 }
 
 # Function to ensure uploads directory exists and has proper permissions
-ensure_uploads_directory() {
+setup_uploads_directory() {
     echo -e "${YELLOW}Ensuring uploads directory exists and has proper permissions...${NC}"
     
-    # Make sure uploads directory exists on the server
-    ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
-        mkdir -p /var/www/greenroasteries/public/uploads
-        chmod 755 /var/www/greenroasteries/public/uploads
-        chown -R www-data:www-data /var/www/greenroasteries/public/uploads
-        echo "Uploads directory checked and permissions set"
-ENDSSH
-
-    # Copy any new local uploads to the server
+    # Create local uploads directory if it doesn't exist
+    mkdir -p public/uploads
+    
+    # Create uploads directory on server and set proper permissions
+    ssh $SERVER_USER@$SERVER_IP "mkdir -p $DEPLOY_PATH/public/uploads && chown -R www-data:www-data $DEPLOY_PATH/public/uploads && chmod -R 775 $DEPLOY_PATH/public/uploads"
+    
+    echo "Uploads directory checked and permissions set"
+    
+    # Sync uploads directory to server
     echo -e "${YELLOW}Syncing uploads directory to server...${NC}"
-    rsync -avz --progress ./public/uploads/ $SERVER_USER@$SERVER_IP:/var/www/greenroasteries/public/uploads/
+    rsync -avz --progress public/uploads/ $SERVER_USER@$SERVER_IP:$DEPLOY_PATH/public/uploads/
     
-    echo -e "${GREEN}Upload directory setup complete${NC}"
+    echo "Upload directory setup complete"
 }
 
-# Function to update database
-update_database() {
-    echo -e "${YELLOW}Updating database...${NC}"
-    
-    # Create a backup of the server database first
-    echo -e "${YELLOW}Creating server database backup...${NC}"
-    ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
-        mkdir -p /var/www/greenroasteries/backups
-        sudo -u postgres pg_dump greenroasteries > /var/www/greenroasteries/backups/pre_update_$(date +%Y%m%d_%H%M%S).sql
-ENDSSH
-    
-    # Run Prisma migrations on the server
-    echo -e "${YELLOW}Running database migrations...${NC}"
-    ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
-        cd /var/www/greenroasteries
-        npx prisma migrate deploy
-ENDSSH
-    
-    echo -e "${GREEN}Database updated successfully${NC}"
-}
+# Check if there are uncommitted changes
+if [[ -n $(git status -s) ]]; then
+    echo -e "${RED}You have uncommitted changes. Please commit or stash them first.${NC}"
+    exit 1
+fi
 
-# Function to update code
-update_code() {
-    echo -e "${YELLOW}Updating code...${NC}"
-    
-    ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
-        cd /var/www/greenroasteries
-        
-        # Store the current git hash
-        OLD_HASH=$(git rev-parse HEAD)
-        
-        # Stash any local changes
-        echo "Stashing local changes..."
-        git stash
-        
-        # Pull latest changes
-        git pull origin main
-        
-        # Get new git hash
-        NEW_HASH=$(git rev-parse HEAD)
-        
-        # Check if there are actual changes
-        if [ "$OLD_HASH" != "$NEW_HASH" ]; then
-            echo "Code changes detected. Rebuilding..."
-            
-            # Install any new dependencies
-            npm install
-            
-            # Rebuild the application
-            npm run build
-            
-            # Restart the application
-            pm2 restart greenroasteries
-            
-            # Restart Nginx
-            systemctl restart nginx
-            
-            echo "Application updated and restarted"
-        else
-            echo "No code changes detected"
-        fi
-ENDSSH
-}
+echo -e "${GREEN}Starting update process...${NC}"
 
-# Function to check git status
-check_git_status() {
-    if ! git diff-index --quiet HEAD --; then
-        echo -e "${RED}You have uncommitted changes. Please commit or stash them first.${NC}"
-        exit 1
-    fi
-}
+# Push changes to GitHub
+echo -e "${YELLOW}Pushing changes to GitHub...${NC}"
+git push origin main
 
-# Function to push to GitHub
-push_to_github() {
-    echo -e "${YELLOW}Pushing changes to GitHub...${NC}"
-    git push origin main
-    if [ $? -ne 0 ]; then
-        echo -e "${RED}Failed to push to GitHub${NC}"
-        exit 1
-    fi
-}
+# Check for database changes
+check_database_changes
 
-# Main update process
-main() {
-    echo -e "${GREEN}Starting update process...${NC}"
-    
-    # Check git status
-    check_git_status
-    
-    # Push to GitHub if there are new commits
-    if [ $(git rev-list HEAD@{u}..HEAD | wc -l) -gt 0 ]; then
-        push_to_github
-    fi
-    
-    # Check for database changes
-    DB_CHANGES=false
-    if check_database_changes; then
-        DB_CHANGES=true
-    fi
-    
-    # Update code
-    update_code
-    
-    # Update database if changes were detected and approved
-    if [ "$DB_CHANGES" = true ]; then
-        update_database
-    fi
-    
-    # Ensure uploads directory exists and sync uploads
-    ensure_uploads_directory
-    
-    # Clean up temporary files
-    rm -f local_schema.sql remote_schema.sql schema_diff.txt
-    
-    echo -e "${GREEN}Update completed successfully!${NC}"
-    echo -e "${YELLOW}Please verify your changes at https://thegreenroasteries.com${NC}"
-}
+# Update code on server
+echo -e "${YELLOW}Updating code...${NC}"
+ssh $SERVER_USER@$SERVER_IP "cd $DEPLOY_PATH && git stash && git fetch origin && git reset --hard origin/main"
 
-# Run the update
-main 
+# Detect if code has changed
+ssh $SERVER_USER@$SERVER_IP "cd $DEPLOY_PATH && if [[ -n \$(git diff HEAD@{1} HEAD --name-only) ]]; then echo 'Code changes detected. Rebuilding...'; npm ci && npm run build && pm2 restart greenroasteries; echo 'Application updated and restarted'; else echo 'No code changes detected.'; fi"
+
+# Update database if needed
+echo -e "${YELLOW}Updating database...${NC}"
+
+# Create a backup of the database
+echo -e "${YELLOW}Creating server database backup...${NC}"
+ssh $SERVER_USER@$SERVER_IP "sudo -u postgres pg_dump -d greenroasteries > $DEPLOY_PATH/db_backup_\$(date +%Y%m%d_%H%M%S).sql"
+
+# Run database migrations
+echo -e "${YELLOW}Running database migrations...${NC}"
+ssh $SERVER_USER@$SERVER_IP "cd $DEPLOY_PATH && npx prisma migrate deploy"
+
+echo -e "${GREEN}Database updated successfully${NC}"
+
+# Setup uploads directory
+setup_uploads_directory
+
+echo -e "${GREEN}Update completed successfully!${NC}"
+echo "Please verify your changes at https://thegreenroasteries.com" 
