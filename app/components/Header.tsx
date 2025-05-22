@@ -190,7 +190,7 @@ export default function Header() {
               { id: 'filter-coffee', name: 'قهوة مطحونة' },
               { id: 'espresso-roast', name: 'قهوة اسبريسو' },
               { id: 'turkish-coffee', name: 'قهوة تركية' },
-              { id: 'nuts-dried-fruits', name: 'المكسرات والفواكه المجففة' },
+              { id: 'nuts-dried-food', name: 'المكسرات والفواكه المجففة' },
               { id: 'arabica', name: 'أرابيكا' },
               { id: 'robusta', name: 'روبوستا' },
               { id: 'blend', name: 'خلطات' },
@@ -203,7 +203,7 @@ export default function Header() {
               { id: 'filter-coffee', name: 'FILTER COFFEE' },
               { id: 'espresso-roast', name: 'ESPRESSO ROAST' },
               { id: 'turkish-coffee', name: 'TURKISH COFFEE' },
-              { id: 'nuts-dried-fruits', name: 'NUTS & DRIED FRUITS' },
+              { id: 'nuts-dried-food', name: 'NUTS & DRIED FOOD' },
               { id: 'arabica', name: 'Arabica' },
               { id: 'robusta', name: 'Robusta' },
               { id: 'blend', name: 'Blend' },
@@ -225,14 +225,14 @@ export default function Header() {
             { id: 'filter-coffee', name: 'قهوة مطحونة' },
             { id: 'espresso-roast', name: 'قهوة اسبريسو' },
             { id: 'turkish-coffee', name: 'قهوة تركية' },
-            { id: 'nuts-dried-fruits', name: 'المكسرات والفواكه المجففة' }
+            { id: 'nuts-dried-food', name: 'المكسرات والفواكه المجففة' }
           ] : 
           [
             { id: 'arabic-coffee', name: 'ARABIC COFFEE' },
             { id: 'filter-coffee', name: 'FILTER COFFEE' },
             { id: 'espresso-roast', name: 'ESPRESSO ROAST' },
             { id: 'turkish-coffee', name: 'TURKISH COFFEE' },
-            { id: 'nuts-dried-fruits', name: 'NUTS & DRIED FRUITS' }
+            { id: 'nuts-dried-food', name: 'NUTS & DRIED FOOD' }
           ])
         );
       } finally {
@@ -308,28 +308,80 @@ export default function Header() {
 
   // Add the new function to sort categories in the specific order
   const sortCategoriesInCustomOrder = (categories: {id: string, name: string}[]) => {
-    const categoryOrder: {[key: string]: number} = {
-      'ARABIC COFFEE': 1,
-      'قهوة عربية': 1,
-      'القهوة العربية': 1,
-      'FILTER COFFEE': 2,
-      'قهوة مطحونة': 2,
-      'ESPRESSO ROAST': 3,
-      'قهوة اسبريسو': 3,
-      'تحميص الإسبريسو': 3,
-      'TURKISH COFFEE': 4,
-      'قهوة تركية': 4,
-      'تحميص تركي': 4,
-      'NUTS & DRIED FRUITS': 5,
-      'المكسرات والفواكه المجففة': 5,
-      'مكسرات وفواكه مجففة': 5
-    };
-
-    return [...categories].sort((a, b) => {
-      const orderA = categoryOrder[a.name] || 999;
-      const orderB = categoryOrder[b.name] || 999;
-      return orderA - orderB;
+    // Define the exact priority order
+    const priorityOrder = [
+      // English names
+      'ARABIC COFFEE',
+      'FILTER COFFEE',
+      'ESPRESSO ROAST',
+      'TURKISH COFFEE',
+      'TURKISH ROAST',
+      'NUTS & DRIED FOOD',
+      'NUTS & DRIED FRUITS',
+      
+      // Arabic names
+      'قهوة عربية',
+      'القهوة العربية',
+      'قهوة مطحونة',
+      'قهوة اسبريسو',
+      'تحميص الإسبريسو',
+      'قهوة تركية',
+      'تحميص تركي',
+      'المكسرات والفواكه المجففة',
+      'مكسرات وفواكه مجففة'
+    ];
+    
+    // Create a hardcoded set of categories in the exact order we want
+    const hardcodedCategories = language === 'ar' ? [
+      { id: 'arabic-coffee', name: 'قهوة عربية' },
+      { id: 'filter-coffee', name: 'قهوة مطحونة' },
+      { id: 'espresso-roast', name: 'قهوة اسبريسو' },
+      { id: 'turkish-coffee', name: 'قهوة تركية' },
+      { id: 'nuts-dried-food', name: 'المكسرات والفواكه المجففة' }
+    ] : [
+      { id: 'arabic-coffee', name: 'ARABIC COFFEE' },
+      { id: 'filter-coffee', name: 'FILTER COFFEE' },
+      { id: 'espresso-roast', name: 'ESPRESSO ROAST' },
+      { id: 'turkish-coffee', name: 'TURKISH COFFEE' },
+      { id: 'nuts-dried-food', name: 'NUTS & DRIED FOOD' }
+    ];
+    
+    // First, filter the input categories to find our priority categories
+    const matchedCategories = categories.filter(cat => {
+      // Convert names to uppercase for case-insensitive comparison
+      const normalizedName = cat.name.toUpperCase();
+      return priorityOrder.some(po => po.toUpperCase() === normalizedName);
     });
+    
+    // If we have matched categories from the API, use those
+    if (matchedCategories.length > 0) {
+      // Sort based on priority order
+      const sortedMatched = [...matchedCategories].sort((a, b) => {
+        const indexA = priorityOrder.findIndex(po => 
+          po.toUpperCase() === a.name.toUpperCase());
+        const indexB = priorityOrder.findIndex(po => 
+          po.toUpperCase() === b.name.toUpperCase());
+          
+        // If both are found in priority order, use that order
+        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+        // If only one is found, prioritize it
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+        // Otherwise, keep original order
+        return 0;
+      });
+      
+      // Find all other categories that didn't match our priority list
+      const otherCategories = categories.filter(cat => 
+        !priorityOrder.some(po => po.toUpperCase() === cat.name.toUpperCase())
+      );
+      
+      // Combine the sorted matches with other categories
+      return [...sortedMatched, ...otherCategories];
+    }
+    
+    // If we don't have matches or the list is empty, return our hardcoded list
+    return hardcodedCategories;
   };
 
   return (
