@@ -633,25 +633,33 @@ export default function Home() {
     
         if (response.ok) {
           const data = await response.json();
+          console.log('Categories API response:', data);
           
           if (data && data.length > 0) {
             // Process and normalize category data
-            const processedCategories = data.map((category: any) => ({
-              id: category.id,
-              name: category.name || '',
-              nameAr: category.nameAr || '',
-              slug: category.slug || category.name?.toLowerCase().replace(/\s+/g, '-') || 'category',
-              imageUrl: category.imageUrl || '/images/coffee-beans.jpg'
-            }));
+            const processedCategories = data.map((category: any) => {
+              const processedCategory = {
+                id: category.id,
+                name: category.name || '',
+                nameAr: category.nameAr || '',
+                slug: category.slug || category.name?.toLowerCase().replace(/\s+/g, '-') || 'category',
+                imageUrl: category.imageUrl || '/images/coffee-beans.jpg'
+              };
+              
+              console.log('Processed category:', processedCategory);
+              return processedCategory;
+            });
 
             // Shuffle categories and limit to 4
             const shuffledCategories = [...processedCategories]
               .sort(() => 0.5 - Math.random())
               .slice(0, 4);
               
+            console.log('Final categories to display:', shuffledCategories);
             setCategories(shuffledCategories);
           } else {
             // Use fallback categories if none returned
+            console.log('No categories returned from API, using fallbacks');
             setCategories([
               {
                 id: '1',
@@ -685,6 +693,7 @@ export default function Home() {
           }
         } else {
           // Use fallback categories on error
+          console.error('Failed to fetch categories:', response.status, response.statusText);
           setCategories([
             {
               id: '1',
@@ -1726,30 +1735,33 @@ export default function Home() {
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
             </div>
           ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {categories.map(category => (
                 <Link key={category.id} href={`/shop?category=${category.slug}`} className="category-card">
-              <Image 
-                    src={category.imageUrl || '/images/coffee-placeholder.jpg'} 
-                    alt={category.name} 
-                fill
-                className="category-image"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.onerror = null;
-                  target.src = '/images/coffee-placeholder.jpg';
-                }}
-              />
-              <div className="category-overlay">
+                  <div className="relative w-full h-full">
+                    <Image 
+                      src={category.imageUrl || '/images/coffee-placeholder.jpg'} 
+                      alt={category.name} 
+                      fill
+                      className="category-image"
+                      onError={(e) => {
+                        console.error(`Failed to load category image: ${category.imageUrl} for category: ${category.name}`);
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        target.src = '/images/coffee-placeholder.jpg';
+                      }}
+                    />
+                  </div>
+                  <div className="category-overlay">
                     <h3 className="category-title">{contentByLang(
                       category.name,
                       category.nameAr || category.name
                     )}</h3>
-                <span className="category-link">{t('explore', 'Explore')} →</span>
-              </div>
-            </Link>
-                ))}
-              </div>
+                    <span className="category-link">{t('explore', 'Explore')} →</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
           )}
         </div>
       </section>
