@@ -415,6 +415,39 @@ export default function Home() {
     return '';
   }, [language, contentByLang]);
 
+  // Function to get URL-friendly slug for categories
+  const getCategorySlug = useCallback((categoryName: string) => {
+    // Map of Arabic or display category names to their English equivalents for URLs
+    const categoryMappings: Record<string, string> = {
+      'المكسرات والفواكه المجففة': 'NUTS & DRIED FRUITS',
+      'مكسرات وفواكه مجففة': 'NUTS & DRIED FRUITS',
+      'قهوة عربية': 'ARABIC COFFEE',
+      'القهوة العربية': 'ARABIC COFFEE',
+      'قهوة مختصة': 'SPECIALTY COFFEE',
+      'قهوة مطحونة': 'FILTER COFFEE',
+      'قهوة اسبريسو': 'ESPRESSO ROAST',
+      'تحميص الإسبريسو': 'ESPRESSO ROAST',
+      'قهوة متوسطة التحميص': 'MEDIUM ROAST',
+      'تحميص متوسط': 'MEDIUM ROAST',
+      'قهوة داكنة التحميص': 'DARK ROAST',
+      'تحميص داكن': 'DARK ROAST',
+      'قهوة فاتحة التحميص': 'LIGHT ROAST',
+      'تحميص فاتح': 'LIGHT ROAST',
+      'أكسسوارات القهوة': 'COFFEE ACCESSORIES',
+      'تحميص تركي': 'TURKISH ROAST',
+      'قهوة تركية': 'TURKISH COFFEE',
+      'أرابيكا': 'ARABICA',
+      'روبوستا': 'ROBUSTA',
+      'خلطات': 'BLEND',
+      'أصل واحد': 'SINGLE ORIGIN',
+      'إسبريسو': 'ESPRESSO',
+      'خالية من الكافيين': 'DECAF'
+    };
+    
+    // Always use English category names in URLs, regardless of display language
+    return categoryMappings[categoryName] || categoryName;
+  }, []);
+
   // Memoize this function to prevent recalculation on every render
   const getCategoryDisplayName = useCallback((categoryName: string) => {
     // Map for category display headers (all caps in English, properly formatted in Arabic)
@@ -1772,7 +1805,7 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {categories.map(category => (
-                <Link key={category.id} href={`/shop?category=${category.slug}`} className="category-card">
+                <Link key={category.id} href={`/shop?category=${encodeURIComponent(getCategorySlug(category.name))}`} className="category-card">
                   <div className="relative w-full h-full">
                     {/* Add a background color first as an immediate fallback */}
                     <div className="absolute inset-0 bg-gray-100"></div>
