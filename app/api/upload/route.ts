@@ -58,14 +58,21 @@ export async function POST(req: NextRequest) {
       size: file.size
     });
     
-    // Check file type - be more permissive with image formats
-    const isImageMimeType = file.type.startsWith('image/');
-    const hasImageExtension = /\.(jpg|jpeg|png|gif|webp|svg|heic)$/i.test(file.name);
+    // Check file type - only accept jpg, png, webp, avif
+    const validImageTypes = [
+      'image/jpeg', 
+      'image/png', 
+      'image/webp',
+      'image/avif'
+    ];
+    
+    const isImageMimeType = validImageTypes.includes(file.type);
+    const hasImageExtension = /\.(jpg|jpeg|png|webp|avif)$/i.test(file.name);
     
     if (!isImageMimeType && !hasImageExtension) {
       console.error('Invalid file type:', file.type, file.name);
       return NextResponse.json(
-        { error: 'File must be an image (jpg, png, gif, webp, svg, or heic)' },
+        { error: 'File must be an image (jpg, png, webp, or avif)' },
         { status: 400 }
       );
     }
@@ -82,10 +89,10 @@ export async function POST(req: NextRequest) {
     // Create a unique name based on the type/folder
     let extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     
-    // Convert HEIC to JPG extension for better browser compatibility
-    if (extension === 'heic') {
-      console.log('HEIC image detected, converting extension to jpg for better compatibility');
-      extension = 'jpg';  // Keep the content but change extension for browsers
+    // Validate extension and convert if necessary
+    if (!['jpg', 'jpeg', 'png', 'webp', 'avif'].includes(extension)) {
+      console.log(`Unsupported extension ${extension}, converting to jpg for better compatibility`);
+      extension = 'jpg';
     }
     
     const fileName = `${uploadType}_${uuidv4()}.${extension}`;

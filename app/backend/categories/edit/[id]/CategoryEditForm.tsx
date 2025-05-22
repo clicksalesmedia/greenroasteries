@@ -126,14 +126,32 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
+    if (!validTypes.includes(file.type)) {
+      setError(`Invalid file type: ${file.type}. Please use JPG, PNG, WEBP, or AVIF.`);
+      return;
     }
+    
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('File size exceeds 5MB limit.');
+      return;
+    }
+    
+    setImageFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.onerror = () => {
+      setError('Failed to read the image file. Please try again.');
+    };
+    reader.readAsDataURL(file);
   };
 
   const uploadImage = async (): Promise<string | null> => {
@@ -242,8 +260,36 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
       // Upload image if one is selected
       let imageUrl = currentImageUrl;
       if (imageFile) {
-        imageUrl = await uploadImage();
+        try {
+          imageUrl = await uploadImage();
+          console.log('Successfully uploaded image, URL:', imageUrl);
+          
+          // Ensure the URL starts with a slash if it's a relative URL
+          if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
+            imageUrl = `/${imageUrl}`;
+            console.log('Fixed image URL to:', imageUrl);
+          }
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError);
+          setError(`Image upload failed: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}`);
+          setIsSubmitting(false);
+          return;
+        }
       }
+      
+      // Create the category data object
+      const categoryData = {
+        name,
+        nameAr,
+        slug,
+        description,
+        descriptionAr,
+        parentId: parentId || null,
+        imageUrl,
+        isActive,
+      };
+      
+      console.log('Updating category with data:', categoryData);
       
       // Update category with multilingual data
       const response = await fetch(`/api/categories/${categoryId}`, {
@@ -251,16 +297,7 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name,
-          nameAr,
-          slug,
-          description,
-          descriptionAr,
-          parentId: parentId || null,
-          imageUrl,
-          isActive,
-        }),
+        body: JSON.stringify(categoryData),
       });
       
       if (!response.ok) {
@@ -452,19 +489,37 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
                   {imagePreview ? (
                     <div className="mb-4">
                       {currentImageUrl && !imageFile ? (
-                        <Image 
-                          src={currentImageUrl} 
-                          alt="Category image" 
-                          width={128}
-                          height={128}
-                          className="mx-auto h-32 w-32 object-cover rounded"
-                        />
+                        <div>
+                          <Image 
+                            src={currentImageUrl} 
+                            alt="Category image" 
+                            width={128}
+                            height={128}
+                            className="mx-auto h-32 w-32 object-cover rounded"
+                            onError={(e) => {
+                              console.error(`Failed to load image: ${currentImageUrl}`);
+                              const target = e.target as HTMLImageElement;
+                              target.onerror = null;
+                              target.src = "/images/placeholder.jpg";
+                            }}
+                          />
+                          <p className="text-xs text-gray-500 mt-1">Image URL: {currentImageUrl}</p>
+                        </div>
                       ) : (
-                        <img 
-                          src={imagePreview} 
-                          alt="Preview" 
-                          className="mx-auto h-32 w-32 object-cover rounded"
-                        />
+                        <div>
+                          <img 
+                            src={imagePreview} 
+                            alt="Preview" 
+                            className="mx-auto h-32 w-32 object-cover rounded"
+                            onError={(e) => {
+                              console.error(`Failed to load preview image`);
+                              const target = e.target as HTMLImageElement;
+                              target.onerror = null;
+                              target.src = "/images/placeholder.jpg";
+                            }}
+                          />
+                          {imageFile && <p className="text-xs text-gray-500 mt-1">New file: {imageFile.name}</p>}
+                        </div>
                       )}
                       <button
                         type="button"
@@ -507,13 +562,13 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
                         name="file-upload"
                         type="file"
                         className="sr-only"
-                        accept="image/*"
+                        accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
                         onChange={handleImageChange}
                       />
                     </label>
                     <p className="pl-1">{t('or_drag_drop', 'or drag and drop')}</p>
                   </div>
-                  <p className="text-xs text-gray-500">{t('image_formats', 'PNG, JPG, GIF up to 5MB')}</p>
+                  <p className="text-xs text-gray-500">{t('image_formats', 'JPG, PNG, WEBP, AVIF up to 5MB')}</p>
                 </div>
               </div>
             </div>
