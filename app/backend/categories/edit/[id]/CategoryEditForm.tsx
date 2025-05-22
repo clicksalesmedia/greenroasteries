@@ -74,8 +74,17 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
         setIsActive(category.isActive);
         
         if (category.imageUrl) {
-          setCurrentImageUrl(category.imageUrl);
-          setImagePreview(category.imageUrl);
+          // Ensure the image URL is properly formed
+          let imageUrl = category.imageUrl;
+          
+          // If the URL doesn't start with http or /, add a leading /
+          if (!imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
+            imageUrl = `/${imageUrl}`;
+          }
+          
+          console.log('Category image URL:', imageUrl);
+          setCurrentImageUrl(imageUrl);
+          setImagePreview(imageUrl);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -204,7 +213,13 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
         console.log('Upload successful, response:', data);
         
         // Return the URL of the uploaded image
-        const imageUrl = data.url || data.file;
+        let imageUrl = data.url || data.file;
+        
+        // Ensure the URL starts with a slash
+        if (imageUrl && !imageUrl.startsWith('/') && !imageUrl.startsWith('http')) {
+          imageUrl = `/${imageUrl}`;
+        }
+        
         console.log('Using image URL:', imageUrl);
         return imageUrl;
       } catch (fetchError: any) {
@@ -226,7 +241,13 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
         }
         
         const fallbackData = await fallbackResponse.json();
-        const imageUrl = fallbackData.url || fallbackData.file;
+        let imageUrl = fallbackData.url || fallbackData.file;
+        
+        // Ensure the URL starts with a slash
+        if (imageUrl && !imageUrl.startsWith('/') && !imageUrl.startsWith('http')) {
+          imageUrl = `/${imageUrl}`;
+        }
+        
         console.log('Using fallback image URL:', imageUrl);
         return imageUrl;
       }
@@ -275,6 +296,12 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
           setIsSubmitting(false);
           return;
         }
+      }
+      
+      // If current image URL is removed by the user
+      if (currentImageUrl && !imageFile && !imagePreview) {
+        imageUrl = null;
+        console.log('Image removed by user');
       }
       
       // Create the category data object
@@ -500,7 +527,16 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
                               console.error(`Failed to load image: ${currentImageUrl}`);
                               const target = e.target as HTMLImageElement;
                               target.onerror = null;
-                              target.src = "/images/placeholder.jpg";
+                              // Add a colored background
+                              target.style.display = 'none';
+                              // Create a replacement div with background color
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const replacementDiv = document.createElement('div');
+                                replacementDiv.className = 'mx-auto h-32 w-32 rounded bg-gray-200 flex items-center justify-center';
+                                replacementDiv.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
+                                parent.appendChild(replacementDiv);
+                              }
                             }}
                           />
                           <p className="text-xs text-gray-500 mt-1">Image URL: {currentImageUrl}</p>
@@ -515,7 +551,16 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
                               console.error(`Failed to load preview image`);
                               const target = e.target as HTMLImageElement;
                               target.onerror = null;
-                              target.src = "/images/placeholder.jpg";
+                              // Add a colored background
+                              target.style.display = 'none';
+                              // Create a replacement div with background color
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const replacementDiv = document.createElement('div');
+                                replacementDiv.className = 'mx-auto h-32 w-32 rounded bg-gray-200 flex items-center justify-center';
+                                replacementDiv.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
+                                parent.appendChild(replacementDiv);
+                              }
                             }}
                           />
                           {imageFile && <p className="text-xs text-gray-500 mt-1">New file: {imageFile.name}</p>}
@@ -525,8 +570,17 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
                         type="button"
                         onClick={() => {
                           setImageFile(null);
-                          setImagePreview(currentImageUrl);
-                          if (!currentImageUrl) {
+                          if (currentImageUrl) {
+                            if (!imageFile) {
+                              // If removing the current image without a new one
+                              setImagePreview(null);
+                              setCurrentImageUrl(null);
+                              console.log('Current image removed');
+                            } else {
+                              // If canceling a new image upload, go back to current image
+                              setImagePreview(currentImageUrl);
+                            }
+                          } else {
                             setImagePreview(null);
                           }
                         }}
