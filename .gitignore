@@ -46,3 +46,7 @@ next-env.d.ts
 *.tmp
 */temp/*
 */tmp/*
+
+# Schema dump files
+local_schema.sql
+remote_schema.sql
