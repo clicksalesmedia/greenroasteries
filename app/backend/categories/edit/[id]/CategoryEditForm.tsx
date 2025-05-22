@@ -167,6 +167,7 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
     if (!imageFile) return currentImageUrl;
     
     setIsUploading(true);
+    setError(null); // Clear previous errors
     
     try {
       // Create a FormData object to send the image
@@ -189,16 +190,20 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
       
       try {
         const response = await fetch(endpoint, {
-        method: 'POST',
-        body: formData,
-          signal: controller.signal
-      });
+          method: 'POST',
+          body: formData,
+          signal: controller.signal,
+          headers: {
+            // Add a dummy authorization header to help with debugging
+            'Authorization': 'Bearer temp-auth-for-upload'
+          }
+        });
         
         clearTimeout(timeoutId);
         
         console.log('Upload response status:', response.status);
       
-      if (!response.ok) {
+        if (!response.ok) {
           let errorData;
           try {
             errorData = await response.json();
@@ -207,9 +212,9 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
           }
           console.error('Upload API Error:', errorData);
           throw new Error(errorData.error || 'Failed to upload image');
-      }
+        }
       
-      const data = await response.json();
+        const data = await response.json();
         console.log('Upload successful, response:', data);
         
         // Return the URL of the uploaded image
@@ -241,9 +246,14 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
         
         // If server-side upload fails, try the edge runtime upload as fallback
         console.log('Server upload failed, trying edge runtime upload as fallback');
+        
         const fallbackResponse = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
+          headers: {
+            // Add a dummy authorization header to help with debugging
+            'Authorization': 'Bearer temp-auth-for-upload'
+          }
         });
         
         if (!fallbackResponse.ok) {
@@ -276,6 +286,7 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
             recoveryDiv.innerHTML = `
               <p class="font-semibold text-yellow-800">File uploaded using edge API</p>
               <p class="text-yellow-700">Images will appear after next server deployment</p>
+              <p class="text-xs text-yellow-600 mt-1">URL: ${imageUrl}</p>
             `;
             
             // Add the recovery div near the image preview
@@ -292,6 +303,8 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
       }
     } catch (err) {
       console.error('Error uploading image:', err);
+      // Show a more detailed error message in the UI
+      setError(`Image upload failed: ${err instanceof Error ? err.message : 'Unknown error'}. Please try again.`);
       throw new Error(err instanceof Error ? err.message : 'Failed to upload image');
     } finally {
       setIsUploading(false);
@@ -328,6 +341,22 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
           if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
             imageUrl = `/${imageUrl}`;
             console.log('Fixed image URL to:', imageUrl);
+          }
+
+          // Verify image URL is valid
+          if (imageUrl) {
+            // Add test image load attempt
+            try {
+              const img = document.createElement('img');
+              img.style.display = 'none';
+              img.onload = () => console.log('Test image load successful:', imageUrl);
+              img.onerror = () => console.warn('Test image load failed:', imageUrl);
+              document.body.appendChild(img);
+              img.src = imageUrl;
+              setTimeout(() => document.body.removeChild(img), 2000);
+            } catch (imgError) {
+              console.warn('Test image load failed:', imgError);
+            }
           }
         } catch (uploadError) {
           console.error('Image upload failed:', uploadError);

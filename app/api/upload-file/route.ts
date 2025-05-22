@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -98,25 +98,69 @@ export async function POST(req: NextRequest) {
     
     // Ensure uploads directory exists
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!existsSync(uploadsDir)) {
-      console.log('Creating uploads directory at:', uploadsDir);
-      await mkdir(uploadsDir, { recursive: true });
+    
+    // Create uploads dir if it doesn't exist - using both sync and async for redundancy
+    try {
+      if (!existsSync(uploadsDir)) {
+        console.log('Creating uploads directory at:', uploadsDir);
+        mkdirSync(uploadsDir, { recursive: true });
+      }
+      await mkdir(uploadsDir, { recursive: true }).catch(e => console.log('mkdir async already exists:', e.message));
+      
+      // Extra check to verify the directory exists and is writable
+      if (!existsSync(uploadsDir)) {
+        console.error('Failed to create uploads directory at:', uploadsDir);
+        throw new Error('Could not create uploads directory');
+      }
+    } catch (dirError: any) {
+      console.error('Error creating uploads directory:', dirError);
+      return NextResponse.json(
+        { error: `Failed to create uploads directory: ${dirError.message}` },
+        { status: 500 }
+      );
     }
     
     // Write the file
     const filePath = path.join(uploadsDir, fileName);
     console.log('Saving file to:', filePath);
-    await writeFile(filePath, buffer);
-    console.log('File saved successfully');
     
-    // Return the URL path
+    try {
+      await writeFile(filePath, buffer);
+      console.log('File saved successfully to:', filePath);
+    } catch (writeError: any) {
+      console.error('Error writing file to disk:', writeError);
+      return NextResponse.json(
+        { error: `Failed to write file to disk: ${writeError.message}` },
+        { status: 500 }
+      );
+    }
+    
+    // Return the URL path - always start with / to ensure it's an absolute path from the domain root
     const fileUrl = `/uploads/${fileName}`;
     console.log('File will be accessible at URL:', fileUrl);
+    
+    // Try to check if the file is actually written (sanity check)
+    if (existsSync(filePath)) {
+      console.log('File exists on disk verification passed');
+    } else {
+      console.error('Warning: File does not exist on disk after writing');
+    }
+    
+    // Create a data URL for preview purposes
+    let dataUrl = null;
+    try {
+      const base64 = buffer.toString('base64');
+      dataUrl = `data:${file.type};base64,${base64}`;
+    } catch (error) {
+      console.warn('Failed to create data URL for preview', error);
+    }
     
     return NextResponse.json({ 
       success: true, 
       url: fileUrl, // Add url field for backward compatibility
       file: fileUrl,
+      fileName: fileName,
+      fileData: dataUrl,
       message: 'File uploaded successfully'
     });
     

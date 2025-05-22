@@ -1752,19 +1752,48 @@ export default function Home() {
               {categories.map(category => (
                 <Link key={category.id} href={`/shop?category=${category.slug}`} className="category-card">
                   <div className="relative w-full h-full">
-                    <Image 
-                      src={category.imageUrl || ''}
-                      alt={category.name} 
-                      fill
-                      className="category-image"
-                      onError={(e) => {
-                        console.error(`Failed to load category image: ${category.imageUrl} for category: ${category.name}`);
-                        const target = e.target as HTMLImageElement;
-                        target.onerror = null;
-                        // Just use a background color instead of trying to load a placeholder
-                        target.style.backgroundColor = '#f3f4f6';
-                      }}
-                    />
+                    {/* Add a background color first as an immediate fallback */}
+                    <div className="absolute inset-0 bg-gray-100"></div>
+                    
+                    {category.imageUrl ? (
+                      <Image 
+                        src={category.imageUrl}
+                        alt={category.name} 
+                        fill
+                        className="category-image"
+                        onError={(e) => {
+                          console.error(`Failed to load category image: ${category.imageUrl} for category: ${category.name}`);
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = null;
+                          target.style.opacity = '0';
+                          
+                          // Create an SVG icon as a fallback
+                          const container = target.parentElement;
+                          if (container) {
+                            // If container already has a fallback, don't add another
+                            if (!container.querySelector('.category-fallback')) {
+                              const fallback = document.createElement('div');
+                              fallback.className = 'category-fallback absolute inset-0 flex items-center justify-center bg-gray-100';
+                              fallback.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <div class="absolute bottom-3 text-sm font-medium text-gray-700">${category.name}</div>
+                              `;
+                              container.appendChild(fallback);
+                            }
+                          }
+                        }}
+                      />
+                    ) : (
+                      // Fallback for when no image URL is provided
+                      <div className="category-fallback absolute inset-0 flex items-center justify-center bg-gray-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <div className="absolute bottom-3 text-sm font-medium text-gray-700">{category.name}</div>
+                      </div>
+                    )}
                   </div>
                   <div className="category-overlay">
                     <h3 className="category-title">{contentByLang(
