@@ -162,16 +162,16 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
       
       try {
         const response = await fetch(endpoint, {
-          method: 'POST',
-          body: formData,
+        method: 'POST',
+        body: formData,
           signal: controller.signal
-        });
+      });
         
         clearTimeout(timeoutId);
         
         console.log('Upload response status:', response.status);
-        
-        if (!response.ok) {
+      
+      if (!response.ok) {
           let errorData;
           try {
             errorData = await response.json();
@@ -180,9 +180,9 @@ export function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
           }
           console.error('Upload API Error:', errorData);
           throw new Error(errorData.error || 'Failed to upload image');
-        }
-        
-        const data = await response.json();
+      }
+      
+      const data = await response.json();
         console.log('Upload successful, response:', data);
         
         // Return the URL of the uploaded image

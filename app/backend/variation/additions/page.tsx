@@ -42,6 +42,15 @@ export default function VariationAdditionsPage() {
       
       const data = await response.json();
       setAdditions(data);
+      
+      // Check if "Normal" option exists, if not, suggest creating it
+      const hasNormalOption = data.some((addition: VariationAddition) => 
+        addition.name.toLowerCase() === 'normal'
+      );
+      
+      if (!hasNormalOption) {
+        setFormSuccess('Tip: You might want to create a "Normal" option to use as the default selection for variations.');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       console.error('Error fetching variation additions:', err);

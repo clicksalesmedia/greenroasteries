@@ -240,12 +240,40 @@ export default function ProductPage() {
         
         // Initial variation selection if available
         if (data.variations && data.variations.length > 0) {
-          // Select the first variation as default
-          setSelectedVariation(data.variations[0]);
+          // Always prioritize finding a variation with "normal" additions first
+          const normalVariation = data.variations.find((v: ProductVariation) => {
+            const additionValue = extractValue(v.additions || v.type, language).toLowerCase();
+            return additionValue === 'normal';
+          });
           
-          // Set variation image if available
-          if (data.variations[0].imageUrl) {
-            setVariationImage(data.variations[0].imageUrl);
+          // If found, select it as the initial variation
+          if (normalVariation) {
+            console.log('Found and selected Normal variation as default:', normalVariation);
+            setSelectedVariation(normalVariation);
+            
+            // Set variation image if available
+            if (normalVariation.imageUrl) {
+              setVariationImage(normalVariation.imageUrl);
+            }
+          } else {
+            // If no Normal variation exists, create a modified version of the first variation
+            console.log('No Normal variation found, creating one based on first variation');
+            const firstVariation = data.variations[0];
+            
+            // Create a modified variation with Normal addition
+            const modifiedVariation = {
+              ...firstVariation,
+              additions: 'Normal',
+              id: `${firstVariation.id}-normal`
+            };
+            
+            console.log('Created modified variation with Normal addition:', modifiedVariation);
+            setSelectedVariation(modifiedVariation);
+            
+            // Keep the image from the original variation
+            if (firstVariation.imageUrl) {
+              setVariationImage(firstVariation.imageUrl);
+            }
           }
         }
         
@@ -279,17 +307,40 @@ export default function ProductPage() {
         .map(v => extractValue(v.weight || v.size, language))
         .filter(Boolean))] as string[];
       
+      // Sort weights in the specific order: 250g, 500g, 1kg
+      const weightOrder: Record<string, number> = {'250g': 1, '500g': 2, '1kg': 3};
+      const sortedWeights = [...weights].sort((a, b) => {
+        // Exact match with predefined order
+        const orderA = weightOrder[a] || 999;
+        const orderB = weightOrder[b] || 999;
+        return orderA - orderB;
+      });
+      
       const beans = [...new Set(product.variations
         .map(v => extractValue(v.beans, language))
         .filter(Boolean))] as string[];
       
-      const additions = [...new Set(product.variations
+      // Extract additions from variations
+      let extractedAdditions = [...new Set(product.variations
         .map(v => extractValue(v.additions || v.type, language))
         .filter(Boolean))] as string[];
       
+      // Create a new array with "Normal" always first, followed by other options
+      let additions: string[] = [];
+      
+      // Always include "Normal" as the first option
+      additions.push('Normal');
+      
+      // Add other additions that aren't "Normal"
+      extractedAdditions.forEach(addition => {
+        if (addition && addition.toLowerCase() !== 'normal') {
+          additions.push(addition);
+        }
+      });
+      
       console.log('Available options by language:', {
         language,
-        weights,
+        weights: sortedWeights,
         beans,
         additions
       });
@@ -298,7 +349,7 @@ export default function ProductPage() {
       console.log('Raw addition objects:', product.variations.map(v => v.additions || v.type));
       
       // Update available options
-      setAvailableWeights(weights);
+      setAvailableWeights(sortedWeights);
       setAvailableBeans(beans);
       setAvailableAdditions(additions);
       
@@ -354,11 +405,12 @@ export default function ProductPage() {
       imageUrl: '/images/coffee-1.jpg',
       category: { id: 'cat-single-origin', name: 'Single Origin' },
       variations: [
+        // Arabica + Normal combinations with all three weights
         {
           id: 'var-1',
           weight: '250g',
           beans: 'Arabica',
-          additions: 'Whole Beans',
+          additions: 'Normal',
           price: 14.99,
           stockQuantity: 25
         },
@@ -366,7 +418,7 @@ export default function ProductPage() {
           id: 'var-2',
           weight: '500g',
           beans: 'Arabica',
-          additions: 'Whole Beans',
+          additions: 'Normal',
           price: 24.99,
           stockQuantity: 15
         },
@@ -374,10 +426,12 @@ export default function ProductPage() {
           id: 'var-3',
           weight: '1kg',
           beans: 'Arabica',
-          additions: 'Whole Beans',
+          additions: 'Normal',
           price: 42.99,
           stockQuantity: 8
         },
+        
+        // Arabica + Ground combinations with all three weights
         {
           id: 'var-4',
           weight: '250g',
@@ -388,11 +442,45 @@ export default function ProductPage() {
         },
         {
           id: 'var-5',
+          weight: '500g',
+          beans: 'Arabica',
+          additions: 'Ground',
+          price: 24.99,
+          stockQuantity: 20
+        },
+        {
+          id: 'var-6',
+          weight: '1kg',
+          beans: 'Arabica',
+          additions: 'Ground',
+          price: 42.99,
+          stockQuantity: 12
+        },
+        
+        // Robusta + Whole Beans combinations with all three weights
+        {
+          id: 'var-7',
           weight: '250g',
           beans: 'Robusta',
           additions: 'Whole Beans',
           price: 12.99,
           stockQuantity: 18
+        },
+        {
+          id: 'var-8',
+          weight: '500g',
+          beans: 'Robusta',
+          additions: 'Whole Beans',
+          price: 22.99,
+          stockQuantity: 14
+        },
+        {
+          id: 'var-9',
+          weight: '1kg',
+          beans: 'Robusta',
+          additions: 'Whole Beans',
+          price: 38.99,
+          stockQuantity: 10
         }
       ],
       rating: 4.7,
@@ -403,18 +491,65 @@ export default function ProductPage() {
     
     // Extract unique variation options
     const weights = [...new Set(dummyProduct.variations?.map(v => extractValue(v.weight, language)).filter(Boolean))] as string[];
+    
+    // Sort weights in the specific order: 250g, 500g, 1kg
+    const weightOrder: Record<string, number> = {'250g': 1, '500g': 2, '1kg': 3};
+    const sortedWeights = [...weights].sort((a, b) => {
+      // Exact match with predefined order
+      const orderA = weightOrder[a] || 999;
+      const orderB = weightOrder[b] || 999;
+      return orderA - orderB;
+    });
+    
     const beans = [...new Set(dummyProduct.variations?.map(v => extractValue(v.beans, language)).filter(Boolean))] as string[];
-    const additions = [...new Set(dummyProduct.variations?.map(v => extractValue(v.additions, language)).filter(Boolean))] as string[];
     
-    console.log('Dummy product variations options:', { weights, beans, additions });
+    // Extract additions from variations
+    let extractedAdditions = [...new Set(dummyProduct.variations?.map(v => extractValue(v.additions, language)).filter(Boolean))] as string[];
     
-    setAvailableWeights(weights);
+    // Create a new array with "Normal" always first, followed by other options
+    let additions: string[] = [];
+    
+    // Always include "Normal" as the first option
+    additions.push('Normal');
+    
+    // Add other additions that aren't "Normal"
+    extractedAdditions.forEach(addition => {
+      if (addition && addition.toLowerCase() !== 'normal') {
+        additions.push(addition);
+      }
+    });
+    
+    console.log('Dummy product variations options:', { weights: sortedWeights, beans, additions });
+    
+    setAvailableWeights(sortedWeights);
     setAvailableBeans(beans);
     setAvailableAdditions(additions);
     
-    // Select the first variation by default
+    // Find a variation with "normal" additions
     if (dummyProduct.variations && dummyProduct.variations.length > 0) {
-      setSelectedVariation(dummyProduct.variations[0]);
+      const normalVariation = dummyProduct.variations.find((v: ProductVariation) => {
+        const additionValue = extractValue(v.additions || v.type, language).toLowerCase();
+        return additionValue === 'normal';
+      });
+      
+      // Select the normal variation or create a modified version of the first variation
+      if (normalVariation) {
+        console.log('Found and selected Normal variation as default in dummy product:', normalVariation);
+        setSelectedVariation(normalVariation);
+      } else {
+        console.log('No Normal variation found in dummy product, creating one based on first variation');
+        const firstVariation = dummyProduct.variations[0];
+        
+        // Create a modified variation with Normal addition
+        const modifiedVariation = {
+          ...firstVariation,
+          additions: 'Normal',
+          id: `${firstVariation.id}-normal`
+        };
+        
+        console.log('Created modified variation with Normal addition for dummy product:', modifiedVariation);
+        setSelectedVariation(modifiedVariation);
+      }
     }
   };
   
@@ -487,6 +622,93 @@ export default function ProductPage() {
     
     console.log(`Changing ${type} to ${value} (Language: ${language})`);
     
+    // Get current selections for weight and beans
+    const currentWeight = selectedVariation?.weight ? extractValue(selectedVariation.weight, language) : '';
+    const currentBeans = selectedVariation?.beans ? extractValue(selectedVariation.beans, language) : '';
+
+    // For additions, we'll completely replace the value rather than trying to find an exact match
+    if (type === 'additions') {
+      console.log(`Switching addition to: ${value}`);
+      
+      // First try to find an exact match variation with current weight/beans and the new addition
+      const exactMatch = product.variations.find(variation => {
+        const variationWeight = extractValue(variation.weight || variation.size, language);
+        const variationBeans = extractValue(variation.beans, language);
+        const variationAdditions = extractValue(variation.additions || variation.type, language);
+        
+        return (
+          (!currentWeight || variationWeight.toLowerCase() === currentWeight.toLowerCase()) &&
+          (!currentBeans || variationBeans.toLowerCase() === currentBeans.toLowerCase()) &&
+          variationAdditions.toLowerCase() === value.toLowerCase()
+        );
+      });
+      
+      if (exactMatch) {
+        console.log('Found exact matching variation with the selected addition:', exactMatch);
+        setSelectedVariation(exactMatch);
+        
+        // Set variation image if available
+        if (exactMatch.imageUrl) {
+          setVariationImage(exactMatch.imageUrl);
+        } else {
+          setVariationImage(null);
+        }
+        return;
+      }
+      
+      // If no exact match, find a variation with matching weight and beans to use as base
+      const baseVariation = product.variations.find(variation => {
+        const variationWeight = extractValue(variation.weight || variation.size, language);
+        const variationBeans = extractValue(variation.beans, language);
+        
+        return (
+          (!currentWeight || variationWeight.toLowerCase() === currentWeight.toLowerCase()) &&
+          (!currentBeans || variationBeans.toLowerCase() === currentBeans.toLowerCase())
+        );
+      });
+      
+      if (baseVariation) {
+        // Create a modified version with the new addition
+        const modifiedVariation = {
+          ...baseVariation,
+          additions: value,
+          id: `${baseVariation.id}-${value.toLowerCase().replace(/\s+/g, '-')}`
+        };
+        
+        console.log('Created modified variation with selected addition:', modifiedVariation);
+        setSelectedVariation(modifiedVariation);
+        
+        // Keep the image from the base variation
+        if (baseVariation.imageUrl) {
+          setVariationImage(baseVariation.imageUrl);
+        } else {
+          setVariationImage(null);
+        }
+        return;
+      } else {
+        // If we still can't find a match, use the first variation as a base
+        if (product.variations.length > 0) {
+          const firstVariation = product.variations[0];
+          const modifiedVariation = {
+            ...firstVariation,
+            additions: value,
+            id: `${firstVariation.id}-${value.toLowerCase().replace(/\s+/g, '-')}`
+          };
+          
+          console.log('Created modified variation from first variation:', modifiedVariation);
+          setSelectedVariation(modifiedVariation);
+          
+          if (firstVariation.imageUrl) {
+            setVariationImage(firstVariation.imageUrl);
+          } else {
+            setVariationImage(null);
+          }
+          return;
+        }
+      }
+    }
+    
+    // For weight and beans, continue with the existing logic
     // Find a matching variation based on current selection plus the new change
     const newSelection = {
       weight: selectedVariation?.weight ? extractValue(selectedVariation.weight, language) : '',
@@ -496,6 +718,70 @@ export default function ProductPage() {
     };
     
     console.log('New selection criteria:', newSelection);
+    
+    // Special handling for "Normal" additions
+    if (type === 'additions' && value.toLowerCase() === 'normal') {
+      console.log('Special handling for Normal addition selection');
+      
+      // Check if there's a matching variation with these weight and beans but with "Normal" addition
+      const normalVariation = product.variations.find(variation => {
+        const variationWeight = extractValue(variation.weight || variation.size, language);
+        const variationBeans = extractValue(variation.beans, language);
+        const variationAdditions = extractValue(variation.additions || variation.type, language).toLowerCase();
+        
+        return (
+          (!newSelection.weight || variationWeight.toLowerCase() === newSelection.weight.toLowerCase()) &&
+          (!newSelection.beans || variationBeans.toLowerCase() === newSelection.beans.toLowerCase()) &&
+          variationAdditions === 'normal'
+        );
+      });
+      
+      if (normalVariation) {
+        console.log('Found matching variation with Normal addition:', normalVariation);
+        setSelectedVariation(normalVariation);
+        
+        // Set variation image if available
+        if (normalVariation.imageUrl) {
+          setVariationImage(normalVariation.imageUrl);
+        } else {
+          setVariationImage(null);
+        }
+        return;
+      } else {
+        console.log('No matching variation with Normal addition found. Using first available with matching weight/beans.');
+        
+        // Look for any variation with matching weight and beans
+        const closestMatch = product.variations.find(variation => {
+          const variationWeight = extractValue(variation.weight || variation.size, language);
+          const variationBeans = extractValue(variation.beans, language);
+          
+          return (
+            (!newSelection.weight || variationWeight.toLowerCase() === newSelection.weight.toLowerCase()) &&
+            (!newSelection.beans || variationBeans.toLowerCase() === newSelection.beans.toLowerCase())
+          );
+        });
+        
+        if (closestMatch) {
+          // Create a modified version of this variation with Normal addition
+          const modifiedVariation = {
+            ...closestMatch,
+            additions: 'Normal',
+            id: `${closestMatch.id}-normal`
+          };
+          
+          console.log('Created modified variation with Normal addition:', modifiedVariation);
+          setSelectedVariation(modifiedVariation);
+          
+          // Keep the same image if available
+          if (closestMatch.imageUrl) {
+            setVariationImage(closestMatch.imageUrl);
+          } else {
+            setVariationImage(null);
+          }
+          return;
+        }
+      }
+    }
     
     // Find the best matching variation by comparing string values or object names/displayNames
     const bestMatch = product.variations.find(variation => {
@@ -968,16 +1254,18 @@ export default function ProductPage() {
                   <h2 className="text-lg font-medium mb-2">{t('additions', 'Additions')}</h2>
                   <div className="flex flex-wrap gap-2">
                     {availableAdditions.map((addition) => {
-                      // Log details of each addition for debugging
-                      console.log(`Rendering addition: ${addition} (Language: ${language})`);
+                      // Get current selected addition
+                      const currentAddition = extractValue(selectedVariation?.additions || selectedVariation?.type, language);
+                      
+                      // Check if this addition is selected (exact match only)
+                      const isSelected = currentAddition.toLowerCase() === addition.toLowerCase();
                       
                       return (
                         <button 
                           key={addition}
                           onClick={() => handleVariationChange('additions', addition)}
                           className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors
-                            ${extractValue(selectedVariation?.additions, language) === addition ||
-                              extractValue(selectedVariation?.type, language) === addition
+                            ${isSelected
                               ? 'bg-black text-white border-black' 
                               : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                             }`}

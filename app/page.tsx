@@ -630,7 +630,7 @@ export default function Home() {
         const response = await fetch('/api/categories?limit=8', {
           next: { revalidate: 3600 }, // Revalidate every hour
         });
-        
+    
         if (response.ok) {
           const data = await response.json();
           
@@ -1726,25 +1726,25 @@ export default function Home() {
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {categories.map(category => (
                 <Link key={category.id} href={`/shop?category=${category.slug}`} className="category-card">
-                  <Image 
+              <Image 
                     src={category.imageUrl || '/images/coffee-placeholder.jpg'} 
                     alt={category.name} 
-                    fill
-                    className="category-image"
-                  />
-                  <div className="category-overlay">
+                fill
+                className="category-image"
+              />
+              <div className="category-overlay">
                     <h3 className="category-title">{contentByLang(
                       category.name,
                       category.nameAr || category.name
                     )}</h3>
-                    <span className="category-link">{t('explore', 'Explore')} →</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                <span className="category-link">{t('explore', 'Explore')} →</span>
+              </div>
+            </Link>
+                ))}
+              </div>
           )}
         </div>
       </section>
@@ -1762,8 +1762,8 @@ export default function Home() {
           <div className="text-center mt-12">
             <Link href="/shop" className="inline-block px-10 py-3.5 bg-black text-white font-medium rounded-full hover:bg-gray-800 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
               {t('view_all_products', 'View All Products')}
-                    </Link>
-                  </div>
+            </Link>
+          </div>
         </div>
       </section>
 

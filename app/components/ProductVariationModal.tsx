@@ -175,20 +175,45 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({ isOpen, o
           additions: additionsArray
         });
         
-        setAvailableWeights(weightArray);
+        // Sort weights in the specific order: 250g, 500g, 1kg
+        const weightOrder: Record<string, number> = {'250g': 1, '500g': 2, '1kg': 3};
+        const sortedWeights = [...weightArray].sort((a, b) => {
+          // Exact match with predefined order
+          const orderA = weightOrder[a] || 999;
+          const orderB = weightOrder[b] || 999;
+          return orderA - orderB;
+        });
+        
+        // Create a new array for additions with "Normal" always first
+        let sortedAdditions: string[] = [];
+        
+        // Always add "Normal" as the first option
+        sortedAdditions.push('Normal');
+        
+        // Add other additions that aren't "Normal"
+        additionsArray.forEach(addition => {
+          if (addition && addition.toLowerCase() !== 'normal') {
+            sortedAdditions.push(addition);
+          }
+        });
+        
+        console.log('ProductVariationModal - Sorted weights:', sortedWeights);
+        console.log('ProductVariationModal - Additions with Normal first:', sortedAdditions);
+        
+        setAvailableWeights(sortedWeights);
         setAvailableBeans(beansArray);
-        setAvailableAdditions(additionsArray);
+        setAvailableAdditions(sortedAdditions);
         
         // Select first options by default
-        if (weights.size > 0) setSelectedWeight(weightArray[0]);
+        if (weights.size > 0) setSelectedWeight(sortedWeights[0]);
         if (beans.size > 0) setSelectedBeans(beansArray[0]);
-        if (additions.size > 0) setSelectedAdditions(additionsArray[0]);
+        if (sortedAdditions.length > 0) setSelectedAdditions(sortedAdditions[0]); // This will be "Normal"
         
         // Find matching variation
         updateSelectedVariation(
-          weightArray[0] || '',
+          sortedWeights[0] || '',
           beansArray[0] || '',
-          additionsArray[0] || '',
+          sortedAdditions[0] || '',
           data.variations
         );
       }
@@ -249,6 +274,38 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({ isOpen, o
       setSelectedVariation(matchingVariation);
     } else {
       console.log('ProductVariationModal - No matching variation found');
+      
+      // Special handling for "Normal" additions
+      if (additions && additions.toLowerCase() === 'normal') {
+        console.log('ProductVariationModal - Special handling for Normal addition selection');
+        
+        // Look for a variation with matching weight and beans
+        const baseVariation = variations.find(variation => {
+          const variationWeight = extractValue(variation.weight || variation.size, language);
+          const variationBeans = extractValue(variation.beans, language);
+          
+          return (
+            (!weight || variationWeight.toLowerCase() === weight.toLowerCase()) &&
+            (!beans || variationBeans.toLowerCase() === beans.toLowerCase())
+          );
+        });
+        
+        if (baseVariation) {
+          console.log('ProductVariationModal - Creating modified variation with Normal addition');
+          
+          // Create a modified version with Normal addition
+          const modifiedVariation = {
+            ...baseVariation,
+            additions: 'Normal',
+            id: `${baseVariation.id}-normal`
+          };
+          
+          setSelectedVariation(modifiedVariation);
+          return;
+        }
+      }
+      
+      // If we reach here, no variation matched and no special handling was applied
       setSelectedVariation(null);
     }
   };
@@ -258,6 +315,58 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({ isOpen, o
     
     console.log(`ProductVariationModal - Changing ${type} to "${value}" (Language: ${language})`);
     
+    // For additions, special handling when switching to "Normal"
+    if (type === 'additions' && value.toLowerCase() === 'normal') {
+      console.log('ProductVariationModal - Special handling for Normal addition selection');
+      
+      // First try to find an exact match variation with current weight/beans and Normal addition
+      const exactMatch = product.variations.find(variation => {
+        const variationWeight = extractValue(variation.weight || variation.size, language);
+        const variationBeans = extractValue(variation.beans, language);
+        const variationAdditions = extractValue(variation.additions || variation.type, language);
+        
+        return (
+          (!selectedWeight || variationWeight.toLowerCase() === selectedWeight.toLowerCase()) &&
+          (!selectedBeans || variationBeans.toLowerCase() === selectedBeans.toLowerCase()) &&
+          variationAdditions.toLowerCase() === 'normal'
+        );
+      });
+      
+      if (exactMatch) {
+        console.log('ProductVariationModal - Found exact matching variation with Normal addition');
+        setSelectedAdditions(value);
+        setSelectedVariation(exactMatch);
+        return;
+      }
+      
+      // If no exact match, find a variation with matching weight and beans to use as base
+      const baseVariation = product.variations.find(variation => {
+        const variationWeight = extractValue(variation.weight || variation.size, language);
+        const variationBeans = extractValue(variation.beans, language);
+        
+        return (
+          (!selectedWeight || variationWeight.toLowerCase() === selectedWeight.toLowerCase()) &&
+          (!selectedBeans || variationBeans.toLowerCase() === selectedBeans.toLowerCase())
+        );
+      });
+      
+      if (baseVariation) {
+        console.log('ProductVariationModal - Creating modified variation with Normal addition');
+        
+        // Create a modified variation with Normal addition
+        const modifiedVariation = {
+          ...baseVariation,
+          additions: 'Normal',
+          id: `${baseVariation.id}-normal`
+        };
+        
+        setSelectedAdditions(value);
+        setSelectedVariation(modifiedVariation);
+        return;
+      }
+    }
+    
+    // Standard variation change for all other cases
     let newWeight = selectedWeight;
     let newBeans = selectedBeans;
     let newAdditions = selectedAdditions;

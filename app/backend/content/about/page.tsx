@@ -293,10 +293,10 @@ export default function AboutUsPage() {
                     {t('hero_image', 'Hero Background Image')}
                   </label>
                   <div className="flex items-center">
-                    <input
-                      type="text"
-                      id="heroImage"
-                      value={heroImage}
+                  <input
+                    type="text"
+                    id="heroImage"
+                    value={heroImage}
                       disabled
                       className="w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-50"
                     />
