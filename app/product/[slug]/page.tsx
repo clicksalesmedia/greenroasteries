@@ -160,7 +160,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedImage, setSelectedImage] = useState(-1);
   const [quantity, setQuantity] = useState(1);
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [viewCount, setViewCount] = useState(0);
@@ -1087,58 +1087,89 @@ export default function ProductPage() {
           <div className="relative rounded-lg overflow-hidden mb-4 aspect-square">
             <ProductImageMagnifier 
               src={variationImage || 
-                  (product.imageUrl && typeof product.imageUrl === 'string' && product.imageUrl.trim() !== '' ? product.imageUrl : null) || 
-                  (product.images && product.images.length > 0 && 
+                  (selectedImage === -1 && product.imageUrl && typeof product.imageUrl === 'string' && product.imageUrl.trim() !== '' ? product.imageUrl : null) ||
+                  (product.images && product.images.length > 0 && selectedImage >= 0 && 
                    typeof product.images[selectedImage] === 'string' && 
                    product.images[selectedImage].trim() !== '' 
                    ? product.images[selectedImage] 
-                   : '/images/placeholder.jpg')} 
+                   : (product.imageUrl && typeof product.imageUrl === 'string' && product.imageUrl.trim() !== '' ? product.imageUrl : '/images/placeholder.jpg'))} 
               alt={getProductName()}
             />
           </div>
           
           {/* Thumbnail Gallery */}
-          {product.images && product.images.length > 0 && (
-            <div className="grid grid-cols-4 gap-2 sm:gap-4">
-              {product.images.filter(img => img && typeof img === 'string' && img.trim() !== '').map((image, index) => (
-                <button 
-                  key={index} 
-                  onClick={() => {
-                    setSelectedImage(index);
-                    // Clear variation image when selecting from gallery
-                    if (variationImage) {
-                      setVariationImage(null);
-                    }
-                  }}
-                  className={`relative aspect-square rounded-md overflow-hidden border-2 ${
-                    !variationImage && selectedImage === index ? 'border-black' : 'border-transparent'
-                  }`}
-                >
-                  <Image 
-                    src={image || '/images/placeholder.jpg'} 
-                    alt={`${product.name} - view ${index + 1}`} 
-                    fill
-                    sizes="(max-width: 768px) 25vw, 12vw"
-                    className="object-contain"
-                  />
-                </button>
-              ))}
-              {/* Show variation image in thumbnails if available */}
-              {variationImage && (
-                <button 
-                  className="relative aspect-square rounded-md overflow-hidden border-2 border-black"
-                >
-                  <Image 
-                    src={variationImage} 
-                    alt={`${product.name} - variation`} 
-                    fill
-                    sizes="(max-width: 768px) 25vw, 12vw"
-                    className="object-contain"
-                  />
-                </button>
-              )}
-            </div>
-          )}
+          <div className="grid grid-cols-5 gap-2 sm:gap-3">
+            {/* Main product image as first thumbnail */}
+            {product.imageUrl && typeof product.imageUrl === 'string' && product.imageUrl.trim() !== '' && (
+              <button 
+                onClick={() => {
+                  setSelectedImage(-1); // Special case for main image
+                  // Clear variation image when selecting main product image
+                  if (variationImage) {
+                    setVariationImage(null);
+                  }
+                }}
+                className={`relative aspect-square rounded-md overflow-hidden border-2 ${
+                  !variationImage && selectedImage === -1 ? 'border-black' : 'border-gray-200'
+                } hover:border-gray-400 transition-colors`}
+              >
+                <Image 
+                  src={product.imageUrl} 
+                  alt={`${product.name} - main`} 
+                  fill
+                  sizes="(max-width: 768px) 20vw, 10vw"
+                  className="object-contain"
+                />
+              </button>
+            )}
+            
+            {/* Additional images from product.images array */}
+            {product.images && 
+              product.images
+                .filter(img => img && typeof img === 'string' && img.trim() !== '')
+                .map((image, index) => (
+                  <button 
+                    key={index} 
+                    onClick={() => {
+                      setSelectedImage(index);
+                      // Clear variation image when selecting from gallery
+                      if (variationImage) {
+                        setVariationImage(null);
+                      }
+                    }}
+                    className={`relative aspect-square rounded-md overflow-hidden border-2 ${
+                      !variationImage && selectedImage === index ? 'border-black' : 'border-gray-200'
+                    } hover:border-gray-400 transition-colors`}
+                  >
+                    <Image 
+                      src={image || '/images/placeholder.jpg'} 
+                      alt={`${product.name} - view ${index + 1}`} 
+                      fill
+                      sizes="(max-width: 768px) 20vw, 10vw"
+                      className="object-contain"
+                    />
+                  </button>
+                ))}
+                
+            {/* Show variation image in thumbnails if available */}
+            {variationImage && (
+              <button 
+                onClick={() => {
+                  // Keep the variation image selected
+                  setVariationImage(variationImage);
+                }}
+                className="relative aspect-square rounded-md overflow-hidden border-2 border-black"
+              >
+                <Image 
+                  src={variationImage} 
+                  alt={`${product.name} - variation`} 
+                  fill
+                  sizes="(max-width: 768px) 20vw, 10vw"
+                  className="object-contain"
+                />
+              </button>
+            )}
+          </div>
         </div>
         
         {/* Right Column - Product Details */}
