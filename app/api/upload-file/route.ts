@@ -96,21 +96,79 @@ export async function POST(req: NextRequest) {
     
     const fileName = `${uploadType}_${uuidv4()}.${extension}`;
     
-    // Ensure uploads directory exists
+    // Base uploads directory
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
     
-    // Create uploads dir if it doesn't exist - using both sync and async for redundancy
     try {
+      // First make sure the main uploads directory exists
       if (!existsSync(uploadsDir)) {
-        console.log('Creating uploads directory at:', uploadsDir);
+        console.log('Creating main uploads directory at:', uploadsDir);
         mkdirSync(uploadsDir, { recursive: true });
       }
-      await mkdir(uploadsDir, { recursive: true }).catch(e => console.log('mkdir async already exists:', e.message));
       
-      // Extra check to verify the directory exists and is writable
-      if (!existsSync(uploadsDir)) {
-        console.error('Failed to create uploads directory at:', uploadsDir);
-        throw new Error('Could not create uploads directory');
+      // Handle nested paths for different types of uploads
+      let targetDir = uploadsDir;
+      
+      // Check if uploadType contains slashes indicating a nested directory
+      if (uploadType.includes('/')) {
+        // Split the path and create each subdirectory as needed
+        const pathParts = uploadType.split('/');
+        
+        // Pop the last part which would be used in the filename
+        const filenamePrefix = pathParts.pop() || uploadType;
+        
+        // Build the subdirectory path
+        for (const part of pathParts) {
+          targetDir = path.join(targetDir, part);
+          console.log('Checking subdirectory:', targetDir);
+          
+          // Create the subdirectory if it doesn't exist
+          if (!existsSync(targetDir)) {
+            console.log('Creating subdirectory:', targetDir);
+            mkdirSync(targetDir, { recursive: true });
+            // Set permissions for the new directory
+            await new Promise<void>((resolve, reject) => {
+              const { exec } = require('child_process');
+              exec(`chmod -R 775 ${targetDir}`, (err: Error) => {
+                if (err) {
+                  console.warn('Warning: Could not set permissions on directory:', err);
+                  // Don't fail on permission setting
+                }
+                resolve();
+              });
+            });
+          }
+        }
+        
+        // Use the shorter filenamePrefix for the actual filename
+        const fileName = `${filenamePrefix}_${uuidv4()}.${extension}`;
+      }
+      
+      const filePath = path.join(uploadsDir, fileName);
+      console.log('Saving file to:', filePath);
+      
+      // Ensure directory exists once more right before writing
+      const fileDir = path.dirname(filePath);
+      if (!existsSync(fileDir)) {
+        console.log('Creating directory before writing:', fileDir);
+        mkdirSync(fileDir, { recursive: true });
+      }
+      
+      // Write the file
+      await writeFile(filePath, buffer);
+      console.log('File saved successfully to:', filePath);
+      
+      // Set proper permissions for the file
+      try {
+        const { exec } = require('child_process');
+        exec(`chmod 664 ${filePath}`, (err: Error) => {
+          if (err) {
+            console.warn('Warning: Could not set file permissions:', err);
+            // Don't fail on permission setting
+          }
+        });
+      } catch (permError) {
+        console.warn('Warning: Error while setting file permissions:', permError);
       }
     } catch (dirError: any) {
       console.error('Error creating uploads directory:', dirError);
@@ -120,27 +178,12 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    // Write the file
-    const filePath = path.join(uploadsDir, fileName);
-    console.log('Saving file to:', filePath);
-    
-    try {
-      await writeFile(filePath, buffer);
-      console.log('File saved successfully to:', filePath);
-    } catch (writeError: any) {
-      console.error('Error writing file to disk:', writeError);
-      return NextResponse.json(
-        { error: `Failed to write file to disk: ${writeError.message}` },
-        { status: 500 }
-      );
-    }
-    
     // Return the URL path - always start with / to ensure it's an absolute path from the domain root
     const fileUrl = `/uploads/${fileName}`;
     console.log('File will be accessible at URL:', fileUrl);
     
     // Try to check if the file is actually written (sanity check)
-    if (existsSync(filePath)) {
+    if (existsSync(path.join(uploadsDir, fileName))) {
       console.log('File exists on disk verification passed');
     } else {
       console.error('Warning: File does not exist on disk after writing');

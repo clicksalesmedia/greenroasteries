@@ -584,7 +584,7 @@ export default function ProductVariations({
       
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('folder', 'products/variations');
+      formData.append('type', 'products/variations'); // Use consistent path format with slashes
       
       console.log('Uploading variation image:', {
         filename: file.name,
