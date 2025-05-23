@@ -91,6 +91,8 @@ export async function POST(request: NextRequest) {
         textAnimation: data.textAnimation || 'fade-up',
         imageAnimation: data.imageAnimation || 'fade-in',
         transitionSpeed: data.transitionSpeed || 'medium',
+        layout: data.layout || 'default',
+        accentColor: data.accentColor || '#c9a961',
       },
     });
     

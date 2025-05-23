@@ -19022,6 +19022,8 @@ export namespace Prisma {
     textAnimation: string | null
     imageAnimation: string | null
     transitionSpeed: string | null
+    layout: string | null
+    accentColor: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -19047,6 +19049,8 @@ export namespace Prisma {
     textAnimation: string | null
     imageAnimation: string | null
     transitionSpeed: string | null
+    layout: string | null
+    accentColor: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -19072,6 +19076,8 @@ export namespace Prisma {
     textAnimation: number
     imageAnimation: number
     transitionSpeed: number
+    layout: number
+    accentColor: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -19109,6 +19115,8 @@ export namespace Prisma {
     textAnimation?: true
     imageAnimation?: true
     transitionSpeed?: true
+    layout?: true
+    accentColor?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -19134,6 +19142,8 @@ export namespace Prisma {
     textAnimation?: true
     imageAnimation?: true
     transitionSpeed?: true
+    layout?: true
+    accentColor?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -19159,6 +19169,8 @@ export namespace Prisma {
     textAnimation?: true
     imageAnimation?: true
     transitionSpeed?: true
+    layout?: true
+    accentColor?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -19271,6 +19283,8 @@ export namespace Prisma {
     textAnimation: string | null
     imageAnimation: string | null
     transitionSpeed: string | null
+    layout: string | null
+    accentColor: string | null
     createdAt: Date
     updatedAt: Date
     _count: SliderCountAggregateOutputType | null
@@ -19315,6 +19329,8 @@ export namespace Prisma {
     textAnimation?: boolean
     imageAnimation?: boolean
     transitionSpeed?: boolean
+    layout?: boolean
+    accentColor?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["slider"]>
@@ -19340,6 +19356,8 @@ export namespace Prisma {
     textAnimation?: boolean
     imageAnimation?: boolean
     transitionSpeed?: boolean
+    layout?: boolean
+    accentColor?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["slider"]>
@@ -19365,6 +19383,8 @@ export namespace Prisma {
     textAnimation?: boolean
     imageAnimation?: boolean
     transitionSpeed?: boolean
+    layout?: boolean
+    accentColor?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["slider"]>
@@ -19390,11 +19410,13 @@ export namespace Prisma {
     textAnimation?: boolean
     imageAnimation?: boolean
     transitionSpeed?: boolean
+    layout?: boolean
+    accentColor?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type SliderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "titleAr" | "subtitle" | "subtitleAr" | "buttonText" | "buttonTextAr" | "buttonLink" | "backgroundColor" | "textColor" | "buttonColor" | "overlayColor" | "overlayOpacity" | "overlayImageUrl" | "imageUrl" | "order" | "isActive" | "textAnimation" | "imageAnimation" | "transitionSpeed" | "createdAt" | "updatedAt", ExtArgs["result"]["slider"]>
+  export type SliderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "titleAr" | "subtitle" | "subtitleAr" | "buttonText" | "buttonTextAr" | "buttonLink" | "backgroundColor" | "textColor" | "buttonColor" | "overlayColor" | "overlayOpacity" | "overlayImageUrl" | "imageUrl" | "order" | "isActive" | "textAnimation" | "imageAnimation" | "transitionSpeed" | "layout" | "accentColor" | "createdAt" | "updatedAt", ExtArgs["result"]["slider"]>
 
   export type $SliderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Slider"
@@ -19420,6 +19442,8 @@ export namespace Prisma {
       textAnimation: string | null
       imageAnimation: string | null
       transitionSpeed: string | null
+      layout: string | null
+      accentColor: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["slider"]>
@@ -19865,6 +19889,8 @@ export namespace Prisma {
     readonly textAnimation: FieldRef<"Slider", 'String'>
     readonly imageAnimation: FieldRef<"Slider", 'String'>
     readonly transitionSpeed: FieldRef<"Slider", 'String'>
+    readonly layout: FieldRef<"Slider", 'String'>
+    readonly accentColor: FieldRef<"Slider", 'String'>
     readonly createdAt: FieldRef<"Slider", 'DateTime'>
     readonly updatedAt: FieldRef<"Slider", 'DateTime'>
   }
@@ -21536,6 +21562,8 @@ export namespace Prisma {
     textAnimation: 'textAnimation',
     imageAnimation: 'imageAnimation',
     transitionSpeed: 'transitionSpeed',
+    layout: 'layout',
+    accentColor: 'accentColor',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -22896,6 +22924,8 @@ export namespace Prisma {
     textAnimation?: StringNullableFilter<"Slider"> | string | null
     imageAnimation?: StringNullableFilter<"Slider"> | string | null
     transitionSpeed?: StringNullableFilter<"Slider"> | string | null
+    layout?: StringNullableFilter<"Slider"> | string | null
+    accentColor?: StringNullableFilter<"Slider"> | string | null
     createdAt?: DateTimeFilter<"Slider"> | Date | string
     updatedAt?: DateTimeFilter<"Slider"> | Date | string
   }
@@ -22921,6 +22951,8 @@ export namespace Prisma {
     textAnimation?: SortOrderInput | SortOrder
     imageAnimation?: SortOrderInput | SortOrder
     transitionSpeed?: SortOrderInput | SortOrder
+    layout?: SortOrderInput | SortOrder
+    accentColor?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -22949,6 +22981,8 @@ export namespace Prisma {
     textAnimation?: StringNullableFilter<"Slider"> | string | null
     imageAnimation?: StringNullableFilter<"Slider"> | string | null
     transitionSpeed?: StringNullableFilter<"Slider"> | string | null
+    layout?: StringNullableFilter<"Slider"> | string | null
+    accentColor?: StringNullableFilter<"Slider"> | string | null
     createdAt?: DateTimeFilter<"Slider"> | Date | string
     updatedAt?: DateTimeFilter<"Slider"> | Date | string
   }, "id">
@@ -22974,6 +23008,8 @@ export namespace Prisma {
     textAnimation?: SortOrderInput | SortOrder
     imageAnimation?: SortOrderInput | SortOrder
     transitionSpeed?: SortOrderInput | SortOrder
+    layout?: SortOrderInput | SortOrder
+    accentColor?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: SliderCountOrderByAggregateInput
@@ -23007,6 +23043,8 @@ export namespace Prisma {
     textAnimation?: StringNullableWithAggregatesFilter<"Slider"> | string | null
     imageAnimation?: StringNullableWithAggregatesFilter<"Slider"> | string | null
     transitionSpeed?: StringNullableWithAggregatesFilter<"Slider"> | string | null
+    layout?: StringNullableWithAggregatesFilter<"Slider"> | string | null
+    accentColor?: StringNullableWithAggregatesFilter<"Slider"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Slider"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Slider"> | Date | string
   }
@@ -24348,6 +24386,8 @@ export namespace Prisma {
     textAnimation?: string | null
     imageAnimation?: string | null
     transitionSpeed?: string | null
+    layout?: string | null
+    accentColor?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -24373,6 +24413,8 @@ export namespace Prisma {
     textAnimation?: string | null
     imageAnimation?: string | null
     transitionSpeed?: string | null
+    layout?: string | null
+    accentColor?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -24398,6 +24440,8 @@ export namespace Prisma {
     textAnimation?: NullableStringFieldUpdateOperationsInput | string | null
     imageAnimation?: NullableStringFieldUpdateOperationsInput | string | null
     transitionSpeed?: NullableStringFieldUpdateOperationsInput | string | null
+    layout?: NullableStringFieldUpdateOperationsInput | string | null
+    accentColor?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -24423,6 +24467,8 @@ export namespace Prisma {
     textAnimation?: NullableStringFieldUpdateOperationsInput | string | null
     imageAnimation?: NullableStringFieldUpdateOperationsInput | string | null
     transitionSpeed?: NullableStringFieldUpdateOperationsInput | string | null
+    layout?: NullableStringFieldUpdateOperationsInput | string | null
+    accentColor?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -24448,6 +24494,8 @@ export namespace Prisma {
     textAnimation?: string | null
     imageAnimation?: string | null
     transitionSpeed?: string | null
+    layout?: string | null
+    accentColor?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -24473,6 +24521,8 @@ export namespace Prisma {
     textAnimation?: NullableStringFieldUpdateOperationsInput | string | null
     imageAnimation?: NullableStringFieldUpdateOperationsInput | string | null
     transitionSpeed?: NullableStringFieldUpdateOperationsInput | string | null
+    layout?: NullableStringFieldUpdateOperationsInput | string | null
+    accentColor?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -24498,6 +24548,8 @@ export namespace Prisma {
     textAnimation?: NullableStringFieldUpdateOperationsInput | string | null
     imageAnimation?: NullableStringFieldUpdateOperationsInput | string | null
     transitionSpeed?: NullableStringFieldUpdateOperationsInput | string | null
+    layout?: NullableStringFieldUpdateOperationsInput | string | null
+    accentColor?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -25629,6 +25681,8 @@ export namespace Prisma {
     textAnimation?: SortOrder
     imageAnimation?: SortOrder
     transitionSpeed?: SortOrder
+    layout?: SortOrder
+    accentColor?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -25659,6 +25713,8 @@ export namespace Prisma {
     textAnimation?: SortOrder
     imageAnimation?: SortOrder
     transitionSpeed?: SortOrder
+    layout?: SortOrder
+    accentColor?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -25684,6 +25740,8 @@ export namespace Prisma {
     textAnimation?: SortOrder
     imageAnimation?: SortOrder
     transitionSpeed?: SortOrder
+    layout?: SortOrder
+    accentColor?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }

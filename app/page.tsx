@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import Script from 'next/script';
 import Image from 'next/image';
 import Link from 'next/link';
 import { StarIcon } from '@heroicons/react/24/solid';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { useLanguage } from './contexts/LanguageContext';
 import MaintenanceMode from './components/MaintenanceMode';
 import ProductVariationModal from './components/ProductVariationModal';
-import { ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { ShoppingCartIcon, ArrowRightIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import dynamic from 'next/dynamic';
 
 interface Product {
@@ -46,6 +46,8 @@ interface HeroSlide {
   textAnimation: string;
   imageAnimation: string;
   transitionSpeed: string;
+  layout?: 'default' | 'centered' | 'split' | 'fullwidth' | 'minimal';
+  accentColor?: string;
 }
 
 // Promotion Banner Interface
@@ -216,6 +218,8 @@ export default function Home() {
             textAnimation: slide.textAnimation || 'fade-up',
             imageAnimation: slide.imageAnimation || 'fade-in',
             transitionSpeed: slide.transitionSpeed || 'medium',
+            layout: slide.layout || 'default',
+            accentColor: slide.accentColor || '#c9a961',
           }));
           
           setHeroSlides(slides);
@@ -824,1156 +828,1431 @@ export default function Home() {
     fetchCategories();
   }, []);
 
+  // Add refs for parallax effects
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+  
+  // Parallax transforms
+  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.6]);
+
   return (
-    <div className="bg-white" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="bg-white min-h-screen" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <style jsx global>{`
-        .hero-banner {
-            min-height: 650px;
-            height: 70vh; 
-            max-height: 750px;
-            position: relative;
-            overflow: hidden;
-            background-color: #fbfbfd;
-        }
-        .slider-container {
-            position: relative;
-            height: 100%;
-            width: 100%;
-        }
-        .slider-slide {
-            height: 100%;
-            width: 100%;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            position: absolute; 
-            top: 0;
-            left: 0;
-            /* Subtle pattern and gradient background */
-            background-image: 
-              radial-gradient(circle at 25% 25%, rgba(0,0,0,0.01) 1%, transparent 1%),
-              radial-gradient(circle at 75% 75%, rgba(0,0,0,0.01) 1%, transparent 1%),
-              linear-gradient(to right, rgba(255,255,255,0.2), rgba(255,255,255,0));
-            background-size: 20px 20px, 20px 20px, 100% 100%;
-        }
-        
-        .slide-content-container { 
-            position: absolute;
-            left: 8%; /* Increased margin for modern look */
-            right: auto; 
-            top: 50%;
-            transform: translateY(-50%);
-            width: auto;
-            max-width: 40%; 
-            text-align: left; /* Default for LTR */
-            z-index: 10;
-            padding: 0;
+        /* Modern Design System */
+        :root {
+          --primary-color: #000000;
+          --accent-color: #c9a961;
+          --text-primary: #1a1a1a;
+          --text-secondary: #6b7280;
+          --bg-primary: #ffffff;
+          --bg-secondary: #fafafa;
+          --border-color: #e5e7eb;
+          --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+          --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+          --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+          --shadow-xl: 0 20px 40px rgba(0,0,0,0.15);
+          --transition-base: cubic-bezier(0.4, 0, 0.2, 1);
+          --transition-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
-        /* RTL adjustments for slide content */
-        [dir="rtl"] .slide-content-container {
-            left: auto;
-            right: 8%;
-            text-align: right;
+        /* Modern Hero Slider Styles */
+        .hero-slider {
+          position: relative;
+          height: 100vh;
+          min-height: 600px;
+          max-height: 1080px;
+          overflow: hidden;
+          background: var(--bg-secondary);
         }
 
-        .slide-image-container { 
-            position: absolute;
-            right: 8%; /* Increased margin for modern look */
-            left: auto; 
-            bottom: 0; 
-            width: 52%; 
-            height: 90%; 
-            display: flex;
-            align-items: flex-end; 
-            justify-content: center; 
-            z-index: 5;
+        @media (max-width: 768px) {
+          .hero-slider {
+            height: 85vh;
+            min-height: 500px;
+          }
         }
 
-        /* RTL adjustments for slide image */
-        [dir="rtl"] .slide-image-container {
-            right: auto;
-            left: 8%;
+        .hero-slide {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
-        .slide-image { 
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain; 
-            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.05)); /* Softer, larger shadow for depth */
+        /* Layout Variations */
+        .hero-slide.layout-default {
+          padding: 0 5%;
         }
 
-        /* New design for slide dots */
-        .slide-dots {
-            position: absolute;
-            bottom: 40px; /* Increased distance from bottom */
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 12px;
-            z-index: 20;
-        }
-        .slide-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: rgba(0, 0, 0, 0.15);
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            border: 2px solid transparent;
-        }
-        .slide-dot:after {
-            content: '';
-            position: absolute;
-            top: -4px;
-            left: -4px;
-            right: -4px;
-            bottom: -4px;
-            border-radius: 50%;
-            background-color: transparent;
-            transition: all 0.3s ease;
-        }
-        .slide-dot.active {
-            background-color: #000000;
-            transform: scale(1.2);
-        }
-        .slide-dot:hover:not(.active) {
-            background-color: rgba(0, 0, 0, 0.3);
-            transform: scale(1.1);
-        }
-        
-        /* Modern arrow navigation */
-        .slide-arrows {
-            position: absolute;
-            top: 50%;
-            width: calc(100% - 40px); 
-            left: 20px; 
-            display: flex;
-            justify-content: space-between;
-            transform: translateY(-50%);
-            z-index: 20;
-            pointer-events: none;
+        .hero-slide.layout-centered {
+          text-align: center;
         }
 
-        /* RTL adjustment for slide arrows container */
-        [dir="rtl"] .slide-arrows {
-            left: auto;
-            right: 20px;
-            flex-direction: row-reverse;
+        .hero-slide.layout-split {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 4rem;
+          padding: 0 5%;
         }
 
-        .slide-arrow {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: auto;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-        }
-        
-        .slide-arrow:hover {
-            background-color: #ffffff;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-            transform: scale(1.05);
-        }
-        
-        .slide-arrow svg {
-            width: 20px;
-            height: 20px;
-            color: #111111;
-            transition: transform 0.3s ease;
-        }
-        
-        .slide-arrow:hover svg {
-            transform: scale(1.1);
+        .hero-slide.layout-fullwidth {
+          padding: 0;
         }
 
-        /* RTL adjustments for slide arrows */
-        [dir="rtl"] .slide-arrow svg {
-            transform: scaleX(-1);
-        }
-        
-        /* Modern typography for slide content */
-        .slide-title {
-            font-size: 3.2rem; 
-            line-height: 1.1;
-            font-weight: 800; 
-            color: #111111;
-            margin-bottom: 1.2rem;
-            letter-spacing: -0.02em;
-            background: linear-gradient(to right, #111111, #555555);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-fill-color: transparent;
-        }
-        
-        .slide-subtitle {
-            font-size: 1.1rem; 
-            line-height: 1.65;
-            color: #555555;
-            margin-bottom: 2rem;
-            max-width: 90%;
-        }
-        
-        .slide-button {
-            background-color: #111111;
-            color: white;
-            padding: 0.9rem 2rem;
-            border-radius: 30px; /* More rounded for modern look */
-            font-weight: 600; 
-            letter-spacing: 0.3px;
-            display: inline-flex;
-            align-items: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            text-transform: none; 
-            font-size: 1rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .slide-button:after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0;
-            height: 100%;
-            background-color: rgba(255,255,255,0.1);
-            transition: width 0.4s ease;
-            z-index: 0;
-        }
-        
-        .slide-button:hover {
-            background-color: #000000;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-        }
-        
-        .slide-button:hover:after {
-            width: 100%;
-        }
-        
-        .slide-button span {
-            position: relative;
-            z-index: 1;
-        }
-        
-        .slide-button-icon {
-            margin-left: 8px;
-            transition: transform 0.3s ease;
-        }
-        
-        .slide-button:hover .slide-button-icon {
-            transform: translateX(4px);
+        .hero-slide.layout-minimal {
+          padding: 0 10%;
         }
 
-        @media (max-width: 1280px) {
-            .slide-title {
-                font-size: 2.8rem;
-            }
+        /* Content Styles */
+        .hero-content {
+          position: relative;
+          z-index: 10;
+          max-width: 600px;
         }
 
-        @media (max-width: 1024px) { /* Tablet */
-            .hero-banner {
-                height: 60vh;
-                min-height: 500px;
-            }
-            .slide-content-container {
-                max-width: 45%;
-                left: 6%;
-            }
-            .slide-image-container {
-                width: 48%;
-                height: 85%;
-                right: 4%;
-            }
-            .slide-title {
-                font-size: 2.4rem;
-            }
-            .slide-subtitle {
-                font-size: 1rem;
-            }
-            .slide-button {
-                padding: 0.8rem 1.8rem;
-            }
+        .hero-title {
+          font-size: clamp(2.5rem, 5vw, 4.5rem);
+          font-weight: 900;
+          line-height: 0.95;
+          letter-spacing: -0.03em;
+          margin-bottom: 1.5rem;
+          position: relative;
         }
 
-        @media (max-width: 768px) { /* Mobile */
-            .hero-banner {
-                height: auto; 
-                min-height: 90vh; 
-            }
-            .slider-slide {
-                flex-direction: column-reverse; /* Text above image on mobile */
-                justify-content: center; /* Center content stack */
-                padding: 24px;
-                padding-bottom: 80px; /* Space for dots */
-            }
-            .slide-image-container {
-                position: relative; 
-                width: 85%; 
-                height: auto; 
-                max-height: 45vh; 
-                order: 2; /* Image below text */
-                bottom: auto; left: auto; right: auto; /* Reset positioning */
-                margin-top: 2rem; /* Space between text and image */
-                margin-bottom: 2rem;
-            }
-            .slide-content-container {
-                position: relative; 
-                width: 100%;
-                max-width: 100%;
-                text-align: center; /* Center text on mobile */
-                order: 1; /* Text first */
-                top: auto; right: auto; left: auto; transform: none; 
-                padding: 0;
-            }
-            .slide-title {
-                font-size: 2rem;
-                margin-bottom: 1rem;
-                background: linear-gradient(to right, #000000, #555555);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                text-fill-color: transparent;
-            }
-            .slide-subtitle {
-                font-size: 1rem;
-                margin-bottom: 1.5rem;
-                max-width: 100%;
-            }
-            .slide-button {
-                padding: 0.8rem 1.6rem;
-                font-size: 0.9rem;
-            }
-            .slide-arrows {
-                width: auto;
-                bottom: 120px;
-                top: auto;
-                left: 50%;
-                transform: translateX(-50%);
-                justify-content: center;
-                gap: 20px;
-            }
-            .slide-arrow {
-                width: 44px;
-                height: 44px;
-            }
-            .slide-dots {
-                bottom: 30px;
-            }
+        .hero-title-accent {
+          display: inline-block;
+          position: relative;
+          z-index: 1;
         }
-        
-        @media (max-width: 480px) {
-            .slide-title {
-                font-size: 1.8rem;
-            }
-            .slide-subtitle {
-                font-size: 0.9rem;
-            }
-            .hero-banner {
-                min-height: 85vh;
-            }
+
+        .hero-title-accent::after {
+          content: '';
+          position: absolute;
+          bottom: 0.1em;
+          left: -0.1em;
+          right: -0.1em;
+          height: 0.3em;
+          background: var(--accent-color);
+          z-index: -1;
+          transform: skewY(-2deg);
+          opacity: 0.3;
         }
-        
-        /* Rest of the page styling */
-        .featured-item {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            overflow: hidden;
+
+        .hero-subtitle {
+          font-size: clamp(1rem, 2vw, 1.25rem);
+          line-height: 1.6;
+          margin-bottom: 2.5rem;
+          opacity: 0.8;
+          max-width: 500px;
         }
-        .featured-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .sale-badge {
-            background-color: #000000;
-            color: white;
-            padding: 2px 8px;
-            font-size: 12px;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-        }
-        .section-heading {
-            position: relative;
-            display: inline-block;
-        }
-        .section-heading:after {
-            content: '';
-            position: absolute;
-            width: 60px;
-            height: 2px;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #000000;
-        }
-        .newsletter-box {
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            padding: 40px;
-            border-radius: 0.5rem;
-        }
-        .promotion-banner {
-            background-color: #000;
-            color: white;
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-        .promotion-banner-image {
-            object-fit: cover;
-            height: 100%;
-            width: 100%;
-        }
-        .offer-card {
-            background-color: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            transition: box-shadow 0.3s ease;
-        }
-        .offer-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        .offer-discount {
-            background-color: #000;
-            color: #fff;
-            padding: 0.25rem 0.75rem;
-            font-size: 1.25rem;
-            font-weight: bold;
-            display: inline-block;
-            border-radius: 0.25rem;
-        }
-        /* Modern Product Card Styling */
-        .product-card {
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            background-color: #fff;
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
-        }
-        .product-image-container {
-            position: relative;
-            aspect-ratio: 1/1;
-            background-color: #f9fafb;
-            overflow: hidden;
-        }
-        .product-image {
-            object-fit: contain;
-            transition: transform 0.5s ease;
-        }
-        .product-card:hover .product-image {
-            transform: scale(1.05);
-        }
-        .product-info {
-            padding: 1.25rem;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-        }
-        .product-category {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #6b7280;
-            margin-bottom: 0.5rem;
-        }
-        .product-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 0.75rem;
-            line-height: 1.4;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            height: 2.8em;
-        }
-        .product-price {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: #000;
-            margin-top: auto;
-        }
-        .section-title {
-            font-size: 2rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 1rem;
-            position: relative;
-            display: inline-block;
-        }
-        .section-title:after {
-            content: '';
-            position: absolute;
-            bottom: -0.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 3rem;
-            height: 2px;
-            background-color: #000;
-        }
-        .section-subtitle {
-            font-size: 1rem;
-            color: #6b7280;
-            text-align: center;
-            max-width: 36rem;
-            margin: 0 auto 3rem;
-        }
-        @media (max-width: 640px) {
-            .section-title {
-                font-size: 1.75rem;
-            }
-            .section-subtitle {
-                font-size: 0.875rem;
-                margin-bottom: 2rem;
-            }
-        }
-        
-        /* Modern Carousel Styles */
-        .carousel-container {
+
+        .hero-button {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 1rem 2rem;
+          font-size: 1rem;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          border-radius: 50px;
+          transition: all 0.3s var(--transition-base);
           position: relative;
           overflow: hidden;
-          padding: 1rem 0;
+          text-transform: none;
         }
-        
-        .carousel-track {
+
+        .hero-button::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: rgba(255,255,255,0.1);
+          transform: translateX(-100%);
+          transition: transform 0.4s var(--transition-base);
+        }
+
+        .hero-button:hover::before {
+          transform: translateX(0);
+        }
+
+        .hero-button:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-lg);
+        }
+
+        .hero-button-icon {
+          transition: transform 0.3s var(--transition-base);
+        }
+
+        .hero-button:hover .hero-button-icon {
+          transform: translateX(4px);
+        }
+
+        /* Hero Image Styles */
+        .hero-image-wrapper {
+          position: relative;
+          z-index: 5;
+          height: 100%;
           display: flex;
-          transition: transform 0.5s ease;
+          align-items: center;
+          justify-content: center;
         }
-        
-        .carousel-item {
-          flex: 0 0 auto;
-          padding: 0 10px;
-          box-sizing: border-box;
+
+        .hero-image-container {
+          position: relative;
+          width: 100%;
+          height: 70%;
+          max-width: 600px;
+          max-height: 600px;
         }
-        
-        .carousel-controls {
+
+        .hero-image {
+          object-fit: contain;
+          filter: drop-shadow(0 20px 40px rgba(0,0,0,0.1));
+        }
+
+        /* Floating Elements */
+        .hero-float-element {
+          position: absolute;
+          pointer-events: none;
+          opacity: 0.1;
+        }
+
+        .hero-float-1 {
+          top: 10%;
+          left: 5%;
+          width: 100px;
+          height: 100px;
+          background: var(--accent-color);
+          border-radius: 50%;
+          filter: blur(40px);
+          animation: float-1 20s infinite ease-in-out;
+        }
+
+        .hero-float-2 {
+          bottom: 20%;
+          right: 10%;
+          width: 150px;
+          height: 150px;
+          background: var(--primary-color);
+          border-radius: 50%;
+          filter: blur(60px);
+          animation: float-2 25s infinite ease-in-out;
+        }
+
+        @keyframes float-1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(30px, -30px) scale(1.1); }
+        }
+
+        @keyframes float-2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(-40px, 20px) scale(0.9); }
+        }
+
+        /* Modern Navigation Dots */
+        .hero-dots {
+          position: absolute;
+          bottom: 3rem;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          gap: 1rem;
+          z-index: 20;
+        }
+
+        .hero-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: rgba(0,0,0,0.2);
+          cursor: pointer;
+          transition: all 0.3s var(--transition-base);
+          position: relative;
+        }
+
+        .hero-dot::after {
+          content: '';
+          position: absolute;
+          inset: -4px;
+          border-radius: 50%;
+          border: 2px solid transparent;
+          transition: all 0.3s var(--transition-base);
+        }
+
+        .hero-dot.active {
+          background: var(--primary-color);
+          transform: scale(1.5);
+        }
+
+        .hero-dot.active::after {
+          border-color: var(--primary-color);
+          opacity: 0.3;
+        }
+
+        .hero-dot:hover:not(.active) {
+          background: rgba(0,0,0,0.4);
+        }
+
+        /* Modern Navigation Arrows */
+        .hero-nav {
           position: absolute;
           top: 50%;
           width: 100%;
           display: flex;
           justify-content: space-between;
+          padding: 0 2rem;
           transform: translateY(-50%);
+          z-index: 20;
           pointer-events: none;
-          z-index: 10;
-          padding: 0 1rem;
         }
-        
-        .carousel-arrow {
-          width: 40px;
-          height: 40px;
-          background-color: rgba(255, 255, 255, 0.9);
+
+        .hero-nav-button {
+          width: 56px;
+          height: 56px;
           border-radius: 50%;
+          background: rgba(255,255,255,0.9);
+          backdrop-filter: blur(10px);
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
           pointer-events: auto;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-          transition: all 0.2s ease;
+          transition: all 0.3s var(--transition-base);
+          box-shadow: var(--shadow-md);
         }
-        
-        .carousel-arrow:hover {
-          background-color: rgba(0, 0, 0, 0.05);
+
+        .hero-nav-button:hover {
+          background: rgba(255,255,255,1);
+          transform: scale(1.1);
+          box-shadow: var(--shadow-lg);
+        }
+
+        .hero-nav-button svg {
+          width: 24px;
+          height: 24px;
+          color: var(--primary-color);
+          transition: transform 0.3s var(--transition-base);
+        }
+
+        .hero-nav-button:hover svg {
           transform: scale(1.1);
         }
-        
-        /* Category Card Styles */
+
+        /* Product Card Modern Design */
+        .product-card {
+          background: var(--bg-primary);
+          border-radius: 20px;
+          overflow: hidden;
+          transition: all 0.4s var(--transition-base);
+          position: relative;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          box-shadow: var(--shadow-sm);
+        }
+
+        .product-card::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.03));
+          opacity: 0;
+          transition: opacity 0.3s var(--transition-base);
+          pointer-events: none;
+        }
+
+        .product-card:hover {
+          transform: translateY(-8px);
+          box-shadow: var(--shadow-xl);
+        }
+
+        .product-card:hover::before {
+          opacity: 1;
+        }
+
+        .product-image-wrapper {
+          position: relative;
+          aspect-ratio: 1;
+          overflow: hidden;
+          background: var(--bg-secondary);
+        }
+
+        .product-image {
+          object-fit: cover;
+          transition: transform 0.6s var(--transition-base);
+        }
+
+        .product-card:hover .product-image {
+          transform: scale(1.1);
+        }
+
+        .product-badge {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          padding: 0.4rem 0.8rem;
+          background: var(--accent-color);
+          color: white;
+          font-size: 0.75rem;
+          font-weight: 600;
+          border-radius: 20px;
+          box-shadow: var(--shadow-md);
+        }
+
+        .product-content {
+          padding: 1.5rem;
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .product-category {
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: var(--text-secondary);
+          margin-bottom: 0.5rem;
+        }
+
+        .product-name {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 0.75rem;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .product-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-top: auto;
+        }
+
+        .product-price-wrapper {
+          display: flex;
+          align-items: baseline;
+          gap: 0.5rem;
+        }
+
+        .product-price {
+          font-size: 1.25rem;
+          font-weight: 800;
+          color: var(--text-primary);
+        }
+
+        .product-price-original {
+          font-size: 1rem;
+          color: var(--text-secondary);
+          text-decoration: line-through;
+        }
+
+        .product-action {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          background: var(--primary-color);
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s var(--transition-base);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .product-action::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: var(--accent-color);
+          transform: scale(0);
+          transition: transform 0.3s var(--transition-base);
+          border-radius: 50%;
+        }
+
+        .product-action:hover::before {
+          transform: scale(1);
+        }
+
+        .product-action svg {
+          width: 20px;
+          height: 20px;
+          position: relative;
+          z-index: 1;
+          transition: transform 0.3s var(--transition-spring);
+        }
+
+        .product-action:hover svg {
+          transform: scale(1.2);
+        }
+
+        /* Modern Section Styles */
+        .section {
+          padding: 6rem 0;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .section-pattern {
+          position: absolute;
+          inset: 0;
+          opacity: 0.02;
+          background-image: 
+            radial-gradient(circle at 25% 25%, var(--primary-color) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, var(--accent-color) 0%, transparent 50%);
+          background-size: 100px 100px;
+          pointer-events: none;
+        }
+
+        .section-header {
+          text-align: center;
+          margin-bottom: 4rem;
+          position: relative;
+        }
+
+        .section-title {
+          font-size: clamp(2rem, 4vw, 3rem);
+          font-weight: 900;
+          color: var(--text-primary);
+          margin-bottom: 1rem;
+          letter-spacing: -0.02em;
+          position: relative;
+          display: inline-block;
+        }
+
+        .section-title::after {
+          content: '';
+          position: absolute;
+          bottom: -0.5rem;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 60px;
+          height: 3px;
+          background: var(--accent-color);
+          border-radius: 2px;
+        }
+
+        .section-description {
+          font-size: clamp(1rem, 2vw, 1.125rem);
+          color: var(--text-secondary);
+          max-width: 600px;
+          margin: 0 auto;
+          line-height: 1.7;
+        }
+
+        /* Category Grid Modern */
+        .category-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 2rem;
+        }
+
         .category-card {
           position: relative;
-          border-radius: 12px;
+          height: 280px;
+          border-radius: 24px;
           overflow: hidden;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-          height: 200px;
+          cursor: pointer;
+          transition: all 0.4s var(--transition-base);
+          box-shadow: var(--shadow-md);
         }
-        
+
+        .category-card::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to top, rgba(0,0,0,0.8), transparent 60%);
+          opacity: 0.7;
+          transition: opacity 0.3s var(--transition-base);
+        }
+
         .category-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+          transform: translateY(-10px) scale(1.02);
+          box-shadow: var(--shadow-xl);
         }
-        
+
+        .category-card:hover::before {
+          opacity: 0.9;
+        }
+
         .category-image {
           width: 100%;
           height: 100%;
           object-fit: cover;
+          transition: transform 0.6s var(--transition-base);
         }
-        
-        .category-overlay {
+
+        .category-card:hover .category-image {
+          transform: scale(1.1);
+        }
+
+        .category-content {
           position: absolute;
           bottom: 0;
           left: 0;
           right: 0;
-          background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-          padding: 1.5rem 1rem 1rem;
+          padding: 2rem;
           color: white;
+          z-index: 2;
         }
-        
-        .category-title {
-          font-weight: 600;
-          font-size: 1.2rem;
-          margin-bottom: 0.25rem;
+
+        .category-name {
+          font-size: 1.5rem;
+          font-weight: 700;
+          margin-bottom: 0.5rem;
+          transition: transform 0.3s var(--transition-base);
         }
-        
+
+        .category-card:hover .category-name {
+          transform: translateY(-4px);
+        }
+
         .category-link {
-          display: inline-block;
-          color: white;
-          font-size: 0.85rem;
-          border-bottom: 1px solid rgba(255,255,255,0.5);
-          transition: all 0.2s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.9rem;
+          font-weight: 500;
+          opacity: 0.9;
+          transition: all 0.3s var(--transition-base);
         }
-        
-        .category-link:hover {
-          border-bottom-color: white;
+
+        .category-link svg {
+          width: 16px;
+          height: 16px;
+          transition: transform 0.3s var(--transition-base);
         }
-        
-        /* Offer Carousel Styles */
-        .offer-carousel-item {
-          padding: 0.75rem;
+
+        .category-card:hover .category-link {
+          opacity: 1;
+          gap: 0.75rem;
         }
-        
-        .offer-card {
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-          background: white;
-          transition: transform 0.3s ease;
+
+        .category-card:hover .category-link svg {
+          transform: translateX(4px);
         }
-        
-        .offer-card:hover {
-          transform: translateY(-5px);
+
+        /* Feature Cards Modern */
+        .feature-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 2rem;
         }
-        
-        .offer-image-container {
-          height: 160px;
+
+        .feature-card {
+          text-align: center;
+          padding: 2rem;
+          border-radius: 20px;
+          background: var(--bg-secondary);
+          transition: all 0.3s var(--transition-base);
           position: relative;
-          background-color: #f8f8f8;
+          overflow: hidden;
         }
-        
-        .offer-content {
-          padding: 1.25rem;
-        }
-        
-        .offer-badge {
+
+        .feature-card::before {
+          content: '';
           position: absolute;
-          top: 12px;
-          right: 12px;
-          background-color: #000;
-          color: white;
-          font-weight: 600;
-          padding: 5px 10px;
-          border-radius: 4px;
-          font-size: 0.875rem;
+          top: -50%;
+          right: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle, var(--accent-color) 0%, transparent 70%);
+          opacity: 0;
+          transition: opacity 0.3s var(--transition-base);
+          pointer-events: none;
         }
-        
-        /* Mobile Optimizations */
+
+        .feature-card:hover {
+          transform: translateY(-5px);
+          box-shadow: var(--shadow-lg);
+        }
+
+        .feature-card:hover::before {
+          opacity: 0.05;
+        }
+
+        .feature-icon {
+          width: 64px;
+          height: 64px;
+          margin: 0 auto 1.5rem;
+          background: var(--primary-color);
+          color: white;
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s var(--transition-base);
+        }
+
+        .feature-card:hover .feature-icon {
+          transform: scale(1.1) rotate(5deg);
+          background: var(--accent-color);
+        }
+
+        .feature-icon svg {
+          width: 28px;
+          height: 28px;
+        }
+
+        .feature-title {
+          font-size: 1.125rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 0.75rem;
+        }
+
+        .feature-description {
+          font-size: 0.875rem;
+          color: var(--text-secondary);
+          line-height: 1.6;
+        }
+
+        /* Newsletter Modern */
+        .newsletter-section {
+          background: linear-gradient(135deg, var(--primary-color) 0%, #333 100%);
+          color: white;
+          padding: 5rem 0;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .newsletter-pattern {
+          position: absolute;
+          inset: 0;
+          opacity: 0.1;
+          background-image: 
+            repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.1) 35px, rgba(255,255,255,0.1) 70px);
+          pointer-events: none;
+        }
+
+        .newsletter-content {
+          position: relative;
+          z-index: 2;
+          max-width: 600px;
+          margin: 0 auto;
+          text-align: center;
+        }
+
+        .newsletter-title {
+          font-size: clamp(2rem, 4vw, 2.5rem);
+          font-weight: 800;
+          margin-bottom: 1rem;
+        }
+
+        .newsletter-description {
+          font-size: 1.125rem;
+          opacity: 0.9;
+          margin-bottom: 2.5rem;
+        }
+
+        .newsletter-form {
+          display: flex;
+          gap: 1rem;
+          max-width: 500px;
+          margin: 0 auto;
+        }
+
+        .newsletter-input {
+          flex: 1;
+          padding: 1rem 1.5rem;
+          border-radius: 50px;
+          border: 2px solid transparent;
+          background: rgba(255,255,255,0.1);
+          backdrop-filter: blur(10px);
+          color: white;
+          font-size: 1rem;
+          transition: all 0.3s var(--transition-base);
+        }
+
+        .newsletter-input::placeholder {
+          color: rgba(255,255,255,0.7);
+        }
+
+        .newsletter-input:focus {
+          outline: none;
+          background: rgba(255,255,255,0.15);
+          border-color: rgba(255,255,255,0.3);
+        }
+
+        .newsletter-button {
+          padding: 1rem 2rem;
+          border-radius: 50px;
+          background: white;
+          color: var(--primary-color);
+          font-weight: 600;
+          font-size: 1rem;
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s var(--transition-base);
+          white-space: nowrap;
+        }
+
+        .newsletter-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
         @media (max-width: 768px) {
-          .category-card {
-            height: 160px;
+          .hero-title {
+            font-size: clamp(2rem, 6vw, 3rem);
           }
-          
-          .offer-image-container {
-            height: 130px;
+
+          .hero-nav {
+            display: none;
           }
-          
-          .carousel-arrow {
-            width: 36px;
-            height: 36px;
+
+          .hero-dots {
+            bottom: 2rem;
           }
-          
-          .offer-carousel-item {
-            padding: 0.5rem;
+
+          .section {
+            padding: 4rem 0;
           }
+
+          .newsletter-form {
+            flex-direction: column;
+          }
+
+          .newsletter-input,
+          .newsletter-button {
+            width: 100%;
+          }
+        }
+
+        /* Smooth scrolling */
+        html {
+          scroll-behavior: smooth;
+        }
+
+        /* Modern carousel */
+        .modern-carousel {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .modern-carousel-track {
+          display: flex;
+          gap: 1.5rem;
+          transition: transform 0.5s var(--transition-base);
+        }
+
+        .modern-carousel-controls {
+          position: absolute;
+          top: 50%;
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          padding: 0 1rem;
+          transform: translateY(-50%);
+          pointer-events: none;
+          z-index: 10;
+        }
+
+        .modern-carousel-button {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.95);
+          box-shadow: var(--shadow-md);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          pointer-events: auto;
+          transition: all 0.3s var(--transition-base);
+        }
+
+        .modern-carousel-button:hover {
+          background: white;
+          transform: scale(1.1);
+          box-shadow: var(--shadow-lg);
+        }
+
+        .modern-carousel-button svg {
+          width: 20px;
+          height: 20px;
+          color: var(--primary-color);
         }
       `}</style>
 
-      {/* Hero Banner Slider */}
-      <section className="hero-banner">
-        {sliderLoading ? (
-          <div className="flex justify-center items-center h-full">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
-          </div>
-        ) : heroSlides.length === 0 ? (
-          <div className="flex justify-center items-center h-full">
-            <p className="text-gray-500">{t('no_sliders_available', 'No sliders available')}</p>
-          </div>
-        ) : (
-          <div className="slider-container">
-            <AnimatePresence initial={false} custom={direction} mode="wait">
-              {heroSlides[currentSlide] && (
+      {/* Enhanced Hero Slider with Creative Layouts */}
+      <section ref={heroRef} className="hero-slider">
+        <motion.div 
+          style={{ y: heroY, opacity: heroOpacity }}
+          className="absolute inset-0"
+        >
+          {sliderLoading ? (
+            <div className="flex items-center justify-center h-full">
               <motion.div
-                key={currentSlide}
-                custom={direction}
-                variants={getSliderVariants(direction)}
-                initial="incoming"
-                animate="active"
-                exit="exit"
-                className="slider-slide"
-                style={{ 
-                  backgroundColor: heroSlides[currentSlide].backgroundColor || '#f4f6f8',
-                  position: 'relative',
-                }}
-              >
-                {/* Background overlay */}
-                {(heroSlides[currentSlide].overlayOpacity ?? 0) > 0 && (
-                  <div 
-                    className="absolute inset-0 z-5" 
-                    style={{ 
-                      backgroundColor: heroSlides[currentSlide].overlayColor || 'rgba(0,0,0,0)',
-                      opacity: heroSlides[currentSlide].overlayOpacity || 0,
-                      mixBlendMode: 'multiply',
-                      backgroundImage: heroSlides[currentSlide].overlayImageUrl ? `url(${heroSlides[currentSlide].overlayImageUrl})` : 'none',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    }}
-                  />
-                )}
-                
-                <motion.div 
-                  className="slide-content-container"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  <motion.h1 
-                    initial={{ 
-                      opacity: 0, 
-                      y: heroSlides[currentSlide].textAnimation === 'fade-up' ? 40 : 
-                         heroSlides[currentSlide].textAnimation === 'fade-down' ? -40 : 
-                         0,
-                      x: heroSlides[currentSlide].textAnimation === 'fade-left' ? -40 : 
-                         heroSlides[currentSlide].textAnimation === 'fade-right' ? 40 : 
-                         0,
-                      scale: heroSlides[currentSlide].textAnimation === 'zoom-in' ? 0.85 : 1
-                    }}
-                    animate={{ 
-                      opacity: 1, 
-                      y: 0, 
-                      x: 0, 
-                      scale: 1,
-                      transition: {
-                        duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.9 : 
-                                  heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.6 : 
-                                  0.4,
-                        ease: [0.22, 1, 0.36, 1] // Custom cubic-bezier for smoother feel
-                      }
-                    }}
-                    className="slide-title"
-                    style={{ 
-                      color: heroSlides[currentSlide]?.textColor || '#111111',
-                      background: 'none',
-                      WebkitBackgroundClip: 'unset',
-                      WebkitTextFillColor: 'unset',
-                      backgroundClip: 'unset',
-                    }}
-                  >
-                    {contentByLang(
-                      heroSlides[currentSlide].title,
-                      heroSlides[currentSlide].titleAr || heroSlides[currentSlide].title
-                    )}
-                  </motion.h1>
-                  
-                  <motion.p 
-                    initial={{ 
-                      opacity: 0, 
-                      y: heroSlides[currentSlide].textAnimation === 'fade-up' ? 40 : 
-                         heroSlides[currentSlide].textAnimation === 'fade-down' ? -40 : 
-                         0,
-                      x: heroSlides[currentSlide].textAnimation === 'fade-left' ? -40 : 
-                         heroSlides[currentSlide].textAnimation === 'fade-right' ? 40 : 
-                         0,
-                      scale: heroSlides[currentSlide].textAnimation === 'zoom-in' ? 0.85 : 1
-                    }}
-                    animate={{ 
-                      opacity: 1, 
-                      y: 0, 
-                      x: 0, 
-                      scale: 1,
-                      transition: {
-                        duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.9 : 
-                                  heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.6 : 
-                                  0.4,
-                        delay: 0.15,
-                        ease: [0.22, 1, 0.36, 1]
-                      }
-                    }}
-                    className="slide-subtitle"
-                    style={{ 
-                      color: heroSlides[currentSlide].textColor || '#555555'
-                    }}
-                  >
-                    {contentByLang(
-                      heroSlides[currentSlide].subtitle,
-                      heroSlides[currentSlide].subtitleAr || heroSlides[currentSlide].subtitle
-                    )}
-                  </motion.p>
-                  
-                  <motion.div 
-                    initial={{ 
-                      opacity: 0, 
-                      y: heroSlides[currentSlide].textAnimation === 'fade-up' ? 40 : 
-                         heroSlides[currentSlide].textAnimation === 'fade-down' ? -40 : 
-                         0,
-                      x: heroSlides[currentSlide].textAnimation === 'fade-left' ? -40 : 
-                         heroSlides[currentSlide].textAnimation === 'fade-right' ? 40 : 
-                         0,
-                      scale: heroSlides[currentSlide].textAnimation === 'zoom-in' ? 0.85 : 1
-                    }}
-                    animate={{ 
-                      opacity: 1, 
-                      y: 0, 
-                      x: 0, 
-                      scale: 1,
-                      transition: {
-                        duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.9 : 
-                                  heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.6 : 
-                                  0.4,
-                        delay: 0.3,
-                        ease: [0.22, 1, 0.36, 1]
-                      }
-                    }}
-                  >
-                    <Link 
-                      href={heroSlides[currentSlide].buttonLink} 
-                      className="slide-button"
-                      style={{
-                        backgroundColor: heroSlides[currentSlide].buttonColor || '#111111',
-                        borderColor: heroSlides[currentSlide].buttonColor || '#111111',
-                      }}
-                    >
-                      <span>
-                        {contentByLang(
-                          heroSlides[currentSlide].buttonText,
-                          heroSlides[currentSlide].buttonTextAr || heroSlides[currentSlide].buttonText
-                        )}
-                      </span>
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        className="h-5 w-5 slide-button-icon" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        stroke="currentColor"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M14 5l7 7m0 0l-7 7m7-7H3" 
-                        />
-                      </svg>
-                    </Link>
-                  </motion.div>
-                </motion.div>
-
-                <motion.div 
-                  className="slide-image-container"
-                  initial={{ 
-                    opacity: 0, 
-                    y: heroSlides[currentSlide].imageAnimation === 'slide-up' ? 60 : 0,
-                    x: heroSlides[currentSlide].imageAnimation === 'slide-in-right' ? 60 : 
-                       heroSlides[currentSlide].imageAnimation === 'slide-in-left' ? -60 : 0,
-                    scale: heroSlides[currentSlide].imageAnimation === 'zoom-in' ? 0.8 : 1
-                  }}
-                  animate={{ 
-                    opacity: 1, 
-                    y: 0, 
-                    x: 0, 
-                    scale: 1,
-                    transition: {
-                      type: heroSlides[currentSlide].imageAnimation === 'bounce' ? 'spring' : 'tween',
-                      bounce: heroSlides[currentSlide].imageAnimation === 'bounce' ? 0.5 : undefined,
-                      duration: heroSlides[currentSlide].transitionSpeed === 'slow' ? 1 : 
-                               heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.7 : 
-                               0.5,
-                      delay: heroSlides[currentSlide].transitionSpeed === 'slow' ? 0.4 : 
-                             heroSlides[currentSlide].transitionSpeed === 'medium' ? 0.3 : 
-                             0.2,
-                      ease: [0.22, 1, 0.36, 1]
-                    }
-                  }}
-                >
-                  <Image 
-                    src={heroSlides[currentSlide].image} 
-                    alt={contentByLang(
-                      heroSlides[currentSlide].title,
-                      heroSlides[currentSlide].titleAr || heroSlides[currentSlide].title
-                    )}
-                    width={600} 
-                    height={600} 
-                    className="slide-image"
-                    priority={currentSlide === 0} 
-                    onError={(e) => {
-                      console.error(`Failed to load hero image: ${heroSlides[currentSlide].image}`);
-                      const target = e.target as HTMLImageElement;
-                      target.onerror = null; 
-                      target.style.display = 'none';
-                      
-                      // Add a placeholder
-                      const container = target.parentElement;
-                      if (container) {
-                        const placeholder = document.createElement('div');
-                        placeholder.className = 'w-full h-full flex items-center justify-center bg-gray-100';
-                        placeholder.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
-                        container.appendChild(placeholder);
-                      }
-                    }}
-                  />
-                </motion.div>
-              </motion.div>
-              )}
-            </AnimatePresence>
-            
-            {heroSlides.length > 1 && (
-              <>
-                <div className="slide-dots">
-                  {heroSlides.map((_, index) => (
-                    <div 
-                      key={index}
-                      className={`slide-dot ${currentSlide === index ? 'active' : ''}`}
-                      onClick={() => {
-                        setDirection(index > currentSlide ? 1 : -1);
-                        setCurrentSlide(index);
-                      }}
-                      aria-label={`Go to slide ${index + 1}`}
-                    />
-                  ))}
-                </div>
-                
-                <div className="slide-arrows">
-                  <motion.div 
-                    className="slide-arrow"
-                    onClick={prevSlide}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    aria-label="Previous slide"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                      <path fillRule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clipRule="evenodd" />
-                    </svg>
-                  </motion.div>
-                  
-                  <motion.div 
-                    className="slide-arrow"
-                    onClick={nextSlide}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    aria-label="Next slide"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                      <path fillRule="evenodd" d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z" clipRule="evenodd" />
-                    </svg>
-                  </motion.div>
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </section>
-
-      {/* Categories Section - New Modern Design */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="section-title text-black">{t('shop_by_category', 'Shop by Category')}</h2>
-            <p className="section-subtitle">{t('explore_categories', 'Explore our selection of premium products by category')}</p>
-          </div>
-          
-          {categoriesLoading ? (
-            <div className="flex justify-center items-center h-40">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-12 h-12 border-3 border-black border-t-transparent rounded-full"
+              />
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-              {categories.map(category => (
-                <Link key={category.id} href={`/shop?category=${encodeURIComponent(getCategorySlug(category.name))}`} className="category-card">
-                  <div className="relative w-full h-full">
-                    {/* Add a background color first as an immediate fallback */}
-                    <div className="absolute inset-0 bg-gray-100"></div>
-                    
-                    {category.imageUrl ? (
-                      <Image 
-                        src={category.imageUrl}
-                        alt={category.name} 
-                        fill
-                        className="category-image"
-                        onError={(e) => {
-                          console.error(`Failed to load category image: ${category.imageUrl} for category: ${category.name}`);
-                          const target = e.target as HTMLImageElement;
-                          target.onerror = null;
-                          target.style.opacity = '0';
-                          
-                          // Create an SVG icon as a fallback
-                          const container = target.parentElement;
-                          if (container) {
-                            // If container already has a fallback, don't add another
-                            if (!container.querySelector('.category-fallback')) {
-                              const fallback = document.createElement('div');
-                              fallback.className = 'category-fallback absolute inset-0 flex items-center justify-center bg-gray-200';
-                              fallback.innerHTML = `
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <div class="absolute bottom-3 text-sm font-medium text-gray-700">${category.name}</div>
-                              `;
-                              container.appendChild(fallback);
-                            }
-                          }
-                        }}
-                      />
-                    ) : (
-                      // Fallback for when no image URL is provided
-                      <div className="category-fallback absolute inset-0 flex items-center justify-center bg-gray-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <div className="absolute bottom-3 text-sm font-medium text-gray-700">{category.name}</div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="category-overlay">
-                    <h3 className="category-title">{contentByLang(
-                      category.name,
-                      category.nameAr || category.name
-                    )}</h3>
-                    <span className="category-link">{t('explore', 'Explore')} →</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <AnimatePresence mode="wait" custom={direction}>
+              {heroSlides[currentSlide] && (
+                <motion.div
+                  key={currentSlide}
+                  custom={direction}
+                  initial={{ opacity: 0, x: direction > 0 ? 1000 : -1000 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: direction > 0 ? -1000 : 1000 }}
+                  transition={{ 
+                    type: "spring", 
+                    stiffness: 300, 
+                    damping: 30,
+                    duration: 0.6 
+                  }}
+                  className={`hero-slide layout-${heroSlides[currentSlide].layout || 'default'}`}
+                  style={{ backgroundColor: heroSlides[currentSlide].backgroundColor }}
+                >
+                  {/* Floating background elements */}
+                  <div className="hero-float-element hero-float-1" />
+                  <div className="hero-float-element hero-float-2" />
+                  
+                  {/* Content based on layout */}
+                  {heroSlides[currentSlide].layout === 'centered' ? (
+                    <div className="text-center max-w-4xl mx-auto px-6">
+                      <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2, duration: 0.6 }}
+                        className="hero-content mx-auto"
+                      >
+                        <h1 className="hero-title" style={{ color: heroSlides[currentSlide].textColor }}>
+                          {contentByLang(
+                            heroSlides[currentSlide].title,
+                            heroSlides[currentSlide].titleAr || heroSlides[currentSlide].title
+                          )}
+                        </h1>
+                        <p className="hero-subtitle mx-auto" style={{ color: heroSlides[currentSlide].textColor }}>
+                          {contentByLang(
+                            heroSlides[currentSlide].subtitle,
+                            heroSlides[currentSlide].subtitleAr || heroSlides[currentSlide].subtitle
+                          )}
+                        </p>
+                        <Link 
+                          href={heroSlides[currentSlide].buttonLink}
+                          className="hero-button"
+                          style={{ 
+                            backgroundColor: heroSlides[currentSlide].buttonColor || '#000',
+                            color: heroSlides[currentSlide].backgroundColor 
+                          }}
+                        >
+                          <span>{contentByLang(
+                            heroSlides[currentSlide].buttonText,
+                            heroSlides[currentSlide].buttonTextAr || heroSlides[currentSlide].buttonText
+                          )}</span>
+                          <ArrowRightIcon className="hero-button-icon" />
+                        </Link>
+                      </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.4, duration: 0.8 }}
+                        className="hero-image-container mt-12 mx-auto"
+                      >
+                        <Image
+                          src={heroSlides[currentSlide].image}
+                          alt={heroSlides[currentSlide].title}
+                          fill
+                          className="hero-image"
+                          priority
+                        />
+                      </motion.div>
+                    </div>
+                  ) : heroSlides[currentSlide].layout === 'split' ? (
+                    <>
+                      <motion.div
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2, duration: 0.6 }}
+                        className="hero-content"
+                      >
+                        <h1 className="hero-title" style={{ color: heroSlides[currentSlide].textColor }}>
+                          {contentByLang(
+                            heroSlides[currentSlide].title,
+                            heroSlides[currentSlide].titleAr || heroSlides[currentSlide].title
+                          )}
+                        </h1>
+                        <p className="hero-subtitle" style={{ color: heroSlides[currentSlide].textColor }}>
+                          {contentByLang(
+                            heroSlides[currentSlide].subtitle,
+                            heroSlides[currentSlide].subtitleAr || heroSlides[currentSlide].subtitle
+                          )}
+                        </p>
+                        <Link 
+                          href={heroSlides[currentSlide].buttonLink}
+                          className="hero-button"
+                          style={{ 
+                            backgroundColor: heroSlides[currentSlide].buttonColor || '#000',
+                            color: heroSlides[currentSlide].backgroundColor 
+                          }}
+                        >
+                          <span>{contentByLang(
+                            heroSlides[currentSlide].buttonText,
+                            heroSlides[currentSlide].buttonTextAr || heroSlides[currentSlide].buttonText
+                          )}</span>
+                          <ArrowRightIcon className="hero-button-icon" />
+                        </Link>
+                      </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4, duration: 0.8 }}
+                        className="hero-image-wrapper"
+                      >
+                        <div className="hero-image-container">
+                          <Image
+                            src={heroSlides[currentSlide].image}
+                            alt={heroSlides[currentSlide].title}
+                            fill
+                            className="hero-image"
+                            priority
+                          />
+                        </div>
+                      </motion.div>
+                    </>
+                  ) : (
+                    /* Default layout */
+                    <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                      <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2, duration: 0.6 }}
+                        className="hero-content"
+                      >
+                        <h1 className="hero-title" style={{ color: heroSlides[currentSlide].textColor }}>
+                          <span className="hero-title-accent">
+                            {contentByLang(
+                              heroSlides[currentSlide].title.split(' ')[0],
+                              heroSlides[currentSlide].titleAr?.split(' ')[0] || heroSlides[currentSlide].title.split(' ')[0]
+                            )}
+                          </span>{' '}
+                          {contentByLang(
+                            heroSlides[currentSlide].title.split(' ').slice(1).join(' '),
+                            heroSlides[currentSlide].titleAr?.split(' ').slice(1).join(' ') || heroSlides[currentSlide].title.split(' ').slice(1).join(' ')
+                          )}
+                        </h1>
+                        <p className="hero-subtitle" style={{ color: heroSlides[currentSlide].textColor }}>
+                          {contentByLang(
+                            heroSlides[currentSlide].subtitle,
+                            heroSlides[currentSlide].subtitleAr || heroSlides[currentSlide].subtitle
+                          )}
+                        </p>
+                        <Link 
+                          href={heroSlides[currentSlide].buttonLink}
+                          className="hero-button group"
+                          style={{ 
+                            backgroundColor: heroSlides[currentSlide].buttonColor || '#000',
+                            color: heroSlides[currentSlide].backgroundColor 
+                          }}
+                        >
+                          <span>{contentByLang(
+                            heroSlides[currentSlide].buttonText,
+                            heroSlides[currentSlide].buttonTextAr || heroSlides[currentSlide].buttonText
+                          )}</span>
+                          <ArrowRightIcon className="hero-button-icon" />
+                        </Link>
+                      </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.4, duration: 0.8 }}
+                        className="hero-image-wrapper"
+                      >
+                        <div className="hero-image-container">
+                          <Image
+                            src={heroSlides[currentSlide].image}
+                            alt={heroSlides[currentSlide].title}
+                            fill
+                            className="hero-image"
+                            priority
+                          />
+                        </div>
+                      </motion.div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           )}
-        </div>
-      </section>
-
-      {/* Featured Products Section - Using memoized section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-10">
-            <h2 className="section-title text-black">{t('discover_collection', 'Discover Our Collection')}</h2>
-            <p className="section-subtitle">{t('premium_coffee_beans', 'Handpicked premium coffee beans from around the world, roasted to perfection')}</p>
-          </div>
-          
-          {renderFeaturedProducts}
-          
-          <div className="text-center mt-12">
-            <Link href="/shop" className="inline-block px-10 py-3.5 bg-black text-white font-medium rounded-full hover:bg-gray-800 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
-              {t('view_all_products', 'View All Products')}
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Discounted Products Carousel - Updated with memoized section */}
-      <section className="py-14 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-10">
-            <h2 className="section-title text-black">{t('special_offers', 'Special Offers')}</h2>
-            <p className="section-subtitle">{t('exclusive_deals_description', 'Take advantage of our limited-time discounts on premium products')}</p>
-          </div>
-          
-          {renderDiscountedProducts}
-        </div>
-      </section>
-      
-      {/* Features Section - Modern Design */}
-      <section className="py-16 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6">
-            <div className="text-center">
-              <div className="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-50">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+        </motion.div>
+        
+        {/* Navigation */}
+        {heroSlides.length > 1 && (
+          <>
+            <div className="hero-nav">
+              <button 
+                onClick={prevSlide}
+                className="hero-nav-button"
+                aria-label="Previous slide"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
-              </div>
-              <h3 className="text-sm font-semibold mb-2 text-black">{t('free_shipping', 'Free Shipping')}</h3>
-              <p className="text-xs text-gray-600">{t('orders_over', 'Orders over 65D')}</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-50">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </button>
+              <button 
+                onClick={nextSlide}
+                className="hero-nav-button"
+                aria-label="Next slide"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
-              </div>
-              <h3 className="text-sm font-semibold mb-2 text-black">{t('easy_returns', 'Easy Returns')}</h3>
-              <p className="text-xs text-gray-600">{t('return_policy', '30-day return policy')}</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-50">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h3 className="text-sm font-semibold mb-2 text-black">{t('secure_payments', 'Secure Payments')}</h3>
-              <p className="text-xs text-gray-600">{t('encrypted_transactions', 'Encrypted transactions')}</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-50">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              </div>
-              <h3 className="text-sm font-semibold mb-2 text-black">{t('support_24_7', '24/7 Support')}</h3>
-              <p className="text-xs text-gray-600">{t('always_here', 'Always here to help')}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Newsletter Section - Modern Design */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-3 text-black">{t('join_newsletter', 'Join Our Newsletter')}</h2>
-            <p className="text-gray-600 mb-6">{t('subscribe_updates', 'Subscribe to receive updates, access to exclusive deals, and more.')}</p>
-            
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <input 
-                type="email" 
-                placeholder={t('enter_email', 'Enter your email')} 
-                className="px-4 py-3 rounded-md border border-gray-300 flex-grow max-w-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-              />
-              <button className="px-6 py-3 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition-colors duration-300">
-                {t('subscribe', 'Subscribe')}
               </button>
             </div>
             
-            <p className="text-xs text-gray-500 mt-4">{t('privacy_consent', 'By subscribing you agree to with our Privacy Policy')}</p>
+            <div className="hero-dots">
+              {heroSlides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setDirection(index > currentSlide ? 1 : -1);
+                    setCurrentSlide(index);
+                  }}
+                  className={`hero-dot ${currentSlide === index ? 'active' : ''}`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </section>
+
+      {/* Modern Categories Section */}
+      <section className="section bg-white">
+        <div className="section-pattern" />
+        <div className="container mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="section-header"
+          >
+            <h2 className="section-title">{t('shop_by_category', 'Shop by Category')}</h2>
+            <p className="section-description">{t('explore_categories', 'Explore our carefully curated collection of premium products')}</p>
+          </motion.div>
+          
+          <div className="category-grid">
+            {categories.map((category, index) => (
+              <motion.div
+                key={category.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Link href={`/shop?category=${encodeURIComponent(getCategorySlug(category.name))}`} className="category-card block">
+                  <Image
+                    src={category.imageUrl || '/images/coffee-beans.jpg'}
+                    alt={category.name}
+                    fill
+                    className="category-image"
+                  />
+                  <div className="category-content">
+                    <h3 className="category-name">{contentByLang(category.name, category.nameAr || category.name)}</h3>
+                    <span className="category-link">
+                      {t('explore_now', 'Explore Now')}
+                      <ArrowRightIcon />
+                    </span>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
-      
-      {/* Footer will be added later */}
-      
-      {/* External Scripts */}
-      <Script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" strategy="beforeInteractive" />
-      <style jsx global>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
-      
+
+      {/* Modern Featured Products */}
+      <section className="section bg-gray-50">
+        <div className="container mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="section-header"
+          >
+            <h2 className="section-title">{t('featured_products', 'Featured Products')}</h2>
+            <p className="section-description">{t('handpicked_selection', 'Handpicked selection of our finest coffee beans and products')}</p>
+          </motion.div>
+          
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-12 h-12 border-3 border-black border-t-transparent rounded-full"
+              />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <Link href={`/product/${product.id}`} className="product-card">
+                    <div className="product-image-wrapper">
+                      <Image
+                        src={product.imageUrl || ''}
+                        alt={getProductName(product)}
+                        fill
+                        className="product-image"
+                      />
+                      {product.discount && (
+                        <span className="product-badge">
+                          {getDiscountDisplay(product)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="product-content">
+                      <p className="product-category">{getCategoryDisplayName(getCategoryName(product.category))}</p>
+                      <h3 className="product-name">{getProductName(product)}</h3>
+                      <div className="product-footer">
+                        <div className="product-price-wrapper">
+                          {product.discount ? (
+                            <>
+                              <span className="product-price">{formatPrice(getDiscountedPrice(product.price, product.discount, product.discountType))}</span>
+                              <span className="product-price-original">{formatPrice(product.price)}</span>
+                            </>
+                          ) : (
+                            <span className="product-price">{formatPrice(product.price)}</span>
+                          )}
+                        </div>
+                        <button 
+                          onClick={(e) => openVariationModal(product.id, e)}
+                          className="product-action"
+                        >
+                          <ShoppingCartIcon />
+                        </button>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          )}
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mt-12"
+          >
+            <Link 
+              href="/shop" 
+              className="inline-flex items-center gap-2 px-8 py-4 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-all duration-300 hover:gap-3"
+            >
+              {t('view_all_products', 'View All Products')}
+              <ArrowRightIcon className="w-5 h-5" />
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Modern Special Offers Section */}
+      {discountedProducts.length > 0 && (
+        <section className="section bg-white">
+          <div className="container mx-auto px-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="section-header"
+            >
+              <h2 className="section-title">
+                <SparklesIcon className="inline-block w-8 h-8 mr-2 text-yellow-500" />
+                {t('special_offers', 'Special Offers')}
+              </h2>
+              <p className="section-description">{t('limited_time_deals', 'Don\'t miss out on these limited-time deals')}</p>
+            </motion.div>
+            
+            <div className="modern-carousel">
+              <div className="modern-carousel-controls">
+                <button 
+                  onClick={() => document.getElementById('offers-track')?.scrollBy({ left: -300, behavior: 'smooth' })}
+                  className="modern-carousel-button"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button 
+                  onClick={() => document.getElementById('offers-track')?.scrollBy({ left: 300, behavior: 'smooth' })}
+                  className="modern-carousel-button"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div 
+                id="offers-track"
+                className="flex overflow-x-auto gap-6 snap-x snap-mandatory scrollbar-hide pb-4"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {discountedProducts.map((product, index) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.05 }}
+                    className="flex-none w-[280px] snap-start"
+                  >
+                    <Link href={`/product/${product.id}`} className="product-card">
+                      <div className="product-image-wrapper">
+                        <Image
+                          src={product.imageUrl || ''}
+                          alt={getProductName(product)}
+                          fill
+                          className="product-image"
+                        />
+                        <span className="product-badge">
+                          {getDiscountDisplay(product)}
+                        </span>
+                      </div>
+                      <div className="product-content">
+                        <p className="product-category">{getCategoryDisplayName(getCategoryName(product.category))}</p>
+                        <h3 className="product-name">{getProductName(product)}</h3>
+                        <div className="product-footer">
+                          <div className="product-price-wrapper">
+                            <span className="product-price">{formatPrice(getDiscountedPrice(product.price, product.discount, product.discountType))}</span>
+                            <span className="product-price-original">{formatPrice(product.price)}</span>
+                          </div>
+                          <button 
+                            onClick={(e) => openVariationModal(product.id, e)}
+                            className="product-action"
+                          >
+                            <ShoppingCartIcon />
+                          </button>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Modern Features Section */}
+      <section className="section bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="feature-grid">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0 }}
+              className="feature-card"
+            >
+              <div className="feature-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+              </div>
+              <h3 className="feature-title">{t('free_shipping', 'Free Shipping')}</h3>
+              <p className="feature-description">{t('free_shipping_desc', 'On orders over 65D')}</p>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="feature-card"
+            >
+              <div className="feature-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h3 className="feature-title">{t('secure_payment', 'Secure Payment')}</h3>
+              <p className="feature-description">{t('secure_payment_desc', '100% secure transactions')}</p>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="feature-card"
+            >
+              <div className="feature-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+              <h3 className="feature-title">{t('easy_returns', 'Easy Returns')}</h3>
+              <p className="feature-description">{t('easy_returns_desc', '30-day return policy')}</p>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="feature-card"
+            >
+              <div className="feature-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+              <h3 className="feature-title">{t('support_24_7', '24/7 Support')}</h3>
+              <p className="feature-description">{t('support_24_7_desc', 'Always here to help')}</p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Modern Newsletter Section */}
+      <section className="newsletter-section">
+        <div className="newsletter-pattern" />
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="newsletter-content"
+          >
+            <h2 className="newsletter-title">{t('stay_updated', 'Stay Updated')}</h2>
+            <p className="newsletter-description">{t('newsletter_desc', 'Get exclusive offers and the latest updates delivered to your inbox')}</p>
+            
+            <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
+              <input
+                type="email"
+                placeholder={t('enter_email', 'Enter your email')}
+                className="newsletter-input"
+                required
+              />
+              <button type="submit" className="newsletter-button">
+                {t('subscribe', 'Subscribe')}
+              </button>
+            </form>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Product Variation Modal */}
       <ProductVariationModal 
         isOpen={isModalOpen}

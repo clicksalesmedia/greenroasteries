@@ -311,6 +311,8 @@ exports.Prisma.SliderScalarFieldEnum = {
   textAnimation: 'textAnimation',
   imageAnimation: 'imageAnimation',
   transitionSpeed: 'transitionSpeed',
+  layout: 'layout',
+  accentColor: 'accentColor',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

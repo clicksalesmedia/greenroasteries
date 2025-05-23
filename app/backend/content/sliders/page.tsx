@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import BackendLayout from '../../components/BackendLayout';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlusIcon, ArrowPathIcon, CheckIcon, XMarkIcon, TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ArrowPathIcon, CheckIcon, XMarkIcon, TrashIcon, PencilIcon, EyeIcon } from '@heroicons/react/24/outline';
 
 interface SliderItem {
   id: string;
@@ -26,10 +26,13 @@ interface SliderItem {
   overlayImageUrl?: string;
   order: number;
   isActive: boolean;
-  // Adding new fields for enhanced animation options
   textAnimation?: string;
   imageAnimation?: string;
   transitionSpeed?: 'slow' | 'medium' | 'fast';
+  layout?: string;
+  accentColor?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Animation presets for the slider
@@ -57,6 +60,24 @@ const ANIMATION_PRESETS = {
   ]
 };
 
+// Enhanced layout options
+const LAYOUT_OPTIONS = [
+  { value: 'default', label: 'Default (Side by Side)' },
+  { value: 'centered', label: 'Centered (Hero Style)' },
+  { value: 'split', label: 'Split Screen' },
+  { value: 'fullwidth', label: 'Full Width' },
+  { value: 'minimal', label: 'Minimal' }
+];
+
+// Color presets for quick selection
+const COLOR_PRESETS = [
+  { name: 'Classic', bg: '#ffffff', text: '#000000', button: '#000000', accent: '#c9a961' },
+  { name: 'Dark', bg: '#1a1a1a', text: '#ffffff', button: '#c9a961', accent: '#c9a961' },
+  { name: 'Coffee', bg: '#3e2723', text: '#ffffff', button: '#8d6e63', accent: '#d7ccc8' },
+  { name: 'Cream', bg: '#f5f5dc', text: '#3e2723', button: '#3e2723', accent: '#8d6e63' },
+  { name: 'Modern', bg: '#f8f9fa', text: '#212529', button: '#212529', accent: '#0066cc' }
+];
+
 export default function SlidersPage() {
   const { t } = useLanguage();
   const [sliders, setSliders] = useState<SliderItem[]>([]);
@@ -68,30 +89,33 @@ export default function SlidersPage() {
   const [previewIndex, setPreviewIndex] = useState(0);
   const [previewDirection, setPreviewDirection] = useState(0);
   
-  // Form state
-  const [title, setTitle] = useState('');
-  const [titleAr, setTitleAr] = useState('');
-  const [subtitle, setSubtitle] = useState('');
-  const [subtitleAr, setSubtitleAr] = useState('');
-  const [buttonText, setButtonText] = useState('');
-  const [buttonTextAr, setButtonTextAr] = useState('');
-  const [buttonLink, setButtonLink] = useState('');
-  const [backgroundColor, setBackgroundColor] = useState('#f4f6f8');
-  const [textColor, setTextColor] = useState('#111111');
-  const [buttonColor, setButtonColor] = useState('#111111');
-  const [overlayColor, setOverlayColor] = useState('rgba(0,0,0,0)');
-  const [overlayOpacity, setOverlayOpacity] = useState(0);
-  const [overlayImageFile, setOverlayImageFile] = useState<File | null>(null);
-  const [overlayImagePreview, setOverlayImagePreview] = useState<string | null>(null);
-  const [order, setOrder] = useState(0);
-  const [isActive, setIsActive] = useState(true);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // New animation fields
-  const [textAnimation, setTextAnimation] = useState('fade-up');
-  const [imageAnimation, setImageAnimation] = useState('fade-in');
-  const [transitionSpeed, setTransitionSpeed] = useState<'slow' | 'medium' | 'fast'>('medium');
+  
+  // Form state
+  const [editingSlider, setEditingSlider] = useState<Partial<SliderItem>>({
+    title: '',
+    titleAr: '',
+    subtitle: '',
+    subtitleAr: '',
+    buttonText: 'Shop Now',
+    buttonTextAr: 'تسوق الآن',
+    buttonLink: '/shop',
+    imageUrl: '',
+    backgroundColor: '#ffffff',
+    textColor: '#000000',
+    buttonColor: '#000000',
+    overlayColor: 'rgba(0,0,0,0)',
+    overlayOpacity: 0,
+    overlayImageUrl: '',
+    isActive: true,
+    order: 0,
+    textAnimation: 'fade-up',
+    imageAnimation: 'fade-in',
+    transitionSpeed: 'medium',
+    layout: 'default',
+    accentColor: '#c9a961'
+  });
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
 
   // Fetch sliders
   useEffect(() => {
@@ -125,12 +149,12 @@ export default function SlidersPage() {
     
     return {
       textVariants: {
-        hidden: textAnimation === 'fade-up' ? { opacity: 0, y: 30 } :
-                textAnimation === 'fade-down' ? { opacity: 0, y: -30 } :
-                textAnimation === 'fade-left' ? { opacity: 0, x: -30 } :
-                textAnimation === 'fade-right' ? { opacity: 0, x: 30 } :
-                textAnimation === 'zoom-in' ? { opacity: 0, scale: 0.9 } :
-                textAnimation === 'slide-up' ? { opacity: 0, y: 50 } :
+        hidden: editingSlider.textAnimation === 'fade-up' ? { opacity: 0, y: 30 } :
+                editingSlider.textAnimation === 'fade-down' ? { opacity: 0, y: -30 } :
+                editingSlider.textAnimation === 'fade-left' ? { opacity: 0, x: -30 } :
+                editingSlider.textAnimation === 'fade-right' ? { opacity: 0, x: 30 } :
+                editingSlider.textAnimation === 'zoom-in' ? { opacity: 0, scale: 0.9 } :
+                editingSlider.textAnimation === 'slide-up' ? { opacity: 0, y: 50 } :
                 { opacity: 0 },
         visible: {
           opacity: 1,
@@ -138,18 +162,18 @@ export default function SlidersPage() {
           x: 0,
           scale: 1,
           transition: {
-            duration: transitionSpeed === 'slow' ? 0.8 : transitionSpeed === 'medium' ? 0.5 : 0.3,
+            duration: editingSlider.transitionSpeed === 'slow' ? 0.8 : editingSlider.transitionSpeed === 'medium' ? 0.5 : 0.3,
             ease: [0.4, 0, 0.2, 1]
           }
         }
       },
       imageVariants: {
-        hidden: imageAnimation === 'fade-in' ? { opacity: 0 } :
-                imageAnimation === 'zoom-in' ? { opacity: 0, scale: 0.8 } :
-                imageAnimation === 'slide-up' ? { opacity: 0, y: 40 } :
-                imageAnimation === 'slide-in-right' ? { opacity: 0, x: 50 } :
-                imageAnimation === 'slide-in-left' ? { opacity: 0, x: -50 } :
-                imageAnimation === 'bounce' ? { opacity: 0, y: 50 } :
+        hidden: editingSlider.imageAnimation === 'fade-in' ? { opacity: 0 } :
+                editingSlider.imageAnimation === 'zoom-in' ? { opacity: 0, scale: 0.8 } :
+                editingSlider.imageAnimation === 'slide-up' ? { opacity: 0, y: 40 } :
+                editingSlider.imageAnimation === 'slide-in-right' ? { opacity: 0, x: 50 } :
+                editingSlider.imageAnimation === 'slide-in-left' ? { opacity: 0, x: -50 } :
+                editingSlider.imageAnimation === 'bounce' ? { opacity: 0, y: 50 } :
                 { opacity: 0 },
         visible: {
           opacity: 1,
@@ -157,69 +181,73 @@ export default function SlidersPage() {
           y: 0,
           scale: 1,
           transition: {
-            type: imageAnimation === 'bounce' ? 'spring' : 'tween',
-            bounce: imageAnimation === 'bounce' ? 0.5 : undefined,
-            duration: transitionSpeed === 'slow' ? 0.9 : transitionSpeed === 'medium' ? 0.6 : 0.4,
-            delay: transitionSpeed === 'slow' ? 0.3 : transitionSpeed === 'medium' ? 0.2 : 0.1,
+            type: editingSlider.imageAnimation === 'bounce' ? 'spring' : 'tween',
+            bounce: editingSlider.imageAnimation === 'bounce' ? 0.5 : undefined,
+            duration: editingSlider.transitionSpeed === 'slow' ? 0.9 : editingSlider.transitionSpeed === 'medium' ? 0.6 : 0.4,
+            delay: editingSlider.transitionSpeed === 'slow' ? 0.3 : editingSlider.transitionSpeed === 'medium' ? 0.2 : 0.1,
             ease: [0.25, 0.1, 0.25, 1]
           }
         }
       }
     };
-  }, [textAnimation, imageAnimation, transitionSpeed, currentSlider, isModalOpen]);
+  }, [editingSlider.textAnimation, editingSlider.imageAnimation, editingSlider.transitionSpeed, currentSlider, isModalOpen]);
 
   // Handle opening the modal for adding/editing
   const handleOpenModal = (slider: SliderItem | null = null) => {
     if (slider) {
       // Editing existing slider
       setCurrentSlider(slider);
-      setTitle(slider.title);
-      setTitleAr(slider.titleAr || '');
-      setSubtitle(slider.subtitle);
-      setSubtitleAr(slider.subtitleAr || '');
-      setButtonText(slider.buttonText);
-      setButtonTextAr(slider.buttonTextAr || '');
-      setButtonLink(slider.buttonLink);
-      setBackgroundColor(slider.backgroundColor);
-      setTextColor(slider.textColor || '#111111');
-      setButtonColor(slider.buttonColor || '#111111');
-      setOverlayColor(slider.overlayColor || 'rgba(0,0,0,0)');
-      setOverlayOpacity(slider.overlayOpacity || 0);
-      setOverlayImagePreview(slider.overlayImageUrl || null);
-      setOrder(slider.order);
-      setIsActive(slider.isActive);
-      setImagePreview(slider.imageUrl);
-      // Set animation properties with defaults if not defined
-      setTextAnimation(slider.textAnimation || 'fade-up');
-      setImageAnimation(slider.imageAnimation || 'fade-in');
-      setTransitionSpeed(slider.transitionSpeed || 'medium');
+      setEditingSlider({
+        title: slider.title,
+        titleAr: slider.titleAr || '',
+        subtitle: slider.subtitle,
+        subtitleAr: slider.subtitleAr || '',
+        buttonText: slider.buttonText,
+        buttonTextAr: slider.buttonTextAr || '',
+        buttonLink: slider.buttonLink,
+        imageUrl: slider.imageUrl,
+        backgroundColor: slider.backgroundColor,
+        textColor: slider.textColor || '#111111',
+        buttonColor: slider.buttonColor || '#111111',
+        overlayColor: slider.overlayColor || 'rgba(0,0,0,0)',
+        overlayOpacity: slider.overlayOpacity || 0,
+        overlayImageUrl: slider.overlayImageUrl || '',
+        order: slider.order,
+        isActive: slider.isActive,
+        textAnimation: slider.textAnimation || 'fade-up',
+        imageAnimation: slider.imageAnimation || 'fade-in',
+        transitionSpeed: slider.transitionSpeed || 'medium',
+        layout: slider.layout || 'default',
+        accentColor: slider.accentColor || '#c9a961'
+      });
     } else {
       // Adding new slider
       setCurrentSlider(null);
-      setTitle('');
-      setTitleAr('');
-      setSubtitle('');
-      setSubtitleAr('');
-      setButtonText('');
-      setButtonTextAr('');
-      setButtonLink('/shop');
-      setBackgroundColor('#f4f6f8');
-      setTextColor('#111111');
-      setButtonColor('#111111');
-      setOverlayColor('rgba(0,0,0,0)');
-      setOverlayOpacity(0);
-      setOverlayImagePreview(null);
-      setOrder(sliders.length);
-      setIsActive(true);
-      setImagePreview(null);
-      // Set default animation settings for new sliders
-      setTextAnimation('fade-up');
-      setImageAnimation('fade-in');
-      setTransitionSpeed('medium');
+      setEditingSlider({
+        title: '',
+        titleAr: '',
+        subtitle: '',
+        subtitleAr: '',
+        buttonText: 'Shop Now',
+        buttonTextAr: 'تسوق الآن',
+        buttonLink: '/shop',
+        imageUrl: '',
+        backgroundColor: '#ffffff',
+        textColor: '#000000',
+        buttonColor: '#000000',
+        overlayColor: 'rgba(0,0,0,0)',
+        overlayOpacity: 0,
+        overlayImageUrl: '',
+        order: sliders.length,
+        isActive: true,
+        textAnimation: 'fade-up',
+        imageAnimation: 'fade-in',
+        transitionSpeed: 'medium',
+        layout: 'default',
+        accentColor: '#c9a961'
+      });
     }
     
-    setImageFile(null);
-    setOverlayImageFile(null);
     setIsModalOpen(true);
     setIsPreviewMode(false);
   };
@@ -235,10 +263,9 @@ export default function SlidersPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        setEditingSlider({...editingSlider, imageUrl: reader.result as string});
       };
       reader.readAsDataURL(file);
     }
@@ -248,10 +275,9 @@ export default function SlidersPage() {
   const handleOverlayImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setOverlayImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setOverlayImagePreview(reader.result as string);
+        setEditingSlider({...editingSlider, overlayImageUrl: reader.result as string});
       };
       reader.readAsDataURL(file);
     }
@@ -281,11 +307,11 @@ export default function SlidersPage() {
     
     try {
       // Upload image if a new one was selected
-      let imageUrl = currentSlider?.imageUrl || '';
+      let imageUrl = editingSlider.imageUrl || '';
       
-      if (imageFile) {
+      if (currentSlider && currentSlider.imageUrl !== editingSlider.imageUrl) {
         const formData = new FormData();
-        formData.append('file', imageFile);
+        formData.append('file', new File([], ''), currentSlider.imageUrl);
         formData.append('folder', 'sliders');
         
         const uploadResponse = await fetch('/api/upload', {
@@ -302,11 +328,11 @@ export default function SlidersPage() {
       }
       
       // Upload overlay image if selected
-      let overlayImageUrl = currentSlider?.overlayImageUrl || '';
+      let overlayImageUrl = editingSlider.overlayImageUrl || '';
       
-      if (overlayImageFile) {
+      if (currentSlider && currentSlider.overlayImageUrl !== editingSlider.overlayImageUrl) {
         const overlayFormData = new FormData();
-        overlayFormData.append('file', overlayImageFile);
+        overlayFormData.append('file', new File([], ''), currentSlider.overlayImageUrl);
         overlayFormData.append('folder', 'sliders/overlays');
         
         const overlayUploadResponse = await fetch('/api/upload', {
@@ -325,26 +351,27 @@ export default function SlidersPage() {
       // Prepare slider data
       const sliderData = {
         id: currentSlider?.id,
-        title,
-        titleAr,
-        subtitle,
-        subtitleAr,
-        buttonText,
-        buttonTextAr,
-        buttonLink,
-        backgroundColor,
-        textColor,
-        buttonColor,
-        overlayColor,
-        overlayOpacity,
+        title: editingSlider.title,
+        titleAr: editingSlider.titleAr,
+        subtitle: editingSlider.subtitle,
+        subtitleAr: editingSlider.subtitleAr,
+        buttonText: editingSlider.buttonText,
+        buttonTextAr: editingSlider.buttonTextAr,
+        buttonLink: editingSlider.buttonLink,
+        backgroundColor: editingSlider.backgroundColor,
+        textColor: editingSlider.textColor || '#111111',
+        buttonColor: editingSlider.buttonColor || '#111111',
+        overlayColor: editingSlider.overlayColor || 'rgba(0,0,0,0)',
+        overlayOpacity: editingSlider.overlayOpacity || 0,
         overlayImageUrl,
         imageUrl,
-        order,
-        isActive,
-        // Include animation properties
-        textAnimation,
-        imageAnimation,
-        transitionSpeed
+        order: editingSlider.order,
+        isActive: editingSlider.isActive,
+        textAnimation: editingSlider.textAnimation || 'fade-up',
+        imageAnimation: editingSlider.imageAnimation || 'fade-in',
+        transitionSpeed: editingSlider.transitionSpeed || 'medium',
+        layout: editingSlider.layout || 'default',
+        accentColor: editingSlider.accentColor || '#c9a961'
       };
       
       console.log('Submitting slider data:', JSON.stringify(sliderData, null, 2));
@@ -430,1000 +457,981 @@ export default function SlidersPage() {
 
   return (
     <BackendLayout activePage="content">
-      <div>
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">{t('hero_sliders', 'Hero Sliders')}</h1>
-            <p className="text-gray-600">{t('manage_hero_sliders', 'Manage the sliders that appear on your homepage')}</p>
+      <div className="min-h-screen bg-gray-50">
+        <style jsx global>{`
+          /* Modern Design System Variables */
+          :root {
+            --primary: #000000;
+            --primary-hover: #1a1a1a;
+            --accent: #c9a961;
+            --accent-hover: #b8975a;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 0.75rem;
+            --radius-sm: 0.5rem;
+            --radius-lg: 1rem;
+            --transition: all 0.2s ease;
+          }
+
+          /* Modern Card Styles */
+          .card {
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+          }
+
+          .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+          }
+
+          /* Modern Button Styles */
+          .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid transparent;
+          }
+
+          .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+          }
+
+          .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+          }
+
+          .btn-secondary {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-color: var(--border);
+          }
+
+          .btn-secondary:hover {
+            background-color: var(--bg-secondary);
+            border-color: var(--text-secondary);
+          }
+
+          .btn-danger {
+            background-color: var(--danger);
+            color: white;
+          }
+
+          .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+          }
+
+          .btn-success {
+            background-color: var(--success);
+            color: white;
+          }
+
+          .btn-success:hover {
+            background-color: #059669;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+          }
+
+          .btn-icon {
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+          }
+
+          /* Modern Form Styles */
+          .form-group {
+            margin-bottom: 1.5rem;
+          }
+
+          .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+          }
+
+          .form-input,
+          .form-select,
+          .form-textarea {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            font-size: 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background-color: var(--bg-primary);
+            transition: var(--transition);
+          }
+
+          .form-input:focus,
+          .form-select:focus,
+          .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1);
+          }
+
+          .form-helper {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-top: 0.25rem;
+          }
+
+          /* Modern Table Styles */
+          .table-modern {
+            width: 100%;
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+          }
+
+          .table-modern th {
+            background-color: var(--bg-secondary);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+          }
+
+          .table-modern td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+          }
+
+          .table-modern tr:last-child td {
+            border-bottom: none;
+          }
+
+          .table-modern tr:hover td {
+            background-color: var(--bg-secondary);
+          }
+
+          /* Status Badge Styles */
+          .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 9999px;
+          }
+
+          .badge-success {
+            background-color: #d1fae5;
+            color: #065f46;
+          }
+
+          .badge-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+          }
+
+          /* Preview Styles */
+          .preview-container {
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--bg-tertiary);
+            box-shadow: var(--shadow-md);
+          }
+
+          .preview-device {
+            position: relative;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+          }
+
+          .preview-device.desktop {
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 16/9;
+          }
+
+          .preview-device.mobile {
+            width: 320px;
+            aspect-ratio: 9/16;
+            border: 8px solid #1a1a1a;
+            border-radius: 1.5rem;
+          }
+
+          /* Color Picker Styles */
+          .color-picker-wrapper {
+            position: relative;
+            display: inline-block;
+          }
+
+          .color-picker-preview {
+            width: 100%;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+          }
+
+          .color-picker-preview::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 6px solid var(--text-secondary);
+          }
+
+          /* Animation Preview */
+          @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+
+          @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+          }
+
+          @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+          }
+
+          .animation-preview {
+            animation-duration: 0.6s;
+            animation-fill-mode: both;
+          }
+
+          /* Layout Preview Thumbnails */
+          .layout-option {
+            position: relative;
+            padding: 0.5rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+          }
+
+          .layout-option:hover {
+            border-color: var(--accent);
+            background-color: var(--bg-secondary);
+          }
+
+          .layout-option.selected {
+            border-color: var(--accent);
+            background-color: rgba(201, 169, 97, 0.1);
+          }
+
+          .layout-thumbnail {
+            width: 120px;
+            height: 80px;
+            border-radius: 4px;
+            background: var(--bg-tertiary);
+            position: relative;
+            overflow: hidden;
+          }
+
+          /* Responsive Design */
+          @media (max-width: 768px) {
+            .table-modern {
+              font-size: 0.875rem;
+            }
+
+            .table-modern th,
+            .table-modern td {
+              padding: 0.5rem;
+            }
+
+            .preview-device.desktop {
+              max-width: 100%;
+            }
+          }
+        `}</style>
+
+        {/* Modern Header */}
+        <div className="bg-white shadow-sm border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-6">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Hero Sliders</h1>
+                <p className="mt-1 text-sm text-gray-500">Manage your homepage hero banner sliders</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <Link href="/backend" className="btn btn-secondary">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  Back to Dashboard
+                </Link>
+                <button
+                  onClick={() => handleOpenModal()}
+                  className="btn btn-primary"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                  Add New Slider
+                </button>
+              </div>
+            </div>
           </div>
-          <motion.button
-            onClick={() => handleOpenModal()}
-            className="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition flex items-center"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <PlusIcon className="w-5 h-5 mr-1" />
-            {t('add_slider', 'Add Slider')}
-          </motion.button>
         </div>
 
-        {error && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-red-50 text-red-700 p-4 rounded-md mb-4 flex items-center"
-          >
-            <XMarkIcon className="w-5 h-5 mr-2 flex-shrink-0" />
-            <span>{error}</span>
-          </motion.div>
-        )}
-
-        {sliders.length === 0 ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-yellow-50 border border-yellow-200 p-8 rounded-lg text-center"
-          >
-            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 text-yellow-600">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-              </svg>
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="card p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Sliders</p>
+                  <p className="text-2xl font-bold text-gray-900">{sliders.length}</p>
+                </div>
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              </div>
             </div>
-            <h3 className="text-lg font-medium text-yellow-800 mb-2">{t('no_sliders', 'No sliders have been created yet')}</h3>
-            <p className="text-yellow-700 mb-4">{t('sliders_description', 'Sliders help showcase your products and promotions on the homepage.')}</p>
-            <motion.button
-              onClick={() => handleOpenModal()}
-              className="bg-yellow-600 text-white px-5 py-2.5 rounded-lg hover:bg-yellow-700 transition font-medium"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              {t('create_first_slider', 'Create Your First Slider')}
-            </motion.button>
-          </motion.div>
-        ) : (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('image', 'Image')}
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('title', 'Title')}
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('animation', 'Animation')}
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('order', 'Order')}
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('status', 'Status')}
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('actions', 'Actions')}
-                    </th>
+            
+            <div className="card p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Active Sliders</p>
+                  <p className="text-2xl font-bold text-gray-900">{sliders.filter(s => s.isActive).length}</p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-lg">
+                  <CheckIcon className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="card p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Inactive Sliders</p>
+                  <p className="text-2xl font-bold text-gray-900">{sliders.filter(s => !s.isActive).length}</p>
+                </div>
+                <div className="p-3 bg-gray-100 rounded-lg">
+                  <XMarkIcon className="w-6 h-6 text-gray-600" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="card p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Last Updated</p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {sliders.length > 0 
+                      ? new Date(Math.max(...sliders.map(s => new Date(s.updatedAt).getTime()))).toLocaleDateString()
+                      : 'N/A'
+                    }
+                  </p>
+                </div>
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sliders Table */}
+          <div className="table-modern">
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Preview</th>
+                  <th>Title</th>
+                  <th>Layout</th>
+                  <th>Status</th>
+                  <th>Last Modified</th>
+                  <th className="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sliders.map((slider) => (
+                  <tr key={slider.id}>
+                    <td className="font-medium">#{slider.order + 1}</td>
+                    <td>
+                      <div className="relative w-32 h-20 rounded-md overflow-hidden bg-gray-100">
+                        {slider.imageUrl ? (
+                          <Image
+                            src={slider.imageUrl}
+                            alt={slider.title}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-full text-gray-400">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                        )}
+                        <div 
+                          className="absolute bottom-0 left-0 right-0 h-3"
+                          style={{ backgroundColor: slider.backgroundColor }}
+                        />
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <p className="font-medium text-gray-900">{slider.title}</p>
+                        <p className="text-sm text-gray-500 truncate max-w-xs">{slider.subtitle}</p>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="text-sm font-medium text-gray-600 capitalize">
+                        {slider.layout || 'default'}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`badge ${slider.isActive ? 'badge-success' : 'badge-danger'}`}>
+                        <span className={`w-2 h-2 rounded-full ${slider.isActive ? 'bg-green-500' : 'bg-red-500'}`} />
+                        {slider.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="text-sm text-gray-500">
+                      {new Date(slider.updatedAt).toLocaleDateString()}
+                    </td>
+                    <td>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleOpenModal(slider)}
+                          className="btn btn-icon btn-secondary"
+                          title="Edit"
+                        >
+                          <PencilIcon className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteSlider(slider.id)}
+                          className="btn btn-icon btn-danger"
+                          title="Delete"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {sliders.map((slider, index) => (
-                    <motion.tr 
-                      key={slider.id} 
-                      className="hover:bg-gray-50 transition"
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="relative h-20 w-32 bg-gray-100 rounded-md overflow-hidden">
-                          {slider.imageUrl ? (
-                            <Image
-                              src={slider.imageUrl}
-                              alt={slider.title}
-                              fill
-                              className="object-cover rounded-md"
-                            />
-                          ) : (
-                            <div className="h-20 w-32 bg-gray-200 flex items-center justify-center rounded-md">
-                              <span className="text-gray-400 text-xs">No image</span>
+                ))}
+              </tbody>
+            </table>
+            
+            {sliders.length === 0 && (
+              <div className="text-center py-12">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="mt-2 text-sm text-gray-500">No sliders created yet</p>
+                <button
+                  onClick={() => handleOpenModal()}
+                  className="mt-4 btn btn-primary"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                  Create Your First Slider
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Enhanced Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900">
+                  {currentSlider ? 'Edit Slider' : 'Create New Slider'}
+                </h2>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <XMarkIcon className="w-6 h-6" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="p-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Left Column - Form Fields */}
+                  <div className="space-y-6">
+                    {/* Basic Information */}
+                    <div className="card p-6">
+                      <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="form-group">
+                          <label className="form-label">Title (English)</label>
+                          <input
+                            type="text"
+                            value={editingSlider.title}
+                            onChange={(e) => setEditingSlider({...editingSlider, title: e.target.value})}
+                            className="form-input"
+                            required
+                          />
+                        </div>
+                        
+                        <div className="form-group">
+                          <label className="form-label">Title (Arabic)</label>
+                          <input
+                            type="text"
+                            value={editingSlider.titleAr}
+                            onChange={(e) => setEditingSlider({...editingSlider, titleAr: e.target.value})}
+                            className="form-input"
+                            dir="rtl"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="form-group">
+                          <label className="form-label">Subtitle (English)</label>
+                          <textarea
+                            value={editingSlider.subtitle}
+                            onChange={(e) => setEditingSlider({...editingSlider, subtitle: e.target.value})}
+                            className="form-textarea"
+                            rows={2}
+                            required
+                          />
+                        </div>
+                        
+                        <div className="form-group">
+                          <label className="form-label">Subtitle (Arabic)</label>
+                          <textarea
+                            value={editingSlider.subtitleAr}
+                            onChange={(e) => setEditingSlider({...editingSlider, subtitleAr: e.target.value})}
+                            className="form-textarea"
+                            rows={2}
+                            dir="rtl"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="form-group">
+                          <label className="form-label">Button Text (English)</label>
+                          <input
+                            type="text"
+                            value={editingSlider.buttonText}
+                            onChange={(e) => setEditingSlider({...editingSlider, buttonText: e.target.value})}
+                            className="form-input"
+                            required
+                          />
+                        </div>
+                        
+                        <div className="form-group">
+                          <label className="form-label">Button Text (Arabic)</label>
+                          <input
+                            type="text"
+                            value={editingSlider.buttonTextAr}
+                            onChange={(e) => setEditingSlider({...editingSlider, buttonTextAr: e.target.value})}
+                            className="form-input"
+                            dir="rtl"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Button Link</label>
+                        <input
+                          type="text"
+                          value={editingSlider.buttonLink}
+                          onChange={(e) => setEditingSlider({...editingSlider, buttonLink: e.target.value})}
+                          className="form-input"
+                          placeholder="/shop"
+                          required
+                        />
+                        <p className="form-helper">Enter the URL path (e.g., /shop, /products/coffee)</p>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Image URL</label>
+                        <input
+                          type="text"
+                          value={editingSlider.imageUrl}
+                          onChange={(e) => setEditingSlider({...editingSlider, imageUrl: e.target.value})}
+                          className="form-input"
+                          placeholder="https://example.com/image.jpg"
+                          required
+                        />
+                        <p className="form-helper">Upload to Cloudinary or use a direct image URL</p>
+                      </div>
+                    </div>
+
+                    {/* Design & Layout */}
+                    <div className="card p-6">
+                      <h3 className="text-lg font-semibold mb-4">Design & Layout</h3>
+                      
+                      <div className="form-group">
+                        <label className="form-label">Layout Style</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                          {LAYOUT_OPTIONS.map((layout) => (
+                            <div
+                              key={layout.value}
+                              onClick={() => setEditingSlider({...editingSlider, layout: layout.value})}
+                              className={`layout-option ${editingSlider.layout === layout.value ? 'selected' : ''}`}
+                            >
+                              <div className="layout-thumbnail mb-2">
+                                {/* Add layout preview thumbnails here */}
+                              </div>
+                              <p className="text-xs text-center font-medium">{layout.label}</p>
                             </div>
-                          )}
+                          ))}
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="max-w-xs">
-                          <p className="font-medium text-gray-900 truncate">{slider.title}</p>
-                          <p className="text-sm text-gray-500 truncate mt-1">{slider.subtitle}</p>
-                          <div className="flex space-x-1 items-center mt-2">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              {slider.buttonText}
-                            </span>
-                            <span className="text-xs text-gray-500">→</span>
-                            <span className="text-xs text-gray-500 truncate">{slider.buttonLink}</span>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Color Presets</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {COLOR_PRESETS.map((preset) => (
+                            <button
+                              key={preset.name}
+                              type="button"
+                              onClick={() => setEditingSlider({
+                                ...editingSlider,
+                                backgroundColor: preset.bg,
+                                textColor: preset.text,
+                                buttonColor: preset.button,
+                                accentColor: preset.accent
+                              })}
+                              className="p-3 border-2 border-gray-200 rounded-lg hover:border-accent transition-colors"
+                            >
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: preset.bg }} />
+                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: preset.text }} />
+                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: preset.button }} />
+                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: preset.accent }} />
+                              </div>
+                              <p className="text-xs font-medium">{preset.name}</p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="form-group">
+                          <label className="form-label">Background Color</label>
+                          <div className="color-picker-wrapper">
+                            <input
+                              type="color"
+                              value={editingSlider.backgroundColor}
+                              onChange={(e) => setEditingSlider({...editingSlider, backgroundColor: e.target.value})}
+                              className="sr-only"
+                              id="bg-color"
+                            />
+                            <label 
+                              htmlFor="bg-color" 
+                              className="color-picker-preview cursor-pointer"
+                              style={{ backgroundColor: editingSlider.backgroundColor }}
+                            />
                           </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm">
-                          <div className="flex items-center mb-1.5">
-                            <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
-                            <span>Text: {slider.textAnimation || 'fade-up'}</span>
-                          </div>
-                          <div className="flex items-center mb-1.5">
-                            <span className="w-3 h-3 bg-purple-500 rounded-full mr-2"></span>
-                            <span>Image: {slider.imageAnimation || 'fade-in'}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="w-3 h-3 bg-amber-500 rounded-full mr-2"></span>
-                            <span>Speed: {slider.transitionSpeed || 'medium'}</span>
+
+                        <div className="form-group">
+                          <label className="form-label">Text Color</label>
+                          <div className="color-picker-wrapper">
+                            <input
+                              type="color"
+                              value={editingSlider.textColor}
+                              onChange={(e) => setEditingSlider({...editingSlider, textColor: e.target.value})}
+                              className="sr-only"
+                              id="text-color"
+                            />
+                            <label 
+                              htmlFor="text-color" 
+                              className="color-picker-preview cursor-pointer"
+                              style={{ backgroundColor: editingSlider.textColor }}
+                            />
                           </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-center text-sm">
-                        <div className="flex flex-col items-center space-y-2">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                            {slider.order}
-                          </span>
-                          <div className="flex items-center space-x-2">
-                            <div className="flex items-center space-x-1">
-                              <div 
-                                className="w-4 h-4 rounded-full border border-gray-300" 
-                                style={{ backgroundColor: slider.backgroundColor }}
-                                title="Background Color"
-                              ></div>
-                              <div 
-                                className="w-4 h-4 rounded-full border border-gray-300" 
-                                style={{ backgroundColor: slider.textColor || '#111111' }}
-                                title="Text Color"
-                              ></div>
-                              <div 
-                                className="w-4 h-4 rounded-full border border-gray-300" 
-                                style={{ backgroundColor: slider.buttonColor || '#111111' }}
-                                title="Button Color"
-                              ></div>
-                              {(slider.overlayOpacity ?? 0) > 0 && (
-                                <div 
-                                  className="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center" 
+
+                        <div className="form-group">
+                          <label className="form-label">Button Color</label>
+                          <div className="color-picker-wrapper">
+                            <input
+                              type="color"
+                              value={editingSlider.buttonColor}
+                              onChange={(e) => setEditingSlider({...editingSlider, buttonColor: e.target.value})}
+                              className="sr-only"
+                              id="button-color"
+                            />
+                            <label 
+                              htmlFor="button-color" 
+                              className="color-picker-preview cursor-pointer"
+                              style={{ backgroundColor: editingSlider.buttonColor }}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="form-group">
+                          <label className="form-label">Accent Color</label>
+                          <div className="color-picker-wrapper">
+                            <input
+                              type="color"
+                              value={editingSlider.accentColor}
+                              onChange={(e) => setEditingSlider({...editingSlider, accentColor: e.target.value})}
+                              className="sr-only"
+                              id="accent-color"
+                            />
+                            <label 
+                              htmlFor="accent-color" 
+                              className="color-picker-preview cursor-pointer"
+                              style={{ backgroundColor: editingSlider.accentColor }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Animation Settings */}
+                    <div className="card p-6">
+                      <h3 className="text-lg font-semibold mb-4">Animation Settings</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="form-group">
+                          <label className="form-label">Text Animation</label>
+                          <select
+                            value={editingSlider.textAnimation}
+                            onChange={(e) => setEditingSlider({...editingSlider, textAnimation: e.target.value})}
+                            className="form-select"
+                          >
+                            {ANIMATION_PRESETS.text.map(option => (
+                              <option key={option.value} value={option.value}>
+                                {option.name} - {option.description}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="form-group">
+                          <label className="form-label">Image Animation</label>
+                          <select
+                            value={editingSlider.imageAnimation}
+                            onChange={(e) => setEditingSlider({...editingSlider, imageAnimation: e.target.value})}
+                            className="form-select"
+                          >
+                            {ANIMATION_PRESETS.image.map(option => (
+                              <option key={option.value} value={option.value}>
+                                {option.name} - {option.description}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="form-group">
+                          <label className="form-label">Transition Speed</label>
+                          <select
+                            value={editingSlider.transitionSpeed}
+                            onChange={(e) => setEditingSlider({...editingSlider, transitionSpeed: e.target.value as 'slow' | 'medium' | 'fast'})}
+                            className="form-select"
+                          >
+                            {ANIMATION_PRESETS.speed.map(option => (
+                              <option key={option.value} value={option.value}>
+                                {option.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Settings */}
+                    <div className="card p-6">
+                      <h3 className="text-lg font-semibold mb-4">Settings</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="form-group">
+                          <label className="form-label">Order</label>
+                          <input
+                            type="number"
+                            value={editingSlider.order}
+                            onChange={(e) => setEditingSlider({...editingSlider, order: parseInt(e.target.value)})}
+                            className="form-input"
+                            min="0"
+                          />
+                          <p className="form-helper">Lower numbers appear first</p>
+                        </div>
+
+                        <div className="form-group">
+                          <label className="form-label">Status</label>
+                          <div className="flex items-center gap-3 mt-2">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={editingSlider.isActive}
+                                onChange={(e) => setEditingSlider({...editingSlider, isActive: e.target.checked})}
+                                className="w-4 h-4 text-accent rounded border-gray-300 focus:ring-accent"
+                              />
+                              <span className="text-sm font-medium">Active</span>
+                            </label>
+                          </div>
+                          <p className="form-helper">Only active sliders are shown on the homepage</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column - Live Preview */}
+                  <div className="space-y-6">
+                    <div className="card p-6 sticky top-20">
+                      <h3 className="text-lg font-semibold mb-4">Live Preview</h3>
+                      
+                      {/* Device Selector */}
+                      <div className="flex items-center gap-2 mb-4">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewDevice('desktop')}
+                          className={`px-3 py-1 text-sm rounded-md ${previewDevice === 'desktop' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600'}`}
+                        >
+                          Desktop
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPreviewDevice('mobile')}
+                          className={`px-3 py-1 text-sm rounded-md ${previewDevice === 'mobile' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600'}`}
+                        >
+                          Mobile
+                        </button>
+                      </div>
+
+                      {/* Preview Container */}
+                      <div className="preview-container p-4">
+                        <div className={`preview-device ${previewDevice}`}>
+                          <div 
+                            className="relative h-full overflow-hidden"
+                            style={{ backgroundColor: editingSlider.backgroundColor }}
+                          >
+                            {/* Preview content based on layout */}
+                            <div className={`flex items-center justify-center h-full p-6 ${
+                              editingSlider.layout === 'centered' ? 'text-center' : ''
+                            }`}>
+                              <div className={`${editingSlider.layout === 'split' ? 'w-1/2' : 'max-w-md'}`}>
+                                <h1 
+                                  className={`text-2xl font-bold mb-2 animation-preview`}
                                   style={{ 
-                                    backgroundColor: slider.overlayColor || 'rgba(0,0,0,0)',
-                                    backgroundImage: slider.overlayImageUrl ? `url(${slider.overlayImageUrl})` : 'none',
-                                    backgroundSize: 'cover',
-                                    backgroundPosition: 'center'
+                                    color: editingSlider.textColor,
+                                    animation: editingSlider.textAnimation !== 'none' ? 'fadeUp 0.6s' : 'none'
                                   }}
-                                  title={`Overlay: ${(slider.overlayOpacity ?? 0) * 100}%${slider.overlayImageUrl ? ' (with image)' : ''}`}
                                 >
-                                  <span className="text-white text-[8px]">{Math.round((slider.overlayOpacity ?? 0) * 100)}%</span>
+                                  {editingSlider.title || 'Slider Title'}
+                                </h1>
+                                <p 
+                                  className="text-sm mb-4 opacity-80"
+                                  style={{ color: editingSlider.textColor }}
+                                >
+                                  {editingSlider.subtitle || 'Slider subtitle goes here'}
+                                </p>
+                                <button
+                                  type="button"
+                                  className="px-4 py-2 rounded-full text-sm font-medium"
+                                  style={{ 
+                                    backgroundColor: editingSlider.buttonColor,
+                                    color: editingSlider.backgroundColor
+                                  }}
+                                >
+                                  {editingSlider.buttonText || 'Button'}
+                                </button>
+                              </div>
+                              {editingSlider.imageUrl && (
+                                <div className={`${editingSlider.layout === 'split' ? 'w-1/2' : 'absolute right-0 top-0 w-1/2 h-full'}`}>
+                                  <img 
+                                    src={editingSlider.imageUrl} 
+                                    alt="Preview"
+                                    className="h-full w-full object-contain animation-preview"
+                                    style={{
+                                      animation: editingSlider.imageAnimation !== 'none' ? 'fadeIn 0.8s' : 'none'
+                                    }}
+                                  />
                                 </div>
                               )}
                             </div>
                           </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          slider.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {slider.isActive ? (
-                            <><CheckIcon className="w-3 h-3 mr-1" /> {t('active', 'Active')}</>
-                          ) : (
-                            <><XMarkIcon className="w-3 h-3 mr-1" /> {t('inactive', 'Inactive')}</>
-                          )}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <div className="flex justify-center space-x-3">
-                          <motion.button
-                            onClick={() => handleOpenModal(slider)}
-                            className="inline-flex items-center rounded-md text-sm font-medium text-blue-600 hover:text-blue-800 focus:outline-none"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <PencilIcon className="w-4 h-4 mr-1" />
-                            {t('edit', 'Edit')}
-                          </motion.button>
-                          <motion.button
-                            onClick={() => handleDeleteSlider(slider.id)}
-                            className="inline-flex items-center rounded-md text-sm font-medium text-red-600 hover:text-red-800 focus:outline-none"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <TrashIcon className="w-4 h-4 mr-1" />
-                            {t('delete', 'Delete')}
-                          </motion.button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Modal for adding/editing sliders */}
-      {isModalOpen && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4 overflow-y-auto"
-        >
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
-          >
-            <div className="px-6 py-4 border-b sticky top-0 bg-white z-10 flex justify-between items-center">
-              <h2 className="text-xl font-semibold">
-                {currentSlider ? t('edit_slider', 'Edit Slider') : t('add_slider', 'Add Slider')}
-              </h2>
-              <div className="flex space-x-2">
-                <button 
-                  onClick={handleTogglePreview}
-                  className={`flex items-center text-sm px-3 py-1.5 rounded-md ${
-                    isPreviewMode ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  {isPreviewMode ? t('editing_mode', 'Edit Mode') : t('preview_mode', 'Preview')}
-                </button>
-                <button
-                  onClick={handleCloseModal}
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  <XMarkIcon className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-            
-            {isPreviewMode ? (
-              <div className="p-6">
-                <div className="mb-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">{t('slider_preview', 'Slider Preview')}</h3>
-                  <p className="text-sm text-gray-500 mb-4">{t('preview_description', 'This is how your slider will appear on the homepage in both languages.')}</p>
-                  
-                  <div className="aspect-[16/9] rounded-xl overflow-hidden relative">
-                    <AnimatePresence initial={false} custom={previewDirection} mode="wait">
-                      <motion.div
-                        key={previewIndex}
-                        custom={previewDirection}
-                        initial={{
-                          x: previewDirection > 0 ? '100%' : '-100%',
-                          opacity: 0
-                        }}
-                        animate={{
-                          x: 0,
-                          opacity: 1,
-                          transition: {
-                            x: { duration: transitionSpeed === 'slow' ? 0.8 : transitionSpeed === 'medium' ? 0.6 : 0.4, ease: [0.4, 0, 0.2, 1] },
-                            opacity: { duration: 0.5 }
-                          }
-                        }}
-                        exit={{
-                          x: previewDirection < 0 ? '100%' : '-100%',
-                          opacity: 0,
-                          transition: {
-                            x: { duration: transitionSpeed === 'slow' ? 0.8 : transitionSpeed === 'medium' ? 0.6 : 0.4, ease: [0.4, 0, 0.2, 1] },
-                            opacity: { duration: 0.3 }
-                          }
-                        }}
-                        className="absolute inset-0 flex items-center justify-center"
-                        style={{ 
-                          backgroundColor,
-                          backgroundImage: 'linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px), linear-gradient(to right, rgba(0,0,0,0.02) 1px, transparent 1px)',
-                          backgroundSize: '20px 20px',
-                          position: 'relative'
-                        }}
-                      >
-                        {/* Background overlay */}
-                        {overlayOpacity > 0 && (
-                          <div 
-                            className="absolute inset-0 z-0" 
-                            style={{ 
-                              backgroundColor: overlayColor,
-                              opacity: overlayOpacity,
-                              mixBlendMode: 'multiply',
-                              backgroundImage: overlayImagePreview ? `url(${overlayImagePreview})` : 'none',
-                              backgroundSize: 'cover',
-                              backgroundPosition: 'center'
-                            }}
-                          />
-                        )}
-                        
-                        {/* Preview slide content */}
-                        <div className={`absolute ${previewIndex === 0 ? 'left-5% text-left' : 'right-5% text-right rtl'} top-1/2 transform -translate-y-1/2 max-w-[42%] z-10 p-5`}>
-                          <motion.div
-                            className="space-y-4"
-                            initial="hidden"
-                            animate="visible"
-                            variants={{
-                              hidden: { opacity: 0 },
-                              visible: { 
-                                opacity: 1, 
-                                transition: { 
-                                  staggerChildren: transitionSpeed === 'slow' ? 0.2 : transitionSpeed === 'medium' ? 0.15 : 0.1,
-                                  delayChildren: 0.2
-                                } 
-                              }
-                            }}
-                          >
-                            <motion.h2 
-                              className="text-3xl font-bold"
-                              variants={previewSettings.textVariants}
-                              style={{ color: textColor }}
-                            >
-                              {previewIndex === 0 ? title || 'Slider Title' : titleAr || 'عنوان الشريحة'}
-                            </motion.h2>
-                            
-                            <motion.p 
-                              className="text-base"
-                              variants={previewSettings.textVariants}
-                              style={{ color: textColor }}
-                            >
-                              {previewIndex === 0 ? subtitle || 'Slider subtitle text goes here for preview. This is how it will look on your homepage.' : subtitleAr || 'نص العنوان الفرعي للشريحة يذهب هنا للمعاينة. هكذا سيبدو على صفحتك الرئيسية.'}
-                            </motion.p>
-                            
-                            <motion.div variants={previewSettings.textVariants}>
-                              <button 
-                                className="px-4 py-2 rounded-md text-sm font-medium text-white"
-                                style={{ backgroundColor: buttonColor }}
-                              >
-                                {previewIndex === 0 ? buttonText || 'Button Text' : buttonTextAr || 'نص الزر'}
-                              </button>
-                            </motion.div>
-                          </motion.div>
-                        </div>
-
-                        {/* Preview image */}
-                        <motion.div 
-                          className={`absolute ${previewIndex === 0 ? 'right-4%' : 'left-4%'} bottom-0 h-[85%] w-[45%] flex items-end justify-center`}
-                          variants={previewSettings.imageVariants}
-                          initial="hidden"
-                          animate="visible"
-                        >
-                          {imagePreview ? (
-                            <div className="relative h-5/6 w-5/6">
-                              <Image
-                                src={imagePreview}
-                                alt="Preview"
-                                fill
-                                className="object-contain drop-shadow-lg"
-                              />
-                            </div>
-                          ) : (
-                            <div className="h-64 w-64 bg-gray-200 flex items-center justify-center rounded-md">
-                              <span className="text-gray-400">No image</span>
-                            </div>
-                          )}
-                        </motion.div>
-
-                        {/* Preview controls */}
-                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
-                          {[0, 1].map((idx) => (
-                            <div 
-                              key={idx}
-                              className={`w-10 h-2 rounded-full cursor-pointer transition-all ${previewIndex === idx ? 'bg-black' : 'bg-gray-300'}`}
-                              onClick={() => {
-                                setPreviewDirection(idx > previewIndex ? 1 : -1);
-                                setPreviewIndex(idx);
-                              }}
-                            />
-                          ))}
-                        </div>
-
-                        <div className="absolute top-1/2 w-full px-4 flex justify-between transform -translate-y-1/2 z-20 pointer-events-none">
-                          <button 
-                            onClick={prevPreviewSlide}
-                            className="w-10 h-10 rounded-full bg-white/70 flex items-center justify-center cursor-pointer shadow-sm hover:bg-white/90 pointer-events-auto"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          </button>
-                          
-                          <button 
-                            onClick={nextPreviewSlide}
-                            className="w-10 h-10 rounded-full bg-white/70 flex items-center justify-center cursor-pointer shadow-sm hover:bg-white/90 pointer-events-auto"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                            </svg>
-                          </button>
-                        </div>
-                      </motion.div>
-                    </AnimatePresence>
-                  </div>
-                </div>
-                
-                <div className="flex justify-end mt-6">
-                  <button
-                    onClick={handleTogglePreview}
-                    className="px-4 py-2 bg-green-700 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-800 focus:outline-none"
-                  >
-                    {t('back_to_editing', 'Back to Editing')}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-5">
-                    <h3 className="text-base font-medium text-gray-900 pb-2 border-b">{t('content_settings', 'Content Settings')}</h3>
-                    
-                    <div>
-                      <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                        {t('title', 'Title')} *
-                      </label>
-                      <input
-                        type="text"
-                        id="title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="titleAr" className="block text-sm font-medium text-gray-700">
-                        {t('title_ar', 'Title (Arabic)')}
-                      </label>
-                      <input
-                        type="text"
-                        id="titleAr"
-                        value={titleAr}
-                        onChange={(e) => setTitleAr(e.target.value)}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                        dir="rtl"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="subtitle" className="block text-sm font-medium text-gray-700">
-                        {t('subtitle', 'Subtitle')} *
-                      </label>
-                      <textarea
-                        id="subtitle"
-                        value={subtitle}
-                        onChange={(e) => setSubtitle(e.target.value)}
-                        rows={3}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="subtitleAr" className="block text-sm font-medium text-gray-700">
-                        {t('subtitle_ar', 'Subtitle (Arabic)')}
-                      </label>
-                      <textarea
-                        id="subtitleAr"
-                        value={subtitleAr}
-                        onChange={(e) => setSubtitleAr(e.target.value)}
-                        rows={3}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                        dir="rtl"
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="buttonText" className="block text-sm font-medium text-gray-700">
-                          {t('button_text', 'Button Text')} *
-                        </label>
-                        <input
-                          type="text"
-                          id="buttonText"
-                          value={buttonText}
-                          onChange={(e) => setButtonText(e.target.value)}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                          required
-                        />
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="buttonTextAr" className="block text-sm font-medium text-gray-700">
-                          {t('button_text_ar', 'Button Text (Arabic)')}
-                        </label>
-                        <input
-                          type="text"
-                          id="buttonTextAr"
-                          value={buttonTextAr}
-                          onChange={(e) => setButtonTextAr(e.target.value)}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                          dir="rtl"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="buttonLink" className="block text-sm font-medium text-gray-700">
-                        {t('button_link', 'Button Link')} *
-                      </label>
-                      <input
-                        type="text"
-                        id="buttonLink"
-                        value={buttonLink}
-                        onChange={(e) => setButtonLink(e.target.value)}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                        required
-                      />
-                    </div>
-
-                    <h3 className="text-base font-medium text-gray-900 pt-4 pb-2 border-b">{t('appearance_settings', 'Appearance Settings')}</h3>
-                    
-                    <div>
-                      <label htmlFor="backgroundColor" className="block text-sm font-medium text-gray-700">
-                        {t('background_color', 'Background Color')} *
-                      </label>
-                      <div className="mt-1 flex">
-                        <input
-                          type="color"
-                          id="backgroundColor"
-                          value={backgroundColor}
-                          onChange={(e) => setBackgroundColor(e.target.value)}
-                          className="h-10 w-20 border border-gray-300 rounded-l-md shadow-sm p-1 focus:ring-green-500 focus:border-green-500 cursor-pointer"
-                          required
-                        />
-                        <input
-                          type="text"
-                          value={backgroundColor}
-                          onChange={(e) => setBackgroundColor(e.target.value)}
-                          className="flex-1 border border-gray-300 border-l-0 rounded-r-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="textColor" className="block text-sm font-medium text-gray-700">
-                        {t('text_color', 'Text Color')}
-                      </label>
-                      <div className="mt-1 flex">
-                        <input
-                          type="color"
-                          id="textColor"
-                          value={textColor}
-                          onChange={(e) => setTextColor(e.target.value)}
-                          className="h-10 w-20 border border-gray-300 rounded-l-md shadow-sm p-1 focus:ring-green-500 focus:border-green-500 cursor-pointer"
-                        />
-                        <input
-                          type="text"
-                          value={textColor}
-                          onChange={(e) => setTextColor(e.target.value)}
-                          className="flex-1 border border-gray-300 border-l-0 rounded-r-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label htmlFor="buttonColor" className="block text-sm font-medium text-gray-700">
-                        {t('button_color', 'Button Color')}
-                      </label>
-                      <div className="mt-1 flex">
-                        <input
-                          type="color"
-                          id="buttonColor"
-                          value={buttonColor}
-                          onChange={(e) => setButtonColor(e.target.value)}
-                          className="h-10 w-20 border border-gray-300 rounded-l-md shadow-sm p-1 focus:ring-green-500 focus:border-green-500 cursor-pointer"
-                        />
-                        <input
-                          type="text"
-                          value={buttonColor}
-                          onChange={(e) => setButtonColor(e.target.value)}
-                          className="flex-1 border border-gray-300 border-l-0 rounded-r-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t('background_overlay', 'Background Overlay')}
-                      </label>
-                      
-                      <div>
-                        <label htmlFor="overlayColor" className="block text-sm text-gray-600 mb-1">
-                          {t('overlay_color', 'Overlay Color')}
-                        </label>
-                        <div className="flex">
-                          <input
-                            type="color"
-                            id="overlayColor"
-                            value={overlayColor}
-                            onChange={(e) => setOverlayColor(e.target.value)}
-                            className="h-10 w-20 border border-gray-300 rounded-l-md shadow-sm p-1 focus:ring-green-500 focus:border-green-500 cursor-pointer"
-                          />
-                          <input
-                            type="text"
-                            value={overlayColor}
-                            onChange={(e) => setOverlayColor(e.target.value)}
-                            className="flex-1 border border-gray-300 border-l-0 rounded-r-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                            placeholder="rgba(0,0,0,0)"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="overlayOpacity" className="block text-sm text-gray-600 mb-1">
-                          {t('overlay_opacity', 'Overlay Opacity')} ({overlayOpacity})
-                        </label>
-                        <input
-                          type="range"
-                          id="overlayOpacity"
-                          min="0"
-                          max="1"
-                          step="0.05"
-                          value={overlayOpacity}
-                          onChange={(e) => setOverlayOpacity(parseFloat(e.target.value))}
-                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm text-gray-600 mb-1">
-                          {t('overlay_image', 'Overlay Image')} ({t('optional', 'Optional')})
-                        </label>
-                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-                          <div className="space-y-2 text-center">
-                            {overlayImagePreview ? (
-                              <div className="relative h-32 w-full rounded-md overflow-hidden mb-4">
-                                <Image
-                                  src={overlayImagePreview}
-                                  alt="Overlay Preview"
-                                  fill
-                                  className="object-cover"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setOverlayImagePreview(null);
-                                    setOverlayImageFile(null);
-                                  }}
-                                  className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
-                                >
-                                  <XMarkIcon className="w-4 h-4" />
-                                </button>
-                              </div>
-                            ) : (
-                              <svg
-                                className="mx-auto h-10 w-10 text-gray-400"
-                                stroke="currentColor"
-                                fill="none"
-                                viewBox="0 0 48 48"
-                              >
-                                <path
-                                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                  strokeWidth={2}
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                            )}
-                            
-                            <div className="flex text-sm justify-center">
-                              <label
-                                htmlFor="overlay-image-upload"
-                                className="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none"
-                              >
-                                <span className="px-3 py-2">{t('upload_overlay_image', 'Upload overlay image')}</span>
-                                <input
-                                  id="overlay-image-upload"
-                                  name="overlay-image-upload"
-                                  type="file"
-                                  accept="image/*"
-                                  className="sr-only"
-                                  onChange={handleOverlayImageChange}
-                                />
-                              </label>
-                            </div>
-                            
-                            <p className="text-xs text-gray-500">
-                              {t('image_formats', 'PNG, JPG, GIF up to 5MB')}
-                            </p>
-                            
-                            <p className="text-xs text-gray-500 pt-2">
-                              {t('overlay_image_rec', 'Images will be stretched to cover the entire background')}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="order" className="block text-sm font-medium text-gray-700">
-                          {t('display_order', 'Display Order')}
-                        </label>
-                        <input
-                          type="number"
-                          id="order"
-                          value={order}
-                          onChange={(e) => setOrder(parseInt(e.target.value) || 0)}
-                          min="0"
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-                        />
-                      </div>
-                    
-                      <div className="flex items-center h-full pt-6">
-                        <input
-                          type="checkbox"
-                          id="isActive"
-                          checked={isActive}
-                          onChange={(e) => setIsActive(e.target.checked)}
-                          className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                        />
-                        <label htmlFor="isActive" className="ml-2 block text-sm text-gray-700">
-                          {t('active', 'Active')}
-                        </label>
-                      </div>
-                    </div>
-                    
-                    <h3 className="text-base font-medium text-gray-900 pt-4 pb-2 border-b">{t('animation_settings', 'Animation Settings')}</h3>
-                    
-                    <div>
-                      <label htmlFor="textAnimation" className="block text-sm font-medium text-gray-700">
-                        {t('text_animation', 'Text Animation')}
-                      </label>
-                      <select
-                        id="textAnimation"
-                        value={textAnimation}
-                        onChange={(e) => setTextAnimation(e.target.value)}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                      >
-                        {ANIMATION_PRESETS.text.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.name} - {option.description}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="imageAnimation" className="block text-sm font-medium text-gray-700">
-                        {t('image_animation', 'Image Animation')}
-                      </label>
-                      <select
-                        id="imageAnimation"
-                        value={imageAnimation}
-                        onChange={(e) => setImageAnimation(e.target.value)}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                      >
-                        {ANIMATION_PRESETS.image.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.name} - {option.description}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="transitionSpeed" className="block text-sm font-medium text-gray-700">
-                        {t('transition_speed', 'Transition Speed')}
-                      </label>
-                      <select
-                        id="transitionSpeed"
-                        value={transitionSpeed}
-                        onChange={(e) => setTransitionSpeed(e.target.value as 'slow' | 'medium' | 'fast')}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                      >
-                        {ANIMATION_PRESETS.speed.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-5">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t('slide_image', 'Slide Image')} *
-                      </label>
-                      <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-                        <div className="space-y-2 text-center">
-                          {imagePreview ? (
-                            <div className="relative h-48 w-full rounded-md overflow-hidden mb-4">
-                              <Image
-                                src={imagePreview}
-                                alt="Preview"
-                                fill
-                                className="object-contain"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setImagePreview(null);
-                                  setImageFile(null);
-                                }}
-                                className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
-                              >
-                                <XMarkIcon className="w-4 h-4" />
-                              </button>
-                            </div>
-                          ) : (
-                            <svg
-                              className="mx-auto h-12 w-12 text-gray-400"
-                              stroke="currentColor"
-                              fill="none"
-                              viewBox="0 0 48 48"
-                            >
-                              <path
-                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                strokeWidth={2}
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          )}
-                          
-                          <div className="flex text-sm justify-center">
-                            <label
-                              htmlFor="image-upload"
-                              className="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none"
-                            >
-                              <span className="px-3 py-2">{t('upload_image', 'Upload image')}</span>
-                              <input
-                                id="image-upload"
-                                name="image-upload"
-                                type="file"
-                                accept="image/*"
-                                className="sr-only"
-                                onChange={handleImageChange}
-                                required={!currentSlider || !imagePreview}
-                              />
-                            </label>
-                          </div>
-                          <p className="text-xs text-gray-500">
-                            {t('image_formats', 'PNG, JPG, GIF up to 5MB')}
-                          </p>
-                          
-                          <p className="text-xs text-gray-500 pt-2">
-                            {t('image_rec', 'Recommended dimensions: 600x600px with transparent background')}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gray-50 p-4 rounded-lg mt-4">
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-base font-medium text-gray-900">
-                          {t('slider_preview', 'Slider Preview')}
-                        </h3>
-                        <button
-                          type="button"
-                          onClick={handleTogglePreview}
-                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                          </svg>
-                          {t('fullscreen_preview', 'Fullscreen Preview')}
-                        </button>
-                      </div>
-                      
-                      {/* Basic Preview - English */}
-                      <div className="mb-3">
-                        <div className="text-xs text-gray-500 mb-1">{t('english', 'English')}:</div>
-                        <div
-                          className="h-40 rounded-md flex items-center p-4 relative overflow-hidden"
-                          style={{ backgroundColor }}
-                        >
-                          {/* Preview overlay in small English preview */}
-                          {overlayOpacity > 0 && (
-                            <div 
-                              className="absolute inset-0" 
-                              style={{ 
-                                backgroundColor: overlayColor,
-                                opacity: overlayOpacity,
-                                mixBlendMode: 'multiply',
-                                backgroundImage: overlayImagePreview ? `url(${overlayImagePreview})` : 'none',
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center'
-                              }}
-                            />
-                          )}
-                          <div className="text-left max-w-[55%] z-10">
-                            <h3 className="text-lg font-bold" style={{ color: textColor }}>{title || 'Slider Title'}</h3>
-                            <p className="text-sm line-clamp-2" style={{ color: textColor }}>{subtitle || 'Slider subtitle text here'}</p>
-                            <button className="mt-2 text-white text-xs px-3 py-1 rounded inline-block" style={{ backgroundColor: buttonColor }}>
-                              {buttonText || 'Button'}
-                            </button>
-                          </div>
-                          {imagePreview && (
-                            <div className="absolute right-4 bottom-0 h-full w-1/2 flex items-end justify-center">
-                              <div className="relative h-32 w-32">
-                                <Image
-                                  src={imagePreview}
-                                  alt="Preview"
-                                  fill
-                                  className="object-contain"
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Basic Preview - Arabic */}
-                      <div>
-                        <div className="text-xs text-gray-500 mb-1">{t('arabic', 'Arabic')}:</div>
-                        <div
-                          className="h-40 rounded-md flex items-center p-4 relative overflow-hidden rtl"
-                          style={{ backgroundColor }}
-                        >
-                          {/* Preview overlay in small Arabic preview */}
-                          {overlayOpacity > 0 && (
-                            <div 
-                              className="absolute inset-0" 
-                              style={{ 
-                                backgroundColor: overlayColor,
-                                opacity: overlayOpacity,
-                                mixBlendMode: 'multiply',
-                                backgroundImage: overlayImagePreview ? `url(${overlayImagePreview})` : 'none',
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center'
-                              }}
-                            />
-                          )}
-                          <div className="text-right max-w-[55%] z-10">
-                            <h3 className="text-lg font-bold" style={{ color: textColor }}>{titleAr || 'عنوان الشريحة'}</h3>
-                            <p className="text-sm line-clamp-2" style={{ color: textColor }}>{subtitleAr || 'وصف الشريحة هنا'}</p>
-                            <button className="mt-2 text-white text-xs px-3 py-1 rounded inline-block" style={{ backgroundColor: buttonColor }}>
-                              {buttonTextAr || 'زر'}
-                            </button>
-                          </div>
-                          {imagePreview && (
-                            <div className="absolute left-4 bottom-0 h-full w-1/2 flex items-end justify-center">
-                              <div className="relative h-32 w-32">
-                                <Image
-                                  src={imagePreview}
-                                  alt="Preview"
-                                  fill
-                                  className="object-contain"
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                
-                <div className="mt-8 border-t pt-6 flex justify-end space-x-3">
+
+                {/* Form Actions */}
+                <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200">
                   <button
                     type="button"
-                    onClick={handleCloseModal}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    onClick={() => setIsModalOpen(false)}
+                    className="btn btn-secondary"
                   >
-                    {t('cancel', 'Cancel')}
+                    Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-4 py-2 bg-green-700 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center"
+                    className="btn btn-primary"
                   >
                     {isSubmitting ? (
                       <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        {t('saving', 'Saving...')}
+                        Saving...
                       </>
-                    ) : currentSlider ? t('update', 'Update') : t('create', 'Create')}
+                    ) : (
+                      <>
+                        <CheckIcon className="w-4 h-4" />
+                        {currentSlider ? 'Update Slider' : 'Create Slider'}
+                      </>
+                    )}
                   </button>
                 </div>
               </form>
-            )}
-          </motion.div>
-        </motion.div>
-      )}
+            </div>
+          </div>
+        )}
+      </div>
     </BackendLayout>
   );
 } 

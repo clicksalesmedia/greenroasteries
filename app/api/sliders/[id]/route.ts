@@ -103,6 +103,8 @@ export async function PUT(
       textAnimation: data.textAnimation || existingSlider.textAnimation || 'fade-up',
       imageAnimation: data.imageAnimation || existingSlider.imageAnimation || 'fade-in',
       transitionSpeed: data.transitionSpeed || existingSlider.transitionSpeed || 'medium',
+      layout: data.layout || existingSlider.layout || 'default',
+      accentColor: data.accentColor || existingSlider.accentColor || '#c9a961',
     };
     
     console.log('Prepared update data:', JSON.stringify(updateData, null, 2));
