@@ -130,6 +130,8 @@ model ProductVariation {
   sizeId        String
   typeId        String?
   price         Float
+  discount      Float?          @default(0)
+  discountType  String?         @default("PERCENTAGE")
   sku           String?         @unique
   stockQuantity Int             @default(0)
   isActive      Boolean         @default(true)

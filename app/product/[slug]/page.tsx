@@ -21,6 +21,8 @@ interface ProductVariation {
   size?: string | { id: string; name: string; value: number; displayName: string; [key: string]: any };
   type?: string | { id: string; name: string; [key: string]: any };
   price: number;
+  discount?: number;
+  discountType?: string;
   discountPrice?: number;
   stockQuantity?: number;
   sku?: string;
@@ -35,9 +37,11 @@ interface Product {
   description?: string;
   descriptionAr?: string;
   price: number;
+  discount?: number;
+  discountType?: string;
   discountPrice?: number;
-  images: string[];
-  imageUrl?: string;
+  images: Array<{id: string; url: string; alt?: string} | string>; // Gallery images from database
+  imageUrl?: string; // Main product image
   category: string | { id: string; name: string; nameAr?: string; slug?: string };
   variations?: ProductVariation[];
   stockQuantity?: number;
@@ -50,6 +54,14 @@ interface SelectedVariation extends ProductVariation {
   // Add a custom property to make the interface non-empty
   selected?: boolean; 
 }
+
+// Helper function to extract image URL from image object or string
+const getImageUrl = (image: string | {id: string; url: string; alt?: string} | undefined): string => {
+  if (!image) return '/images/placeholder.jpg';
+  if (typeof image === 'string') return image;
+  if (typeof image === 'object' && 'url' in image) return image.url;
+  return '/images/placeholder.jpg';
+};
 
 // Helper function to extract display values from variation objects or strings
 const extractValue = (value: any, language = 'en'): string => {
@@ -860,16 +872,54 @@ export default function ProductPage() {
   };
   
   const getCurrentPrice = () => {
-    return selectedVariation?.discountPrice || selectedVariation?.price || product?.discountPrice || product?.price || 0;
+    if (selectedVariation) {
+      // Check if variation has discount
+      if (selectedVariation.discount && selectedVariation.discount > 0) {
+        if (selectedVariation.discountType === 'PERCENTAGE') {
+          return selectedVariation.price * (1 - selectedVariation.discount);
+        } else if (selectedVariation.discountType === 'FIXED_AMOUNT') {
+          return Math.max(0, selectedVariation.price - selectedVariation.discount);
+        }
+      }
+      return selectedVariation.price;
+    }
+    
+    // Check if product has discount
+    if (product?.discount && product.discount > 0) {
+      if (product.discountType === 'PERCENTAGE') {
+        return product.price * (1 - product.discount / 100);
+      } else if (product.discountType === 'FIXED_AMOUNT') {
+        return Math.max(0, product.price - product.discount);
+      }
+    }
+    
+    return product?.price || 0;
   };
   
   const getOriginalPrice = () => {
-    if (selectedVariation?.discountPrice) {
+    if (selectedVariation && selectedVariation.discount && selectedVariation.discount > 0) {
       return selectedVariation.price;
-    } else if (product?.discountPrice) {
+    } else if (product?.discount && product.discount > 0) {
       return product.price;
     }
     return null;
+  };
+  
+  const getDiscountPercentage = () => {
+    if (selectedVariation && selectedVariation.discount && selectedVariation.discount > 0) {
+      if (selectedVariation.discountType === 'PERCENTAGE') {
+        return Math.round(selectedVariation.discount * 100);
+      } else if (selectedVariation.discountType === 'FIXED_AMOUNT') {
+        return Math.round((selectedVariation.discount / selectedVariation.price) * 100);
+      }
+    } else if (product?.discount && product.discount > 0) {
+      if (product.discountType === 'PERCENTAGE') {
+        return Math.round(product.discount);
+      } else if (product.discountType === 'FIXED_AMOUNT') {
+        return Math.round((product.discount / product.price) * 100);
+      }
+    }
+    return 0;
   };
   
   const handleAddToCart = () => {
@@ -892,7 +942,7 @@ export default function ProductPage() {
       name: product.name,
       price: getCurrentPrice(),
       quantity: quantity,
-      image: product.imageUrl || product.images[0] || '',
+      image: product.imageUrl || getImageUrl(product.images?.[0]) || '',
       variation: {
         weight: extractValue(selectedVariation?.weight, language),
         beans: extractValue(selectedVariation?.beans, language),
@@ -917,7 +967,7 @@ export default function ProductPage() {
       name: product.name,
       price: getCurrentPrice(),
       quantity: quantity,
-      image: product.imageUrl || product.images[0] || '',
+      image: product.imageUrl || getImageUrl(product.images?.[0]) || '',
       variation: {
         weight: extractValue(selectedVariation?.weight, language),
         beans: extractValue(selectedVariation?.beans, language),
@@ -1087,89 +1137,73 @@ export default function ProductPage() {
           <div className="relative rounded-lg overflow-hidden mb-4 aspect-square">
             <ProductImageMagnifier 
               src={variationImage || 
-                  (selectedImage === -1 && product.imageUrl && typeof product.imageUrl === 'string' && product.imageUrl.trim() !== '' ? product.imageUrl : null) ||
-                  (product.images && product.images.length > 0 && selectedImage >= 0 && 
-                   typeof product.images[selectedImage] === 'string' && 
-                   product.images[selectedImage].trim() !== '' 
-                   ? product.images[selectedImage] 
-                   : (product.imageUrl && typeof product.imageUrl === 'string' && product.imageUrl.trim() !== '' ? product.imageUrl : '/images/placeholder.jpg'))} 
+                  (selectedImage >= 0 && product.images && product.images[selectedImage] ? 
+                   getImageUrl(product.images[selectedImage]) : 
+                   product.imageUrl || '/images/placeholder.jpg')} 
               alt={getProductName()}
             />
           </div>
           
-          {/* Thumbnail Gallery */}
-          <div className="grid grid-cols-5 gap-2 sm:gap-3">
-            {/* Main product image as first thumbnail */}
-            {product.imageUrl && typeof product.imageUrl === 'string' && product.imageUrl.trim() !== '' && (
-              <button 
-                onClick={() => {
-                  setSelectedImage(-1); // Special case for main image
-                  // Clear variation image when selecting main product image
-                  if (variationImage) {
-                    setVariationImage(null);
-                  }
-                }}
-                className={`relative aspect-square rounded-md overflow-hidden border-2 ${
-                  !variationImage && selectedImage === -1 ? 'border-black' : 'border-gray-200'
-                } hover:border-gray-400 transition-colors`}
-              >
-                <Image 
-                  src={product.imageUrl} 
-                  alt={`${product.name} - main`} 
-                  fill
-                  sizes="(max-width: 768px) 20vw, 10vw"
-                  className="object-contain"
-                />
-              </button>
-            )}
-            
-            {/* Additional images from product.images array */}
-            {product.images && 
-              product.images
-                .filter(img => img && typeof img === 'string' && img.trim() !== '')
-                .map((image, index) => (
-                  <button 
-                    key={index} 
-                    onClick={() => {
-                      setSelectedImage(index);
-                      // Clear variation image when selecting from gallery
-                      if (variationImage) {
-                        setVariationImage(null);
-                      }
-                    }}
-                    className={`relative aspect-square rounded-md overflow-hidden border-2 ${
-                      !variationImage && selectedImage === index ? 'border-black' : 'border-gray-200'
-                    } hover:border-gray-400 transition-colors`}
-                  >
-                    <Image 
-                      src={image || '/images/placeholder.jpg'} 
-                      alt={`${product.name} - view ${index + 1}`} 
-                      fill
-                      sizes="(max-width: 768px) 20vw, 10vw"
-                      className="object-contain"
-                    />
-                  </button>
-                ))}
+          {/* Thumbnail Gallery - Only show if there are gallery images */}
+          {product.images && product.images.length > 0 && (
+            <div className="grid grid-cols-5 gap-2 sm:gap-3">
+              {/* Gallery images thumbnails */}
+              {product.images
+                .map((image, index) => {
+                  const imageUrl = getImageUrl(image);
+                  // Skip if no valid URL
+                  if (!imageUrl || imageUrl === '/images/placeholder.jpg') return null;
+                  
+                  return (
+                    <button 
+                      key={index} 
+                      onClick={() => {
+                        setSelectedImage(index);
+                        // Clear variation image when selecting from gallery
+                        if (variationImage) {
+                          setVariationImage(null);
+                        }
+                      }}
+                      className={`relative aspect-square rounded-md overflow-hidden border-2 ${
+                        !variationImage && selectedImage === index ? 'border-black' : 'border-gray-200'
+                      } hover:border-gray-400 transition-colors`}
+                    >
+                      <Image 
+                        src={imageUrl} 
+                        alt={`${product.name} - view ${index + 1}`} 
+                        fill
+                        sizes="(max-width: 768px) 20vw, 10vw"
+                        className="object-contain"
+                      />
+                    </button>
+                  );
+                })
+                .filter(Boolean)}
                 
-            {/* Show variation image in thumbnails if available */}
-            {variationImage && (
-              <button 
-                onClick={() => {
-                  // Keep the variation image selected
-                  setVariationImage(variationImage);
-                }}
-                className="relative aspect-square rounded-md overflow-hidden border-2 border-black"
-              >
-                <Image 
-                  src={variationImage} 
-                  alt={`${product.name} - variation`} 
-                  fill
-                  sizes="(max-width: 768px) 20vw, 10vw"
-                  className="object-contain"
-                />
-              </button>
-            )}
-          </div>
+              {/* Show variation image in thumbnails if available */}
+              {variationImage && (
+                <button 
+                  onClick={() => {
+                    // Keep the variation image selected
+                    setVariationImage(variationImage);
+                    setSelectedImage(-1);
+                  }}
+                  className="relative aspect-square rounded-md overflow-hidden border-2 border-black"
+                >
+                  <Image 
+                    src={variationImage} 
+                    alt={`${product.name} - variation`} 
+                    fill
+                    sizes="(max-width: 768px) 20vw, 10vw"
+                    className="object-contain"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1 text-center">
+                    Variation
+                  </div>
+                </button>
+              )}
+            </div>
+          )}
         </div>
         
         {/* Right Column - Product Details */}
@@ -1196,9 +1230,9 @@ export default function ProductPage() {
                 <div className="flex items-center">
                   <span className="text-xl sm:text-2xl font-bold text-black">{getCurrentPrice().toFixed(2)}D</span>
                   <span className="ml-2 text-sm text-gray-500 line-through">{getOriginalPrice()?.toFixed(2)}D</span>
-                  {selectedVariation?.discountPrice && (
+                  {getDiscountPercentage() > 0 && (
                     <span className="ml-2 bg-red-100 text-red-700 px-2 py-0.5 text-xs font-medium rounded-md">
-                      {Math.round(((selectedVariation.price - selectedVariation.discountPrice) / selectedVariation.price) * 100)}% {t('off', 'OFF')}
+                      {getDiscountPercentage()}% {t('off', 'OFF')}
                     </span>
                   )}
                 </div>
@@ -1412,7 +1446,7 @@ export default function ProductPage() {
                       >
                         <div className="relative rounded-lg overflow-hidden aspect-square mb-3">
                           <Image 
-                            src={recommendedProduct.imageUrl || (recommendedProduct.images && recommendedProduct.images.length > 0 ? recommendedProduct.images[0] : '/images/placeholder.jpg')} 
+                            src={recommendedProduct.imageUrl || getImageUrl(recommendedProduct.images?.[0]) || '/images/placeholder.jpg'} 
                             alt={contentByLang(recommendedProduct.name, recommendedProduct.nameAr || recommendedProduct.name)} 
                             fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"

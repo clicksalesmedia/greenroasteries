@@ -33,6 +33,8 @@ interface ProductVariation {
   beansId?: string;
   beans?: VariationBeans;
   price: number;
+  discount?: number;
+  discountType?: string;
   sku?: string;
   stockQuantity: number;
   isActive: boolean;
@@ -63,6 +65,7 @@ export default function ProductVariations({
   const [selectedTypeId, setSelectedTypeId] = useState('');
   const [selectedBeansId, setSelectedBeansId] = useState('');
   const [price, setPrice] = useState('');
+  const [discount, setDiscount] = useState('');
   const [sku, setSku] = useState('');
   const [stockQuantity, setStockQuantity] = useState('0');
   const [isActive, setIsActive] = useState(true);
@@ -75,6 +78,7 @@ export default function ProductVariations({
   const [editTypeId, setEditTypeId] = useState('');
   const [editBeansId, setEditBeansId] = useState('');
   const [editPrice, setEditPrice] = useState('');
+  const [editDiscount, setEditDiscount] = useState('');
   const [editSku, setEditSku] = useState('');
   const [editStock, setEditStock] = useState('');
   const [editIsActive, setEditIsActive] = useState(true);
@@ -231,6 +235,8 @@ export default function ProductVariations({
             typeId: selectedTypeId || undefined,
             beansId: selectedBeansId || undefined,
             price: parseFloat(price),
+            discount: discount ? parseFloat(discount) / 100 : undefined,
+            discountType: 'PERCENTAGE',
             sku: sku || undefined,
             stockQuantity: parseInt(stockQuantity, 10) || 0,
             isActive,
@@ -294,6 +300,8 @@ export default function ProductVariations({
           beansId: selectedBeansId || undefined,
           beans: selectedBeans,
           price: parseFloat(price),
+          discount: discount ? parseFloat(discount) / 100 : undefined,
+          discountType: 'PERCENTAGE',
           sku: sku || undefined,
           stockQuantity: parseInt(stockQuantity, 10) || 0,
           isActive,
@@ -308,6 +316,7 @@ export default function ProductVariations({
       setSelectedTypeId('');
       setSelectedBeansId('');
       setPrice('');
+      setDiscount('');
       setSku('');
       setStockQuantity('0');
       setVariationImageFile(null);
@@ -364,6 +373,7 @@ export default function ProductVariations({
     setEditTypeId(variation.typeId || '');
     setEditBeansId(variation.beansId || '');
     setEditPrice(variation.price.toString());
+    setEditDiscount(variation.discount ? (variation.discount * 100).toFixed(2) : '');
     setEditSku(variation.sku || '');
     setEditStock(variation.stockQuantity.toString());
     setEditIsActive(variation.isActive);
@@ -376,6 +386,7 @@ export default function ProductVariations({
     setEditTypeId('');
     setEditBeansId('');
     setEditPrice('');
+    setEditDiscount('');
     setEditSku('');
     setEditStock('');
     setEditIsActive(true);
@@ -426,6 +437,8 @@ export default function ProductVariations({
             typeId: editTypeId || undefined,
             beansId: editBeansId || undefined,
           price: parseFloat(editPrice),
+            discount: editDiscount ? parseFloat(editDiscount) / 100 : undefined,
+            discountType: 'PERCENTAGE',
             sku: editSku || undefined,
           stockQuantity: parseInt(editStock, 10) || 0,
             isActive: editIsActive,
@@ -488,6 +501,8 @@ export default function ProductVariations({
           beansId: editBeansId || undefined,
           beans: selectedBeans,
           price: parseFloat(editPrice),
+          discount: editDiscount ? parseFloat(editDiscount) / 100 : undefined,
+          discountType: 'PERCENTAGE',
           sku: editSku || undefined,
           stockQuantity: parseInt(editStock, 10) || 0,
           isActive: editIsActive,
@@ -504,6 +519,7 @@ export default function ProductVariations({
       setEditTypeId('');
       setEditBeansId('');
       setEditPrice('');
+      setEditDiscount('');
       setEditSku('');
       setEditStock('');
       setEditIsActive(true);
@@ -743,6 +759,21 @@ export default function ProductVariations({
           </div>
           
           <div className="md:col-span-1">
+            <label htmlFor="discount" className="block text-sm font-medium text-gray-700 mb-1">Discount (%)</label>
+            <input
+              type="number"
+              id="discount"
+              value={discount}
+              onChange={(e) => setDiscount(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
+              placeholder="0"
+              min="0"
+              max="100"
+              step="1"
+            />
+          </div>
+          
+          <div className="md:col-span-1">
             <label htmlFor="sku" className="block text-sm font-medium text-gray-700 mb-1">SKU</label>
             <input
               type="text"
@@ -834,6 +865,7 @@ export default function ProductVariations({
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Additions</th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Beans</th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Price</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Discount</th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">SKU</th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Stock</th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Image</th>
@@ -929,6 +961,22 @@ export default function ProductVariations({
                         />
                       ) : (
                         `${variation.price.toFixed(2)} AED`
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      {editingVariationId === variation.id ? (
+                        <input
+                          type="number"
+                          value={editDiscount}
+                          onChange={(e) => setEditDiscount(e.target.value)}
+                          className="w-24 px-2 py-1 border border-gray-300 rounded text-center"
+                          step="1"
+                          min="0"
+                          max="100"
+                          placeholder="%"
+                        />
+                      ) : (
+                        variation.discount ? `${(variation.discount * 100).toFixed(0)}%` : '-'
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

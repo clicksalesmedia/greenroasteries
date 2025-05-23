@@ -11923,11 +11923,13 @@ export namespace Prisma {
 
   export type ProductVariationAvgAggregateOutputType = {
     price: number | null
+    discount: number | null
     stockQuantity: number | null
   }
 
   export type ProductVariationSumAggregateOutputType = {
     price: number | null
+    discount: number | null
     stockQuantity: number | null
   }
 
@@ -11937,6 +11939,8 @@ export namespace Prisma {
     sizeId: string | null
     typeId: string | null
     price: number | null
+    discount: number | null
+    discountType: string | null
     sku: string | null
     stockQuantity: number | null
     isActive: boolean | null
@@ -11952,6 +11956,8 @@ export namespace Prisma {
     sizeId: string | null
     typeId: string | null
     price: number | null
+    discount: number | null
+    discountType: string | null
     sku: string | null
     stockQuantity: number | null
     isActive: boolean | null
@@ -11967,6 +11973,8 @@ export namespace Prisma {
     sizeId: number
     typeId: number
     price: number
+    discount: number
+    discountType: number
     sku: number
     stockQuantity: number
     isActive: number
@@ -11980,11 +11988,13 @@ export namespace Prisma {
 
   export type ProductVariationAvgAggregateInputType = {
     price?: true
+    discount?: true
     stockQuantity?: true
   }
 
   export type ProductVariationSumAggregateInputType = {
     price?: true
+    discount?: true
     stockQuantity?: true
   }
 
@@ -11994,6 +12004,8 @@ export namespace Prisma {
     sizeId?: true
     typeId?: true
     price?: true
+    discount?: true
+    discountType?: true
     sku?: true
     stockQuantity?: true
     isActive?: true
@@ -12009,6 +12021,8 @@ export namespace Prisma {
     sizeId?: true
     typeId?: true
     price?: true
+    discount?: true
+    discountType?: true
     sku?: true
     stockQuantity?: true
     isActive?: true
@@ -12024,6 +12038,8 @@ export namespace Prisma {
     sizeId?: true
     typeId?: true
     price?: true
+    discount?: true
+    discountType?: true
     sku?: true
     stockQuantity?: true
     isActive?: true
@@ -12126,6 +12142,8 @@ export namespace Prisma {
     sizeId: string
     typeId: string | null
     price: number
+    discount: number | null
+    discountType: string | null
     sku: string | null
     stockQuantity: number
     isActive: boolean
@@ -12160,6 +12178,8 @@ export namespace Prisma {
     sizeId?: boolean
     typeId?: boolean
     price?: boolean
+    discount?: boolean
+    discountType?: boolean
     sku?: boolean
     stockQuantity?: boolean
     isActive?: boolean
@@ -12179,6 +12199,8 @@ export namespace Prisma {
     sizeId?: boolean
     typeId?: boolean
     price?: boolean
+    discount?: boolean
+    discountType?: boolean
     sku?: boolean
     stockQuantity?: boolean
     isActive?: boolean
@@ -12198,6 +12220,8 @@ export namespace Prisma {
     sizeId?: boolean
     typeId?: boolean
     price?: boolean
+    discount?: boolean
+    discountType?: boolean
     sku?: boolean
     stockQuantity?: boolean
     isActive?: boolean
@@ -12217,6 +12241,8 @@ export namespace Prisma {
     sizeId?: boolean
     typeId?: boolean
     price?: boolean
+    discount?: boolean
+    discountType?: boolean
     sku?: boolean
     stockQuantity?: boolean
     isActive?: boolean
@@ -12226,7 +12252,7 @@ export namespace Prisma {
     imageUrl?: boolean
   }
 
-  export type ProductVariationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "sizeId" | "typeId" | "price" | "sku" | "stockQuantity" | "isActive" | "createdAt" | "updatedAt" | "beansId" | "imageUrl", ExtArgs["result"]["productVariation"]>
+  export type ProductVariationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "sizeId" | "typeId" | "price" | "discount" | "discountType" | "sku" | "stockQuantity" | "isActive" | "createdAt" | "updatedAt" | "beansId" | "imageUrl", ExtArgs["result"]["productVariation"]>
   export type ProductVariationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     beans?: boolean | ProductVariation$beansArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -12260,6 +12286,8 @@ export namespace Prisma {
       sizeId: string
       typeId: string | null
       price: number
+      discount: number | null
+      discountType: string | null
       sku: string | null
       stockQuantity: number
       isActive: boolean
@@ -12699,6 +12727,8 @@ export namespace Prisma {
     readonly sizeId: FieldRef<"ProductVariation", 'String'>
     readonly typeId: FieldRef<"ProductVariation", 'String'>
     readonly price: FieldRef<"ProductVariation", 'Float'>
+    readonly discount: FieldRef<"ProductVariation", 'Float'>
+    readonly discountType: FieldRef<"ProductVariation", 'String'>
     readonly sku: FieldRef<"ProductVariation", 'String'>
     readonly stockQuantity: FieldRef<"ProductVariation", 'Int'>
     readonly isActive: FieldRef<"ProductVariation", 'Boolean'>
@@ -21456,6 +21486,8 @@ export namespace Prisma {
     sizeId: 'sizeId',
     typeId: 'typeId',
     price: 'price',
+    discount: 'discount',
+    discountType: 'discountType',
     sku: 'sku',
     stockQuantity: 'stockQuantity',
     isActive: 'isActive',
@@ -22415,6 +22447,8 @@ export namespace Prisma {
     sizeId?: StringFilter<"ProductVariation"> | string
     typeId?: StringNullableFilter<"ProductVariation"> | string | null
     price?: FloatFilter<"ProductVariation"> | number
+    discount?: FloatNullableFilter<"ProductVariation"> | number | null
+    discountType?: StringNullableFilter<"ProductVariation"> | string | null
     sku?: StringNullableFilter<"ProductVariation"> | string | null
     stockQuantity?: IntFilter<"ProductVariation"> | number
     isActive?: BoolFilter<"ProductVariation"> | boolean
@@ -22434,6 +22468,8 @@ export namespace Prisma {
     sizeId?: SortOrder
     typeId?: SortOrderInput | SortOrder
     price?: SortOrder
+    discount?: SortOrderInput | SortOrder
+    discountType?: SortOrderInput | SortOrder
     sku?: SortOrderInput | SortOrder
     stockQuantity?: SortOrder
     isActive?: SortOrder
@@ -22457,6 +22493,8 @@ export namespace Prisma {
     sizeId?: StringFilter<"ProductVariation"> | string
     typeId?: StringNullableFilter<"ProductVariation"> | string | null
     price?: FloatFilter<"ProductVariation"> | number
+    discount?: FloatNullableFilter<"ProductVariation"> | number | null
+    discountType?: StringNullableFilter<"ProductVariation"> | string | null
     stockQuantity?: IntFilter<"ProductVariation"> | number
     isActive?: BoolFilter<"ProductVariation"> | boolean
     createdAt?: DateTimeFilter<"ProductVariation"> | Date | string
@@ -22475,6 +22513,8 @@ export namespace Prisma {
     sizeId?: SortOrder
     typeId?: SortOrderInput | SortOrder
     price?: SortOrder
+    discount?: SortOrderInput | SortOrder
+    discountType?: SortOrderInput | SortOrder
     sku?: SortOrderInput | SortOrder
     stockQuantity?: SortOrder
     isActive?: SortOrder
@@ -22498,6 +22538,8 @@ export namespace Prisma {
     sizeId?: StringWithAggregatesFilter<"ProductVariation"> | string
     typeId?: StringNullableWithAggregatesFilter<"ProductVariation"> | string | null
     price?: FloatWithAggregatesFilter<"ProductVariation"> | number
+    discount?: FloatNullableWithAggregatesFilter<"ProductVariation"> | number | null
+    discountType?: StringNullableWithAggregatesFilter<"ProductVariation"> | string | null
     sku?: StringNullableWithAggregatesFilter<"ProductVariation"> | string | null
     stockQuantity?: IntWithAggregatesFilter<"ProductVariation"> | number
     isActive?: BoolWithAggregatesFilter<"ProductVariation"> | boolean
@@ -23856,6 +23898,8 @@ export namespace Prisma {
   export type ProductVariationCreateInput = {
     id?: string
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -23874,6 +23918,8 @@ export namespace Prisma {
     sizeId: string
     typeId?: string | null
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -23886,6 +23932,8 @@ export namespace Prisma {
   export type ProductVariationUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -23904,6 +23952,8 @@ export namespace Prisma {
     sizeId?: StringFieldUpdateOperationsInput | string
     typeId?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -23919,6 +23969,8 @@ export namespace Prisma {
     sizeId: string
     typeId?: string | null
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -23931,6 +23983,8 @@ export namespace Prisma {
   export type ProductVariationUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -23945,6 +23999,8 @@ export namespace Prisma {
     sizeId?: StringFieldUpdateOperationsInput | string
     typeId?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -25299,6 +25355,8 @@ export namespace Prisma {
     sizeId?: SortOrder
     typeId?: SortOrder
     price?: SortOrder
+    discount?: SortOrder
+    discountType?: SortOrder
     sku?: SortOrder
     stockQuantity?: SortOrder
     isActive?: SortOrder
@@ -25310,6 +25368,7 @@ export namespace Prisma {
 
   export type ProductVariationAvgOrderByAggregateInput = {
     price?: SortOrder
+    discount?: SortOrder
     stockQuantity?: SortOrder
   }
 
@@ -25319,6 +25378,8 @@ export namespace Prisma {
     sizeId?: SortOrder
     typeId?: SortOrder
     price?: SortOrder
+    discount?: SortOrder
+    discountType?: SortOrder
     sku?: SortOrder
     stockQuantity?: SortOrder
     isActive?: SortOrder
@@ -25334,6 +25395,8 @@ export namespace Prisma {
     sizeId?: SortOrder
     typeId?: SortOrder
     price?: SortOrder
+    discount?: SortOrder
+    discountType?: SortOrder
     sku?: SortOrder
     stockQuantity?: SortOrder
     isActive?: SortOrder
@@ -25345,6 +25408,7 @@ export namespace Prisma {
 
   export type ProductVariationSumOrderByAggregateInput = {
     price?: SortOrder
+    discount?: SortOrder
     stockQuantity?: SortOrder
   }
 
@@ -27743,6 +27807,8 @@ export namespace Prisma {
   export type ProductVariationCreateWithoutProductInput = {
     id?: string
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -27759,6 +27825,8 @@ export namespace Prisma {
     sizeId: string
     typeId?: string | null
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -27967,6 +28035,8 @@ export namespace Prisma {
     sizeId?: StringFilter<"ProductVariation"> | string
     typeId?: StringNullableFilter<"ProductVariation"> | string | null
     price?: FloatFilter<"ProductVariation"> | number
+    discount?: FloatNullableFilter<"ProductVariation"> | number | null
+    discountType?: StringNullableFilter<"ProductVariation"> | string | null
     sku?: StringNullableFilter<"ProductVariation"> | string | null
     stockQuantity?: IntFilter<"ProductVariation"> | number
     isActive?: BoolFilter<"ProductVariation"> | boolean
@@ -28091,6 +28161,8 @@ export namespace Prisma {
   export type ProductVariationCreateWithoutSizeInput = {
     id?: string
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -28107,6 +28179,8 @@ export namespace Prisma {
     productId: string
     typeId?: string | null
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -28145,6 +28219,8 @@ export namespace Prisma {
   export type ProductVariationCreateWithoutTypeInput = {
     id?: string
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -28161,6 +28237,8 @@ export namespace Prisma {
     productId: string
     sizeId: string
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -28199,6 +28277,8 @@ export namespace Prisma {
   export type ProductVariationCreateWithoutBeansInput = {
     id?: string
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -28216,6 +28296,8 @@ export namespace Prisma {
     sizeId: string
     typeId?: string | null
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -29755,6 +29837,8 @@ export namespace Prisma {
     sizeId: string
     typeId?: string | null
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -29869,6 +29953,8 @@ export namespace Prisma {
   export type ProductVariationUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -29885,6 +29971,8 @@ export namespace Prisma {
     sizeId?: StringFieldUpdateOperationsInput | string
     typeId?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -29899,6 +29987,8 @@ export namespace Prisma {
     sizeId?: StringFieldUpdateOperationsInput | string
     typeId?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -29913,6 +30003,8 @@ export namespace Prisma {
     productId: string
     typeId?: string | null
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -29925,6 +30017,8 @@ export namespace Prisma {
   export type ProductVariationUpdateWithoutSizeInput = {
     id?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -29941,6 +30035,8 @@ export namespace Prisma {
     productId?: StringFieldUpdateOperationsInput | string
     typeId?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -29955,6 +30051,8 @@ export namespace Prisma {
     productId?: StringFieldUpdateOperationsInput | string
     typeId?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -29969,6 +30067,8 @@ export namespace Prisma {
     productId: string
     sizeId: string
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -29981,6 +30081,8 @@ export namespace Prisma {
   export type ProductVariationUpdateWithoutTypeInput = {
     id?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -29997,6 +30099,8 @@ export namespace Prisma {
     productId?: StringFieldUpdateOperationsInput | string
     sizeId?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -30011,6 +30115,8 @@ export namespace Prisma {
     productId?: StringFieldUpdateOperationsInput | string
     sizeId?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -30026,6 +30132,8 @@ export namespace Prisma {
     sizeId: string
     typeId?: string | null
     price: number
+    discount?: number | null
+    discountType?: string | null
     sku?: string | null
     stockQuantity?: number
     isActive?: boolean
@@ -30037,6 +30145,8 @@ export namespace Prisma {
   export type ProductVariationUpdateWithoutBeansInput = {
     id?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -30054,6 +30164,8 @@ export namespace Prisma {
     sizeId?: StringFieldUpdateOperationsInput | string
     typeId?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -30068,6 +30180,8 @@ export namespace Prisma {
     sizeId?: StringFieldUpdateOperationsInput | string
     typeId?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    discountType?: NullableStringFieldUpdateOperationsInput | string | null
     sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean

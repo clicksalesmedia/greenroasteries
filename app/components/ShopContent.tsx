@@ -18,6 +18,9 @@ interface Product {
   images?: string[];
   category?: string | { name: string; nameAr?: string };
   slug?: string;
+  discount?: number;
+  discountType?: string;
+  hasVariationDiscount?: boolean;
 }
 
 export default function ShopContent() {
@@ -72,6 +75,18 @@ export default function ShopContent() {
     setIsModalOpen(false);
   };
 
+  // Function to format discount display
+  const getDiscountDisplay = (product: Product) => {
+    if (!product.discount || product.discount === 0) return null;
+    
+    if (product.discountType === 'PERCENTAGE') {
+      return `-${Math.round(product.discount)}%`;
+    } else if (product.discountType === 'FIXED_AMOUNT') {
+      return `-${product.discount}D`;
+    }
+    return null;
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -106,6 +121,11 @@ export default function ShopContent() {
                     // The parent already has a gray background
                   }}
                 />
+                {product.discount && product.discount > 0 && (
+                  <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
+                    {getDiscountDisplay(product)}
+                  </div>
+                )}
               </div>
               
               <div className="p-4">

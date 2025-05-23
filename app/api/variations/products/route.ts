@@ -115,6 +115,8 @@ export async function POST(request: NextRequest) {
       typeId, 
       beansId, 
       price, 
+      discount,
+      discountType,
       sku, 
       stockQuantity, 
       isActive,
@@ -173,6 +175,8 @@ export async function POST(request: NextRequest) {
       typeId: typeId || null,
       beansId: beansId || null,
       price,
+      discount,
+      discountType,
       sku: finalSku,
       stockQuantity: stockQuantity || 0,
       isActive: isActive !== undefined ? isActive : true

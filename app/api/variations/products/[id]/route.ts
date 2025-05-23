@@ -69,6 +69,8 @@ export async function PUT(
       typeId, 
       beansId, 
       price, 
+      discount,
+      discountType,
       sku, 
       stockQuantity, 
       isActive,
@@ -128,6 +130,8 @@ export async function PUT(
       typeId: typeId || null,
       beansId: beansId || null,
       price,
+      discount: discount !== undefined ? discount : existingVariation.discount,
+      discountType: discountType || existingVariation.discountType || 'PERCENTAGE',
       sku: sku || existingVariation.sku,
       stockQuantity: stockQuantity !== undefined ? stockQuantity : existingVariation.stockQuantity,
       isActive: isActive !== undefined ? isActive : existingVariation.isActive

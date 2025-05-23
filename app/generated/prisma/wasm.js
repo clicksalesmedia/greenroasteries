@@ -223,6 +223,8 @@ exports.Prisma.ProductVariationScalarFieldEnum = {
   sizeId: 'sizeId',
   typeId: 'typeId',
   price: 'price',
+  discount: 'discount',
+  discountType: 'discountType',
   sku: 'sku',
   stockQuantity: 'stockQuantity',
   isActive: 'isActive',

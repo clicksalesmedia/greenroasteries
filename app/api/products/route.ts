@@ -179,6 +179,16 @@ export async function GET(request: Request) {
           },
         },
         images: true,
+        variations: {
+          where: {
+            isActive: true
+          },
+          include: {
+            size: true,
+            type: true,
+            beans: true,
+          }
+        },
         promotions: {
           where: {
             promotion: {
@@ -206,7 +216,7 @@ export async function GET(request: Request) {
     
     // Process promotion data to include discount information
     const processedProducts = products.map(product => {
-      // Find the highest percentage discount or fixed amount discount
+      // Find the highest percentage discount or fixed amount discount from promotions
       let highestPercentageDiscount = 0;
       let highestFixedDiscount = 0;
       let discountType = 'PERCENTAGE';
@@ -230,11 +240,50 @@ export async function GET(request: Request) {
         }
       }
       
+      // Check variations for discounts and find the lowest price
+      let lowestVariationPrice = product.price;
+      let highestVariationDiscount = 0;
+      let hasVariationDiscount = false;
+      
+      if (product.variations && product.variations.length > 0) {
+        product.variations.forEach((variation: any) => {
+          // Calculate effective price for this variation
+          let effectivePrice = variation.price;
+          if (variation.discount && variation.discount > 0) {
+            hasVariationDiscount = true;
+            if (variation.discountType === 'PERCENTAGE') {
+              effectivePrice = variation.price * (1 - variation.discount);
+              if (variation.discount > highestVariationDiscount) {
+                highestVariationDiscount = variation.discount;
+              }
+            } else if (variation.discountType === 'FIXED_AMOUNT') {
+              effectivePrice = Math.max(0, variation.price - variation.discount);
+            }
+          }
+          
+          // Update lowest price
+          if (effectivePrice < lowestVariationPrice) {
+            lowestVariationPrice = effectivePrice;
+          }
+        });
+      }
+      
+      // Use the higher of promotion discount or variation discount
+      const finalDiscount = hasVariationDiscount && highestVariationDiscount > 0 
+        ? highestVariationDiscount * 100  // Convert to percentage
+        : (highestPercentageDiscount > 0 ? highestPercentageDiscount : highestFixedDiscount);
+      
+      const finalDiscountType = hasVariationDiscount && highestVariationDiscount > 0
+        ? 'PERCENTAGE'
+        : discountType;
+      
       // Add discount properties to the product
       return {
         ...product,
-        discount: highestPercentageDiscount > 0 ? highestPercentageDiscount : highestFixedDiscount,
-        discountType: discountType
+        price: lowestVariationPrice, // Use the lowest variation price as the display price
+        discount: finalDiscount,
+        discountType: finalDiscountType,
+        hasVariationDiscount: hasVariationDiscount
       };
     });
     
