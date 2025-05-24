@@ -144,6 +144,9 @@ export default function Home() {
     imageUrl?: string;
   }>>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
+  
+  // Add state for slider pause
+  const [sliderPaused, setSliderPaused] = useState(false);
 
   // Slide change handlers - memoize callback functions to prevent unnecessary re-renders
   const nextSlide = useCallback(() => {
@@ -185,51 +188,113 @@ export default function Home() {
     return price;
   }, []);
 
-  // Fetch sliders - optimized with useCallback
+  // Fetch sliders - optimized with better error handling and caching
   useEffect(() => {
     const fetchSliders = async () => {
       try {
         setSliderLoading(true);
+        
+        // Add abort controller for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+        
         // Only fetch active sliders for the public homepage
         const response = await fetch('/api/sliders?active=true', {
+          signal: controller.signal,
           cache: 'force-cache', // Use cached response when available
+          next: { revalidate: 1800 }, // Revalidate every 30 minutes
         });
+        
+        clearTimeout(timeoutId);
         
         if (response.ok) {
           const data = await response.json();
           
-          // Map API response to HeroSlide interface
-          const slides: HeroSlide[] = data.map((slide: any) => ({
-            id: slide.id,
-            title: slide.title,
-            titleAr: slide.titleAr,
-            subtitle: slide.subtitle,
-            subtitleAr: slide.subtitleAr,
-            buttonText: slide.buttonText,
-            buttonTextAr: slide.buttonTextAr,
-            buttonLink: slide.buttonLink,
-            image: slide.imageUrl,
-            backgroundColor: slide.backgroundColor,
-            textColor: slide.textColor || '#111111',
-            buttonColor: slide.buttonColor || '#111111',
-            overlayColor: slide.overlayColor || 'rgba(0,0,0,0)',
-            overlayOpacity: slide.overlayOpacity || 0,
-            overlayImageUrl: slide.overlayImageUrl || undefined,
-            textAnimation: slide.textAnimation || 'fade-up',
-            imageAnimation: slide.imageAnimation || 'fade-in',
-            transitionSpeed: slide.transitionSpeed || 'medium',
-            layout: slide.layout || 'default',
-            accentColor: slide.accentColor || '#c9a961',
-          }));
-          
-          setHeroSlides(slides);
+          if (data && Array.isArray(data) && data.length > 0) {
+            // Map API response to HeroSlide interface with validation
+            const slides: HeroSlide[] = data
+              .filter(slide => slide && slide.title && slide.imageUrl) // Filter out invalid slides
+              .map((slide: any) => ({
+                id: slide.id || Math.random(),
+                title: slide.title || 'Welcome',
+                titleAr: slide.titleAr || slide.title || 'مرحباً',
+                subtitle: slide.subtitle || 'Discover premium coffee',
+                subtitleAr: slide.subtitleAr || slide.subtitle || 'اكتشف القهوة المميزة',
+                buttonText: slide.buttonText || 'Shop Now',
+                buttonTextAr: slide.buttonTextAr || slide.buttonText || 'تسوق الآن',
+                buttonLink: slide.buttonLink || '/shop',
+                image: slide.imageUrl, // This is the critical mapping
+                backgroundColor: slide.backgroundColor || '#ffffff',
+                textColor: slide.textColor || '#ffffff',
+                buttonColor: slide.buttonColor || '#c9a961',
+                overlayColor: slide.overlayColor || 'rgba(0,0,0,0.4)',
+                overlayOpacity: typeof slide.overlayOpacity === 'number' ? slide.overlayOpacity : 40,
+                overlayImageUrl: slide.overlayImageUrl || undefined,
+                textAnimation: slide.textAnimation || 'fade-up',
+                imageAnimation: slide.imageAnimation || 'fade-in',
+                transitionSpeed: slide.transitionSpeed || 'medium',
+                layout: slide.layout || 'default',
+                accentColor: slide.accentColor || '#c9a961',
+              }));
+            
+            setHeroSlides(slides);
+            console.log('Loaded sliders:', slides.length); // Debug log
+          } else {
+            console.warn('No valid sliders found, using fallback');
+            // Set fallback slide if no valid sliders
+            setHeroSlides([{
+              id: 1,
+              title: 'Welcome to Green Roasteries',
+              titleAr: 'مرحباً بكم في غرين روستيريز',
+              subtitle: 'Premium Coffee Experience',
+              subtitleAr: 'تجربة قهوة مميزة',
+              buttonText: 'Shop Now',
+              buttonTextAr: 'تسوق الآن',
+              buttonLink: '/shop',
+              image: '/images/hero-coffee.jpg',
+              backgroundColor: '#ffffff',
+              textColor: '#ffffff',
+              buttonColor: '#c9a961',
+              overlayColor: 'rgba(0,0,0,0.4)',
+              overlayOpacity: 40,
+              overlayImageUrl: undefined,
+              textAnimation: 'fade-up',
+              imageAnimation: 'fade-in',
+              transitionSpeed: 'medium',
+              layout: 'default',
+              accentColor: '#c9a961',
+            }]);
+          }
         } else {
-          // Fallback slides are already defined in your code
-          // I'm keeping this part for error handling
+          console.error('Failed to fetch sliders:', response.status, response.statusText);
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
       } catch (error) {
         console.error('Error fetching sliders:', error);
-        // Fallback slides logic remains
+        
+        // Set fallback slide on error
+        setHeroSlides([{
+          id: 1,
+          title: 'Welcome to Green Roasteries',
+          titleAr: 'مرحباً بكم في غرين روستيريز',
+          subtitle: 'Premium Coffee Experience',
+          subtitleAr: 'تجربة قهوة مميزة',
+          buttonText: 'Shop Now',
+          buttonTextAr: 'تسوق الآن',
+          buttonLink: '/shop',
+          image: '/images/hero-coffee.jpg',
+          backgroundColor: '#ffffff',
+          textColor: '#ffffff',
+          buttonColor: '#c9a961',
+          overlayColor: 'rgba(0,0,0,0.4)',
+          overlayOpacity: 40,
+          overlayImageUrl: undefined,
+          textAnimation: 'fade-up',
+          imageAnimation: 'fade-in',
+          transitionSpeed: 'medium',
+          layout: 'default',
+          accentColor: '#c9a961',
+        }]);
       } finally {
         setSliderLoading(false);
       }
@@ -510,6 +575,18 @@ export default function Home() {
   if (maintenanceMode && !isAdmin) {
     return <MaintenanceMode />;
   }
+
+  // Auto-slide functionality - optimized with pause on hover
+  useEffect(() => {
+    if (heroSlides.length <= 1 || sliderPaused) return; // Don't auto-slide if only one slide or paused
+
+    const interval = setInterval(() => {
+      setDirection(1);
+      setCurrentSlide((prev) => (prev === heroSlides.length - 1 ? 0 : prev + 1));
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [heroSlides.length, sliderPaused]);
 
   // Render featured products section
   const renderFeaturedProducts = useMemo(() => {
@@ -1728,7 +1805,12 @@ export default function Home() {
       `}</style>
 
       {/* Enhanced Hero Slider with Background Image + Overlay + Centered Content */}
-      <section ref={heroRef} className="hero-slider">
+      <section 
+        ref={heroRef} 
+        className="hero-slider"
+        onMouseEnter={() => setSliderPaused(true)}
+        onMouseLeave={() => setSliderPaused(false)}
+      >
         {sliderLoading ? (
           <div className="flex items-center justify-center h-full">
             <motion.div
@@ -1754,15 +1836,23 @@ export default function Home() {
                 }}
                 className="hero-slide absolute inset-0"
               >
-                {/* Background Image */}
-                <div className="absolute inset-0">
+                {/* Background Image with Optimization */}
+                <div className="absolute inset-0 overflow-hidden">
                   <Image
                     src={heroSlides[currentSlide].image}
                     alt={heroSlides[currentSlide].title}
                     fill
-                    className="object-cover object-center"
-                    priority
+                    className="object-cover object-center transition-transform duration-700 hover:scale-105"
+                    priority={currentSlide === 0} // Only prioritize first slide
+                    quality={85} // Optimize quality vs size
                     sizes="100vw"
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkrHR8f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyb5v3xv+tH8WjQJeU7Hv8AhiNySsFJV8krkzAOjfvMV2pq1Lqf4GiJwbUY6c7nEKi/ztKk7KYHS8dkr9X4zRc/DWPMHx5WKnD8cNSbzqPCLhJ6/FdKrQJnN9j6A=="
+                    onError={(e) => {
+                      console.warn('Slider image failed to load:', heroSlides[currentSlide].image);
+                      // Set fallback image source
+                      (e.target as HTMLImageElement).src = '/images/hero-coffee.jpg';
+                    }}
                   />
                 </div>
 
