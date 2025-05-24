@@ -876,6 +876,13 @@ export default function Home() {
           }
         }
 
+        @media (max-width: 480px) {
+          .hero-slider {
+            height: 80vh;
+            min-height: 450px;
+          }
+        }
+
         .hero-slide {
           position: absolute;
           inset: 0;
@@ -884,7 +891,235 @@ export default function Home() {
           justify-content: center;
         }
 
-        /* Layout Variations */
+        /* Responsive Typography */
+        .hero-title-responsive {
+          font-size: clamp(2rem, 8vw, 5rem);
+          line-height: 1.1;
+          margin-bottom: clamp(0.5rem, 2vw, 1rem);
+        }
+
+        @media (min-width: 768px) {
+          .hero-title-responsive {
+            font-size: clamp(3rem, 6vw, 6rem);
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .hero-title-responsive {
+            font-size: clamp(4rem, 5vw, 7rem);
+          }
+        }
+
+        .hero-subtitle-responsive {
+          font-size: clamp(1rem, 3vw, 1.5rem);
+          line-height: 1.4;
+          margin-bottom: clamp(0.75rem, 2vw, 1.5rem);
+          max-width: 90%;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        @media (min-width: 768px) {
+          .hero-subtitle-responsive {
+            font-size: clamp(1.25rem, 2.5vw, 2rem);
+            max-width: 80%;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .hero-subtitle-responsive {
+            font-size: clamp(1.5rem, 2vw, 2.5rem);
+            max-width: 70%;
+          }
+        }
+
+        .hero-description-responsive {
+          font-size: clamp(0.875rem, 2vw, 1.125rem);
+          line-height: 1.6;
+          max-width: 95%;
+          margin-bottom: clamp(1rem, 3vw, 2rem);
+        }
+
+        @media (min-width: 768px) {
+          .hero-description-responsive {
+            font-size: clamp(1rem, 1.5vw, 1.25rem);
+            max-width: 85%;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .hero-description-responsive {
+            font-size: clamp(1.125rem, 1.25vw, 1.375rem);
+            max-width: 75%;
+          }
+        }
+
+        /* Responsive Button Styles */
+        .hero-button-responsive {
+          padding: clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 4vw, 2rem);
+          font-size: clamp(0.875rem, 2vw, 1.125rem);
+          min-height: 48px;
+          backdrop-filter: blur(10px);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+          border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .hero-button-responsive:hover {
+          backdrop-filter: blur(15px);
+          box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+          transform: scale(1.05) translateY(-2px);
+        }
+
+        .hero-button-responsive:focus {
+          outline: none;
+          box-shadow: 0 0 0 4px rgba(201, 169, 97, 0.3);
+        }
+
+        @media (min-width: 768px) {
+          .hero-button-responsive {
+            padding: clamp(1rem, 2vw, 1.25rem) clamp(2rem, 4vw, 2.5rem);
+            font-size: clamp(1rem, 1.5vw, 1.25rem);
+          }
+        }
+
+        .button-icon-responsive {
+          width: clamp(1rem, 2vw, 1.25rem);
+          height: clamp(1rem, 2vw, 1.25rem);
+        }
+
+        /* Responsive Scroll Indicator */
+        .scroll-indicator-responsive {
+          display: none;
+        }
+
+        @media (min-width: 768px) {
+          .scroll-indicator-responsive {
+            display: block;
+          }
+        }
+
+        .scroll-mouse {
+          width: clamp(20px, 3vw, 24px);
+          height: clamp(32px, 5vw, 40px);
+          border: 2px solid;
+          opacity: 0.7;
+          transition: opacity 0.3s ease;
+        }
+
+        .scroll-mouse:hover {
+          opacity: 1;
+        }
+
+        .scroll-wheel {
+          width: clamp(2px, 0.5vw, 4px);
+          height: clamp(8px, 1.5vw, 12px);
+          margin-top: clamp(4px, 1vw, 8px);
+        }
+
+        .scroll-text {
+          font-size: clamp(0.625rem, 1vw, 0.75rem);
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+        }
+
+        /* Background Image Container */
+        .hero-slide .absolute.inset-0 img {
+          transition: transform 0.6s ease-out;
+        }
+
+        .hero-slide:hover .absolute.inset-0 img {
+          transform: scale(1.02);
+        }
+
+        /* Enhanced Content Overlay */
+        .hero-slide .z-10 {
+          text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Modern Navigation Dots - Responsive */
+        .hero-dots {
+          position: absolute;
+          bottom: clamp(1.5rem, 4vw, 3rem);
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          gap: clamp(0.5rem, 2vw, 1rem);
+          z-index: 20;
+        }
+
+        .hero-dot {
+          width: clamp(8px, 2vw, 12px);
+          height: clamp(8px, 2vw, 12px);
+          border-radius: 50%;
+          background: rgba(255,255,255,0.4);
+          border: 2px solid rgba(255,255,255,0.6);
+          cursor: pointer;
+          transition: all 0.3s var(--transition-base);
+          position: relative;
+        }
+
+        .hero-dot.active {
+          transform: scale(1.2);
+        }
+
+        .hero-dot:hover:not(.active) {
+          background: rgba(255,255,255,0.6);
+          transform: scale(1.1);
+        }
+
+        /* Modern Navigation Arrows - Responsive */
+        .hero-nav {
+          position: absolute;
+          top: 50%;
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          padding: 0 clamp(1rem, 3vw, 2rem);
+          transform: translateY(-50%);
+          z-index: 20;
+          pointer-events: none;
+        }
+
+        .hero-nav-button {
+          width: clamp(40px, 8vw, 56px);
+          height: clamp(40px, 8vw, 56px);
+          border-radius: 50%;
+          background: rgba(255,255,255,0.9);
+          backdrop-filter: blur(10px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          pointer-events: auto;
+          transition: all 0.3s var(--transition-base);
+          box-shadow: var(--shadow-md);
+          border: none;
+        }
+
+        .hero-nav-button:hover {
+          background: rgba(255,255,255,1);
+          transform: scale(1.1);
+          box-shadow: var(--shadow-lg);
+        }
+
+        .hero-nav-button svg {
+          width: clamp(16px, 4vw, 24px);
+          height: clamp(16px, 4vw, 24px);
+          transition: transform 0.3s var(--transition-base);
+        }
+
+        .hero-nav-button:hover svg {
+          transform: scale(1.1);
+        }
+
+        /* Hide navigation on very small screens */
+        @media (max-width: 480px) {
+          .hero-nav {
+            display: none;
+          }
+        }
+
+        /* Layout Variations - Keeping for backwards compatibility */
         .hero-slide.layout-default {
           padding: 0 5%;
         }
@@ -908,239 +1143,45 @@ export default function Home() {
           padding: 0 10%;
         }
 
-        /* Content Styles */
-        .hero-content {
-          position: relative;
-          z-index: 10;
-          max-width: 600px;
+        /* Ultra responsive adjustments */
+        @media (max-width: 320px) {
+          .hero-title-responsive {
+            font-size: 1.75rem;
+          }
+          
+          .hero-subtitle-responsive {
+            font-size: 0.9rem;
+          }
+          
+          .hero-description-responsive {
+            font-size: 0.8rem;
+          }
+          
+          .hero-button-responsive {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.8rem;
+          }
         }
 
-        .hero-title {
-          font-size: clamp(2.5rem, 5vw, 4.5rem);
-          font-weight: 900;
-          line-height: 0.95;
-          letter-spacing: -0.03em;
-          margin-bottom: 1.5rem;
-          position: relative;
+        /* Large screen optimizations */
+        @media (min-width: 1440px) {
+          .hero-title-responsive {
+            font-size: 6rem;
+          }
+          
+          .hero-subtitle-responsive {
+            font-size: 2.25rem;
+          }
+          
+          .hero-description-responsive {
+            font-size: 1.375rem;
+          }
         }
 
-        .hero-title-accent {
-          display: inline-block;
-          position: relative;
-          z-index: 1;
-        }
-
-        .hero-title-accent::after {
-          content: '';
-          position: absolute;
-          bottom: 0.1em;
-          left: -0.1em;
-          right: -0.1em;
-          height: 0.3em;
-          background: var(--accent-color);
-          z-index: -1;
-          transform: skewY(-2deg);
-          opacity: 0.3;
-        }
-
-        .hero-subtitle {
-          font-size: clamp(1rem, 2vw, 1.25rem);
-          line-height: 1.6;
-          margin-bottom: 2.5rem;
-          opacity: 0.8;
-          max-width: 500px;
-        }
-
-        .hero-button {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.75rem;
-          padding: 1rem 2rem;
-          font-size: 1rem;
-          font-weight: 600;
-          letter-spacing: 0.02em;
-          border-radius: 50px;
-          transition: all 0.3s var(--transition-base);
-          position: relative;
-          overflow: hidden;
-          text-transform: none;
-        }
-
-        .hero-button::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: rgba(255,255,255,0.1);
-          transform: translateX(-100%);
-          transition: transform 0.4s var(--transition-base);
-        }
-
-        .hero-button:hover::before {
-          transform: translateX(0);
-        }
-
-        .hero-button:hover {
-          transform: translateY(-2px);
-          box-shadow: var(--shadow-lg);
-        }
-
-        .hero-button-icon {
-          transition: transform 0.3s var(--transition-base);
-        }
-
-        .hero-button:hover .hero-button-icon {
-          transform: translateX(4px);
-        }
-
-        /* Hero Image Styles */
-        .hero-image-wrapper {
-          position: relative;
-          z-index: 5;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .hero-image-container {
-          position: relative;
-          width: 100%;
-          height: 70%;
-          max-width: 600px;
-          max-height: 600px;
-        }
-
-        .hero-image {
-          object-fit: contain;
-          filter: drop-shadow(0 20px 40px rgba(0,0,0,0.1));
-        }
-
-        /* Floating Elements */
-        .hero-float-element {
-          position: absolute;
-          pointer-events: none;
-          opacity: 0.1;
-        }
-
-        .hero-float-1 {
-          top: 10%;
-          left: 5%;
-          width: 100px;
-          height: 100px;
-          background: var(--accent-color);
-          border-radius: 50%;
-          filter: blur(40px);
-          animation: float-1 20s infinite ease-in-out;
-        }
-
-        .hero-float-2 {
-          bottom: 20%;
-          right: 10%;
-          width: 150px;
-          height: 150px;
-          background: var(--primary-color);
-          border-radius: 50%;
-          filter: blur(60px);
-          animation: float-2 25s infinite ease-in-out;
-        }
-
-        @keyframes float-1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(30px, -30px) scale(1.1); }
-        }
-
-        @keyframes float-2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-40px, 20px) scale(0.9); }
-        }
-
-        /* Modern Navigation Dots */
-        .hero-dots {
-          position: absolute;
-          bottom: 3rem;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          gap: 1rem;
-          z-index: 20;
-        }
-
-        .hero-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: rgba(0,0,0,0.2);
-          cursor: pointer;
-          transition: all 0.3s var(--transition-base);
-          position: relative;
-        }
-
-        .hero-dot::after {
-          content: '';
-          position: absolute;
-          inset: -4px;
-          border-radius: 50%;
-          border: 2px solid transparent;
-          transition: all 0.3s var(--transition-base);
-        }
-
-        .hero-dot.active {
-          background: var(--primary-color);
-          transform: scale(1.5);
-        }
-
-        .hero-dot.active::after {
-          border-color: var(--primary-color);
-          opacity: 0.3;
-        }
-
-        .hero-dot:hover:not(.active) {
-          background: rgba(0,0,0,0.4);
-        }
-
-        /* Modern Navigation Arrows */
-        .hero-nav {
-          position: absolute;
-          top: 50%;
-          width: 100%;
-          display: flex;
-          justify-content: space-between;
-          padding: 0 2rem;
-          transform: translateY(-50%);
-          z-index: 20;
-          pointer-events: none;
-        }
-
-        .hero-nav-button {
-          width: 56px;
-          height: 56px;
-          border-radius: 50%;
-          background: rgba(255,255,255,0.9);
-          backdrop-filter: blur(10px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          pointer-events: auto;
-          transition: all 0.3s var(--transition-base);
-          box-shadow: var(--shadow-md);
-        }
-
-        .hero-nav-button:hover {
-          background: rgba(255,255,255,1);
-          transform: scale(1.1);
-          box-shadow: var(--shadow-lg);
-        }
-
-        .hero-nav-button svg {
-          width: 24px;
-          height: 24px;
-          color: var(--primary-color);
-          transition: transform 0.3s var(--transition-base);
-        }
-
-        .hero-nav-button:hover svg {
-          transform: scale(1.1);
+        @media (min-width: 1920px) {
+          .hero-title-responsive {
+            font-size: 7rem;
+          }
         }
 
         /* Product Card Modern Design */
@@ -1686,210 +1727,175 @@ export default function Home() {
         }
       `}</style>
 
-      {/* Enhanced Hero Slider with Creative Layouts */}
+      {/* Enhanced Hero Slider with Background Image + Overlay + Centered Content */}
       <section ref={heroRef} className="hero-slider">
-        <motion.div 
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0"
-        >
-          {sliderLoading ? (
-            <div className="flex items-center justify-center h-full">
+        {sliderLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-12 h-12 border-3 border-black border-t-transparent rounded-full"
+            />
+          </div>
+        ) : (
+          <AnimatePresence mode="wait" custom={direction}>
+            {heroSlides[currentSlide] && (
               <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="w-12 h-12 border-3 border-black border-t-transparent rounded-full"
-              />
-            </div>
-          ) : (
-            <AnimatePresence mode="wait" custom={direction}>
-              {heroSlides[currentSlide] && (
-                <motion.div
-                  key={currentSlide}
-                  custom={direction}
-                  initial={{ opacity: 0, x: direction > 0 ? 1000 : -1000 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: direction > 0 ? -1000 : 1000 }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 300, 
-                    damping: 30,
-                    duration: 0.6 
+                key={currentSlide}
+                custom={direction}
+                initial={{ opacity: 0, x: direction > 0 ? 1000 : -1000 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: direction > 0 ? -1000 : 1000 }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 300, 
+                  damping: 30,
+                  duration: 0.6 
+                }}
+                className="hero-slide absolute inset-0"
+              >
+                {/* Background Image */}
+                <div className="absolute inset-0">
+                  <Image
+                    src={heroSlides[currentSlide].image}
+                    alt={heroSlides[currentSlide].title}
+                    fill
+                    className="object-cover object-center"
+                    priority
+                    sizes="100vw"
+                  />
+                </div>
+
+                {/* Dynamic Overlay */}
+                <div 
+                  className="absolute inset-0 transition-all duration-500"
+                  style={{
+                    backgroundColor: heroSlides[currentSlide].overlayColor || 'rgba(0,0,0,0.4)',
+                    opacity: heroSlides[currentSlide].overlayOpacity !== undefined 
+                      ? heroSlides[currentSlide].overlayOpacity / 100 
+                      : 0.4
                   }}
-                  className={`hero-slide layout-${heroSlides[currentSlide].layout || 'default'}`}
-                  style={{ backgroundColor: heroSlides[currentSlide].backgroundColor }}
-                >
-                  {/* Floating background elements */}
-                  <div className="hero-float-element hero-float-1" />
-                  <div className="hero-float-element hero-float-2" />
-                  
-                  {/* Content based on layout */}
-                  {heroSlides[currentSlide].layout === 'centered' ? (
-                    <div className="text-center max-w-4xl mx-auto px-6">
-                      <motion.div
-                        initial={{ opacity: 0, y: 30 }}
+                />
+
+                {/* Overlay Image Pattern (if provided) */}
+                {heroSlides[currentSlide].overlayImageUrl && (
+                  <div 
+                    className="absolute inset-0 opacity-10"
+                    style={{
+                      backgroundImage: `url(${heroSlides[currentSlide].overlayImageUrl})`,
+                      backgroundRepeat: 'repeat',
+                      backgroundSize: 'clamp(50px, 5vw, 100px) clamp(50px, 5vw, 100px)'
+                    }}
+                  />
+                )}
+
+                {/* Responsive Centered Content */}
+                <div className="absolute inset-0 flex items-center justify-center z-10 px-4 sm:px-6 lg:px-8">
+                  <div className="text-center w-full max-w-7xl mx-auto">
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3, duration: 0.8 }}
+                      className="space-y-4 sm:space-y-6 lg:space-y-8"
+                    >
+                      {/* H1 - Main Title - Fully Responsive */}
+                      <motion.h1 
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2, duration: 0.6 }}
-                        className="hero-content mx-auto"
+                        transition={{ delay: 0.4, duration: 0.8 }}
+                        className="hero-title-responsive font-black leading-tight tracking-tight"
+                        style={{ 
+                          color: heroSlides[currentSlide].textColor || '#ffffff',
+                          textShadow: '0 2px 4px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3)'
+                        }}
                       >
-                        <h1 className="hero-title" style={{ color: heroSlides[currentSlide].textColor }}>
-                          {contentByLang(
-                            heroSlides[currentSlide].title,
-                            heroSlides[currentSlide].titleAr || heroSlides[currentSlide].title
-                          )}
-                        </h1>
-                        <p className="hero-subtitle mx-auto" style={{ color: heroSlides[currentSlide].textColor }}>
+                        {contentByLang(
+                          heroSlides[currentSlide].title,
+                          heroSlides[currentSlide].titleAr || heroSlides[currentSlide].title
+                        )}
+                      </motion.h1>
+
+                      {/* H2 - Subtitle - Responsive */}
+                      {heroSlides[currentSlide].subtitle && (
+                        <motion.h2 
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.6, duration: 0.6 }}
+                          className="hero-subtitle-responsive font-semibold leading-relaxed"
+                          style={{ 
+                            color: heroSlides[currentSlide].textColor || '#ffffff',
+                            opacity: 0.95,
+                            textShadow: '0 1px 3px rgba(0,0,0,0.4)'
+                          }}
+                        >
                           {contentByLang(
                             heroSlides[currentSlide].subtitle,
                             heroSlides[currentSlide].subtitleAr || heroSlides[currentSlide].subtitle
                           )}
-                        </p>
+                        </motion.h2>
+                      )}
+
+                      {/* Paragraph - Description - Responsive */}
+                      <motion.p 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8, duration: 0.6 }}
+                        className="hero-description-responsive leading-relaxed mx-auto"
+                        style={{ 
+                          color: heroSlides[currentSlide].textColor || '#ffffff',
+                          opacity: 0.9,
+                          textShadow: '0 1px 2px rgba(0,0,0,0.4)'
+                        }}
+                      >
+                        {t('hero_description', 'Discover premium coffee beans roasted to perfection. Experience exceptional quality and flavor in every cup.')}
+                      </motion.p>
+
+                      {/* Call-to-Action Button - Responsive */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1.0, duration: 0.6 }}
+                        className="pt-2 sm:pt-4"
+                      >
                         <Link 
                           href={heroSlides[currentSlide].buttonLink}
-                          className="hero-button"
+                          className="hero-button-responsive group inline-flex items-center justify-center gap-2 sm:gap-3 font-semibold rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-opacity-50"
                           style={{ 
-                            backgroundColor: heroSlides[currentSlide].buttonColor || '#000',
-                            color: heroSlides[currentSlide].backgroundColor 
+                            backgroundColor: heroSlides[currentSlide].buttonColor || heroSlides[currentSlide].accentColor || '#c9a961',
+                            color: heroSlides[currentSlide].backgroundColor || '#ffffff'
                           }}
                         >
                           <span>{contentByLang(
                             heroSlides[currentSlide].buttonText,
                             heroSlides[currentSlide].buttonTextAr || heroSlides[currentSlide].buttonText
                           )}</span>
-                          <ArrowRightIcon className="hero-button-icon" />
+                          <ArrowRightIcon className="button-icon-responsive transition-transform duration-300 group-hover:translate-x-1" />
                         </Link>
                       </motion.div>
+
+                      {/* Optional: Scroll indicator - Responsive */}
                       <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.4, duration: 0.8 }}
-                        className="hero-image-container mt-12 mx-auto"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.4, duration: 0.6 }}
+                        className="scroll-indicator-responsive pt-8 sm:pt-12 lg:pt-16"
                       >
-                        <Image
-                          src={heroSlides[currentSlide].image}
-                          alt={heroSlides[currentSlide].title}
-                          fill
-                          className="hero-image"
-                          priority
-                        />
-                      </motion.div>
-                    </div>
-                  ) : heroSlides[currentSlide].layout === 'split' ? (
-                    <>
-                      <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2, duration: 0.6 }}
-                        className="hero-content"
-                      >
-                        <h1 className="hero-title" style={{ color: heroSlides[currentSlide].textColor }}>
-                          {contentByLang(
-                            heroSlides[currentSlide].title,
-                            heroSlides[currentSlide].titleAr || heroSlides[currentSlide].title
-                          )}
-                        </h1>
-                        <p className="hero-subtitle" style={{ color: heroSlides[currentSlide].textColor }}>
-                          {contentByLang(
-                            heroSlides[currentSlide].subtitle,
-                            heroSlides[currentSlide].subtitleAr || heroSlides[currentSlide].subtitle
-                          )}
-                        </p>
-                        <Link 
-                          href={heroSlides[currentSlide].buttonLink}
-                          className="hero-button"
-                          style={{ 
-                            backgroundColor: heroSlides[currentSlide].buttonColor || '#000',
-                            color: heroSlides[currentSlide].backgroundColor 
-                          }}
-                        >
-                          <span>{contentByLang(
-                            heroSlides[currentSlide].buttonText,
-                            heroSlides[currentSlide].buttonTextAr || heroSlides[currentSlide].buttonText
-                          )}</span>
-                          <ArrowRightIcon className="hero-button-icon" />
-                        </Link>
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4, duration: 0.8 }}
-                        className="hero-image-wrapper"
-                      >
-                        <div className="hero-image-container">
-                          <Image
-                            src={heroSlides[currentSlide].image}
-                            alt={heroSlides[currentSlide].title}
-                            fill
-                            className="hero-image"
-                            priority
+                        <div className="scroll-mouse mx-auto rounded-full flex justify-center" style={{ borderColor: heroSlides[currentSlide].textColor || '#ffffff' }}>
+                          <motion.div
+                            animate={{ y: [0, 8, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                            className="w-1 h-3 rounded-full mt-2"
+                            style={{ backgroundColor: heroSlides[currentSlide].textColor || '#ffffff' }}
                           />
                         </div>
                       </motion.div>
-                    </>
-                  ) : (
-                    /* Default layout */
-                    <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                      <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2, duration: 0.6 }}
-                        className="hero-content"
-                      >
-                        <h1 className="hero-title" style={{ color: heroSlides[currentSlide].textColor }}>
-                          <span className="hero-title-accent">
-                            {contentByLang(
-                              heroSlides[currentSlide].title.split(' ')[0],
-                              heroSlides[currentSlide].titleAr?.split(' ')[0] || heroSlides[currentSlide].title.split(' ')[0]
-                            )}
-                          </span>{' '}
-                          {contentByLang(
-                            heroSlides[currentSlide].title.split(' ').slice(1).join(' '),
-                            heroSlides[currentSlide].titleAr?.split(' ').slice(1).join(' ') || heroSlides[currentSlide].title.split(' ').slice(1).join(' ')
-                          )}
-                        </h1>
-                        <p className="hero-subtitle" style={{ color: heroSlides[currentSlide].textColor }}>
-                          {contentByLang(
-                            heroSlides[currentSlide].subtitle,
-                            heroSlides[currentSlide].subtitleAr || heroSlides[currentSlide].subtitle
-                          )}
-                        </p>
-                        <Link 
-                          href={heroSlides[currentSlide].buttonLink}
-                          className="hero-button group"
-                          style={{ 
-                            backgroundColor: heroSlides[currentSlide].buttonColor || '#000',
-                            color: heroSlides[currentSlide].backgroundColor 
-                          }}
-                        >
-                          <span>{contentByLang(
-                            heroSlides[currentSlide].buttonText,
-                            heroSlides[currentSlide].buttonTextAr || heroSlides[currentSlide].buttonText
-                          )}</span>
-                          <ArrowRightIcon className="hero-button-icon" />
-                        </Link>
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.4, duration: 0.8 }}
-                        className="hero-image-wrapper"
-                      >
-                        <div className="hero-image-container">
-                          <Image
-                            src={heroSlides[currentSlide].image}
-                            alt={heroSlides[currentSlide].title}
-                            fill
-                            className="hero-image"
-                            priority
-                          />
-                        </div>
-                      </motion.div>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          )}
-        </motion.div>
+                    </motion.div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        )}
         
         {/* Navigation */}
         {heroSlides.length > 1 && (

@@ -260,26 +260,68 @@ export default function SlidersPage() {
   };
   
   // Handle image change
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setEditingSlider({...editingSlider, imageUrl: reader.result as string});
-      };
-      reader.readAsDataURL(file);
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size too large. Please choose an image under 10MB.');
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file.');
+        return;
+      }
+
+      try {
+        // Convert image to base64 and store directly
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          // Update with base64 data URL
+          setEditingSlider(prev => ({...prev, imageUrl: reader.result as string}));
+        };
+        reader.readAsDataURL(file);
+        
+      } catch (error) {
+        console.error('Error processing image:', error);
+        alert('Failed to process image. Please try again.');
+        setEditingSlider(prev => ({...prev, imageUrl: ''}));
+      }
     }
   };
   
   // Handle overlay image change
-  const handleOverlayImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOverlayImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setEditingSlider({...editingSlider, overlayImageUrl: reader.result as string});
-      };
-      reader.readAsDataURL(file);
+      // Validate file size (max 5MB for overlay)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size too large. Please choose an overlay image under 5MB.');
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file.');
+        return;
+      }
+
+      try {
+        // Convert overlay image to base64 and store directly
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          // Update with base64 data URL
+          setEditingSlider(prev => ({...prev, overlayImageUrl: reader.result as string}));
+        };
+        reader.readAsDataURL(file);
+        
+      } catch (error) {
+        console.error('Error processing overlay image:', error);
+        alert('Failed to process overlay image. Please try again.');
+        setEditingSlider(prev => ({...prev, overlayImageUrl: ''}));
+      }
     }
   };
   
@@ -306,48 +348,15 @@ export default function SlidersPage() {
     setIsSubmitting(true);
     
     try {
-      // Upload image if a new one was selected
-      let imageUrl = editingSlider.imageUrl || '';
-      
-      if (currentSlider && currentSlider.imageUrl !== editingSlider.imageUrl) {
-        const formData = new FormData();
-        formData.append('file', new File([], ''), currentSlider.imageUrl);
-        formData.append('folder', 'sliders');
-        
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        
-        if (!uploadResponse.ok) {
-          throw new Error('Failed to upload image');
-        }
-        
-        const uploadData = await uploadResponse.json();
-        imageUrl = uploadData.url;
+      // Validate required fields
+      if (!editingSlider.title || !editingSlider.subtitle || !editingSlider.buttonText || !editingSlider.buttonLink) {
+        throw new Error('Please fill in all required fields');
       }
-      
-      // Upload overlay image if selected
-      let overlayImageUrl = editingSlider.overlayImageUrl || '';
-      
-      if (currentSlider && currentSlider.overlayImageUrl !== editingSlider.overlayImageUrl) {
-        const overlayFormData = new FormData();
-        overlayFormData.append('file', new File([], ''), currentSlider.overlayImageUrl);
-        overlayFormData.append('folder', 'sliders/overlays');
-        
-        const overlayUploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: overlayFormData,
-        });
-        
-        if (!overlayUploadResponse.ok) {
-          throw new Error('Failed to upload overlay image');
-        }
-        
-        const overlayUploadData = await overlayUploadResponse.json();
-        overlayImageUrl = overlayUploadData.url;
+
+      if (!editingSlider.imageUrl) {
+        throw new Error('Please upload a background image using the upload button above');
       }
-      
+
       // Prepare slider data
       const sliderData = {
         id: currentSlider?.id,
@@ -363,9 +372,9 @@ export default function SlidersPage() {
         buttonColor: editingSlider.buttonColor || '#111111',
         overlayColor: editingSlider.overlayColor || 'rgba(0,0,0,0)',
         overlayOpacity: editingSlider.overlayOpacity || 0,
-        overlayImageUrl,
-        imageUrl,
-        order: editingSlider.order,
+        overlayImageUrl: editingSlider.overlayImageUrl || '',
+        imageUrl: editingSlider.imageUrl, // Image is already uploaded at this point
+        order: editingSlider.order || 0,
         isActive: editingSlider.isActive,
         textAnimation: editingSlider.textAnimation || 'fade-up',
         imageAnimation: editingSlider.imageAnimation || 'fade-in',
@@ -1090,16 +1099,98 @@ export default function SlidersPage() {
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">Image URL</label>
-                        <input
-                          type="text"
-                          value={editingSlider.imageUrl}
-                          onChange={(e) => setEditingSlider({...editingSlider, imageUrl: e.target.value})}
-                          className="form-input"
-                          placeholder="https://example.com/image.jpg"
-                          required
-                        />
-                        <p className="form-helper">Upload to Cloudinary or use a direct image URL</p>
+                        <label className="form-label">Background Image</label>
+                        <div className="space-y-4">
+                          {/* Image Preview */}
+                          <div className="relative">
+                            <div className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50 hover:border-gray-400 transition-colors">
+                              {editingSlider.imageUrl ? (
+                                <div className="relative h-full group">
+                                  <Image
+                                    src={editingSlider.imageUrl}
+                                    alt="Background preview"
+                                    fill
+                                    className="object-cover"
+                                  />
+                                  {/* Overlay with actions */}
+                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center">
+                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => setEditingSlider({...editingSlider, imageUrl: ''})}
+                                        className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors"
+                                      >
+                                        Remove
+                                      </button>
+                                      <label className="px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors cursor-pointer">
+                                        Replace
+                                        <input
+                                          type="file"
+                                          accept="image/*"
+                                          onChange={handleImageChange}
+                                          className="hidden"
+                                        />
+                                      </label>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <label className="flex flex-col items-center justify-center h-full cursor-pointer text-gray-500 hover:text-gray-700 transition-colors">
+                                  <svg className="w-12 h-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                  </svg>
+                                  <span className="text-sm font-medium">Upload Background Image</span>
+                                  <span className="text-xs text-gray-400 mt-1">PNG, JPG, WEBP up to 10MB</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                    className="hidden"
+                                  />
+                                </label>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Alternative: URL Input - Only show if no uploaded image */}
+                          {!editingSlider.imageUrl?.startsWith('data:') && (
+                            <div className="flex items-center gap-4">
+                              <div className="flex-1">
+                                <input
+                                  type="url"
+                                  value={editingSlider.imageUrl?.startsWith('data:') ? '' : editingSlider.imageUrl || ''}
+                                  onChange={(e) => setEditingSlider({...editingSlider, imageUrl: e.target.value})}
+                                  className="form-input"
+                                  placeholder="Or paste image URL (https://...)"
+                                />
+                              </div>
+                              <span className="text-sm text-gray-500">OR</span>
+                            </div>
+                          )}
+                          
+                          {/* Show clear button if image is uploaded */}
+                          {editingSlider.imageUrl && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-green-600 flex items-center gap-2">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                                {editingSlider.imageUrl.startsWith('data:') ? 'Image uploaded successfully' : 'Image URL set'}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setEditingSlider({...editingSlider, imageUrl: ''})}
+                                className="text-sm text-red-600 hover:text-red-800 flex items-center gap-1"
+                              >
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                                Clear
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <p className="form-helper">Upload an image file or provide a direct URL. Recommended size: 1920x1080px</p>
                       </div>
                     </div>
 
@@ -1228,6 +1319,119 @@ export default function SlidersPage() {
                       </div>
                     </div>
 
+                    {/* Overlay & Effects */}
+                    <div className="card p-6">
+                      <h3 className="text-lg font-semibold mb-4">Overlay & Effects</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div className="form-group">
+                          <label className="form-label">Overlay Color</label>
+                          <div className="color-picker-wrapper">
+                            <input
+                              type="color"
+                              value={editingSlider.overlayColor?.replace('rgba(', '#').replace(/,.*/, '') || '#000000'}
+                              onChange={(e) => {
+                                const hex = e.target.value;
+                                const r = parseInt(hex.slice(1, 3), 16);
+                                const g = parseInt(hex.slice(3, 5), 16);
+                                const b = parseInt(hex.slice(5, 7), 16);
+                                const opacity = editingSlider.overlayOpacity || 0;
+                                setEditingSlider({
+                                  ...editingSlider, 
+                                  overlayColor: `rgba(${r},${g},${b},${opacity / 100})`
+                                });
+                              }}
+                              className="sr-only"
+                              id="overlay-color"
+                            />
+                            <label 
+                              htmlFor="overlay-color" 
+                              className="color-picker-preview cursor-pointer"
+                              style={{ backgroundColor: editingSlider.overlayColor?.replace(/,.*\)/, ',1)') || '#000000' }}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="form-group">
+                          <label className="form-label">Overlay Opacity ({editingSlider.overlayOpacity || 0}%)</label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={editingSlider.overlayOpacity || 0}
+                            onChange={(e) => {
+                              const opacity = parseInt(e.target.value);
+                              const color = editingSlider.overlayColor || 'rgba(0,0,0,0)';
+                              const newColor = color.replace(/[\d.]+\)$/, `${opacity / 100})`);
+                              setEditingSlider({
+                                ...editingSlider, 
+                                overlayOpacity: opacity,
+                                overlayColor: newColor
+                              });
+                            }}
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Overlay Pattern Image (Optional)</label>
+                        <div className="space-y-4">
+                          {/* Overlay Image Preview */}
+                          <div className="relative">
+                            <div className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50 hover:border-gray-400 transition-colors">
+                              {editingSlider.overlayImageUrl ? (
+                                <div className="relative h-full group">
+                                  <Image
+                                    src={editingSlider.overlayImageUrl}
+                                    alt="Overlay pattern preview"
+                                    fill
+                                    className="object-cover opacity-50"
+                                  />
+                                  {/* Overlay with actions */}
+                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center">
+                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => setEditingSlider({...editingSlider, overlayImageUrl: ''})}
+                                        className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors"
+                                      >
+                                        Remove
+                                      </button>
+                                      <label className="px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors cursor-pointer">
+                                        Replace
+                                        <input
+                                          type="file"
+                                          accept="image/*"
+                                          onChange={handleOverlayImageChange}
+                                          className="hidden"
+                                        />
+                                      </label>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <label className="flex flex-col items-center justify-center h-full cursor-pointer text-gray-500 hover:text-gray-700 transition-colors">
+                                  <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                  </svg>
+                                  <span className="text-sm font-medium">Upload Pattern</span>
+                                  <span className="text-xs text-gray-400 mt-1">PNG, SVG up to 5MB</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleOverlayImageChange}
+                                    className="hidden"
+                                  />
+                                </label>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <p className="form-helper">Add a subtle pattern or texture that will be overlaid on the background image</p>
+                      </div>
+                    </div>
+
                     {/* Animation Settings */}
                     <div className="card p-6">
                       <h3 className="text-lg font-semibold mb-4">Animation Settings</h3>
@@ -1342,27 +1546,63 @@ export default function SlidersPage() {
                       {/* Preview Container */}
                       <div className="preview-container p-4">
                         <div className={`preview-device ${previewDevice}`}>
-                          <div 
-                            className="relative h-full overflow-hidden"
-                            style={{ backgroundColor: editingSlider.backgroundColor }}
-                          >
-                            {/* Preview content based on layout */}
-                            <div className={`flex items-center justify-center h-full p-6 ${
+                          <div className="relative h-full overflow-hidden rounded-lg">
+                            {/* Background Image */}
+                            {editingSlider.imageUrl && (
+                              <div className="absolute inset-0">
+                                <Image
+                                  src={editingSlider.imageUrl}
+                                  alt="Background preview"
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            )}
+                            
+                            {/* Color Overlay */}
+                            {editingSlider.overlayColor && (editingSlider.overlayOpacity || 0) > 0 && (
+                              <div 
+                                className="absolute inset-0"
+                                style={{
+                                  backgroundColor: editingSlider.overlayColor,
+                                  opacity: (editingSlider.overlayOpacity || 0) / 100
+                                }}
+                              />
+                            )}
+                            
+                            {/* Pattern Overlay */}
+                            {editingSlider.overlayImageUrl && (
+                              <div 
+                                className="absolute inset-0 opacity-20"
+                                style={{
+                                  backgroundImage: `url(${editingSlider.overlayImageUrl})`,
+                                  backgroundRepeat: 'repeat',
+                                  backgroundSize: '100px 100px'
+                                }}
+                              />
+                            )}
+                            
+                            {/* Content */}
+                            <div className={`relative z-10 flex items-center justify-center h-full p-6 ${
                               editingSlider.layout === 'centered' ? 'text-center' : ''
                             }`}>
                               <div className={`${editingSlider.layout === 'split' ? 'w-1/2' : 'max-w-md'}`}>
                                 <h1 
-                                  className={`text-2xl font-bold mb-2 animation-preview`}
+                                  className="text-2xl font-bold mb-2 animation-preview"
                                   style={{ 
                                     color: editingSlider.textColor,
+                                    textShadow: '0 2px 4px rgba(0,0,0,0.5)',
                                     animation: editingSlider.textAnimation !== 'none' ? 'fadeUp 0.6s' : 'none'
                                   }}
                                 >
                                   {editingSlider.title || 'Slider Title'}
                                 </h1>
                                 <p 
-                                  className="text-sm mb-4 opacity-80"
-                                  style={{ color: editingSlider.textColor }}
+                                  className="text-sm mb-4 opacity-90"
+                                  style={{ 
+                                    color: editingSlider.textColor,
+                                    textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+                                  }}
                                 >
                                   {editingSlider.subtitle || 'Slider subtitle goes here'}
                                 </p>
@@ -1377,18 +1617,6 @@ export default function SlidersPage() {
                                   {editingSlider.buttonText || 'Button'}
                                 </button>
                               </div>
-                              {editingSlider.imageUrl && (
-                                <div className={`${editingSlider.layout === 'split' ? 'w-1/2' : 'absolute right-0 top-0 w-1/2 h-full'}`}>
-                                  <img 
-                                    src={editingSlider.imageUrl} 
-                                    alt="Preview"
-                                    className="h-full w-full object-contain animation-preview"
-                                    style={{
-                                      animation: editingSlider.imageAnimation !== 'none' ? 'fadeIn 0.8s' : 'none'
-                                    }}
-                                  />
-                                </div>
-                              )}
                             </div>
                           </div>
                         </div>
