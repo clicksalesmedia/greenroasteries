@@ -51,10 +51,11 @@ let shippingRules: ShippingRule[] = [
 // GET - Fetch specific shipping rule
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const rule = shippingRules.find(r => r.id === params.id);
+    const { id } = await params;
+    const rule = shippingRules.find(r => r.id === id);
     
     if (!rule) {
       return NextResponse.json(
@@ -76,11 +77,12 @@ export async function GET(
 // PUT - Update shipping rule
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
-    const ruleIndex = shippingRules.findIndex(r => r.id === params.id);
+    const ruleIndex = shippingRules.findIndex(r => r.id === id);
     
     if (ruleIndex === -1) {
       return NextResponse.json(
@@ -95,7 +97,7 @@ export async function PUT(
     const updatedRule: ShippingRule = {
       ...existingRule,
       ...body,
-      id: params.id, // Ensure ID doesn't change
+      id: id, // Ensure ID doesn't change
       cost: body.type === 'FREE' ? 0 : (body.cost !== undefined ? body.cost : existingRule.cost),
       updatedAt: new Date().toISOString()
     };
@@ -115,10 +117,11 @@ export async function PUT(
 // DELETE - Delete shipping rule
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const ruleIndex = shippingRules.findIndex(r => r.id === params.id);
+    const { id } = await params;
+    const ruleIndex = shippingRules.findIndex(r => r.id === id);
     
     if (ruleIndex === -1) {
       return NextResponse.json(
