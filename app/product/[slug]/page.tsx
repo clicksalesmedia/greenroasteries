@@ -11,6 +11,7 @@ import { useToast } from '../../contexts/ToastContext';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import UAEDirhamSymbol from '../../components/UAEDirhamSymbol';
 
 interface ProductVariation {
   id: string;
@@ -189,6 +190,16 @@ export default function ProductPage() {
   const { addItem } = useCart();
   const { showToast } = useToast();
   const router = useRouter();
+  
+  // Format price with UAE Dirham symbol
+  const formatPrice = (price: number) => {
+    return (
+      <span className="flex items-center gap-1">
+        {price.toFixed(2)}
+        <UAEDirhamSymbol size={14} />
+      </span>
+    );
+  };
   
   // Initialize view count once
   useEffect(() => {
@@ -1228,8 +1239,14 @@ export default function ProductPage() {
             <div className="mb-4">
               {getOriginalPrice() ? (
                 <div className="flex items-center">
-                  <span className="text-xl sm:text-2xl font-bold text-black">{getCurrentPrice().toFixed(2)}D</span>
-                  <span className="ml-2 text-sm text-gray-500 line-through">{getOriginalPrice()?.toFixed(2)}D</span>
+                  <span className="text-xl sm:text-2xl font-bold text-black flex items-center gap-1">
+                    {getCurrentPrice().toFixed(2)}
+                    <UAEDirhamSymbol size={18} />
+                  </span>
+                  <span className="ml-2 text-sm text-gray-500 line-through flex items-center gap-1">
+                    {getOriginalPrice()?.toFixed(2)}
+                    <UAEDirhamSymbol size={12} />
+                  </span>
                   {getDiscountPercentage() > 0 && (
                     <span className="ml-2 bg-red-100 text-red-700 px-2 py-0.5 text-xs font-medium rounded-md">
                       {getDiscountPercentage()}% {t('off', 'OFF')}
@@ -1237,7 +1254,10 @@ export default function ProductPage() {
                   )}
                 </div>
               ) : (
-                <span className="text-xl sm:text-2xl font-bold text-black">{getCurrentPrice().toFixed(2)}D</span>
+                <span className="text-xl sm:text-2xl font-bold text-black flex items-center gap-1">
+                  {getCurrentPrice().toFixed(2)}
+                  <UAEDirhamSymbol size={18} />
+                </span>
               )}
             </div>
             
@@ -1459,7 +1479,10 @@ export default function ProductPage() {
                         </h3>
                         
                         <div className="flex justify-between items-center mt-1">
-                          <span className="font-medium text-black">{recommendedProduct.price.toFixed(2)}D</span>
+                          <span className="font-medium text-black flex items-center gap-1">
+                            {recommendedProduct.price.toFixed(2)}
+                            <UAEDirhamSymbol size={12} />
+                          </span>
                           
                           {recommendedProduct.rating && (
                             <div className="flex items-center">

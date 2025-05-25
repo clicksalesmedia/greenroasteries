@@ -1,23 +1,112 @@
 'use client';
 
 import { useCart } from '../../contexts/CartContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import Image from 'next/image';
+import UAEDirhamSymbol from '../UAEDirhamSymbol';
+import { useState, useEffect } from 'react';
+
+interface ShippingCalculation {
+  shippingCost: number;
+  shippingRule: {
+    id: string;
+    name: string;
+    nameAr?: string;
+    type: 'FREE' | 'FIXED' | 'PERCENTAGE';
+    description?: string;
+    descriptionAr?: string;
+  } | null;
+  freeShippingThreshold?: number;
+  amountToFreeShipping?: number;
+}
 
 export default function OrderSummary() {
   const { items, totalItems, totalPrice } = useCart();
+  const { t, language } = useLanguage();
+  const [shippingCalculation, setShippingCalculation] = useState<ShippingCalculation>({
+    shippingCost: 0,
+    shippingRule: null
+  });
+  const [loading, setLoading] = useState(false);
 
-  // Format price to 2 decimal places
+  // Format price to 2 decimal places with UAE Dirham symbol
   const formatPrice = (price: number) => {
-    return price.toFixed(2);
+    return (
+      <span className="flex items-center gap-1">
+        {price.toFixed(2)}
+        <UAEDirhamSymbol size={14} />
+      </span>
+    );
   };
 
-  // Shipping cost calculation - Free for orders over 75 AED
-  const shippingCost = totalPrice >= 75 ? 0 : 10;
-  const finalTotal = totalPrice + shippingCost;
+  // Calculate shipping when total price changes
+  useEffect(() => {
+    const calculateShipping = async () => {
+      if (totalPrice <= 0) {
+        setShippingCalculation({
+          shippingCost: 0,
+          shippingRule: null
+        });
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const response = await fetch('/api/shipping/calculate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderTotal: totalPrice,
+            items: items
+          }),
+        });
+
+        if (response.ok) {
+          const calculation = await response.json();
+          setShippingCalculation(calculation);
+        } else {
+          // Fallback to default shipping calculation
+          setShippingCalculation({
+            shippingCost: totalPrice >= 200 ? 0 : 25,
+            shippingRule: {
+              id: 'fallback',
+              name: totalPrice >= 200 ? 'Free Shipping' : 'Standard Shipping',
+              nameAr: totalPrice >= 200 ? 'شحن مجاني' : 'شحن عادي',
+              type: totalPrice >= 200 ? 'FREE' : 'FIXED',
+              description: totalPrice >= 200 ? 'Free shipping for orders over 200 AED' : 'Standard shipping rate'
+            },
+            freeShippingThreshold: totalPrice < 200 ? 200 : undefined,
+            amountToFreeShipping: totalPrice < 200 ? 200 - totalPrice : undefined
+          });
+        }
+      } catch (error) {
+        console.error('Error calculating shipping:', error);
+        // Fallback to default shipping calculation
+        setShippingCalculation({
+          shippingCost: totalPrice >= 200 ? 0 : 25,
+          shippingRule: {
+            id: 'fallback',
+            name: totalPrice >= 200 ? 'Free Shipping' : 'Standard Shipping',
+            nameAr: totalPrice >= 200 ? 'شحن مجاني' : 'شحن عادي',
+            type: totalPrice >= 200 ? 'FREE' : 'FIXED',
+            description: totalPrice >= 200 ? 'Free shipping for orders over 200 AED' : 'Standard shipping rate'
+          }
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    calculateShipping();
+  }, [totalPrice, items]);
+
+  const finalTotal = totalPrice + shippingCalculation.shippingCost;
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 sticky top-24">
-      <h2 className="text-xl font-bold mb-6">Order Summary</h2>
+      <h2 className="text-xl font-bold mb-6">{t('order_summary', 'Order Summary')}</h2>
 
       {/* Item list */}
       <div className="max-h-80 overflow-y-auto mb-6 pr-1">
@@ -53,7 +142,7 @@ export default function OrderSummary() {
               <p className="text-xs text-gray-500 mt-0.5">
                 {Object.values(item.variation).filter(Boolean).join(', ')}
               </p>
-              <div className="mt-1 text-sm font-medium">{formatPrice(item.price)}D</div>
+              <div className="mt-1 text-sm font-medium">{formatPrice(item.price)}</div>
             </div>
           </div>
         ))}
@@ -62,27 +151,45 @@ export default function OrderSummary() {
       {/* Price summary */}
       <div className="space-y-3 mb-6 pb-6 border-b">
         <div className="flex justify-between">
-          <span className="text-gray-600">Subtotal ({totalItems} items)</span>
-          <span className="font-medium">{formatPrice(totalPrice)}D</span>
+          <span className="text-gray-600">{t('subtotal', 'Subtotal')} ({totalItems} {t('items', 'items')})</span>
+          <span className="font-medium">{formatPrice(totalPrice)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Shipping</span>
+          <span className="text-gray-600">{t('shipping', 'Shipping')}</span>
           <span className="font-medium">
-            {shippingCost === 0 ? 'Free' : `${formatPrice(shippingCost)}D`}
+            {loading ? (
+              <span className="text-gray-400">{t('calculating', 'Calculating...')}</span>
+            ) : shippingCalculation.shippingCost === 0 ? (
+              <span className="text-green-600">{t('free', 'Free')}</span>
+            ) : (
+              formatPrice(shippingCalculation.shippingCost)
+            )}
           </span>
         </div>
-        {shippingCost > 0 && (
-          <div className="text-xs text-gray-500 italic">
-            Free shipping on orders over 75D
+        
+        {/* Shipping rule description */}
+        {shippingCalculation.shippingRule && (
+          <div className="text-xs text-gray-500">
+            {language === 'ar' && shippingCalculation.shippingRule.descriptionAr 
+              ? shippingCalculation.shippingRule.descriptionAr 
+              : shippingCalculation.shippingRule.description}
           </div>
         )}
+        
+        {/* Free shipping progress */}
+        {shippingCalculation.amountToFreeShipping && shippingCalculation.amountToFreeShipping > 0 && (
+          <div className="text-xs text-blue-600 italic flex items-center gap-1">
+            {t('add', 'Add')} {formatPrice(shippingCalculation.amountToFreeShipping)} {t('for_free_shipping', 'for free shipping')}
+          </div>
+        )}
+        
         {/* Tax would go here */}
       </div>
 
       {/* Total */}
       <div className="flex justify-between mb-6">
-        <span className="text-lg font-bold">Total</span>
-        <span className="text-lg font-bold">{formatPrice(finalTotal)}D</span>
+        <span className="text-lg font-bold">{t('total', 'Total')}</span>
+        <span className="text-lg font-bold">{formatPrice(finalTotal)}</span>
       </div>
 
       {/* Payment methods icons */}

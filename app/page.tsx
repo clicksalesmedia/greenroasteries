@@ -11,6 +11,7 @@ import MaintenanceMode from './components/MaintenanceMode';
 import ProductVariationModal from './components/ProductVariationModal';
 import { ShoppingCartIcon, ArrowRightIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import dynamic from 'next/dynamic';
+import UAEDirhamSymbol from './components/UAEDirhamSymbol';
 
 interface Product {
   id: string;
@@ -172,7 +173,12 @@ export default function Home() {
 
   // Memoize formatPrice to improve rendering performance
   const formatPrice = useCallback((price: number) => {
-    return `${price.toFixed(2)}D`;
+    return (
+      <span className="flex items-center gap-1">
+        {price.toFixed(2)}
+        <UAEDirhamSymbol size={14} />
+      </span>
+    );
   }, []);
 
   // Memoize discount calculation for better performance
@@ -636,7 +642,7 @@ export default function Home() {
                 </div>
                 <h3 className="product-title">{getProductName(product)}</h3>
                 <div className="flex justify-between items-center">
-                  <div className="product-price">{formatPrice(product.price)}</div>
+                  <div className="product-price flex items-center">{formatPrice(product.price)}</div>
                   <button 
                     onClick={(e) => openVariationModal(product.id, e)}
                     className="p-2 rounded-full bg-black text-white hover:bg-gray-800 transition-colors"
@@ -739,9 +745,9 @@ export default function Home() {
                   <h3 className="product-title">{getProductName(product)}</h3>
                   <div className="flex justify-between items-center">
                     <div className="product-price flex items-center">
-                      <span className="font-bold text-black">{formatPrice(getDiscountedPrice(product.price, product.discount, product.discountType))}</span>
+                      <span className="font-bold text-black flex items-center">{formatPrice(getDiscountedPrice(product.price, product.discount, product.discountType))}</span>
                       {product.discount && (
-                        <span className="ml-2 text-sm text-gray-500 line-through">{formatPrice(product.price)}</span>
+                        <span className="ml-2 text-sm text-gray-500 line-through flex items-center">{formatPrice(product.price)}</span>
                       )}
                     </div>
                     <button 
@@ -2124,11 +2130,11 @@ export default function Home() {
                         <div className="product-price-wrapper">
                           {product.discount ? (
                             <>
-                              <span className="product-price">{formatPrice(getDiscountedPrice(product.price, product.discount, product.discountType))}</span>
-                              <span className="product-price-original">{formatPrice(product.price)}</span>
+                              <span className="product-price flex items-center">{formatPrice(getDiscountedPrice(product.price, product.discount, product.discountType))}</span>
+                              <span className="product-price-original flex items-center">{formatPrice(product.price)}</span>
                             </>
                           ) : (
-                            <span className="product-price">{formatPrice(product.price)}</span>
+                            <span className="product-price flex items-center">{formatPrice(product.price)}</span>
                           )}
                         </div>
                         <button 
@@ -2230,8 +2236,8 @@ export default function Home() {
                         <h3 className="product-name">{getProductName(product)}</h3>
                         <div className="product-footer">
                           <div className="product-price-wrapper">
-                            <span className="product-price">{formatPrice(getDiscountedPrice(product.price, product.discount, product.discountType))}</span>
-                            <span className="product-price-original">{formatPrice(product.price)}</span>
+                            <span className="product-price flex items-center">{formatPrice(getDiscountedPrice(product.price, product.discount, product.discountType))}</span>
+                            <span className="product-price-original flex items-center">{formatPrice(product.price)}</span>
                           </div>
                           <button 
                             onClick={(e) => openVariationModal(product.id, e)}

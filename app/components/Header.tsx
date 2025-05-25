@@ -7,6 +7,7 @@ import { MagnifyingGlassIcon, UserIcon, ShoppingBagIcon, ChevronDownIcon, TrashI
 import { useCart } from '../contexts/CartContext';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLanguage } from '../contexts/LanguageContext';
+import UAEDirhamSymbol from './UAEDirhamSymbol';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -301,9 +302,14 @@ export default function Header() {
     }
   };
 
-  // Format price to 2 decimal places
+  // Format price to 2 decimal places with UAE Dirham symbol
   const formatPrice = (price: number) => {
-    return price.toFixed(2);
+    return (
+      <span className="flex items-center gap-1">
+        {price.toFixed(2)}
+        <UAEDirhamSymbol size={12} />
+      </span>
+    );
   };
 
   // Add the new function to sort categories in the specific order
@@ -390,7 +396,10 @@ export default function Header() {
       <div className="bg-gray-900 text-white text-sm py-2">
         <div className="container mx-auto flex justify-between items-center px-4">
           <div>
-            {t('free_shipping_message', 'Free shipping on all orders over 65D')}
+            <span className="flex items-center gap-1">
+              {t('free_shipping_message', 'Free shipping on all orders over 200')}
+              <UAEDirhamSymbol size={12} />
+            </span>
           </div>
           <div className="flex">
             <a href="#" className="mr-4">{t('my_account', 'My Account')}</a>
@@ -658,8 +667,9 @@ export default function Header() {
                                       <div className="text-sm font-medium">
                                         {language === 'ar' && product.nameAr ? product.nameAr : product.name}
                                       </div>
-                                      <div className="text-xs text-gray-500">
-                                        {product.price.toFixed(2)}D
+                                      <div className="text-xs text-gray-500 flex items-center gap-1">
+                                        {product.price.toFixed(2)}
+                                        <UAEDirhamSymbol size={10} />
                                       </div>
                                     </div>
                                   </Link>
@@ -833,7 +843,7 @@ export default function Header() {
                               </div>
                               <div className="mt-1 flex justify-between">
                                 <span className="text-xs text-gray-500">Qty: {item.quantity}</span>
-                                <span className="text-sm font-medium">{formatPrice(item.price * item.quantity)}D</span>
+                                <span className="text-sm font-medium">{formatPrice(item.price * item.quantity)}</span>
                               </div>
                             </div>
                           </div>
@@ -844,7 +854,7 @@ export default function Header() {
                       <div className="px-4 py-3">
                         <div className="flex justify-between mb-3">
                           <span className="font-medium">{t('total', 'Total')}:</span>
-                          <span className="font-bold">{formatPrice(totalPrice)}D</span>
+                          <span className="font-bold">{formatPrice(totalPrice)}</span>
                         </div>
                         <Link
                           href="/cart"
@@ -855,10 +865,11 @@ export default function Header() {
                         </Link>
                         <Link
                           href="/checkout"
-                          className="block w-full bg-black text-white text-center py-2 rounded-md mt-2 hover:bg-gray-800 transition"
+                          className="flex w-full bg-black text-white justify-center items-center py-2 rounded-md mt-2 hover:bg-gray-800 transition gap-2"
                           onClick={() => setCartDropdownOpen(false)}
                         >
-                          {t('checkout', 'Checkout')} - {formatPrice(totalPrice)}D
+                          <span>{t('checkout', 'Checkout')} -</span>
+                          {formatPrice(totalPrice)}
                         </Link>
                       </div>
                     </>

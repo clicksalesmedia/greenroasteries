@@ -6,6 +6,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
+import UAEDirhamSymbol from './UAEDirhamSymbol';
 
 interface ProductVariation {
   id: string;
@@ -435,9 +436,14 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({ isOpen, o
     onClose();
   };
 
-  // Format price to 2 decimal places with D currency
+  // Format price to 2 decimal places with UAE Dirham symbol
   const formatPrice = (price: number) => {
-    return `${price.toFixed(2)}D`;
+    return (
+      <span className="flex items-center gap-1">
+        {price.toFixed(2)}
+        <UAEDirhamSymbol size={14} />
+      </span>
+    );
   };
 
   if (!isOpen) return null;

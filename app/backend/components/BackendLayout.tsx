@@ -23,7 +23,7 @@ interface User {
 
 interface BackendLayoutProps {
   children: ReactNode;
-  activePage?: 'dashboard' | 'products' | 'categories' | 'orders' | 'customers' | 'users' | 'promotions' | 'settings' | 'variation' | 'content';
+  activePage?: 'dashboard' | 'products' | 'categories' | 'orders' | 'customers' | 'users' | 'promotions' | 'settings' | 'variation' | 'content' | 'shipping';
 }
 
 export default function BackendLayout({ children, activePage = 'dashboard' }: BackendLayoutProps) {
@@ -87,6 +87,7 @@ export default function BackendLayout({ children, activePage = 'dashboard' }: Ba
     { id: 'customers', label: t('customers', 'Customers'), href: '/backend/customers', requirePermission: true },
     { id: 'users', label: t('users', 'Users'), href: '/backend/users', requirePermission: true },
     { id: 'promotions', label: t('promotions', 'Promotions'), href: '/backend/promotions', requirePermission: true },
+    { id: 'shipping', label: t('shipping', 'Shipping'), href: '/backend/shipping', requirePermission: true },
     { id: 'content', label: t('website_content', 'Website Content'), href: '/backend/content', requirePermission: true },
     { id: 'settings', label: t('settings', 'Settings'), href: '/backend/settings', requirePermission: true },
   ];

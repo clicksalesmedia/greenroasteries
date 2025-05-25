@@ -6,15 +6,21 @@ import Image from 'next/image';
 import { useCart } from '../contexts/CartContext';
 import { TrashIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../contexts/LanguageContext';
+import UAEDirhamSymbol from '../components/UAEDirhamSymbol';
 
 export default function CartPage() {
   const { items, totalItems, totalPrice, removeItem, updateItemQuantity } = useCart();
   const { t } = useLanguage();
   const [couponCode, setCouponCode] = useState('');
 
-  // Format price to 2 decimal places
+  // Format price to 2 decimal places with UAE Dirham symbol
   const formatPrice = (price: number) => {
-    return price.toFixed(2);
+    return (
+      <span className="flex items-center gap-1">
+        {price.toFixed(2)}
+        <UAEDirhamSymbol size={14} />
+      </span>
+    );
   };
 
   // Handle quantity changes
@@ -87,11 +93,11 @@ export default function CartPage() {
                     
                     {/* Mobile Price */}
                     <div className="md:hidden mt-2 flex justify-between">
-                      <div className="text-sm font-medium text-gray-900">
-                        {t('price', 'Price')}: ${formatPrice(item.price)}
+                      <div className="text-sm font-medium text-gray-900 flex items-center gap-1">
+                        {t('price', 'Price')}: {formatPrice(item.price)}
                       </div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {t('total', 'Total')}: ${formatPrice(item.price * item.quantity)}
+                      <div className="text-sm font-medium text-gray-900 flex items-center gap-1">
+                        {t('total', 'Total')}: {formatPrice(item.price * item.quantity)}
                       </div>
                     </div>
                     
@@ -108,7 +114,7 @@ export default function CartPage() {
                 
                 {/* Price */}
                 <div className="hidden md:block md:col-span-2 text-center">
-                  <span className="text-sm font-medium text-gray-900">${formatPrice(item.price)}</span>
+                  <span className="text-sm font-medium text-gray-900 flex items-center justify-center">{formatPrice(item.price)}</span>
                 </div>
                 
                 {/* Quantity */}
@@ -132,7 +138,7 @@ export default function CartPage() {
                 
                 {/* Total & Remove (Desktop) */}
                 <div className="hidden md:flex md:col-span-2 justify-between items-center">
-                  <span className="text-sm font-medium text-gray-900">${formatPrice(item.price * item.quantity)}</span>
+                  <span className="text-sm font-medium text-gray-900 flex items-center">{formatPrice(item.price * item.quantity)}</span>
                   <button 
                     onClick={() => removeItem(item.id)}
                     className="text-gray-400 hover:text-red-600"
@@ -196,7 +202,7 @@ export default function CartPage() {
                 <span className="text-gray-600">
                   {t('subtotal', 'Subtotal')} ({totalItems} {t('items', 'items')})
                 </span>
-                <span className="font-medium">${formatPrice(totalPrice)}</span>
+                <span className="font-medium flex items-center">{formatPrice(totalPrice)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">{t('shipping', 'Shipping')}</span>
@@ -208,7 +214,7 @@ export default function CartPage() {
             {/* Total */}
             <div className="flex justify-between mb-6">
               <span className="text-lg font-bold">{t('total', 'Total')}</span>
-              <span className="text-lg font-bold">${formatPrice(totalPrice)}</span>
+              <span className="text-lg font-bold flex items-center">{formatPrice(totalPrice)}</span>
             </div>
             
             {/* Checkout Button */}

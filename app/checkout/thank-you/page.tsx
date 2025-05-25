@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
+import UAEDirhamSymbol from '../../components/UAEDirhamSymbol';
 
 export default function ThankYouPage() {
   const [orderDetails, setOrderDetails] = useState<any>(null);
@@ -48,9 +49,14 @@ export default function ThankYouPage() {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  // Format price
+  // Format price with UAE Dirham symbol
   const formatPrice = (price: number) => {
-    return price.toFixed(2);
+    return (
+      <span className="flex items-center gap-1">
+        {price.toFixed(2)}
+        <UAEDirhamSymbol size={14} />
+      </span>
+    );
   };
 
   return (
@@ -155,14 +161,14 @@ export default function ThankYouPage() {
                         </div>
                       </td>
                       <td className="py-4 px-4 text-right">{item.quantity}</td>
-                      <td className="py-4 px-4 text-right">{formatPrice(item.price * item.quantity)}D</td>
+                      <td className="py-4 px-4 text-right">{formatPrice(item.price * item.quantity)}</td>
                     </tr>
                   ))}
                 </tbody>
                 <tfoot className="bg-gray-50">
                   <tr>
                     <td colSpan={2} className="py-3 px-4 text-right font-medium">Subtotal:</td>
-                    <td className="py-3 px-4 text-right">{formatPrice(orderDetails.totalAmount)}D</td>
+                    <td className="py-3 px-4 text-right">{formatPrice(orderDetails.totalAmount)}</td>
                   </tr>
                   <tr>
                     <td colSpan={2} className="py-3 px-4 text-right font-medium">Shipping:</td>
@@ -170,7 +176,7 @@ export default function ThankYouPage() {
                   </tr>
                   <tr className="border-t border-gray-200">
                     <td colSpan={2} className="py-3 px-4 text-right font-bold">Total:</td>
-                    <td className="py-3 px-4 text-right font-bold">{formatPrice(orderDetails.totalAmount)}D</td>
+                    <td className="py-3 px-4 text-right font-bold">{formatPrice(orderDetails.totalAmount)}</td>
                   </tr>
                 </tfoot>
               </table>

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useCart } from '../contexts/CartContext';
 import { ShoppingCartIcon } from '@heroicons/react/24/outline';
 import ProductVariationModal from './ProductVariationModal';
+import UAEDirhamSymbol from './UAEDirhamSymbol';
 
 // Define Product interface
 interface Product {
@@ -82,7 +83,12 @@ export default function ShopContent() {
     if (product.discountType === 'PERCENTAGE') {
       return `-${Math.round(product.discount)}%`;
     } else if (product.discountType === 'FIXED_AMOUNT') {
-      return `-${product.discount}D`;
+      return (
+        <span className="flex items-center gap-1">
+          -{product.discount}
+          <UAEDirhamSymbol size={10} />
+        </span>
+      );
     }
     return null;
   };
@@ -134,8 +140,9 @@ export default function ShopContent() {
                 </h3>
                 
                 <div className="flex justify-between items-center mt-2">
-                  <p className="font-semibold">
-                    {product.price.toFixed(2)} {contentByLang('AED', 'د.إ')}
+                  <p className="font-semibold flex items-center gap-1">
+                    {product.price.toFixed(2)}
+                    <UAEDirhamSymbol size={14} />
                   </p>
                   
                   <button 
