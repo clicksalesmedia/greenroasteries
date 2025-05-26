@@ -583,7 +583,7 @@ export default function Header() {
           </nav>
           
           {/* Logo in the center */}
-          <div className={`text-3xl font-bold ${language === 'ar' ? 'md:text-center md:flex-1 order-2 md:order-2 text-right' : 'md:text-center md:flex-1 order-2 md:order-2 text-left'}`}>
+          <div className="text-3xl font-bold md:text-center md:flex-1 order-2 md:order-2 flex justify-center">
             <Link href="/" className="inline-block">
               <Image 
                 src="/images/green-roasteries-logo.png" 

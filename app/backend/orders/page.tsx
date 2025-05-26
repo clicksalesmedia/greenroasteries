@@ -61,19 +61,26 @@ export default function OrdersPage() {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/orders');
+        const params = new URLSearchParams({
+          page: '1',
+          limit: '50',
+          ...(statusFilter !== 'ALL' && { status: statusFilter }),
+          ...(searchQuery && { search: searchQuery })
+        });
+
+        const response = await fetch(`/api/orders?${params}`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch orders');
         }
         
         const data = await response.json();
-        setOrders(data);
+        setOrders(data.orders || []);
       } catch (err) {
         console.error('Error fetching orders:', err);
         setError('Failed to load orders. Please try again.');
         
-        // Create dummy orders for development
+        // Create dummy orders for development if API fails
         createDummyOrders();
       } finally {
         setLoading(false);
@@ -81,7 +88,7 @@ export default function OrdersPage() {
     };
     
     fetchOrders();
-  }, []);
+  }, [statusFilter, searchQuery]);
   
   const createDummyOrders = () => {
     const statuses: OrderStatus[] = ['NEW', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'];

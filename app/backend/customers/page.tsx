@@ -54,29 +54,27 @@ export default function CustomersPage() {
       try {
         setLoading(true);
         
-        // Create dummy customers for development since we don't have a real API yet
-        const dummyData = createDummyCustomers();
-        setCustomers(dummyData);
-        calculateStats(dummyData);
-        
-        // Commented out for now until the API is implemented
-        /*
-        const response = await fetch('/api/customers');
+        const params = new URLSearchParams({
+          page: '1',
+          limit: '50',
+          ...(searchQuery && { search: searchQuery })
+        });
+
+        const response = await fetch(`/api/customers?${params}`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch customers');
         }
         
         const data = await response.json();
-        setCustomers(data);
-        calculateStats(data);
-        */
+        setCustomers(data.customers || []);
+        calculateStats(data.customers || []);
         
       } catch (err) {
         console.error('Error fetching customers:', err);
         setError('Failed to load customers. Please try again.');
         
-        // Create dummy customers for development
+        // Create dummy customers for development if API fails
         const dummyData = createDummyCustomers();
         setCustomers(dummyData);
         calculateStats(dummyData);
@@ -86,7 +84,7 @@ export default function CustomersPage() {
     };
     
     fetchCustomers();
-  }, []);
+  }, [searchQuery]);
   
   // Calculate customer stats
   const calculateStats = (customerData: Customer[]) => {

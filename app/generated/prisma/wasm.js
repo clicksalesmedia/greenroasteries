@@ -129,6 +129,10 @@ exports.Prisma.UserScalarFieldEnum = {
   isActive: 'isActive',
   address: 'address',
   phone: 'phone',
+  city: 'city',
+  isNewCustomer: 'isNewCustomer',
+  lastLoginAt: 'lastLoginAt',
+  emailVerified: 'emailVerified',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -245,10 +249,16 @@ exports.Prisma.OrderScalarFieldEnum = {
   status: 'status',
   paymentMethod: 'paymentMethod',
   paymentId: 'paymentId',
+  stripePaymentIntentId: 'stripePaymentIntentId',
   shippingAddress: 'shippingAddress',
+  customerName: 'customerName',
+  customerEmail: 'customerEmail',
+  customerPhone: 'customerPhone',
+  city: 'city',
   trackingNumber: 'trackingNumber',
   notes: 'notes',
   appliedPromoId: 'appliedPromoId',
+  emailSent: 'emailSent',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -260,6 +270,41 @@ exports.Prisma.OrderItemScalarFieldEnum = {
   quantity: 'quantity',
   unitPrice: 'unitPrice',
   subtotal: 'subtotal'
+};
+
+exports.Prisma.PaymentScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  userId: 'userId',
+  stripePaymentIntentId: 'stripePaymentIntentId',
+  stripeChargeId: 'stripeChargeId',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  paymentMethod: 'paymentMethod',
+  last4: 'last4',
+  brand: 'brand',
+  receiptUrl: 'receiptUrl',
+  failureReason: 'failureReason',
+  refundedAmount: 'refundedAmount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ShippingRuleScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  nameAr: 'nameAr',
+  description: 'description',
+  descriptionAr: 'descriptionAr',
+  type: 'type',
+  cost: 'cost',
+  freeShippingThreshold: 'freeShippingThreshold',
+  isActive: 'isActive',
+  estimatedDays: 'estimatedDays',
+  cities: 'cities',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.PromotionScalarFieldEnum = {
@@ -373,6 +418,23 @@ exports.OrderStatus = exports.$Enums.OrderStatus = {
   REFUNDED: 'REFUNDED'
 };
 
+exports.PaymentStatus = exports.$Enums.PaymentStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED',
+  REFUNDED: 'REFUNDED',
+  PARTIALLY_REFUNDED: 'PARTIALLY_REFUNDED'
+};
+
+exports.ShippingType = exports.$Enums.ShippingType = {
+  STANDARD: 'STANDARD',
+  EXPRESS: 'EXPRESS',
+  FREE: 'FREE',
+  PICKUP: 'PICKUP'
+};
+
 exports.PromotionType = exports.$Enums.PromotionType = {
   BUNDLE: 'BUNDLE',
   PERCENTAGE: 'PERCENTAGE',
@@ -400,6 +462,8 @@ exports.Prisma.ModelName = {
   ProductVariation: 'ProductVariation',
   Order: 'Order',
   OrderItem: 'OrderItem',
+  Payment: 'Payment',
+  ShippingRule: 'ShippingRule',
   Promotion: 'Promotion',
   ProductPromotion: 'ProductPromotion',
   BundleItem: 'BundleItem',

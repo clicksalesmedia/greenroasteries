@@ -23,7 +23,7 @@ interface User {
 
 interface BackendLayoutProps {
   children: ReactNode;
-  activePage?: 'dashboard' | 'products' | 'categories' | 'orders' | 'customers' | 'users' | 'promotions' | 'settings' | 'variation' | 'content' | 'shipping';
+  activePage?: 'dashboard' | 'products' | 'categories' | 'orders' | 'customers' | 'users' | 'promotions' | 'settings' | 'variation' | 'content' | 'shipping' | 'payments';
 }
 
 export default function BackendLayout({ children, activePage = 'dashboard' }: BackendLayoutProps) {
@@ -85,6 +85,7 @@ export default function BackendLayout({ children, activePage = 'dashboard' }: Ba
     { id: 'variation', label: t('variations', 'Variations'), href: '/backend/variation', requirePermission: true },
     { id: 'orders', label: t('orders', 'Orders'), href: '/backend/orders', requirePermission: true },
     { id: 'customers', label: t('customers', 'Customers'), href: '/backend/customers', requirePermission: true },
+    { id: 'payments', label: t('payments', 'Payments'), href: '/backend/payments', requirePermission: true },
     { id: 'users', label: t('users', 'Users'), href: '/backend/users', requirePermission: true },
     { id: 'promotions', label: t('promotions', 'Promotions'), href: '/backend/promotions', requirePermission: true },
     { id: 'shipping', label: t('shipping', 'Shipping'), href: '/backend/shipping', requirePermission: true },

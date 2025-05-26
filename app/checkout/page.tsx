@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
 // Step components
@@ -18,6 +19,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { items, totalPrice, clearCart } = useCart();
   const { showToast } = useToast();
+  const { t, language } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -30,17 +32,13 @@ export default function CheckoutPage() {
   
   // Shipping information state
   const [shippingInfo, setShippingInfo] = useState({
+    emirate: '',
     city: '',
     address: '',
   });
   
-  // Payment state (mock)
-  const [paymentInfo, setPaymentInfo] = useState({
-    cardNumber: '',
-    cardHolder: '',
-    expiryDate: '',
-    cvv: ''
-  });
+  // Payment processing state
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -69,48 +67,45 @@ export default function CheckoutPage() {
     handleNextStep();
   };
 
-  const handlePaymentSubmit = async (data: typeof paymentInfo) => {
-    setIsSubmitting(true);
-    setPaymentInfo(data);
-    
+  const handlePaymentSuccess = async (orderId: string, isNewCustomer: boolean) => {
     try {
-      // Mock payment processing delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Create the order object
-      const order = {
+      // Store order info for thank you page
+      const orderInfo = {
+        orderId,
+        isNewCustomer,
         customerInfo,
         shippingInfo,
-        paymentInfo: {
-          last4: data.cardNumber.slice(-4) // Only store last 4 digits for security
-        },
         items,
         totalAmount: totalPrice,
-        orderId: `ORD-${Date.now()}`,
         orderDate: new Date().toISOString()
       };
       
-      // Store the order in localStorage for the thank you page
-      localStorage.setItem('lastOrder', JSON.stringify(order));
+      localStorage.setItem('lastOrder', JSON.stringify(orderInfo));
       
       // Clear the cart
       clearCart();
       
+      // Show success message
+      showToast(
+        isNewCustomer 
+          ? 'Order placed successfully! Check your email for account credentials.'
+          : 'Order placed successfully! Thank you for your purchase.',
+        'success'
+      );
+      
       // Redirect to thank you page
       router.push('/checkout/thank-you');
     } catch (error) {
-      console.error('Payment processing error:', error);
-      showToast('Payment processing failed. Please try again.', 'error');
-    } finally {
-      setIsSubmitting(false);
+      console.error('Order completion error:', error);
+      showToast('Order completed but there was an issue. Please contact support.', 'error');
     }
   };
 
   // Steps array for the progress indicator
   const steps = [
-    { name: 'Customer Info', description: 'Your details' },
-    { name: 'Shipping', description: 'Delivery information' },
-    { name: 'Payment', description: 'Secure payment' }
+    { name: t('customer_info', 'Customer Info'), description: t('your_details', 'Your details') },
+    { name: t('shipping_info', 'Shipping'), description: t('delivery_information', 'Delivery information') },
+    { name: t('payment_info', 'Payment'), description: t('secure_payment', 'Secure payment') }
   ];
 
   if (items.length === 0) {
@@ -118,16 +113,18 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 md:py-16">
-      <h1 className="text-3xl font-bold mb-8 text-center">Checkout</h1>
+    <div className={`container mx-auto py-8 px-4 md:py-16 ${language === 'ar' ? 'font-arabic' : ''}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      <h1 className={`text-3xl font-bold mb-8 text-center ${language === 'ar' ? 'text-right' : ''}`}>
+        {t('checkout', 'Checkout')}
+      </h1>
       
       {/* Progress Steps */}
       <div className="mb-12">
         <nav aria-label="Progress">
-          <ol className="flex items-center justify-center">
+          <ol className={`flex items-center justify-center ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
             {steps.map((step, index) => (
-              <li key={step.name} className={`relative ${index !== steps.length - 1 ? 'pr-8 sm:pr-20' : ''}`}>
-                <div className="flex flex-col items-center">
+              <li key={step.name} className={`relative ${index !== steps.length - 1 ? 'mx-4 sm:mx-8' : ''}`}>
+                <div className="flex flex-col items-center min-w-0">
                   <div
                     className={`${
                       currentStep > index + 1
@@ -135,7 +132,7 @@ export default function CheckoutPage() {
                         : currentStep === index + 1
                         ? 'border-2 border-black text-black'
                         : 'border-2 border-gray-300 text-gray-400'
-                    } h-10 w-10 rounded-full flex items-center justify-center transition-colors duration-200`}
+                    } h-10 w-10 rounded-full flex items-center justify-center transition-colors duration-200 mb-3 relative z-10`}
                   >
                     {currentStep > index + 1 ? (
                       <CheckCircleIcon className="h-6 w-6" />
@@ -143,16 +140,16 @@ export default function CheckoutPage() {
                       <span>{index + 1}</span>
                     )}
                   </div>
-                  <span className={`mt-2 text-sm font-medium ${
+                  <span className={`text-xs sm:text-sm font-medium text-center leading-tight ${
                     currentStep === index + 1 ? 'text-black' : 'text-gray-500'
-                  }`}>
+                  } ${language === 'ar' ? 'max-w-16 sm:max-w-20' : 'max-w-16 sm:max-w-24'}`}>
                     {step.name}
                   </span>
                 </div>
                 
                 {/* Connecting line */}
                 {index !== steps.length - 1 && (
-                  <div className="hidden sm:block absolute top-5 right-0 h-0.5 w-16 bg-gray-200">
+                  <div className={`hidden sm:block absolute top-5 ${language === 'ar' ? '-right-12' : '-right-12'} h-0.5 w-8 bg-gray-200 z-0`}>
                     <div
                       className="h-0.5 bg-black transition-all duration-200"
                       style={{ width: currentStep > index + 1 ? '100%' : '0%' }}
@@ -165,9 +162,9 @@ export default function CheckoutPage() {
         </nav>
       </div>
       
-      <div className="lg:grid lg:grid-cols-12 lg:gap-x-12">
+      <div className={`lg:grid lg:grid-cols-12 lg:gap-x-12 ${language === 'ar' ? 'lg:grid-flow-col-dense' : ''}`}>
         {/* Main content - checkout steps */}
-        <div className="lg:col-span-7">
+        <div className={`lg:col-span-7 ${language === 'ar' ? 'lg:col-start-6' : ''}`}>
           <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
             {currentStep === 1 && (
               <CustomerInfoForm 
@@ -186,17 +183,24 @@ export default function CheckoutPage() {
             
             {currentStep === 3 && (
               <PaymentForm 
-                initialValues={paymentInfo} 
-                onSubmit={handlePaymentSubmit} 
+                customerInfo={customerInfo}
+                shippingInfo={shippingInfo}
+                items={items}
+                totalAmount={totalPrice}
+                subtotal={totalPrice * 0.9} // Assuming 10% tax
+                tax={totalPrice * 0.1}
+                shippingCost={totalPrice > 200 ? 0 : 25}
+                discount={0}
+                onSuccess={handlePaymentSuccess}
                 onBack={handlePrevStep}
-                isSubmitting={isSubmitting}
+                isSubmitting={paymentProcessing}
               />
             )}
           </div>
         </div>
         
         {/* Order summary sidebar */}
-        <div className="lg:col-span-5">
+        <div className={`lg:col-span-5 ${language === 'ar' ? 'lg:col-start-1' : ''}`}>
           <OrderSummary />
         </div>
       </div>

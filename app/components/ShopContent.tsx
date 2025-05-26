@@ -93,6 +93,21 @@ export default function ShopContent() {
     return null;
   };
 
+  // Function to get the background color for product image based on category
+  const getImageBackgroundColor = (product: Product) => {
+    const categoryName = typeof product.category === 'string' 
+      ? product.category 
+      : product.category?.name || '';
+    
+    // Check if it's NUTS & DRIED FRUITS category in English or Arabic
+    const isNutsCategory = categoryName === 'NUTS & DRIED FRUITS' || 
+                          categoryName === 'المكسرات والفواكه المجففة' ||
+                          categoryName === 'مكسرات وفواكه مجففة' ||
+                          categoryName === 'NUTS & DRIED FOOD';
+    
+    return isNutsCategory ? '#f6f6f6' : '#e9e9e9';
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -114,7 +129,10 @@ export default function ShopContent() {
             className="bg-white rounded-lg shadow-sm overflow-hidden transition-transform hover:shadow-md hover:-translate-y-1"
           >
             <Link href={`/product/${product.id}`} className="block">
-              <div className="aspect-square bg-[#e9e9e9] relative overflow-hidden">
+              <div 
+                className="aspect-square relative overflow-hidden"
+                style={{ backgroundColor: getImageBackgroundColor(product) }}
+              >
                 <img 
                   src={product.imageUrl || (product.images && product.images.length > 0 ? product.images[0] : '')}
                   alt={product.name}
@@ -124,7 +142,7 @@ export default function ShopContent() {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
                     target.style.display = 'none';
-                    // The parent already has a gray background
+                    // The parent already has the appropriate background color
                   }}
                 />
                 {product.discount && product.discount > 0 && (

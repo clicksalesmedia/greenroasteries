@@ -9,18 +9,23 @@ datasource db {
 }
 
 model User {
-  id          String       @id @default(uuid())
-  email       String       @unique
-  name        String?
-  password    String
-  role        UserRole     @default(CUSTOMER)
-  isActive    Boolean      @default(true)
-  address     String?
-  phone       String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  orders      Order[]
-  permissions Permission[]
+  id            String       @id @default(uuid())
+  email         String       @unique
+  name          String?
+  password      String
+  role          UserRole     @default(CUSTOMER)
+  isActive      Boolean      @default(true)
+  address       String?
+  phone         String?
+  city          String?
+  isNewCustomer Boolean      @default(true)
+  lastLoginAt   DateTime?
+  emailVerified Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  orders        Order[]
+  permissions   Permission[]
+  payments      Payment[]
 }
 
 model Permission {
@@ -146,25 +151,32 @@ model ProductVariation {
 }
 
 model Order {
-  id              String      @id @default(uuid())
-  userId          String
-  subtotal        Float
-  tax             Float
-  shippingCost    Float
-  discount        Float       @default(0)
-  total           Float
-  status          OrderStatus @default(NEW)
-  paymentMethod   String?
-  paymentId       String?
-  shippingAddress String?
-  trackingNumber  String?
-  notes           String?
-  appliedPromoId  String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  appliedPromo    Promotion?  @relation(fields: [appliedPromoId], references: [id])
-  user            User        @relation(fields: [userId], references: [id])
-  items           OrderItem[]
+  id                    String      @id @default(uuid())
+  userId                String
+  subtotal              Float
+  tax                   Float
+  shippingCost          Float
+  discount              Float       @default(0)
+  total                 Float
+  status                OrderStatus @default(NEW)
+  paymentMethod         String?
+  paymentId             String?
+  stripePaymentIntentId String?
+  shippingAddress       String?
+  customerName          String?
+  customerEmail         String?
+  customerPhone         String?
+  city                  String?
+  trackingNumber        String?
+  notes                 String?
+  appliedPromoId        String?
+  emailSent             Boolean     @default(false)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  appliedPromo          Promotion?  @relation(fields: [appliedPromoId], references: [id])
+  user                  User        @relation(fields: [userId], references: [id])
+  items                 OrderItem[]
+  payment               Payment?
 }
 
 model OrderItem {
@@ -176,6 +188,43 @@ model OrderItem {
   subtotal  Float
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id                    String        @id @default(uuid())
+  orderId               String        @unique
+  userId                String
+  stripePaymentIntentId String        @unique
+  stripeChargeId        String?
+  amount                Float
+  currency              String        @default("aed")
+  status                PaymentStatus @default(PENDING)
+  paymentMethod         String?
+  last4                 String?
+  brand                 String?
+  receiptUrl            String?
+  failureReason         String?
+  refundedAmount        Float?        @default(0)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  order                 Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user                  User          @relation(fields: [userId], references: [id])
+}
+
+model ShippingRule {
+  id                    String       @id @default(uuid())
+  name                  String
+  nameAr                String?
+  description           String?
+  descriptionAr         String?
+  type                  ShippingType @default(STANDARD)
+  cost                  Float
+  freeShippingThreshold Float?
+  isActive              Boolean      @default(true)
+  estimatedDays         Int?
+  cities                String[] // Array of cities this rule applies to
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
 }
 
 model Promotion {
@@ -289,4 +338,21 @@ enum PageType {
   REFUND_POLICY
   TERMS_CONDITIONS
   ABOUT_US
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum ShippingType {
+  STANDARD
+  EXPRESS
+  FREE
+  PICKUP
 }

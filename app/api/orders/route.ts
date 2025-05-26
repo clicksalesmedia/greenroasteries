@@ -1,276 +1,295 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/app/lib/db';
-import { cookies } from 'next/headers';
-import { verify } from 'jsonwebtoken';
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@/app/generated/prisma';
+import { stripe } from '@/lib/stripe';
+import { emailService } from '@/lib/email';
+import bcrypt from 'bcryptjs';
 
-// JWT secret key should be stored in env variables
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const prisma = new PrismaClient();
 
-interface JwtPayload {
-  id: string;
-  email: string;
-  role: string;
-}
-
-// Middleware to check authentication and permissions
-async function checkAuth(requiredRoles = ['ADMIN', 'MANAGER', 'TEAM']) {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('auth_token')?.value;
-
-    if (!token) {
-      return { authorized: false, error: 'Unauthorized', status: 401 };
-    }
-
-    const decoded = verify(token, JWT_SECRET) as JwtPayload;
-    
-    // Check if user has required role
-    if (!requiredRoles.includes(decoded.role)) {
-      return { authorized: false, error: 'Forbidden', status: 403 };
-    }
-
-    return { authorized: true, userId: decoded.id, role: decoded.role };
-  } catch (error) {
-    console.error('Auth check error:', error);
-    return { authorized: false, error: 'Unauthorized', status: 401 };
+// Generate random password
+function generatePassword(length: number = 8): string {
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    password += charset.charAt(Math.floor(Math.random() * charset.length));
   }
+  return password;
 }
 
-// Get all orders (staff members only)
-export async function GET(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    // Check authentication and permissions
-    const auth = await checkAuth(['ADMIN', 'MANAGER', 'TEAM']);
-    if (!auth.authorized) {
+    const {
+      customerInfo,
+      shippingInfo,
+      items,
+      totalAmount,
+      paymentIntentId,
+      subtotal,
+      tax,
+      shippingCost,
+      discount = 0
+    } = await request.json();
+
+    // Verify payment with Stripe
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    
+    if (paymentIntent.status !== 'succeeded') {
       return NextResponse.json(
-        { error: auth.error },
-        { status: auth.status }
+        { error: 'Payment not completed' },
+        { status: 400 }
+      );
+    }
+
+    // Check if user exists
+    let user = await prisma.user.findUnique({
+      where: { email: customerInfo.email }
+    });
+
+    let isNewCustomer = false;
+    let temporaryPassword = '';
+
+    // Create user if doesn't exist
+    if (!user) {
+      isNewCustomer = true;
+      temporaryPassword = generatePassword();
+      const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+
+      user = await prisma.user.create({
+        data: {
+          email: customerInfo.email,
+          name: customerInfo.fullName,
+          phone: customerInfo.phone,
+          city: shippingInfo.city,
+          address: shippingInfo.address,
+          password: hashedPassword,
+          role: 'CUSTOMER',
+          isNewCustomer: true,
+          emailVerified: false,
+        }
+      });
+    } else {
+      // Update existing user's new customer status
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { isNewCustomer: false }
+      });
+    }
+
+    // Validate that all products exist
+    const productIds = items.map((item: any) => item.productId || item.id);
+    const existingProducts = await prisma.product.findMany({
+      where: {
+        id: { in: productIds }
+      },
+      select: { id: true, name: true }
+    });
+
+    if (existingProducts.length !== productIds.length) {
+      const missingIds = productIds.filter((id: string) => !existingProducts.find(p => p.id === id));
+      console.error('Missing product IDs:', missingIds);
+      console.error('Cart items:', items);
+      return NextResponse.json(
+        { error: `Products not found: ${missingIds.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // Create order
+    const order = await prisma.order.create({
+      data: {
+        userId: user.id,
+        customerName: customerInfo.fullName,
+        customerEmail: customerInfo.email,
+        customerPhone: customerInfo.phone,
+        city: shippingInfo.city,
+        shippingAddress: shippingInfo.address,
+        subtotal,
+        tax,
+        shippingCost,
+        discount,
+        total: totalAmount,
+        status: 'PROCESSING',
+        paymentMethod: 'stripe',
+        stripePaymentIntentId: paymentIntentId,
+        items: {
+          create: items.map((item: any) => ({
+            productId: item.productId || item.id,
+            quantity: item.quantity,
+            unitPrice: item.price,
+            subtotal: item.price * item.quantity
+          }))
+        }
+      },
+      include: {
+        items: {
+          include: {
+            product: true
+          }
+        }
+      }
+    });
+
+    // Create payment record
+    const charge = paymentIntent.latest_charge;
+    let paymentMethodDetails = null;
+    
+    if (typeof charge === 'string') {
+      const chargeObj = await stripe.charges.retrieve(charge);
+      paymentMethodDetails = chargeObj.payment_method_details;
+    } else if (charge && typeof charge === 'object') {
+      paymentMethodDetails = charge.payment_method_details;
+    }
+
+    await prisma.payment.create({
+      data: {
+        orderId: order.id,
+        userId: user.id,
+        stripePaymentIntentId: paymentIntentId,
+        stripeChargeId: typeof charge === 'string' ? charge : charge?.id,
+        amount: totalAmount,
+        currency: 'aed',
+        status: 'SUCCEEDED',
+        paymentMethod: paymentMethodDetails?.card?.brand || 'card',
+        last4: paymentMethodDetails?.card?.last4,
+        brand: paymentMethodDetails?.card?.brand,
+        receiptUrl: typeof charge === 'string' ? undefined : charge?.receipt_url,
+      }
+    });
+
+    // Send appropriate email
+    try {
+      if (isNewCustomer) {
+        await emailService.sendWelcomeEmail({
+          customerName: customerInfo.fullName,
+          email: customerInfo.email,
+          password: temporaryPassword,
+          orderId: order.id
+        });
+      } else {
+        await emailService.sendThankYouEmail({
+          customerName: customerInfo.fullName,
+          orderId: order.id,
+          orderTotal: totalAmount,
+          items: order.items.map(item => ({
+            name: item.product.name,
+            quantity: item.quantity,
+            price: item.unitPrice
+          }))
+        });
+      }
+
+      // Mark email as sent
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { emailSent: true }
+      });
+    } catch (emailError) {
+      console.error('Failed to send email:', emailError);
+      // Don't fail the order creation if email fails
+    }
+
+    return NextResponse.json({
+      success: true,
+      orderId: order.id,
+      isNewCustomer,
+      message: isNewCustomer 
+        ? 'Order created successfully! Check your email for account credentials.'
+        : 'Order created successfully! Thank you for your purchase.'
+    });
+
+  } catch (error: any) {
+    console.error('Error creating order:', error);
+    
+    // Provide more specific error messages
+    if (error.code === 'P2003') {
+      return NextResponse.json(
+        { error: 'Invalid product reference. Please refresh your cart and try again.' },
+        { status: 400 }
       );
     }
     
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
-    const userId = searchParams.get('userId');
-    
-    const filters: any = {};
-    
-    if (status) {
-      filters.status = status;
+    if (error.code === 'P2002') {
+      return NextResponse.json(
+        { error: 'Duplicate order detected. Please try again.' },
+        { status: 400 }
+      );
     }
     
-    if (userId) {
-      filters.userId = userId;
-    }
-    
-    const orders = await prisma.order.findMany({
-      where: filters,
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            name: true,
-          }
-        },
-        items: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                name: true,
-                imageUrl: true,
-              }
-            }
-          }
-        },
-        appliedPromo: {
-          select: {
-            id: true,
-            name: true,
-            code: true,
-            type: true,
-            value: true,
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
-    
-    return NextResponse.json(orders);
-  } catch (error) {
-    console.error('Failed to fetch orders:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch orders' },
+      { error: 'Failed to create order. Please try again.' },
       { status: 500 }
     );
   }
 }
 
-// Create a new order
-export async function POST(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const body = await request.json();
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const userId = searchParams.get('userId');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
     
-    // Basic validation
-    if (!body.userId || !body.items || body.items.length === 0) {
-      return NextResponse.json(
-        { error: 'User ID and at least one item are required' },
-        { status: 400 }
-      );
+    if (status && status !== 'ALL') {
+      where.status = status;
     }
     
-    // Check if products exist and are in stock
-    const productIds = body.items.map((item: any) => item.productId);
-    const products = await prisma.product.findMany({
-      where: {
-        id: { in: productIds }
-      }
-    });
-    
-    // Check if all products exist and are in stock
-    for (const item of body.items) {
-      const product = products.find(p => p.id === item.productId);
-      if (!product) {
-        return NextResponse.json(
-          { error: `Product with ID ${item.productId} not found` },
-          { status: 400 }
-        );
-      }
-      
-      if (!product.inStock) {
-        return NextResponse.json(
-          { error: `Product "${product.name}" is out of stock` },
-          { status: 400 }
-        );
-      }
-      
-      if (product.stockQuantity < item.quantity) {
-        return NextResponse.json(
-          { error: `Not enough stock for product "${product.name}"` },
-          { status: 400 }
-        );
-      }
+    if (userId) {
+      where.userId = userId;
     }
-    
-    // Check if promotion code is valid if provided
-    let appliedPromotion = null;
-    if (body.promoCode) {
-      appliedPromotion = await prisma.promotion.findUnique({
-        where: {
-          code: body.promoCode,
-          isActive: true,
-          startDate: { lte: new Date() },
-          endDate: { gte: new Date() }
-        }
-      });
-      
-      if (!appliedPromotion) {
-        return NextResponse.json(
-          { error: 'Invalid or expired promotion code' },
-          { status: 400 }
-        );
-      }
-      
-      if (appliedPromotion.maxUses && appliedPromotion.currentUses >= appliedPromotion.maxUses) {
-        return NextResponse.json(
-          { error: 'Promotion code has reached its usage limit' },
-          { status: 400 }
-        );
-      }
-    }
-    
-    // Calculate order totals
-    const orderItems = body.items.map((item: any) => {
-      const product = products.find(p => p.id === item.productId)!;
-      const unitPrice = product.price;
-      const subtotal = unitPrice * item.quantity;
-      
-      return {
-        productId: item.productId,
-        quantity: item.quantity,
-        unitPrice,
-        subtotal
-      };
-    });
-    
-    const subtotal = orderItems.reduce((sum: number, item: any) => sum + item.subtotal, 0);
-    const tax = parseFloat((subtotal * 0.1).toFixed(2)); // 10% tax
-    const shippingCost = body.shippingCost || 10; // Default shipping cost
-    
-    // Calculate discount if promotion is applied
-    let discount = 0;
-    if (appliedPromotion) {
-      if (appliedPromotion.type === 'PERCENTAGE') {
-        discount = parseFloat((subtotal * (appliedPromotion.value / 100)).toFixed(2));
-      } else if (appliedPromotion.type === 'FIXED_AMOUNT') {
-        discount = appliedPromotion.value;
-      } else if (appliedPromotion.type === 'FREE_SHIPPING') {
-        discount = shippingCost;
-      }
-      
-      // Update promotion usage count
-      await prisma.promotion.update({
-        where: { id: appliedPromotion.id },
-        data: { currentUses: { increment: 1 } }
-      });
-    }
-    
-    const total = subtotal + tax + shippingCost - discount;
-    
-    // Create the order
-    const order = await prisma.order.create({
-      data: {
-        userId: body.userId,
-        subtotal,
-        tax,
-        shippingCost,
-        discount,
-        total,
-        status: 'NEW',
-        paymentMethod: body.paymentMethod,
-        paymentId: body.paymentId,
-        shippingAddress: body.shippingAddress,
-        notes: body.notes,
-        appliedPromoId: appliedPromotion?.id,
-        items: {
-          create: orderItems
-        }
-      },
-      include: {
-        items: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                name: true,
-                imageUrl: true
+
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true
+            }
+          },
+          items: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  nameAr: true,
+                  imageUrl: true
+                }
               }
             }
-          }
+          },
+          payment: true
         },
-        appliedPromo: true
+        orderBy: {
+          createdAt: 'desc'
+        },
+        skip,
+        take: limit
+      }),
+      prisma.order.count({ where })
+    ]);
+
+    return NextResponse.json({
+      orders,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
       }
     });
-    
-    // Update product stock quantities
-    for (const item of body.items) {
-      await prisma.product.update({
-        where: { id: item.productId },
-        data: {
-          stockQuantity: {
-            decrement: item.quantity
-          }
-        }
-      });
-    }
-    
-    return NextResponse.json(order, { status: 201 });
+
   } catch (error) {
-    console.error('Failed to create order:', error);
+    console.error('Error fetching orders:', error);
     return NextResponse.json(
-      { error: 'Failed to create order' },
+      { error: 'Failed to fetch orders' },
       { status: 500 }
     );
   }

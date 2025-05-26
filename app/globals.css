@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -16,4 +17,54 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Arabic font support */
+.font-arabic {
+  font-family: 'Cairo', 'Poppins', sans-serif;
+}
+
+/* RTL support for Arabic */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .flex-row-reverse {
+  flex-direction: row-reverse;
+}
+
+/* Ensure proper spacing for RTL */
+[dir="rtl"] .space-x-3 > * + * {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+[dir="rtl"] .space-x-2 > * + * {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+/* Fix for form elements in RTL */
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="tel"] {
+  text-align: left;
+  direction: ltr;
+}
+
+/* Ensure proper alignment for Arabic text */
+[dir="rtl"] .text-right {
+  text-align: right;
+}
+
+[dir="rtl"] .text-left {
+  text-align: left;
+}
+
+/* Fix for payment methods and other images in RTL */
+[dir="rtl"] .flex.space-x-3 {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .flex.space-x-2 {
+  flex-direction: row-reverse;
 }

@@ -105,15 +105,15 @@ export default function OrderSummary() {
   const finalTotal = totalPrice + shippingCalculation.shippingCost;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 sticky top-24">
-      <h2 className="text-xl font-bold mb-6">{t('order_summary', 'Order Summary')}</h2>
+    <div className={`bg-white rounded-lg shadow-sm p-6 sticky top-24 ${language === 'ar' ? 'text-right' : ''}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      <h2 className={`text-xl font-bold mb-6 ${language === 'ar' ? 'text-right' : ''}`}>{t('order_summary', 'Order Summary')}</h2>
 
       {/* Item list */}
       <div className="max-h-80 overflow-y-auto mb-6 pr-1">
         {items.map(item => (
-          <div key={item.id} className="flex items-start py-3 border-b last:border-b-0">
+          <div key={item.id} className={`flex items-start py-3 border-b last:border-b-0 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
             {/* Item image */}
-            <div className="w-16 h-16 bg-gray-100 rounded flex-shrink-0 relative">
+            <div className={`w-16 h-16 bg-gray-100 rounded flex-shrink-0 relative ${language === 'ar' ? 'mr-4' : ''}`}>
               {item.image ? (
                 <Image 
                   src={item.image} 
@@ -130,19 +130,19 @@ export default function OrderSummary() {
                 </div>
               )}
               {item.quantity > 1 && (
-                <span className="absolute -top-2 -right-2 bg-black text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                <span className={`absolute -top-2 ${language === 'ar' ? '-left-2' : '-right-2'} bg-black text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center`}>
                   {item.quantity}
                 </span>
               )}
             </div>
             
             {/* Item details */}
-            <div className="ml-4 flex-1">
-              <h4 className="font-medium text-gray-900 text-sm">{item.name}</h4>
-              <p className="text-xs text-gray-500 mt-0.5">
+            <div className={`${language === 'ar' ? 'mr-4' : 'ml-4'} flex-1`}>
+              <h4 className={`font-medium text-gray-900 text-sm ${language === 'ar' ? 'text-right' : ''}`}>{item.name}</h4>
+              <p className={`text-xs text-gray-500 mt-0.5 ${language === 'ar' ? 'text-right' : ''}`}>
                 {Object.values(item.variation).filter(Boolean).join(', ')}
               </p>
-              <div className="mt-1 text-sm font-medium">{formatPrice(item.price)}</div>
+              <div className={`mt-1 text-sm font-medium ${language === 'ar' ? 'text-right' : ''}`}>{formatPrice(item.price)}</div>
             </div>
           </div>
         ))}
@@ -150,11 +150,11 @@ export default function OrderSummary() {
 
       {/* Price summary */}
       <div className="space-y-3 mb-6 pb-6 border-b">
-        <div className="flex justify-between">
+        <div className={`flex justify-between ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
           <span className="text-gray-600">{t('subtotal', 'Subtotal')} ({totalItems} {t('items', 'items')})</span>
           <span className="font-medium">{formatPrice(totalPrice)}</span>
         </div>
-        <div className="flex justify-between">
+        <div className={`flex justify-between ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
           <span className="text-gray-600">{t('shipping', 'Shipping')}</span>
           <span className="font-medium">
             {loading ? (
@@ -169,7 +169,7 @@ export default function OrderSummary() {
         
         {/* Shipping rule description */}
         {shippingCalculation.shippingRule && (
-          <div className="text-xs text-gray-500">
+          <div className={`text-xs text-gray-500 ${language === 'ar' ? 'text-right' : ''}`}>
             {language === 'ar' && shippingCalculation.shippingRule.descriptionAr 
               ? shippingCalculation.shippingRule.descriptionAr 
               : shippingCalculation.shippingRule.description}
@@ -178,7 +178,7 @@ export default function OrderSummary() {
         
         {/* Free shipping progress */}
         {shippingCalculation.amountToFreeShipping && shippingCalculation.amountToFreeShipping > 0 && (
-          <div className="text-xs text-blue-600 italic flex items-center gap-1">
+          <div className={`text-xs text-blue-600 italic flex items-center gap-1 ${language === 'ar' ? 'flex-row-reverse text-right' : ''}`}>
             {t('add', 'Add')} {formatPrice(shippingCalculation.amountToFreeShipping)} {t('for_free_shipping', 'for free shipping')}
           </div>
         )}
@@ -187,7 +187,7 @@ export default function OrderSummary() {
       </div>
 
       {/* Total */}
-      <div className="flex justify-between mb-6">
+      <div className={`flex justify-between mb-6 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
         <span className="text-lg font-bold">{t('total', 'Total')}</span>
         <span className="text-lg font-bold">{formatPrice(finalTotal)}</span>
       </div>
@@ -197,8 +197,8 @@ export default function OrderSummary() {
         <div className="flex justify-center space-x-2 mb-2">
           <img src="/images/payment-methods.svg" alt="Payment methods" className="h-6" />
         </div>
-        <p className="text-xs text-center text-gray-500">
-          All transactions are secure and encrypted.
+        <p className={`text-xs text-center text-gray-500 ${language === 'ar' ? 'text-center' : ''}`}>
+          {t('all_transactions_encrypted', 'All transactions are secure and encrypted.')}
         </p>
       </div>
     </div>

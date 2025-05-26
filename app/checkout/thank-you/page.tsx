@@ -73,6 +73,16 @@ export default function ThankYouPage() {
               <p className="text-green-700">
                 Your order has been successfully placed and is being processed.
               </p>
+              {orderDetails.isNewCustomer && (
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <p className="text-blue-800 text-sm font-medium">
+                    🎉 Welcome to Green Roasteries! We've created an account for you.
+                  </p>
+                  <p className="text-blue-700 text-sm mt-1">
+                    Check your email for login credentials to track your orders and manage your profile.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -96,7 +106,7 @@ export default function ThankYouPage() {
               </div>
               <div>
                 <p className="text-gray-600 text-sm mb-1">Payment Method:</p>
-                <p className="font-medium">Credit Card ending in {orderDetails.paymentInfo.last4}</p>
+                <p className="font-medium">Stripe Payment</p>
               </div>
             </div>
           </div>
