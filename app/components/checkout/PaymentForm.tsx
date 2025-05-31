@@ -11,7 +11,13 @@ import {
 } from '@stripe/react-stripe-js';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+// Initialize Stripe only on client side
+const getStripePromise = () => {
+  if (typeof window !== 'undefined') {
+    return loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+  }
+  return null;
+};
 
 interface PaymentFormProps {
   customerInfo: {
@@ -392,8 +398,25 @@ function StripePaymentForm({
 }
 
 export default function PaymentForm(props: PaymentFormProps) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Don't render Stripe elements on server side
+  if (!isClient) {
+    return (
+      <div className="animate-pulse">
+        <div className="h-8 bg-gray-200 rounded mb-4"></div>
+        <div className="h-12 bg-gray-200 rounded mb-4"></div>
+        <div className="h-40 bg-gray-200 rounded"></div>
+      </div>
+    );
+  }
+
   return (
-    <Elements stripe={stripePromise}>
+    <Elements stripe={getStripePromise()}>
       <StripePaymentForm {...props} />
     </Elements>
   );
