@@ -68,11 +68,33 @@ const nextConfig = {
         ],
       },
       {
+        source: '/api/sliders',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=60, s-maxage=60, stale-while-revalidate=300', // 1 minute with stale-while-revalidate
+          },
+          {
+            key: 'Vary',
+            value: 'Accept-Encoding',
+          },
+        ],
+      },
+      {
+        source: '/api/banners',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=60, s-maxage=60, stale-while-revalidate=300', // 1 minute
+          },
+        ],
+      },
+      {
         source: '/api/products',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=300, s-maxage=300', // 5 minutes
+            value: 'public, max-age=300, s-maxage=300, stale-while-revalidate=600', // 5 minutes
           },
         ],
       },
@@ -81,7 +103,24 @@ const nextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=600, s-maxage=600', // 10 minutes
+            value: 'public, max-age=600, s-maxage=600, stale-while-revalidate=1200', // 10 minutes
+          },
+        ],
+      },
+      {
+        source: '/((?!api|_next/static|_next/image|favicon.ico).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, s-maxage=60, stale-while-revalidate=300',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
           },
         ],
       },

@@ -382,10 +382,11 @@ export default function Header() {
             </span>
           </div>
           <div className="flex">
-            <a href="#" className="mr-4">{t('my_account', 'My Account')}</a>
-            <a href="#" className="mr-4">{t('wishlist', 'Wishlist')}</a>
+            {/* Hidden items as requested by user */}
+            {/* <a href="#" className="mr-4">{t('my_account', 'My Account')}</a> */}
+            {/* <a href="#" className="mr-4">{t('wishlist', 'Wishlist')}</a> */}
             <a href="#" className="mr-4">{t('contact', 'Contact')}</a>
-            <Link href="/cart">{t('cart', 'Cart')} ({isClient ? totalItems : 0})</Link>
+            {/* <Link href="/cart">{t('cart', 'Cart')} ({isClient ? totalItems : 0})</Link> */}
           </div>
         </div>
       </div>

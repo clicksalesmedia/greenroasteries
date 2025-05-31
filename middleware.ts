@@ -34,13 +34,103 @@ const PUBLIC_PATHS = [
   '/api/orders',
   '/api/create-payment-intent',
   '/api/test-email',
+  '/api/contacts',
 ];
 
-// Middleware for auth checks
+// Cache control helper function
+function setCacheHeaders(response: NextResponse, pathname: string) {
+  // Handle API routes with specific cache strategies
+  if (pathname.startsWith('/api/')) {
+    
+    // Dynamic content that changes frequently (sliders, banners, content)
+    if (pathname.match(/\/api\/(sliders|banners|offer-banners|content)/)) {
+      response.headers.set(
+        'Cache-Control', 
+        'public, max-age=60, s-maxage=60, stale-while-revalidate=300'
+      );
+      response.headers.set('ETag', `"${pathname}-${Date.now()}"`);
+    }
+    
+    // Semi-static content (products, categories)
+    else if (pathname.match(/\/api\/(products|categories)/)) {
+      response.headers.set(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=300, stale-while-revalidate=600'
+      );
+    }
+    
+    // User-specific or frequently changing data (orders, cart, auth)
+    else if (pathname.match(/\/api\/(orders|auth|cart|checkout|contacts)/)) {
+      response.headers.set(
+        'Cache-Control', 
+        'private, max-age=0, no-cache, no-store, must-revalidate'
+      );
+    }
+    
+    // Default API cache (5 minutes)
+    else {
+      response.headers.set(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=300'
+      );
+    }
+    
+    // Add common headers for all API routes
+    response.headers.set('Vary', 'Accept-Encoding, Authorization');
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+  }
+  
+  // Handle static assets
+  else if (pathname.startsWith('/_next/static/') || pathname.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$/)) {
+    response.headers.set(
+      'Cache-Control', 
+      'public, max-age=31536000, immutable'
+    );
+  }
+  
+  // Handle uploaded images/files
+  else if (pathname.startsWith('/uploads/') || pathname.startsWith('/images/')) {
+    response.headers.set(
+      'Cache-Control', 
+      'public, max-age=2592000, stale-while-revalidate=86400'
+    );
+  }
+  
+  // Handle pages with dynamic content
+  else if (pathname === '/' || pathname.startsWith('/shop') || pathname.startsWith('/product/')) {
+    response.headers.set(
+      'Cache-Control', 
+      'public, max-age=60, s-maxage=60, stale-while-revalidate=300'
+    );
+  }
+  
+  // Handle static pages
+  else if (pathname.match(/\/(about|contact|privacy|terms)/)) {
+    response.headers.set(
+      'Cache-Control', 
+      'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400'
+    );
+  }
+  
+  // Add security headers
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
+  
+  return response;
+}
+
+// Main middleware function
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // Skip for non-protected paths
+  // Create response object
+  let response = NextResponse.next();
+  
+  // Apply cache headers to all responses
+  response = setCacheHeaders(response, pathname);
+  
+  // Skip auth check for non-protected paths
   const isProtectedPath = protectedPaths.some(path => 
     pathname.startsWith(path) && 
     // Skip if this is a static asset
@@ -53,7 +143,7 @@ export async function middleware(request: NextRequest) {
   
   if (!isProtectedPath || isPublicPath) {
     console.log(`[Middleware] Non-protected or public path: ${pathname}, skipping auth check`);
-    return NextResponse.next();
+    return response;
   }
   
   console.log(`[Middleware] Protected path: ${pathname}, checking auth`);
@@ -66,13 +156,16 @@ export async function middleware(request: NextRequest) {
     
     // Return different responses based on the route type (API or frontend)
     if (pathname.startsWith('/api/')) {
-      return new NextResponse(
+      const errorResponse = new NextResponse(
         JSON.stringify({ error: 'Unauthorized' }),
         {
           status: 401,
           headers: { 'Content-Type': 'application/json' }
         }
       );
+      // No cache for unauthorized responses
+      errorResponse.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return errorResponse;
     }
     
     // Redirect to login page for frontend routes
@@ -99,19 +192,22 @@ export async function middleware(request: NextRequest) {
     }
     
     // Continue with the request
-    return NextResponse.next();
+    return response;
   } catch (error) {
     console.error('[Middleware] Token verification error:', error);
     
     // Return different responses based on the route type (API or frontend)
     if (pathname.startsWith('/api/')) {
-      return new NextResponse(
+      const errorResponse = new NextResponse(
         JSON.stringify({ error: 'Invalid token' }),
         {
           status: 401,
           headers: { 'Content-Type': 'application/json' }
         }
       );
+      // No cache for error responses
+      errorResponse.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return errorResponse;
     }
     
     // Redirect to login page for frontend routes
@@ -124,11 +220,13 @@ export async function middleware(request: NextRequest) {
 // Configure the paths that should trigger this middleware
 export const config = {
   matcher: [
-    // Match all backend routes
-    '/backend/:path*',
-    // Match protected API routes
-    '/api/variations/:path*',
-    '/api/promotions/:path*',
-    '/api/users/:path*',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api/auth (NextAuth.js routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };

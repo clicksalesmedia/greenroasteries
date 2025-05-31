@@ -1,36 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { v4 as uuidv4 } from 'uuid';
-import prisma from '../../lib/prisma';
+import { PrismaClient } from '@/app/generated/prisma';
+
+const prisma = new PrismaClient();
 
 // GET /api/sliders - Get all sliders
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    // Get query parameters
-    const { searchParams } = new URL(request.url);
-    const active = searchParams.get('active');
+    const sliders = await prisma.slider.findMany({
+      where: { isActive: true },
+      orderBy: { order: 'asc' }
+    });
+
+    const response = NextResponse.json(sliders);
     
-    // Build the query
-    const query: any = {};
+    // Set cache headers to prevent stale content for dynamic data
+    response.headers.set('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=300');
+    response.headers.set('ETag', `"sliders-${Date.now()}"`);
+    response.headers.set('Vary', 'Accept-Encoding');
     
-    // Filter by active status if specified
-    if (active === 'true') {
-      query.where = { isActive: true };
-    }
-    
-    // Add ordering
-    query.orderBy = { order: 'asc' };
-    
-    // Get sliders from the database
-    const sliders = await prisma.slider.findMany(query);
-    
-    return NextResponse.json(sliders);
+    return response;
   } catch (error) {
     console.error('Error fetching sliders:', error);
-    return NextResponse.json(
+    const errorResponse = NextResponse.json(
       { error: 'Failed to fetch sliders' },
       { status: 500 }
     );
+    
+    // No cache for errors
+    errorResponse.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    
+    return errorResponse;
   }
 }
 

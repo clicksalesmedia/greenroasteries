@@ -204,11 +204,14 @@ export default function Home() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
         
-        // Only fetch active sliders for the public homepage
-        const response = await fetch('/api/sliders?active=true', {
+        // Use cache busting for fresh data - especially important for dynamic content like sliders
+        const response = await fetch('/api/sliders', {
           signal: controller.signal,
-          cache: 'force-cache', // Use cached response when available
-          next: { revalidate: 1800 }, // Revalidate every 30 minutes
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          },
         });
         
         clearTimeout(timeoutId);
@@ -307,7 +310,7 @@ export default function Home() {
     };
     
     fetchSliders();
-  }, []); // Empty dependency array ensures this runs once on mount
+  }, []);
 
   // Fetch featured products - optimized with useCallback and better error handling
   useEffect(() => {

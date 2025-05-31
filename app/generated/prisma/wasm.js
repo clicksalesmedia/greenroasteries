@@ -399,6 +399,19 @@ exports.Prisma.PageContentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ContactScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  subject: 'subject',
+  message: 'message',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -472,6 +485,14 @@ exports.PageType = exports.$Enums.PageType = {
   ABOUT_US: 'ABOUT_US'
 };
 
+exports.ContactStatus = exports.$Enums.ContactStatus = {
+  NEW: 'NEW',
+  READ: 'READ',
+  REPLIED: 'REPLIED',
+  RESOLVED: 'RESOLVED',
+  ARCHIVED: 'ARCHIVED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Permission: 'Permission',
@@ -491,7 +512,8 @@ exports.Prisma.ModelName = {
   BundleItem: 'BundleItem',
   Slider: 'Slider',
   OfferBanner: 'OfferBanner',
-  PageContent: 'PageContent'
+  PageContent: 'PageContent',
+  Contact: 'Contact'
 };
 
 /**

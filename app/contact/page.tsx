@@ -63,17 +63,17 @@ export default function ContactPage() {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/contacts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
       
-      // In a real app, you would send the form data to your backend
-      // const response = await fetch('/api/contact', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
+      const data = await response.json();
       
-      // if (!response.ok) throw new Error('Failed to submit form');
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit form');
+      }
       
       showToast(
         language === 'ar' 
@@ -122,8 +122,8 @@ export default function ContactPage() {
                 <h3 className="text-lg font-medium">{t('visit_us', 'Visit Us')}</h3>
                 <p className="text-gray-600 mt-1">
                   {t('green_roasteries_coffee_house', 'Green Roasteries Coffee House')}<br />
-                  {t('sheikh_zayed_road', 'Sheikh Zayed Road')}<br />
-                  {t('dubai_uae', 'Dubai, UAE')}
+                  7VQP+55 Al Dhaid, Sharjah<br />
+                  {t('uae', 'UAE')}
                 </p>
               </div>
             </div>
@@ -135,9 +135,7 @@ export default function ContactPage() {
               <div className={language === 'ar' ? 'text-right' : ''}>
                 <h3 className="text-lg font-medium">{t('call_us', 'Call Us')}</h3>
                 <p className="text-gray-600 mt-1">
-                  +971 4 123 4567<br />
-                  {t('mon_fri', 'Mon-Fri')}: {t('8am_8pm', '8am-8pm')}<br />
-                  {t('sat_sun', 'Sat-Sun')}: {t('9am_6pm', '9am-6pm')}
+                  +971545556459
                 </p>
               </div>
             </div>
@@ -149,28 +147,10 @@ export default function ContactPage() {
               <div className={language === 'ar' ? 'text-right' : ''}>
                 <h3 className="text-lg font-medium">{t('email_us', 'Email Us')}</h3>
                 <p className="text-gray-600 mt-1">
-                  info@greenroasteries.com<br />
-                  orders@greenroasteries.com<br />
-                  support@greenroasteries.com
+                  support@thegreenroasteries.com<br />
+                  info@thegreenroasteries.com
                 </p>
               </div>
-            </div>
-          </div>
-          
-          {/* Google Maps - Main Location */}
-          <div className="mt-10">
-            <h3 className={`text-lg font-medium mb-4 ${language === 'ar' ? 'text-right' : ''}`}>{t('dubai_location', 'Dubai Location')}</h3>
-            <div className="aspect-video w-full bg-gray-200 rounded-lg overflow-hidden">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3610.178563151027!2d55.2716175!3d25.2048493!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f43348a67e24b%3A0xff45e502e1ceb7e2!2sSheikh%20Zayed%20Rd%20-%20Dubai%20-%20United%20Arab%20Emirates!5e0!3m2!1sen!2sus!4v1643212038051!5m2!1sen!2sus"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen={false}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Dubai Location"
-              ></iframe>
             </div>
           </div>
         </div>
@@ -293,89 +273,6 @@ export default function ContactPage() {
                 </button>
               </div>
             </form>
-          </div>
-          
-          {/* Google Maps - Second Location */}
-          <div className="mt-8">
-            <h3 className={`text-lg font-medium mb-4 ${language === 'ar' ? 'text-right' : ''}`}>{t('abu_dhabi_location', 'Abu Dhabi Location')}</h3>
-            <div className="aspect-video w-full bg-gray-200 rounded-lg overflow-hidden">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3631.1727448626863!2d54.36843061537967!3d24.48651198423602!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5e66218494e9f5%3A0xd9159f9a59e34b77!2sAbu%20Dhabi%20Mall!5e0!3m2!1sen!2sus!4v1643212292431!5m2!1sen!2sus"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen={false}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Abu Dhabi Location"
-              ></iframe>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Store Hours */}
-      <div className="mt-16 bg-gray-50 p-8 rounded-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center">{t('store_hours', 'Store Hours')}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-          <div>
-            <h3 className={`text-lg font-medium mb-4 ${language === 'ar' ? 'text-right' : ''}`}>{t('dubai_location', 'Dubai Location')}</h3>
-            <table className="w-full">
-              <tbody>
-                <tr className="border-b border-gray-200">
-                  <td className={`py-2 font-medium ${language === 'ar' ? 'text-right' : ''}`}>{t('monday_friday', 'Monday - Friday')}</td>
-                  <td className={`py-2 ${language === 'ar' ? 'text-left' : 'text-right'}`}>{t('8am_8pm', '8:00 AM - 8:00 PM')}</td>
-                </tr>
-                <tr className="border-b border-gray-200">
-                  <td className={`py-2 font-medium ${language === 'ar' ? 'text-right' : ''}`}>{t('saturday', 'Saturday')}</td>
-                  <td className={`py-2 ${language === 'ar' ? 'text-left' : 'text-right'}`}>{t('9am_6pm', '9:00 AM - 6:00 PM')}</td>
-                </tr>
-                <tr>
-                  <td className={`py-2 font-medium ${language === 'ar' ? 'text-right' : ''}`}>{t('sunday', 'Sunday')}</td>
-                  <td className={`py-2 ${language === 'ar' ? 'text-left' : 'text-right'}`}>{t('9am_6pm', '9:00 AM - 6:00 PM')}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div>
-            <h3 className={`text-lg font-medium mb-4 ${language === 'ar' ? 'text-right' : ''}`}>{t('abu_dhabi_location', 'Abu Dhabi Location')}</h3>
-            <table className="w-full">
-              <tbody>
-                <tr className="border-b border-gray-200">
-                  <td className={`py-2 font-medium ${language === 'ar' ? 'text-right' : ''}`}>{t('monday_friday', 'Monday - Friday')}</td>
-                  <td className={`py-2 ${language === 'ar' ? 'text-left' : 'text-right'}`}>{t('9am_9pm', '9:00 AM - 9:00 PM')}</td>
-                </tr>
-                <tr className="border-b border-gray-200">
-                  <td className={`py-2 font-medium ${language === 'ar' ? 'text-right' : ''}`}>{t('saturday', 'Saturday')}</td>
-                  <td className={`py-2 ${language === 'ar' ? 'text-left' : 'text-right'}`}>{t('10am_7pm', '10:00 AM - 7:00 PM')}</td>
-                </tr>
-                <tr>
-                  <td className={`py-2 font-medium ${language === 'ar' ? 'text-right' : ''}`}>{t('sunday', 'Sunday')}</td>
-                  <td className={`py-2 ${language === 'ar' ? 'text-left' : 'text-right'}`}>{t('10am_7pm', '10:00 AM - 7:00 PM')}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div>
-            <h3 className={`text-lg font-medium mb-4 ${language === 'ar' ? 'text-right' : ''}`}>{t('online_support', 'Online Support')}</h3>
-            <table className="w-full">
-              <tbody>
-                <tr className="border-b border-gray-200">
-                  <td className={`py-2 font-medium ${language === 'ar' ? 'text-right' : ''}`}>{t('monday_friday', 'Monday - Friday')}</td>
-                  <td className={`py-2 ${language === 'ar' ? 'text-left' : 'text-right'}`}>{t('8am_10pm', '8:00 AM - 10:00 PM')}</td>
-                </tr>
-                <tr className="border-b border-gray-200">
-                  <td className={`py-2 font-medium ${language === 'ar' ? 'text-right' : ''}`}>{t('saturday', 'Saturday')}</td>
-                  <td className={`py-2 ${language === 'ar' ? 'text-left' : 'text-right'}`}>{t('9am_8pm', '9:00 AM - 8:00 PM')}</td>
-                </tr>
-                <tr>
-                  <td className={`py-2 font-medium ${language === 'ar' ? 'text-right' : ''}`}>{t('sunday', 'Sunday')}</td>
-                  <td className={`py-2 ${language === 'ar' ? 'text-left' : 'text-right'}`}>{t('9am_8pm', '9:00 AM - 8:00 PM')}</td>
-                </tr>
-              </tbody>
-            </table>
           </div>
         </div>
       </div>
