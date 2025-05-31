@@ -53,15 +53,15 @@ export default function Footer() {
             <ul className="space-y-3 text-gray-300">
               <li className="flex items-start">
                 <i className="fas fa-map-marker-alt mt-1 mr-3"></i>
-                <span>Al Dhaid, Laweedid - Sharjah</span>
+                <span>7VQP+55 Al Dhaid, Sharjah</span>
               </li>
               <li className="flex items-center">
                 <i className="fas fa-phone-alt mr-3"></i>
-                <span>05 455 527 99</span>
+                <span>+971545556459</span>
               </li>
               <li className="flex items-center">
                 <i className="fas fa-envelope mr-3"></i>
-                <span>info@greenroasteries.com</span>
+                <span>support@thegreenroasteries.com</span>
               </li>
               <li className="flex items-center">
                 <i className="fas fa-clock mr-3"></i>

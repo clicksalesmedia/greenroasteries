@@ -412,6 +412,19 @@ exports.Prisma.ContactScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.EmailSubscriberScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  status: 'status',
+  source: 'source',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  unsubscribeToken: 'unsubscribeToken',
+  confirmedAt: 'confirmedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -493,6 +506,13 @@ exports.ContactStatus = exports.$Enums.ContactStatus = {
   ARCHIVED: 'ARCHIVED'
 };
 
+exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
+  ACTIVE: 'ACTIVE',
+  UNSUBSCRIBED: 'UNSUBSCRIBED',
+  BOUNCED: 'BOUNCED',
+  COMPLAINED: 'COMPLAINED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Permission: 'Permission',
@@ -513,7 +533,8 @@ exports.Prisma.ModelName = {
   Slider: 'Slider',
   OfferBanner: 'OfferBanner',
   PageContent: 'PageContent',
-  Contact: 'Contact'
+  Contact: 'Contact',
+  EmailSubscriber: 'EmailSubscriber'
 };
 
 /**

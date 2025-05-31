@@ -344,6 +344,19 @@ model Contact {
   updatedAt DateTime      @updatedAt
 }
 
+model EmailSubscriber {
+  id               String             @id @default(uuid())
+  email            String             @unique
+  status           SubscriptionStatus @default(ACTIVE)
+  source           String?            @default("website") // where they subscribed from
+  ipAddress        String? // for tracking
+  userAgent        String? // for tracking
+  unsubscribeToken String?            @unique // for unsubscribe functionality
+  confirmedAt      DateTime? // for double opt-in if needed
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+}
+
 enum UserRole {
   ADMIN
   MANAGER
@@ -398,4 +411,11 @@ enum ContactStatus {
   REPLIED
   RESOLVED
   ARCHIVED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  UNSUBSCRIBED
+  BOUNCED
+  COMPLAINED
 }

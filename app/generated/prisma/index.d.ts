@@ -113,6 +113,11 @@ export type PageContent = $Result.DefaultSelection<Prisma.$PageContentPayload>
  * 
  */
 export type Contact = $Result.DefaultSelection<Prisma.$ContactPayload>
+/**
+ * Model EmailSubscriber
+ * 
+ */
+export type EmailSubscriber = $Result.DefaultSelection<Prisma.$EmailSubscriberPayload>
 
 /**
  * Enums
@@ -194,6 +199,16 @@ export const ContactStatus: {
 
 export type ContactStatus = (typeof ContactStatus)[keyof typeof ContactStatus]
 
+
+export const SubscriptionStatus: {
+  ACTIVE: 'ACTIVE',
+  UNSUBSCRIBED: 'UNSUBSCRIBED',
+  BOUNCED: 'BOUNCED',
+  COMPLAINED: 'COMPLAINED'
+};
+
+export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]
+
 }
 
 export type UserRole = $Enums.UserRole
@@ -223,6 +238,10 @@ export const ShippingType: typeof $Enums.ShippingType
 export type ContactStatus = $Enums.ContactStatus
 
 export const ContactStatus: typeof $Enums.ContactStatus
+
+export type SubscriptionStatus = $Enums.SubscriptionStatus
+
+export const SubscriptionStatus: typeof $Enums.SubscriptionStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -548,6 +567,16 @@ export class PrismaClient<
     * ```
     */
   get contact(): Prisma.ContactDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.emailSubscriber`: Exposes CRUD operations for the **EmailSubscriber** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmailSubscribers
+    * const emailSubscribers = await prisma.emailSubscriber.findMany()
+    * ```
+    */
+  get emailSubscriber(): Prisma.EmailSubscriberDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1007,7 +1036,8 @@ export namespace Prisma {
     Slider: 'Slider',
     OfferBanner: 'OfferBanner',
     PageContent: 'PageContent',
-    Contact: 'Contact'
+    Contact: 'Contact',
+    EmailSubscriber: 'EmailSubscriber'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1026,7 +1056,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "permission" | "category" | "product" | "productImage" | "variationSize" | "variationType" | "variationBeans" | "productVariation" | "order" | "orderItem" | "payment" | "shippingRule" | "promotion" | "productPromotion" | "bundleItem" | "slider" | "offerBanner" | "pageContent" | "contact"
+      modelProps: "user" | "permission" | "category" | "product" | "productImage" | "variationSize" | "variationType" | "variationBeans" | "productVariation" | "order" | "orderItem" | "payment" | "shippingRule" | "promotion" | "productPromotion" | "bundleItem" | "slider" | "offerBanner" | "pageContent" | "contact" | "emailSubscriber"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2510,6 +2540,80 @@ export namespace Prisma {
           }
         }
       }
+      EmailSubscriber: {
+        payload: Prisma.$EmailSubscriberPayload<ExtArgs>
+        fields: Prisma.EmailSubscriberFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmailSubscriberFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSubscriberPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmailSubscriberFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSubscriberPayload>
+          }
+          findFirst: {
+            args: Prisma.EmailSubscriberFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSubscriberPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmailSubscriberFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSubscriberPayload>
+          }
+          findMany: {
+            args: Prisma.EmailSubscriberFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSubscriberPayload>[]
+          }
+          create: {
+            args: Prisma.EmailSubscriberCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSubscriberPayload>
+          }
+          createMany: {
+            args: Prisma.EmailSubscriberCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmailSubscriberCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSubscriberPayload>[]
+          }
+          delete: {
+            args: Prisma.EmailSubscriberDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSubscriberPayload>
+          }
+          update: {
+            args: Prisma.EmailSubscriberUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSubscriberPayload>
+          }
+          deleteMany: {
+            args: Prisma.EmailSubscriberDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmailSubscriberUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EmailSubscriberUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSubscriberPayload>[]
+          }
+          upsert: {
+            args: Prisma.EmailSubscriberUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSubscriberPayload>
+          }
+          aggregate: {
+            args: Prisma.EmailSubscriberAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmailSubscriber>
+          }
+          groupBy: {
+            args: Prisma.EmailSubscriberGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmailSubscriberGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmailSubscriberCountArgs<ExtArgs>
+            result: $Utils.Optional<EmailSubscriberCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2614,6 +2718,7 @@ export namespace Prisma {
     offerBanner?: OfferBannerOmit
     pageContent?: PageContentOmit
     contact?: ContactOmit
+    emailSubscriber?: EmailSubscriberOmit
   }
 
   /* Types for Logging */
@@ -26601,6 +26706,1066 @@ export namespace Prisma {
 
 
   /**
+   * Model EmailSubscriber
+   */
+
+  export type AggregateEmailSubscriber = {
+    _count: EmailSubscriberCountAggregateOutputType | null
+    _min: EmailSubscriberMinAggregateOutputType | null
+    _max: EmailSubscriberMaxAggregateOutputType | null
+  }
+
+  export type EmailSubscriberMinAggregateOutputType = {
+    id: string | null
+    email: string | null
+    status: $Enums.SubscriptionStatus | null
+    source: string | null
+    ipAddress: string | null
+    userAgent: string | null
+    unsubscribeToken: string | null
+    confirmedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmailSubscriberMaxAggregateOutputType = {
+    id: string | null
+    email: string | null
+    status: $Enums.SubscriptionStatus | null
+    source: string | null
+    ipAddress: string | null
+    userAgent: string | null
+    unsubscribeToken: string | null
+    confirmedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmailSubscriberCountAggregateOutputType = {
+    id: number
+    email: number
+    status: number
+    source: number
+    ipAddress: number
+    userAgent: number
+    unsubscribeToken: number
+    confirmedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EmailSubscriberMinAggregateInputType = {
+    id?: true
+    email?: true
+    status?: true
+    source?: true
+    ipAddress?: true
+    userAgent?: true
+    unsubscribeToken?: true
+    confirmedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmailSubscriberMaxAggregateInputType = {
+    id?: true
+    email?: true
+    status?: true
+    source?: true
+    ipAddress?: true
+    userAgent?: true
+    unsubscribeToken?: true
+    confirmedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmailSubscriberCountAggregateInputType = {
+    id?: true
+    email?: true
+    status?: true
+    source?: true
+    ipAddress?: true
+    userAgent?: true
+    unsubscribeToken?: true
+    confirmedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EmailSubscriberAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailSubscriber to aggregate.
+     */
+    where?: EmailSubscriberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailSubscribers to fetch.
+     */
+    orderBy?: EmailSubscriberOrderByWithRelationInput | EmailSubscriberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmailSubscriberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailSubscribers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailSubscribers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EmailSubscribers
+    **/
+    _count?: true | EmailSubscriberCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmailSubscriberMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmailSubscriberMaxAggregateInputType
+  }
+
+  export type GetEmailSubscriberAggregateType<T extends EmailSubscriberAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmailSubscriber]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmailSubscriber[P]>
+      : GetScalarType<T[P], AggregateEmailSubscriber[P]>
+  }
+
+
+
+
+  export type EmailSubscriberGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmailSubscriberWhereInput
+    orderBy?: EmailSubscriberOrderByWithAggregationInput | EmailSubscriberOrderByWithAggregationInput[]
+    by: EmailSubscriberScalarFieldEnum[] | EmailSubscriberScalarFieldEnum
+    having?: EmailSubscriberScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmailSubscriberCountAggregateInputType | true
+    _min?: EmailSubscriberMinAggregateInputType
+    _max?: EmailSubscriberMaxAggregateInputType
+  }
+
+  export type EmailSubscriberGroupByOutputType = {
+    id: string
+    email: string
+    status: $Enums.SubscriptionStatus
+    source: string | null
+    ipAddress: string | null
+    userAgent: string | null
+    unsubscribeToken: string | null
+    confirmedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: EmailSubscriberCountAggregateOutputType | null
+    _min: EmailSubscriberMinAggregateOutputType | null
+    _max: EmailSubscriberMaxAggregateOutputType | null
+  }
+
+  type GetEmailSubscriberGroupByPayload<T extends EmailSubscriberGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmailSubscriberGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmailSubscriberGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmailSubscriberGroupByOutputType[P]>
+            : GetScalarType<T[P], EmailSubscriberGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmailSubscriberSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    email?: boolean
+    status?: boolean
+    source?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    unsubscribeToken?: boolean
+    confirmedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["emailSubscriber"]>
+
+  export type EmailSubscriberSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    email?: boolean
+    status?: boolean
+    source?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    unsubscribeToken?: boolean
+    confirmedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["emailSubscriber"]>
+
+  export type EmailSubscriberSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    email?: boolean
+    status?: boolean
+    source?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    unsubscribeToken?: boolean
+    confirmedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["emailSubscriber"]>
+
+  export type EmailSubscriberSelectScalar = {
+    id?: boolean
+    email?: boolean
+    status?: boolean
+    source?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    unsubscribeToken?: boolean
+    confirmedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EmailSubscriberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "status" | "source" | "ipAddress" | "userAgent" | "unsubscribeToken" | "confirmedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["emailSubscriber"]>
+
+  export type $EmailSubscriberPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EmailSubscriber"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      email: string
+      status: $Enums.SubscriptionStatus
+      source: string | null
+      ipAddress: string | null
+      userAgent: string | null
+      unsubscribeToken: string | null
+      confirmedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["emailSubscriber"]>
+    composites: {}
+  }
+
+  type EmailSubscriberGetPayload<S extends boolean | null | undefined | EmailSubscriberDefaultArgs> = $Result.GetResult<Prisma.$EmailSubscriberPayload, S>
+
+  type EmailSubscriberCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmailSubscriberFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmailSubscriberCountAggregateInputType | true
+    }
+
+  export interface EmailSubscriberDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EmailSubscriber'], meta: { name: 'EmailSubscriber' } }
+    /**
+     * Find zero or one EmailSubscriber that matches the filter.
+     * @param {EmailSubscriberFindUniqueArgs} args - Arguments to find a EmailSubscriber
+     * @example
+     * // Get one EmailSubscriber
+     * const emailSubscriber = await prisma.emailSubscriber.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmailSubscriberFindUniqueArgs>(args: SelectSubset<T, EmailSubscriberFindUniqueArgs<ExtArgs>>): Prisma__EmailSubscriberClient<$Result.GetResult<Prisma.$EmailSubscriberPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmailSubscriber that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmailSubscriberFindUniqueOrThrowArgs} args - Arguments to find a EmailSubscriber
+     * @example
+     * // Get one EmailSubscriber
+     * const emailSubscriber = await prisma.emailSubscriber.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmailSubscriberFindUniqueOrThrowArgs>(args: SelectSubset<T, EmailSubscriberFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmailSubscriberClient<$Result.GetResult<Prisma.$EmailSubscriberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailSubscriber that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSubscriberFindFirstArgs} args - Arguments to find a EmailSubscriber
+     * @example
+     * // Get one EmailSubscriber
+     * const emailSubscriber = await prisma.emailSubscriber.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmailSubscriberFindFirstArgs>(args?: SelectSubset<T, EmailSubscriberFindFirstArgs<ExtArgs>>): Prisma__EmailSubscriberClient<$Result.GetResult<Prisma.$EmailSubscriberPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailSubscriber that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSubscriberFindFirstOrThrowArgs} args - Arguments to find a EmailSubscriber
+     * @example
+     * // Get one EmailSubscriber
+     * const emailSubscriber = await prisma.emailSubscriber.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmailSubscriberFindFirstOrThrowArgs>(args?: SelectSubset<T, EmailSubscriberFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmailSubscriberClient<$Result.GetResult<Prisma.$EmailSubscriberPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmailSubscribers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSubscriberFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmailSubscribers
+     * const emailSubscribers = await prisma.emailSubscriber.findMany()
+     * 
+     * // Get first 10 EmailSubscribers
+     * const emailSubscribers = await prisma.emailSubscriber.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const emailSubscriberWithIdOnly = await prisma.emailSubscriber.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmailSubscriberFindManyArgs>(args?: SelectSubset<T, EmailSubscriberFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailSubscriberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmailSubscriber.
+     * @param {EmailSubscriberCreateArgs} args - Arguments to create a EmailSubscriber.
+     * @example
+     * // Create one EmailSubscriber
+     * const EmailSubscriber = await prisma.emailSubscriber.create({
+     *   data: {
+     *     // ... data to create a EmailSubscriber
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmailSubscriberCreateArgs>(args: SelectSubset<T, EmailSubscriberCreateArgs<ExtArgs>>): Prisma__EmailSubscriberClient<$Result.GetResult<Prisma.$EmailSubscriberPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmailSubscribers.
+     * @param {EmailSubscriberCreateManyArgs} args - Arguments to create many EmailSubscribers.
+     * @example
+     * // Create many EmailSubscribers
+     * const emailSubscriber = await prisma.emailSubscriber.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmailSubscriberCreateManyArgs>(args?: SelectSubset<T, EmailSubscriberCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EmailSubscribers and returns the data saved in the database.
+     * @param {EmailSubscriberCreateManyAndReturnArgs} args - Arguments to create many EmailSubscribers.
+     * @example
+     * // Create many EmailSubscribers
+     * const emailSubscriber = await prisma.emailSubscriber.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EmailSubscribers and only return the `id`
+     * const emailSubscriberWithIdOnly = await prisma.emailSubscriber.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmailSubscriberCreateManyAndReturnArgs>(args?: SelectSubset<T, EmailSubscriberCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailSubscriberPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EmailSubscriber.
+     * @param {EmailSubscriberDeleteArgs} args - Arguments to delete one EmailSubscriber.
+     * @example
+     * // Delete one EmailSubscriber
+     * const EmailSubscriber = await prisma.emailSubscriber.delete({
+     *   where: {
+     *     // ... filter to delete one EmailSubscriber
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmailSubscriberDeleteArgs>(args: SelectSubset<T, EmailSubscriberDeleteArgs<ExtArgs>>): Prisma__EmailSubscriberClient<$Result.GetResult<Prisma.$EmailSubscriberPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmailSubscriber.
+     * @param {EmailSubscriberUpdateArgs} args - Arguments to update one EmailSubscriber.
+     * @example
+     * // Update one EmailSubscriber
+     * const emailSubscriber = await prisma.emailSubscriber.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmailSubscriberUpdateArgs>(args: SelectSubset<T, EmailSubscriberUpdateArgs<ExtArgs>>): Prisma__EmailSubscriberClient<$Result.GetResult<Prisma.$EmailSubscriberPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmailSubscribers.
+     * @param {EmailSubscriberDeleteManyArgs} args - Arguments to filter EmailSubscribers to delete.
+     * @example
+     * // Delete a few EmailSubscribers
+     * const { count } = await prisma.emailSubscriber.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmailSubscriberDeleteManyArgs>(args?: SelectSubset<T, EmailSubscriberDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmailSubscribers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSubscriberUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmailSubscribers
+     * const emailSubscriber = await prisma.emailSubscriber.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmailSubscriberUpdateManyArgs>(args: SelectSubset<T, EmailSubscriberUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmailSubscribers and returns the data updated in the database.
+     * @param {EmailSubscriberUpdateManyAndReturnArgs} args - Arguments to update many EmailSubscribers.
+     * @example
+     * // Update many EmailSubscribers
+     * const emailSubscriber = await prisma.emailSubscriber.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EmailSubscribers and only return the `id`
+     * const emailSubscriberWithIdOnly = await prisma.emailSubscriber.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EmailSubscriberUpdateManyAndReturnArgs>(args: SelectSubset<T, EmailSubscriberUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailSubscriberPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EmailSubscriber.
+     * @param {EmailSubscriberUpsertArgs} args - Arguments to update or create a EmailSubscriber.
+     * @example
+     * // Update or create a EmailSubscriber
+     * const emailSubscriber = await prisma.emailSubscriber.upsert({
+     *   create: {
+     *     // ... data to create a EmailSubscriber
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmailSubscriber we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmailSubscriberUpsertArgs>(args: SelectSubset<T, EmailSubscriberUpsertArgs<ExtArgs>>): Prisma__EmailSubscriberClient<$Result.GetResult<Prisma.$EmailSubscriberPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EmailSubscribers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSubscriberCountArgs} args - Arguments to filter EmailSubscribers to count.
+     * @example
+     * // Count the number of EmailSubscribers
+     * const count = await prisma.emailSubscriber.count({
+     *   where: {
+     *     // ... the filter for the EmailSubscribers we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmailSubscriberCountArgs>(
+      args?: Subset<T, EmailSubscriberCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmailSubscriberCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmailSubscriber.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSubscriberAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmailSubscriberAggregateArgs>(args: Subset<T, EmailSubscriberAggregateArgs>): Prisma.PrismaPromise<GetEmailSubscriberAggregateType<T>>
+
+    /**
+     * Group by EmailSubscriber.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSubscriberGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmailSubscriberGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmailSubscriberGroupByArgs['orderBy'] }
+        : { orderBy?: EmailSubscriberGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmailSubscriberGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmailSubscriberGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EmailSubscriber model
+   */
+  readonly fields: EmailSubscriberFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EmailSubscriber.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmailSubscriberClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EmailSubscriber model
+   */
+  interface EmailSubscriberFieldRefs {
+    readonly id: FieldRef<"EmailSubscriber", 'String'>
+    readonly email: FieldRef<"EmailSubscriber", 'String'>
+    readonly status: FieldRef<"EmailSubscriber", 'SubscriptionStatus'>
+    readonly source: FieldRef<"EmailSubscriber", 'String'>
+    readonly ipAddress: FieldRef<"EmailSubscriber", 'String'>
+    readonly userAgent: FieldRef<"EmailSubscriber", 'String'>
+    readonly unsubscribeToken: FieldRef<"EmailSubscriber", 'String'>
+    readonly confirmedAt: FieldRef<"EmailSubscriber", 'DateTime'>
+    readonly createdAt: FieldRef<"EmailSubscriber", 'DateTime'>
+    readonly updatedAt: FieldRef<"EmailSubscriber", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EmailSubscriber findUnique
+   */
+  export type EmailSubscriberFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSubscriber
+     */
+    select?: EmailSubscriberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSubscriber
+     */
+    omit?: EmailSubscriberOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailSubscriber to fetch.
+     */
+    where: EmailSubscriberWhereUniqueInput
+  }
+
+  /**
+   * EmailSubscriber findUniqueOrThrow
+   */
+  export type EmailSubscriberFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSubscriber
+     */
+    select?: EmailSubscriberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSubscriber
+     */
+    omit?: EmailSubscriberOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailSubscriber to fetch.
+     */
+    where: EmailSubscriberWhereUniqueInput
+  }
+
+  /**
+   * EmailSubscriber findFirst
+   */
+  export type EmailSubscriberFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSubscriber
+     */
+    select?: EmailSubscriberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSubscriber
+     */
+    omit?: EmailSubscriberOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailSubscriber to fetch.
+     */
+    where?: EmailSubscriberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailSubscribers to fetch.
+     */
+    orderBy?: EmailSubscriberOrderByWithRelationInput | EmailSubscriberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailSubscribers.
+     */
+    cursor?: EmailSubscriberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailSubscribers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailSubscribers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailSubscribers.
+     */
+    distinct?: EmailSubscriberScalarFieldEnum | EmailSubscriberScalarFieldEnum[]
+  }
+
+  /**
+   * EmailSubscriber findFirstOrThrow
+   */
+  export type EmailSubscriberFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSubscriber
+     */
+    select?: EmailSubscriberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSubscriber
+     */
+    omit?: EmailSubscriberOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailSubscriber to fetch.
+     */
+    where?: EmailSubscriberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailSubscribers to fetch.
+     */
+    orderBy?: EmailSubscriberOrderByWithRelationInput | EmailSubscriberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailSubscribers.
+     */
+    cursor?: EmailSubscriberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailSubscribers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailSubscribers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailSubscribers.
+     */
+    distinct?: EmailSubscriberScalarFieldEnum | EmailSubscriberScalarFieldEnum[]
+  }
+
+  /**
+   * EmailSubscriber findMany
+   */
+  export type EmailSubscriberFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSubscriber
+     */
+    select?: EmailSubscriberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSubscriber
+     */
+    omit?: EmailSubscriberOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailSubscribers to fetch.
+     */
+    where?: EmailSubscriberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailSubscribers to fetch.
+     */
+    orderBy?: EmailSubscriberOrderByWithRelationInput | EmailSubscriberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EmailSubscribers.
+     */
+    cursor?: EmailSubscriberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailSubscribers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailSubscribers.
+     */
+    skip?: number
+    distinct?: EmailSubscriberScalarFieldEnum | EmailSubscriberScalarFieldEnum[]
+  }
+
+  /**
+   * EmailSubscriber create
+   */
+  export type EmailSubscriberCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSubscriber
+     */
+    select?: EmailSubscriberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSubscriber
+     */
+    omit?: EmailSubscriberOmit<ExtArgs> | null
+    /**
+     * The data needed to create a EmailSubscriber.
+     */
+    data: XOR<EmailSubscriberCreateInput, EmailSubscriberUncheckedCreateInput>
+  }
+
+  /**
+   * EmailSubscriber createMany
+   */
+  export type EmailSubscriberCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EmailSubscribers.
+     */
+    data: EmailSubscriberCreateManyInput | EmailSubscriberCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EmailSubscriber createManyAndReturn
+   */
+  export type EmailSubscriberCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSubscriber
+     */
+    select?: EmailSubscriberSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSubscriber
+     */
+    omit?: EmailSubscriberOmit<ExtArgs> | null
+    /**
+     * The data used to create many EmailSubscribers.
+     */
+    data: EmailSubscriberCreateManyInput | EmailSubscriberCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EmailSubscriber update
+   */
+  export type EmailSubscriberUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSubscriber
+     */
+    select?: EmailSubscriberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSubscriber
+     */
+    omit?: EmailSubscriberOmit<ExtArgs> | null
+    /**
+     * The data needed to update a EmailSubscriber.
+     */
+    data: XOR<EmailSubscriberUpdateInput, EmailSubscriberUncheckedUpdateInput>
+    /**
+     * Choose, which EmailSubscriber to update.
+     */
+    where: EmailSubscriberWhereUniqueInput
+  }
+
+  /**
+   * EmailSubscriber updateMany
+   */
+  export type EmailSubscriberUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EmailSubscribers.
+     */
+    data: XOR<EmailSubscriberUpdateManyMutationInput, EmailSubscriberUncheckedUpdateManyInput>
+    /**
+     * Filter which EmailSubscribers to update
+     */
+    where?: EmailSubscriberWhereInput
+    /**
+     * Limit how many EmailSubscribers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailSubscriber updateManyAndReturn
+   */
+  export type EmailSubscriberUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSubscriber
+     */
+    select?: EmailSubscriberSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSubscriber
+     */
+    omit?: EmailSubscriberOmit<ExtArgs> | null
+    /**
+     * The data used to update EmailSubscribers.
+     */
+    data: XOR<EmailSubscriberUpdateManyMutationInput, EmailSubscriberUncheckedUpdateManyInput>
+    /**
+     * Filter which EmailSubscribers to update
+     */
+    where?: EmailSubscriberWhereInput
+    /**
+     * Limit how many EmailSubscribers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailSubscriber upsert
+   */
+  export type EmailSubscriberUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSubscriber
+     */
+    select?: EmailSubscriberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSubscriber
+     */
+    omit?: EmailSubscriberOmit<ExtArgs> | null
+    /**
+     * The filter to search for the EmailSubscriber to update in case it exists.
+     */
+    where: EmailSubscriberWhereUniqueInput
+    /**
+     * In case the EmailSubscriber found by the `where` argument doesn't exist, create a new EmailSubscriber with this data.
+     */
+    create: XOR<EmailSubscriberCreateInput, EmailSubscriberUncheckedCreateInput>
+    /**
+     * In case the EmailSubscriber was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmailSubscriberUpdateInput, EmailSubscriberUncheckedUpdateInput>
+  }
+
+  /**
+   * EmailSubscriber delete
+   */
+  export type EmailSubscriberDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSubscriber
+     */
+    select?: EmailSubscriberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSubscriber
+     */
+    omit?: EmailSubscriberOmit<ExtArgs> | null
+    /**
+     * Filter which EmailSubscriber to delete.
+     */
+    where: EmailSubscriberWhereUniqueInput
+  }
+
+  /**
+   * EmailSubscriber deleteMany
+   */
+  export type EmailSubscriberDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailSubscribers to delete
+     */
+    where?: EmailSubscriberWhereInput
+    /**
+     * Limit how many EmailSubscribers to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailSubscriber without action
+   */
+  export type EmailSubscriberDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSubscriber
+     */
+    select?: EmailSubscriberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSubscriber
+     */
+    omit?: EmailSubscriberOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -26966,6 +28131,22 @@ export namespace Prisma {
   export type ContactScalarFieldEnum = (typeof ContactScalarFieldEnum)[keyof typeof ContactScalarFieldEnum]
 
 
+  export const EmailSubscriberScalarFieldEnum: {
+    id: 'id',
+    email: 'email',
+    status: 'status',
+    source: 'source',
+    ipAddress: 'ipAddress',
+    userAgent: 'userAgent',
+    unsubscribeToken: 'unsubscribeToken',
+    confirmedAt: 'confirmedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EmailSubscriberScalarFieldEnum = (typeof EmailSubscriberScalarFieldEnum)[keyof typeof EmailSubscriberScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -27184,6 +28365,20 @@ export namespace Prisma {
    * Reference to a field of type 'ContactStatus[]'
    */
   export type ListEnumContactStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContactStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'SubscriptionStatus'
+   */
+  export type EnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'SubscriptionStatus[]'
+   */
+  export type ListEnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionStatus[]'>
     
   /**
    * Deep Input Types
@@ -29021,6 +30216,83 @@ export namespace Prisma {
     notes?: StringNullableWithAggregatesFilter<"Contact"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Contact"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Contact"> | Date | string
+  }
+
+  export type EmailSubscriberWhereInput = {
+    AND?: EmailSubscriberWhereInput | EmailSubscriberWhereInput[]
+    OR?: EmailSubscriberWhereInput[]
+    NOT?: EmailSubscriberWhereInput | EmailSubscriberWhereInput[]
+    id?: StringFilter<"EmailSubscriber"> | string
+    email?: StringFilter<"EmailSubscriber"> | string
+    status?: EnumSubscriptionStatusFilter<"EmailSubscriber"> | $Enums.SubscriptionStatus
+    source?: StringNullableFilter<"EmailSubscriber"> | string | null
+    ipAddress?: StringNullableFilter<"EmailSubscriber"> | string | null
+    userAgent?: StringNullableFilter<"EmailSubscriber"> | string | null
+    unsubscribeToken?: StringNullableFilter<"EmailSubscriber"> | string | null
+    confirmedAt?: DateTimeNullableFilter<"EmailSubscriber"> | Date | string | null
+    createdAt?: DateTimeFilter<"EmailSubscriber"> | Date | string
+    updatedAt?: DateTimeFilter<"EmailSubscriber"> | Date | string
+  }
+
+  export type EmailSubscriberOrderByWithRelationInput = {
+    id?: SortOrder
+    email?: SortOrder
+    status?: SortOrder
+    source?: SortOrderInput | SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    unsubscribeToken?: SortOrderInput | SortOrder
+    confirmedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailSubscriberWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    email?: string
+    unsubscribeToken?: string
+    AND?: EmailSubscriberWhereInput | EmailSubscriberWhereInput[]
+    OR?: EmailSubscriberWhereInput[]
+    NOT?: EmailSubscriberWhereInput | EmailSubscriberWhereInput[]
+    status?: EnumSubscriptionStatusFilter<"EmailSubscriber"> | $Enums.SubscriptionStatus
+    source?: StringNullableFilter<"EmailSubscriber"> | string | null
+    ipAddress?: StringNullableFilter<"EmailSubscriber"> | string | null
+    userAgent?: StringNullableFilter<"EmailSubscriber"> | string | null
+    confirmedAt?: DateTimeNullableFilter<"EmailSubscriber"> | Date | string | null
+    createdAt?: DateTimeFilter<"EmailSubscriber"> | Date | string
+    updatedAt?: DateTimeFilter<"EmailSubscriber"> | Date | string
+  }, "id" | "email" | "unsubscribeToken">
+
+  export type EmailSubscriberOrderByWithAggregationInput = {
+    id?: SortOrder
+    email?: SortOrder
+    status?: SortOrder
+    source?: SortOrderInput | SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    unsubscribeToken?: SortOrderInput | SortOrder
+    confirmedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EmailSubscriberCountOrderByAggregateInput
+    _max?: EmailSubscriberMaxOrderByAggregateInput
+    _min?: EmailSubscriberMinOrderByAggregateInput
+  }
+
+  export type EmailSubscriberScalarWhereWithAggregatesInput = {
+    AND?: EmailSubscriberScalarWhereWithAggregatesInput | EmailSubscriberScalarWhereWithAggregatesInput[]
+    OR?: EmailSubscriberScalarWhereWithAggregatesInput[]
+    NOT?: EmailSubscriberScalarWhereWithAggregatesInput | EmailSubscriberScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EmailSubscriber"> | string
+    email?: StringWithAggregatesFilter<"EmailSubscriber"> | string
+    status?: EnumSubscriptionStatusWithAggregatesFilter<"EmailSubscriber"> | $Enums.SubscriptionStatus
+    source?: StringNullableWithAggregatesFilter<"EmailSubscriber"> | string | null
+    ipAddress?: StringNullableWithAggregatesFilter<"EmailSubscriber"> | string | null
+    userAgent?: StringNullableWithAggregatesFilter<"EmailSubscriber"> | string | null
+    unsubscribeToken?: StringNullableWithAggregatesFilter<"EmailSubscriber"> | string | null
+    confirmedAt?: DateTimeNullableWithAggregatesFilter<"EmailSubscriber"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"EmailSubscriber"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"EmailSubscriber"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -31122,6 +32394,97 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EmailSubscriberCreateInput = {
+    id?: string
+    email: string
+    status?: $Enums.SubscriptionStatus
+    source?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    unsubscribeToken?: string | null
+    confirmedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailSubscriberUncheckedCreateInput = {
+    id?: string
+    email: string
+    status?: $Enums.SubscriptionStatus
+    source?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    unsubscribeToken?: string | null
+    confirmedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailSubscriberUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    unsubscribeToken?: NullableStringFieldUpdateOperationsInput | string | null
+    confirmedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailSubscriberUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    unsubscribeToken?: NullableStringFieldUpdateOperationsInput | string | null
+    confirmedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailSubscriberCreateManyInput = {
+    id?: string
+    email: string
+    status?: $Enums.SubscriptionStatus
+    source?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    unsubscribeToken?: string | null
+    confirmedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailSubscriberUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    unsubscribeToken?: NullableStringFieldUpdateOperationsInput | string | null
+    confirmedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailSubscriberUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    unsubscribeToken?: NullableStringFieldUpdateOperationsInput | string | null
+    confirmedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -32706,6 +34069,62 @@ export namespace Prisma {
     _max?: NestedEnumContactStatusFilter<$PrismaModel>
   }
 
+  export type EnumSubscriptionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionStatusFilter<$PrismaModel> | $Enums.SubscriptionStatus
+  }
+
+  export type EmailSubscriberCountOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    status?: SortOrder
+    source?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    unsubscribeToken?: SortOrder
+    confirmedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailSubscriberMaxOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    status?: SortOrder
+    source?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    unsubscribeToken?: SortOrder
+    confirmedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailSubscriberMinOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    status?: SortOrder
+    source?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    unsubscribeToken?: SortOrder
+    confirmedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionStatusWithAggregatesFilter<$PrismaModel> | $Enums.SubscriptionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
+    _max?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
+  }
+
   export type OrderCreateNestedManyWithoutUserInput = {
     create?: XOR<OrderCreateWithoutUserInput, OrderUncheckedCreateWithoutUserInput> | OrderCreateWithoutUserInput[] | OrderUncheckedCreateWithoutUserInput[]
     connectOrCreate?: OrderCreateOrConnectWithoutUserInput | OrderCreateOrConnectWithoutUserInput[]
@@ -33801,6 +35220,10 @@ export namespace Prisma {
     set?: $Enums.ContactStatus
   }
 
+  export type EnumSubscriptionStatusFieldUpdateOperationsInput = {
+    set?: $Enums.SubscriptionStatus
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -34174,6 +35597,23 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumContactStatusFilter<$PrismaModel>
     _max?: NestedEnumContactStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumSubscriptionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionStatusFilter<$PrismaModel> | $Enums.SubscriptionStatus
+  }
+
+  export type NestedEnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionStatusWithAggregatesFilter<$PrismaModel> | $Enums.SubscriptionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
+    _max?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
   }
 
   export type OrderCreateWithoutUserInput = {

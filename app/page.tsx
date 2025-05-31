@@ -149,6 +149,12 @@ export default function Home() {
   // Add state for slider pause
   const [sliderPaused, setSliderPaused] = useState(false);
 
+  // Newsletter state
+  const [email, setEmail] = useState('');
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterMessage, setNewsletterMessage] = useState('');
+  const [newsletterError, setNewsletterError] = useState('');
+
   // Slide change handlers - memoize callback functions to prevent unnecessary re-renders
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev === heroSlides.length - 1 ? 0 : prev + 1));
@@ -433,7 +439,7 @@ export default function Home() {
 
   // Format discount display - memoized for performance
   const getDiscountDisplay = useCallback((product: any) => {
-    if (!product.discount) return null;
+    if (!product.discount || product.discount <= 0) return null;
     
     if (product.discountType === 'PERCENTAGE') {
       return `-${product.discount}%`;
@@ -924,6 +930,44 @@ export default function Home() {
   // Parallax transforms
   const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.6]);
+
+  // Newsletter subscription function
+  const handleNewsletterSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !email.includes('@')) {
+      setNewsletterError(t('valid_email', 'Please enter a valid email address'));
+      return;
+    }
+
+    try {
+      setNewsletterLoading(true);
+      setNewsletterError('');
+      setNewsletterMessage('');
+
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setNewsletterMessage(data.message || t('newsletter_success', 'Successfully subscribed to newsletter!'));
+        setEmail(''); // Clear the form
+      } else {
+        setNewsletterError(data.error || t('newsletter_error', 'Failed to subscribe. Please try again.'));
+      }
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      setNewsletterError(t('network_error', 'Network error. Please try again.'));
+    } finally {
+      setNewsletterLoading(false);
+    }
+  }, [email, t]);
 
   return (
     <div className="bg-white min-h-screen" dir={language === 'ar' ? 'rtl' : 'ltr'}>
@@ -1811,6 +1855,43 @@ export default function Home() {
           height: 20px;
           color: var(--primary-color);
         }
+
+        .newsletter-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .newsletter-message {
+          margin-top: 1rem;
+          padding: 0.75rem 1rem;
+          border-radius: 0.5rem;
+          font-size: 0.875rem;
+          text-align: center;
+          animation: slideIn 0.3s ease-out;
+        }
+
+        .newsletter-success {
+          background-color: #d1fae5;
+          color: #065f46;
+          border: 1px solid #a7f3d0;
+        }
+
+        .newsletter-error {
+          background-color: #fee2e2;
+          color: #991b1b;
+          border: 1px solid #fca5a5;
+        }
+
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
       `}</style>
 
       {/* Enhanced Hero Slider with Background Image + Overlay + Centered Content */}
@@ -2230,9 +2311,11 @@ export default function Home() {
                           fill
                           className="product-image"
                         />
-                        <span className="product-badge">
-                          {getDiscountDisplay(product)}
-                        </span>
+                        {product.discount && product.discount > 0 && (
+                          <span className="product-badge">
+                            {getDiscountDisplay(product)}
+                          </span>
+                        )}
                       </div>
                       <div className="product-content">
                         <p className="product-category">{getCategoryDisplayName(getCategoryName(product.category))}</p>
@@ -2343,17 +2426,36 @@ export default function Home() {
             <h2 className="newsletter-title">{t('stay_updated', 'Stay Updated')}</h2>
             <p className="newsletter-description">{t('newsletter_desc', 'Get exclusive offers and the latest updates delivered to your inbox')}</p>
             
-            <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
+            <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>
               <input
                 type="email"
                 placeholder={t('enter_email', 'Enter your email')}
                 className="newsletter-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={newsletterLoading}
                 required
               />
-              <button type="submit" className="newsletter-button">
-                {t('subscribe', 'Subscribe')}
+              <button 
+                type="submit" 
+                className="newsletter-button"
+                disabled={newsletterLoading}
+              >
+                {newsletterLoading ? t('subscribing', 'Subscribing...') : t('subscribe', 'Subscribe')}
               </button>
             </form>
+            
+            {/* Success/Error Messages */}
+            {newsletterMessage && (
+              <div className="newsletter-message newsletter-success">
+                {newsletterMessage}
+              </div>
+            )}
+            {newsletterError && (
+              <div className="newsletter-message newsletter-error">
+                {newsletterError}
+              </div>
+            )}
           </motion.div>
         </div>
       </section>
