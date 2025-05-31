@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
@@ -8,15 +9,19 @@ import UAEDirhamSymbol from '../../components/UAEDirhamSymbol';
 
 export default function ThankYouPage() {
   const [orderDetails, setOrderDetails] = useState<any>(null);
+  const searchParams = useSearchParams();
   
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     // Retrieve the order details from localStorage
     const savedOrder = localStorage.getItem('lastOrder');
     if (savedOrder) {
       try {
-        setOrderDetails(JSON.parse(savedOrder));
+        const orderData = JSON.parse(savedOrder);
+        setOrderDetails(orderData);
       } catch (error) {
-        console.error('Error parsing order details:', error);
+        console.error('Failed to parse order details:', error);
       }
     }
   }, []);

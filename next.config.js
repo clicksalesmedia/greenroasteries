@@ -10,8 +10,8 @@ const nextConfig = {
     // Updated for Next.js 15
   },
   
-  // External packages for server components
-  serverExternalPackages: [],
+  // Transpile packages that need it
+  transpilePackages: ['@stripe/stripe-js', '@stripe/react-stripe-js'],
   
   // Optimize images
   images: {
@@ -89,18 +89,75 @@ const nextConfig = {
   },
   
   // Optimize webpack bundle
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config, { dev, isServer, webpack }) => {
+    // Handle client-side only libraries
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    
+    // Add webpack DefinePlugin to handle process.env properly
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY': JSON.stringify(
+          process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+        ),
+      })
+    );
+    
     // Optimize for production
     if (!dev) {
       config.optimization = {
         ...config.optimization,
+        usedExports: true,
+        minimize: true,
+        sideEffects: false,
         splitChunks: {
           chunks: 'all',
           cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
+            default: false,
+            vendors: false,
+            framework: {
+              name: 'framework',
               chunks: 'all',
+              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types|use-subscription)[\\/]/,
+              priority: 40,
+              enforce: true,
+            },
+            lib: {
+              test(module) {
+                return module.size() > 160000 &&
+                  /node_modules[/\\]/.test(module.nameForCondition() || '');
+              },
+              name(module) {
+                const hash = require('crypto').createHash('sha1');
+                hash.update(module.nameForCondition() || '');
+                return hash.digest('hex').substring(0, 8);
+              },
+              priority: 30,
+              minChunks: 1,
+              reuseExistingChunk: true,
+            },
+            commons: {
+              name: 'commons',
+              chunks: 'all',
+              minChunks: 2,
+              priority: 20,
+            },
+            shared: {
+              name(module, chunks) {
+                return require('crypto')
+                  .createHash('sha1')
+                  .update(chunks.reduce((acc, chunk) => acc + chunk.name, ''))
+                  .digest('hex') + (isServer ? '-server' : '');
+              },
+              priority: 10,
+              minChunks: 2,
+              reuseExistingChunk: true,
             },
           },
         },

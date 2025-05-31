@@ -50,7 +50,7 @@ export default function CustomerDashboard() {
   useEffect(() => {
     if (!isClient) return;
 
-    const token = localStorage.getItem('customerToken');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('customerToken') : null;
     if (!token) {
       router.push('/customer/login');
       return;

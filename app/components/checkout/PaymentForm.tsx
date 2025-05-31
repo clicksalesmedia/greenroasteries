@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { loadStripe } from '@stripe/stripe-js';
 import {
   Elements,
@@ -11,12 +12,13 @@ import {
 } from '@stripe/react-stripe-js';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-// Initialize Stripe only on client side
+// Initialize Stripe promise
+let stripePromise: Promise<any> | null = null;
 const getStripePromise = () => {
-  if (typeof window !== 'undefined') {
-    return loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+  if (!stripePromise && typeof window !== 'undefined') {
+    stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
   }
-  return null;
+  return stripePromise;
 };
 
 interface PaymentFormProps {
@@ -26,10 +28,16 @@ interface PaymentFormProps {
     phone: string;
   };
   shippingInfo: {
-    city: string;
     address: string;
+    city: string;
   };
-  items: any[];
+  items: Array<{
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    variation: any;
+  }>;
   totalAmount: number;
   subtotal: number;
   tax: number;
@@ -40,7 +48,7 @@ interface PaymentFormProps {
   isSubmitting: boolean;
 }
 
-function StripePaymentForm({ 
+function CheckoutForm({ 
   customerInfo, 
   shippingInfo, 
   items, 
@@ -98,7 +106,7 @@ function StripePaymentForm({
 
   // Set up payment request for Apple Pay / Google Pay
   useEffect(() => {
-    if (!stripe) return;
+    if (!stripe || typeof window === 'undefined') return;
 
     const pr = stripe.paymentRequest({
       country: 'AE',
@@ -397,27 +405,32 @@ function StripePaymentForm({
   );
 }
 
-export default function PaymentForm(props: PaymentFormProps) {
-  const [isClient, setIsClient] = useState(false);
+// Create the PaymentForm component using dynamic import with SSR disabled
+const PaymentForm = dynamic(
+  () => Promise.resolve(function PaymentFormWrapper(props: PaymentFormProps) {
+    const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+    useEffect(() => {
+      setMounted(true);
+    }, []);
 
-  // Don't render Stripe elements on server side
-  if (!isClient) {
+    if (!mounted) {
+      return (
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded mb-4"></div>
+          <div className="h-12 bg-gray-200 rounded mb-4"></div>
+          <div className="h-40 bg-gray-200 rounded"></div>
+        </div>
+      );
+    }
+
     return (
-      <div className="animate-pulse">
-        <div className="h-8 bg-gray-200 rounded mb-4"></div>
-        <div className="h-12 bg-gray-200 rounded mb-4"></div>
-        <div className="h-40 bg-gray-200 rounded"></div>
-      </div>
+      <Elements stripe={getStripePromise()}>
+        <CheckoutForm {...props} />
+      </Elements>
     );
-  }
+  }),
+  { ssr: false }
+);
 
-  return (
-    <Elements stripe={getStripePromise()}>
-      <StripePaymentForm {...props} />
-    </Elements>
-  );
-} 
+export default PaymentForm; 
