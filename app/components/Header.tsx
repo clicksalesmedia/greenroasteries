@@ -53,43 +53,9 @@ export default function Header() {
 
   // At the beginning of the component, add a mapping object for category name translations
   const getCategorySlug = (categoryName: string) => {
-    const arabicToEnglishMapping: { [key: string]: string } = {
-      'قهوة عربية': 'arabic-coffee',
-      'القهوة العربية': 'arabic-coffee',
-      'قهوة مطحونة': 'filter-coffee',
-      'قهوة اسبريسو': 'espresso-roast',
-      'تحميص الإسبريسو': 'espresso-roast',
-      'قهوة تركية': 'turkish-coffee',
-      'تحميص تركي': 'turkish-coffee',
-      'المكسرات والفواكه المجففة': 'nuts-dried-food',
-      'مكسرات وفواكه مجففة': 'nuts-dried-food',
-      'ARABIC COFFEE': 'arabic-coffee',
-      'FILTER COFFEE': 'filter-coffee',
-      'ESPRESSO ROAST': 'espresso-roast',
-      'TURKISH COFFEE': 'turkish-coffee',
-      'NUTS & DRIED FOOD': 'nuts-dried-food',
-      'NUTS & DRIED FRUITS': 'nuts-dried-food',
-    };
-
-    // Check for exact match first
-    if (arabicToEnglishMapping[categoryName]) {
-      return arabicToEnglishMapping[categoryName];
-    }
-
-    // Check for case-insensitive match
-    const upperCaseName = categoryName.toUpperCase();
-    for (const [key, value] of Object.entries(arabicToEnglishMapping)) {
-      if (key.toUpperCase() === upperCaseName) {
-        return value;
-      }
-    }
-
-    // Default slug generation
-    return categoryName
-      .toLowerCase()
-      .replace(/[^a-z0-9\u0600-\u06FF\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .trim();
+    // Return the actual category name instead of converting to slug
+    // This will be URL encoded when used in the link
+    return categoryName;
   };
 
   // Handle search functionality
@@ -495,7 +461,7 @@ export default function Header() {
                         {categories.map(category => (
                           <Link 
                             key={category.id}
-                            href={`/shop?category=${encodeURIComponent(getCategorySlug(category.name))}`}
+                            href={`/shop?category=${encodeURIComponent(category.name)}`}
                             className="block py-2 text-gray-800 hover:text-black"
                             onClick={() => setMobileMenuOpen(false)}
                           >
@@ -579,7 +545,7 @@ export default function Header() {
                       categories.map(category => (
                         <Link 
                           key={category.id}
-                          href={`/shop?category=${encodeURIComponent(getCategorySlug(category.name))}`}
+                          href={`/shop?category=${encodeURIComponent(category.name)}`}
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           onClick={() => setShopDropdownOpen(false)}
                         >
@@ -647,7 +613,7 @@ export default function Header() {
                           {searchResults.categories.map((category: any) => (
                             <Link 
                               key={category.id}
-                              href={`/shop?category=${encodeURIComponent(getCategorySlug(category.name))}`}
+                              href={`/shop?category=${encodeURIComponent(category.name)}`}
                               className="block p-2 hover:bg-gray-100 rounded-md text-sm"
                               onClick={() => setSearchOpen(false)}
                             >
