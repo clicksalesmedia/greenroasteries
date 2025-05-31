@@ -39,8 +39,17 @@ export default function CustomerDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const [isClient, setIsClient] = useState(false);
 
+  // First useEffect to set client-side flag
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Second useEffect for client-side logic only
+  useEffect(() => {
+    if (!isClient) return;
+
     const token = localStorage.getItem('customerToken');
     if (!token) {
       router.push('/customer/login');
@@ -48,7 +57,7 @@ export default function CustomerDashboard() {
     }
 
     fetchCustomerData(token);
-  }, [router]);
+  }, [router, isClient]);
 
   const fetchCustomerData = async (token: string) => {
     try {
@@ -86,8 +95,10 @@ export default function CustomerDashboard() {
   };
 
   const logout = () => {
-    localStorage.removeItem('customerToken');
-    localStorage.removeItem('customerId');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('customerToken');
+      localStorage.removeItem('customerId');
+    }
     router.push('/customer/login');
   };
 
@@ -110,7 +121,8 @@ export default function CustomerDashboard() {
     });
   };
 
-  if (loading) {
+  // Show loading state until client-side hydration is complete
+  if (!isClient || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-gray-100 flex items-center justify-center">
         <div className="text-center">

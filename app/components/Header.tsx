@@ -14,7 +14,8 @@ export default function Header() {
   const [shopDropdownOpen, setShopDropdownOpen] = useState(false);
   const [cartDropdownOpen, setCartDropdownOpen] = useState(false);
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
   const shopDropdownRef = useRef<HTMLLIElement>(null);
   const cartDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -33,8 +34,8 @@ export default function Header() {
   const [searchResults, setSearchResults] = useState<SearchResultsType>({
     products: [],
     categories: [],
-    variations: { beans: [], types: [], sizes: [] },
-    isLoading: false
+    variations: {},
+    isLoading: false,
   });
   const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -45,37 +46,50 @@ export default function Header() {
   // Get translation function from language context
   const { t, language } = useLanguage();
 
+  // Client-side hydration flag
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // At the beginning of the component, add a mapping object for category name translations
   const getCategorySlug = (categoryName: string) => {
-    // Map of Arabic category names to their English equivalents for URLs
-    const categoryMappings: Record<string, string> = {
-      'المكسرات والفواكه المجففة': 'NUTS & DRIED FRUITS',
-      'مكسرات وفواكه مجففة': 'NUTS & DRIED FRUITS',
-      'قهوة عربية': 'ARABIC COFFEE',
-      'القهوة العربية': 'ARABIC COFFEE',
-      'قهوة مختصة': 'SPECIALTY COFFEE',
-      'قهوة مطحونة': 'GROUND COFFEE',
-      'قهوة اسبريسو': 'ESPRESSO ROAST',
-      'تحميص الإسبريسو': 'ESPRESSO ROAST',
-      'قهوة متوسطة التحميص': 'MEDIUM ROAST',
-      'تحميص متوسط': 'MEDIUM ROAST',
-      'قهوة داكنة التحميص': 'DARK ROAST',
-      'تحميص داكن': 'DARK ROAST',
-      'قهوة فاتحة التحميص': 'LIGHT ROAST',
-      'تحميص فاتح': 'LIGHT ROAST',
-      'أكسسوارات القهوة': 'COFFEE ACCESSORIES',
-      'تحميص تركي': 'TURKISH ROAST',
-      'قهوة تركية': 'TURKISH COFFEE',
-      'أرابيكا': 'ARABICA',
-      'روبوستا': 'ROBUSTA',
-      'خلطات': 'BLEND',
-      'أصل واحد': 'SINGLE ORIGIN',
-      'إسبريسو': 'ESPRESSO',
-      'خالية من الكافيين': 'DECAF'
+    const arabicToEnglishMapping: { [key: string]: string } = {
+      'قهوة عربية': 'arabic-coffee',
+      'القهوة العربية': 'arabic-coffee',
+      'قهوة مطحونة': 'filter-coffee',
+      'قهوة اسبريسو': 'espresso-roast',
+      'تحميص الإسبريسو': 'espresso-roast',
+      'قهوة تركية': 'turkish-coffee',
+      'تحميص تركي': 'turkish-coffee',
+      'المكسرات والفواكه المجففة': 'nuts-dried-food',
+      'مكسرات وفواكه مجففة': 'nuts-dried-food',
+      'ARABIC COFFEE': 'arabic-coffee',
+      'FILTER COFFEE': 'filter-coffee',
+      'ESPRESSO ROAST': 'espresso-roast',
+      'TURKISH COFFEE': 'turkish-coffee',
+      'NUTS & DRIED FOOD': 'nuts-dried-food',
+      'NUTS & DRIED FRUITS': 'nuts-dried-food',
     };
-    
-    // Always use English category names in URLs, regardless of display language
-    return categoryMappings[categoryName] || categoryName;
+
+    // Check for exact match first
+    if (arabicToEnglishMapping[categoryName]) {
+      return arabicToEnglishMapping[categoryName];
+    }
+
+    // Check for case-insensitive match
+    const upperCaseName = categoryName.toUpperCase();
+    for (const [key, value] of Object.entries(arabicToEnglishMapping)) {
+      if (key.toUpperCase() === upperCaseName) {
+        return value;
+      }
+    }
+
+    // Default slug generation
+    return categoryName
+      .toLowerCase()
+      .replace(/[^a-z0-9\u0600-\u06FF\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .trim();
   };
 
   // Handle search functionality
@@ -124,7 +138,7 @@ export default function Header() {
       setSearchResults({
         products: products.slice(0, 5), // Limit to 5 results for display
         categories: Array.isArray(categories) ? categories.slice(0, 3) : [],
-        variations: variations || { beans: [], types: [], sizes: [] },
+        variations: variations || {},
         isLoading: false
       });
     } catch (error) {
@@ -132,7 +146,7 @@ export default function Header() {
       setSearchResults({
         products: [],
         categories: [],
-        variations: { beans: [], types: [], sizes: [] },
+        variations: {},
         isLoading: false
       });
     }
@@ -405,7 +419,7 @@ export default function Header() {
             <a href="#" className="mr-4">{t('my_account', 'My Account')}</a>
             <a href="#" className="mr-4">{t('wishlist', 'Wishlist')}</a>
             <a href="#" className="mr-4">{t('contact', 'Contact')}</a>
-            <Link href="/cart">{t('cart', 'Cart')} ({totalItems})</Link>
+            <Link href="/cart">{t('cart', 'Cart')} ({isClient ? totalItems : 0})</Link>
           </div>
         </div>
       </div>
@@ -702,7 +716,7 @@ export default function Header() {
                 className="text-gray-800 focus:outline-none relative"
               >
                 <ShoppingBagIcon className="h-5 w-5" />
-                {totalItems > 0 && (
+                {isClient && totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                     {totalItems}
                   </span>
@@ -713,10 +727,10 @@ export default function Header() {
               {cartDropdownOpen && (
                 <div className={`absolute ${language === 'ar' ? 'right-auto left-0' : 'right-0'} mt-2 w-80 bg-white shadow-lg rounded-md z-50 py-2 border border-gray-100`}>
                   <div className="px-4 py-2 border-b border-gray-100">
-                    <h3 className="font-medium text-lg">{t('your_cart', 'Your Cart')} ({totalItems})</h3>
+                    <h3 className="font-medium text-lg">{t('your_cart', 'Your Cart')} ({isClient ? totalItems : 0})</h3>
                   </div>
                   
-                  {items.length === 0 ? (
+                  {!isClient || items.length === 0 ? (
                     <div className="px-4 py-6 text-center text-gray-500">
                       {t('cart_empty', 'Your cart is empty')}
                     </div>
