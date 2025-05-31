@@ -20,10 +20,6 @@ export async function POST(request: NextRequest) {
       amount: formatAmountForStripe(amount),
       currency: currency.toLowerCase(),
       payment_method_types: ['card'],
-      automatic_payment_methods: {
-        enabled: true,
-        allow_redirects: 'never',
-      },
       metadata: {
         customerName: customerInfo?.fullName || '',
         customerEmail: customerInfo?.email || '',

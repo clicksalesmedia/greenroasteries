@@ -2,9 +2,7 @@ import Stripe from 'stripe';
 import { loadStripe, Stripe as StripeJS } from '@stripe/stripe-js';
 
 // Server-side Stripe instance
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-04-30.basil',
-});
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 // Client-side Stripe instance
 let stripePromise: Promise<StripeJS | null>;
