@@ -608,190 +608,105 @@ export default function Header() {
               
               {/* Search modal/dropdown */}
               {searchOpen && (
-                <div className={`absolute ${language === 'ar' ? 'right-auto left-0' : 'right-0'} mt-2 w-80 md:w-96 bg-white shadow-lg rounded-md z-50 p-4 border border-gray-100`}>
-                  <form onSubmit={handleSearchSubmit}>
-                    <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
-                      <input
-                        type="text"
-                        ref={searchInputRef}
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        placeholder={t('search_placeholder', 'Search products, categories...')}
-                        className="w-full px-4 py-2 focus:outline-none"
-                      />
-                      <button 
-                        type="submit"
-                        className="bg-black text-white px-3 py-2"
-                      >
-                        <MagnifyingGlassIcon className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </form>
+                <div className="absolute right-0 top-8 w-80 bg-white shadow-lg rounded-lg border border-gray-200 z-50 p-4">
+                  <div className="mb-4">
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      placeholder={t('search_placeholder', 'Search for products, categories...')}
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                    />
+                  </div>
                   
-                  {/* Search results */}
-                  {searchQuery && (
-                    <div className="mt-4 max-h-80 overflow-y-auto">
-                      {searchResults.isLoading ? (
-                        <div className="py-3 text-center text-gray-500">
-                          {t('loading', 'Loading...')}
+                  {searchResults.isLoading ? (
+                    <div className="flex justify-center py-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+                    </div>
+                  ) : searchQuery.trim() && (searchResults.products.length > 0 || searchResults.categories.length > 0) ? (
+                    <div className="space-y-3 max-h-80 overflow-y-auto">
+                      {/* Categories */}
+                      {searchResults.categories.length > 0 && (
+                        <div>
+                          <h4 className="font-medium text-gray-700 mb-2">{t('categories', 'Categories')}</h4>
+                          {searchResults.categories.map((category: any) => (
+                            <Link 
+                              key={category.id}
+                              href={`/shop?category=${encodeURIComponent(getCategorySlug(category.name))}`}
+                              className="block p-2 hover:bg-gray-100 rounded-md text-sm"
+                              onClick={() => setSearchOpen(false)}
+                            >
+                              📁 {category.name}
+                            </Link>
+                          ))}
                         </div>
-                      ) : (
-                        <>
-                          {/* Products section */}
-                          {searchResults.products && searchResults.products.length > 0 && (
-                            <div className="mb-4">
-                              <h3 className="font-medium text-sm text-gray-500 mb-2">{t('products', 'Products')}</h3>
-                              <div className="space-y-3">
-                                {searchResults.products.map((product: any) => (
-                                  <Link 
-                                    key={product.id} 
-                                    href={`/product/${product.slug}`}
-                                    className="flex items-center p-2 hover:bg-gray-50 rounded-md"
-                                    onClick={() => setSearchOpen(false)}
-                                  >
-                                    <div className="w-10 h-10 bg-gray-100 rounded-md relative overflow-hidden flex-shrink-0">
-                                      {product.imageUrl ? (
-                                        <Image 
-                                          src={product.imageUrl} 
-                                          alt={product.name}
-                                          fill
-                                          className="object-cover"
-                                        />
-                                      ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                          <ShoppingBagIcon className="h-5 w-5" />
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className="ml-3">
-                                      <div className="text-sm font-medium">
-                                        {language === 'ar' && product.nameAr ? product.nameAr : product.name}
-                                      </div>
-                                      <div className="text-xs text-gray-500 flex items-center gap-1">
-                                        {product.price.toFixed(2)}
-                                        <UAEDirhamSymbol size={10} />
-                                      </div>
-                                    </div>
-                                  </Link>
-                                ))}
-                                <Link 
-                                  href={`/shop?search=${encodeURIComponent(searchQuery)}`}
-                                  className="block text-sm text-center text-black underline py-1 hover:text-gray-600"
-                                  onClick={() => setSearchOpen(false)}
-                                >
-                                  {t('view_all_results', 'View all results')}
-                                </Link>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Categories section */}
-                          {searchResults.categories && searchResults.categories.length > 0 && (
-                            <div className="mb-4">
-                              <h3 className="font-medium text-sm text-gray-500 mb-2">{t('categories', 'Categories')}</h3>
-                              <div className="space-y-2">
-                                {searchResults.categories.map((category: any) => (
-                                  <Link 
-                                    key={category.id} 
-                                    href={`/shop?category=${encodeURIComponent(getCategorySlug(category.name))}`}
-                                    className="block p-2 hover:bg-gray-50 rounded-md"
-                                    onClick={() => setSearchOpen(false)}
-                                  >
-                                    <span className="text-sm font-medium">
-                                      {language === 'ar' && category.nameAr ? category.nameAr : category.name}
-                                    </span>
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Variations section (beans, additions, etc.) */}
-                          {searchResults.variations && (
-                            <>
-                              {/* Beans */}
-                              {searchResults.variations.beans && searchResults.variations.beans.length > 0 && (
-                                <div className="mb-4">
-                                  <h3 className="font-medium text-sm text-gray-500 mb-2">{t('coffee_beans', 'Coffee Beans')}</h3>
-                                  <div className="space-y-2">
-                                    {searchResults.variations.beans.map((bean: any) => (
-                                      <Link 
-                                        key={bean.id} 
-                                        href={`/shop?beans=${encodeURIComponent(bean.name)}`}
-                                        className="block p-2 hover:bg-gray-50 rounded-md"
-                                        onClick={() => setSearchOpen(false)}
-                                      >
-                                        <span className="text-sm font-medium">
-                                          {language === 'ar' && bean.arabicName ? bean.arabicName : bean.name}
-                                        </span>
-                                      </Link>
-                                    ))}
-                                  </div>
+                      )}
+                      
+                      {/* Products */}
+                      {searchResults.products.length > 0 && (
+                        <div>
+                          <h4 className="font-medium text-gray-700 mb-2">{t('products', 'Products')}</h4>
+                          {searchResults.products.map((product: any) => (
+                            <Link 
+                              key={product.id}
+                              href={`/product/${product.slug}`}
+                              className="flex items-center p-2 hover:bg-gray-100 rounded-md text-sm space-x-3"
+                              onClick={() => setSearchOpen(false)}
+                            >
+                              {product.imageUrl ? (
+                                <img 
+                                  src={product.imageUrl} 
+                                  alt={product.name}
+                                  className="w-10 h-10 object-cover rounded-md"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center">
+                                  ☕
                                 </div>
                               )}
-                              
-                              {/* Additions (Types) */}
-                              {searchResults.variations.types && searchResults.variations.types.length > 0 && (
-                                <div className="mb-4">
-                                  <h3 className="font-medium text-sm text-gray-500 mb-2">{t('additions', 'Additions')}</h3>
-                                  <div className="space-y-2">
-                                    {searchResults.variations.types.map((type: any) => (
-                                      <Link 
-                                        key={type.id} 
-                                        href={`/shop?additions=${encodeURIComponent(type.name)}`}
-                                        className="block p-2 hover:bg-gray-50 rounded-md"
-                                        onClick={() => setSearchOpen(false)}
-                                      >
-                                        <span className="text-sm font-medium">
-                                          {language === 'ar' && type.arabicName ? type.arabicName : type.name}
-                                        </span>
-                                      </Link>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </>
-                          )}
-                          
-                          {/* No results message */}
-                          {(!searchResults.products || searchResults.products.length === 0) && 
-                           (!searchResults.categories || searchResults.categories.length === 0) && 
-                           (!searchResults.variations.beans || searchResults.variations.beans.length === 0) && 
-                           (!searchResults.variations.types || searchResults.variations.types.length === 0) && (
-                            <div className="py-3 text-center text-gray-500">
-                              {t('no_results', 'No results found')}
-                            </div>
-                          )}
-                        </>
+                              <div className="flex-1">
+                                <p className="font-medium">{product.name}</p>
+                                <p className="text-gray-500 text-xs">{formatPrice(product.price)}</p>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
                       )}
                     </div>
-                  )}
+                  ) : searchQuery.trim() ? (
+                    <div className="text-center py-4 text-gray-500">
+                      {t('no_results', 'No results found')}
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>
             
-            {/* Add language switcher next to search icon */}
+            {/* Add language switcher */}
             <LanguageSwitcher />
             
-            <Link href="/account" className="text-gray-800">
+            {/* Customer Login Icon */}
+            <Link
+              href="/customer/login"
+              className="text-gray-800 hover:text-green-600 focus:outline-none transition-colors duration-200"
+              title={t('customer_account', 'Customer Account')}
+            >
               <UserIcon className="h-5 w-5" />
             </Link>
             
-            {/* Cart icon with count badge and dropdown */}
+            {/* Shopping cart with dropdown */}
             <div className="relative" ref={cartDropdownRef}>
               <button 
                 onClick={toggleCartDropdown}
-                className="flex items-center text-gray-800 focus:outline-none"
-                aria-label="Shopping cart"
+                className="text-gray-800 focus:outline-none relative"
               >
-                <div className="relative">
-                  <ShoppingBagIcon className="h-5 w-5" />
-                  {totalItems > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                      {totalItems}
-                    </span>
-                  )}
-                </div>
+                <ShoppingBagIcon className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                    {totalItems}
+                  </span>
+                )}
               </button>
               
               {/* Cart dropdown */}

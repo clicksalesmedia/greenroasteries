@@ -13,7 +13,6 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showTip, setShowTip] = useState(false);
   const { t, language } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,7 +53,6 @@ export default function Login() {
 
       if (response.status === 401) {
         setErrorMessage('Invalid email or password. Please try again.');
-        setShowTip(true);
       } else if (response.status === 403) {
         setErrorMessage(data.error || 'Access denied. Please contact support.');
       } else {
@@ -71,7 +69,6 @@ export default function Login() {
       } else {
         setErrorMessage('An unexpected error occurred. Please try again.');
       }
-      setShowTip(true);
     } finally {
       setIsLoading(false);
     }
@@ -79,36 +76,31 @@ export default function Login() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen flex items-center justify-center bg-gray-100" dir={getDirection(language)}>
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="bg-green-800 text-white py-4 px-6">
-            <h2 className="text-2xl font-bold text-center">Green Roasteries</h2>
-            <p className="text-center text-green-100">{t('admin_dashboard', 'Admin Dashboard')}</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-gray-100" dir={getDirection(language)}>
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-green-100">
+          <div className="bg-gradient-to-r from-green-700 to-green-800 text-white py-6 px-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="text-2xl">🌱</span>
+              </div>
+              <h2 className="text-2xl font-bold">Green Roasteries</h2>
+              <p className="text-green-100 mt-1">{t('admin_dashboard', 'Admin Dashboard')}</p>
+            </div>
           </div>
           
-          <div className="p-6">
-            <h3 className="text-xl font-semibold mb-4 text-center">{t('sign_in', 'Sign In')}</h3>
+          <div className="p-8">
+            <h3 className="text-xl font-semibold mb-6 text-center text-gray-800">{t('sign_in', 'Sign In')}</h3>
             
             {errorMessage && (
-              <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4 text-sm border border-red-200">
+              <div className="bg-red-50 text-red-700 p-4 rounded-xl mb-6 text-sm border border-red-200 flex items-center">
+                <span className="mr-2">⚠️</span>
                 {errorMessage}
               </div>
             )}
-
-            {showTip && (
-              <div className="bg-yellow-50 text-yellow-800 p-3 rounded-md mb-4 text-sm border border-yellow-200">
-                <p><strong>{t('available_admin_accounts', 'Available admin accounts:')}</strong></p>
-                <ul className="list-disc pl-5 mt-1">
-                  <li>Email: admin@thegreenroasteries.com</li>
-                  <li>Password: Admin@123</li>
-                </ul>
-                <p className="mt-1 text-xs">{t('account_created_note', 'Note: This account was created by the system repair tool')}</p>
-              </div>
-            )}
             
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="email" className="block text-gray-700 text-sm font-semibold mb-2">
                   {t('email_address', 'Email Address')}
                 </label>
                 <input
@@ -116,16 +108,16 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition-colors"
-                  placeholder={t('email_placeholder', 'email@example.com')}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition-all duration-200"
+                  placeholder={t('email_placeholder', 'admin@thegreenroasteries.com')}
                   required
                   disabled={isLoading}
                   autoComplete="email"
                 />
               </div>
               
-              <div className="mb-6">
-                <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-2">
+              <div>
+                <label htmlFor="password" className="block text-gray-700 text-sm font-semibold mb-2">
                   {t('password', 'Password')}
                 </label>
                 <input
@@ -133,13 +125,13 @@ export default function Login() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition-all duration-200"
                   placeholder="••••••••"
                   required
                   disabled={isLoading}
                   autoComplete="current-password"
                 />
-                <div className={`mt-1 text-${language === 'ar' ? 'left' : 'right'}`}>
+                <div className={`mt-2 text-${language === 'ar' ? 'left' : 'right'}`}>
                   <Link 
                     href="/backend/forgot-password"
                     className="text-sm text-green-700 hover:text-green-900 transition-colors"
@@ -152,15 +144,15 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-all duration-200 ${
+                className={`w-full bg-gradient-to-r from-green-700 to-green-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 transform ${
                   isLoading 
                     ? 'opacity-70 cursor-not-allowed' 
-                    : 'hover:bg-green-800 active:bg-green-900 transform active:scale-95'
+                    : 'hover:from-green-800 hover:to-green-900 active:scale-95 shadow-lg hover:shadow-xl'
                 }`}
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -170,19 +162,13 @@ export default function Login() {
                   t('sign_in', 'Sign In')
                 )}
               </button>
-              
-              {!showTip && (
-                <div className="mt-4 text-center">
-                  <button 
-                    type="button"
-                    onClick={() => setShowTip(true)}
-                    className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    {t('show_login_tips', 'Show login tips')}
-                  </button>
-                </div>
-              )}
             </form>
+            
+            <div className="mt-6 text-center">
+              <p className="text-xs text-gray-500">
+                {t('secure_login_notice', 'This is a secure admin area. Unauthorized access is prohibited.')}
+              </p>
+            </div>
           </div>
         </div>
       </div>
