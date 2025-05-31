@@ -41,22 +41,26 @@ interface OrderStatusEmailData {
 
 class EmailService {
   private apiKey: string;
-  private senderEmail: string;
+  private ordersEmail: string;
+  private supportEmail: string;
   private senderName: string;
   private baseUrl: string;
 
   constructor() {
     this.apiKey = process.env.BREVO_API_KEY || '';
-    this.senderEmail = process.env.BREVO_SENDER_EMAIL || 'noreply@greenroasteries.com';
+    this.ordersEmail = process.env.BREVO_ORDERS_EMAIL || 'orders@thegreenroasteries.com';
+    this.supportEmail = process.env.BREVO_SUPPORT_EMAIL || 'support@thegreenroasteries.com';
     this.senderName = process.env.BREVO_SENDER_NAME || 'Green Roasteries';
-    this.baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    this.baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegreenroasteries.com';
   }
 
-  private async sendEmail(data: EmailData): Promise<boolean> {
+  private async sendEmail(data: EmailData, emailType: 'order' | 'support' = 'support'): Promise<boolean> {
     try {
+      const senderEmail = emailType === 'order' ? this.ordersEmail : this.supportEmail;
+      
       if (!this.apiKey || this.apiKey === 'mock_brevo_api_key') {
         console.log('📧 Mock Email Sent (No API Key):', {
-          from: `${this.senderName} <${this.senderEmail}>`,
+          from: `${this.senderName} <${senderEmail}>`,
           to: data.to,
           subject: data.subject,
           content: data.htmlContent
@@ -74,7 +78,7 @@ class EmailService {
         body: JSON.stringify({
           sender: {
             name: this.senderName,
-            email: this.senderEmail
+            email: senderEmail
           },
           to: [{ email: data.to }],
           subject: data.subject,
@@ -206,7 +210,7 @@ The Green Roasteries Team
       subject: `🌱 Welcome to Green Roasteries - Order #${data.orderId}`,
       htmlContent,
       textContent
-    });
+    }, 'order');
   }
 
   async sendThankYouEmail(data: ThankYouEmailData): Promise<boolean> {
@@ -327,7 +331,7 @@ The Green Roasteries Team
       subject: `📦 Order Confirmation #${data.orderId} - Green Roasteries`,
       htmlContent,
       textContent
-    });
+    }, 'order');
   }
 
   async sendForgotPasswordEmail(data: ForgotPasswordEmailData): Promise<boolean> {
@@ -424,7 +428,7 @@ The Green Roasteries Security Team
       subject: `🔐 Reset Your Password - Green Roasteries`,
       htmlContent,
       textContent
-    });
+    }, 'support');
   }
 
   async sendOrderStatusEmail(data: OrderStatusEmailData): Promise<boolean> {
@@ -522,7 +526,7 @@ The Green Roasteries Team
       subject: `${status.icon} Order #${data.orderId} - ${data.status}`,
       htmlContent,
       textContent
-    });
+    }, 'support');
   }
 }
 

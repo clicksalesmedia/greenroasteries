@@ -36,7 +36,7 @@ export async function POST(request: Request) {
           customerName: 'Test Customer',
           email: email,
           resetToken: 'test-reset-token-123',
-          resetUrl: 'http://localhost:3000/reset-password?token=test-reset-token-123'
+          resetUrl: 'https://thegreenroasteries.com/reset-password?token=test-reset-token-123'
         });
         break;
 
