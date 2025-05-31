@@ -9,23 +9,25 @@ datasource db {
 }
 
 model User {
-  id            String       @id @default(uuid())
-  email         String       @unique
-  name          String?
-  password      String
-  role          UserRole     @default(CUSTOMER)
-  isActive      Boolean      @default(true)
-  address       String?
-  phone         String?
-  city          String?
-  isNewCustomer Boolean      @default(true)
-  lastLoginAt   DateTime?
-  emailVerified Boolean      @default(false)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  orders        Order[]
-  permissions   Permission[]
-  payments      Payment[]
+  id               String       @id @default(uuid())
+  email            String       @unique
+  name             String?
+  password         String
+  role             UserRole     @default(CUSTOMER)
+  isActive         Boolean      @default(true)
+  address          String?
+  phone            String?
+  city             String?
+  isNewCustomer    Boolean      @default(true)
+  lastLoginAt      DateTime?
+  emailVerified    Boolean      @default(false)
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  orders           Order[]
+  permissions      Permission[]
+  payments         Payment[]
 }
 
 model Permission {

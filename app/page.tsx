@@ -2273,7 +2273,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="feature-title">{t('free_shipping', 'Free Shipping')}</h3>
-              <p className="feature-description">{t('free_shipping_desc', 'On orders over 65D')}</p>
+              <p className="feature-description">{t('free_shipping_desc', 'On orders over 200 AED')}</p>
             </motion.div>
             
             <motion.div

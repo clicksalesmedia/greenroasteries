@@ -168,6 +168,7 @@ export async function POST(request: NextRequest) {
       } else {
         await emailService.sendThankYouEmail({
           customerName: customerInfo.fullName,
+          email: customerInfo.email,
           orderId: order.id,
           orderTotal: totalAmount,
           items: order.items.map(item => ({

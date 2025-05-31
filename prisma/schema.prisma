@@ -21,6 +21,8 @@ model User {
   isNewCustomer Boolean @default(true)
   lastLoginAt DateTime?
   emailVerified Boolean @default(false)
+  resetToken String?
+  resetTokenExpiry DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]
