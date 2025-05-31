@@ -6,11 +6,11 @@ const prisma = new PrismaClient();
 // Update order status
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { status } = await request.json();
-    const orderId = params.id;
+    const { id: orderId } = await params;
 
     // Validate status
     const validStatuses = ['NEW', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'];
@@ -82,10 +82,10 @@ export async function PATCH(
 // Delete order
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const orderId = params.id;
+    const { id: orderId } = await params;
 
     // Check if order exists
     const existingOrder = await prisma.order.findUnique({
@@ -147,10 +147,10 @@ export async function DELETE(
 // Get individual order
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const orderId = params.id;
+    const { id: orderId } = await params;
 
     const order = await prisma.order.findUnique({
       where: { id: orderId },
