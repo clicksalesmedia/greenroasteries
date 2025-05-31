@@ -294,6 +294,26 @@ model Slider {
   updatedAt       DateTime @updatedAt
 }
 
+model OfferBanner {
+  id              String   @id @default(uuid())
+  title           String
+  titleAr         String?
+  subtitle        String
+  subtitleAr      String?
+  buttonText      String
+  buttonTextAr    String?
+  buttonLink      String
+  backgroundColor String   @default("#ffffff")
+  textColor       String?  @default("#000000")
+  buttonColor     String?  @default("#000000")
+  overlayColor    String?  @default("rgba(0,0,0,0.3)")
+  overlayOpacity  Float?   @default(30)
+  imageUrl        String
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 model PageContent {
   id          String   @id @default(uuid())
   pageType    PageType

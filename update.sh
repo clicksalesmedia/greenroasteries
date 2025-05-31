@@ -73,21 +73,21 @@ setup_server_uploads_directory() {
     done
     
     # Set ownership to www-data for the entire uploads structure
-    # This is crucial for Nginx and the Next.js process (if also running as www-data or in its group)
+    # This is crucial for Nginx to serve files properly
     chown -R www-data:www-data "$DEPLOY_UPLOADS_PATH"
     echo "Set www-data:www-data ownership for $DEPLOY_UPLOADS_PATH and its contents."
     
-    # Set directory permissions to 775 (rwxrwxr-x)
-    # Owner (www-data) and group (www-data) can read, write, execute.
-    # Others can read and execute (needed for Nginx to traverse and serve files).
-    find "$DEPLOY_UPLOADS_PATH" -type d -exec chmod 775 {} \;
-    echo "Set directory permissions to 775 for $DEPLOY_UPLOADS_PATH and its subdirectories."
+    # Set directory permissions to 755 (rwxr-xr-x)
+    # Owner (www-data) can read, write, execute.
+    # Group and others can read and execute (needed for Nginx to traverse and serve files).
+    find "$DEPLOY_UPLOADS_PATH" -type d -exec chmod 755 {} \;
+    echo "Set directory permissions to 755 for $DEPLOY_UPLOADS_PATH and its subdirectories."
     
-    # Set file permissions to 664 (rw-rw-r--)
-    # Owner (www-data) and group (www-data) can read and write.
-    # Others can only read.
-    find "$DEPLOY_UPLOADS_PATH" -type f -exec chmod 664 {} \;
-    echo "Set file permissions to 664 for files within $DEPLOY_UPLOADS_PATH."
+    # Set file permissions to 644 (rw-r--r--)
+    # Owner (www-data) can read and write.
+    # Group and others can only read (needed for Nginx to serve files).
+    find "$DEPLOY_UPLOADS_PATH" -type f -exec chmod 644 {} \;
+    echo "Set file permissions to 644 for files within $DEPLOY_UPLOADS_PATH."
     
     # Fix SELinux contexts if applicable and restorecon is available
     if command -v restorecon >/dev/null 2>&1; then

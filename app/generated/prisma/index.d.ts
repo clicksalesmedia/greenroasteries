@@ -99,6 +99,11 @@ export type BundleItem = $Result.DefaultSelection<Prisma.$BundleItemPayload>
  */
 export type Slider = $Result.DefaultSelection<Prisma.$SliderPayload>
 /**
+ * Model OfferBanner
+ * 
+ */
+export type OfferBanner = $Result.DefaultSelection<Prisma.$OfferBannerPayload>
+/**
  * Model PageContent
  * 
  */
@@ -493,6 +498,16 @@ export class PrismaClient<
     * ```
     */
   get slider(): Prisma.SliderDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.offerBanner`: Exposes CRUD operations for the **OfferBanner** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OfferBanners
+    * const offerBanners = await prisma.offerBanner.findMany()
+    * ```
+    */
+  get offerBanner(): Prisma.OfferBannerDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.pageContent`: Exposes CRUD operations for the **PageContent** model.
@@ -960,6 +975,7 @@ export namespace Prisma {
     ProductPromotion: 'ProductPromotion',
     BundleItem: 'BundleItem',
     Slider: 'Slider',
+    OfferBanner: 'OfferBanner',
     PageContent: 'PageContent'
   };
 
@@ -979,7 +995,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "permission" | "category" | "product" | "productImage" | "variationSize" | "variationType" | "variationBeans" | "productVariation" | "order" | "orderItem" | "payment" | "shippingRule" | "promotion" | "productPromotion" | "bundleItem" | "slider" | "pageContent"
+      modelProps: "user" | "permission" | "category" | "product" | "productImage" | "variationSize" | "variationType" | "variationBeans" | "productVariation" | "order" | "orderItem" | "payment" | "shippingRule" | "promotion" | "productPromotion" | "bundleItem" | "slider" | "offerBanner" | "pageContent"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2241,6 +2257,80 @@ export namespace Prisma {
           }
         }
       }
+      OfferBanner: {
+        payload: Prisma.$OfferBannerPayload<ExtArgs>
+        fields: Prisma.OfferBannerFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OfferBannerFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfferBannerPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OfferBannerFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfferBannerPayload>
+          }
+          findFirst: {
+            args: Prisma.OfferBannerFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfferBannerPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OfferBannerFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfferBannerPayload>
+          }
+          findMany: {
+            args: Prisma.OfferBannerFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfferBannerPayload>[]
+          }
+          create: {
+            args: Prisma.OfferBannerCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfferBannerPayload>
+          }
+          createMany: {
+            args: Prisma.OfferBannerCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OfferBannerCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfferBannerPayload>[]
+          }
+          delete: {
+            args: Prisma.OfferBannerDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfferBannerPayload>
+          }
+          update: {
+            args: Prisma.OfferBannerUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfferBannerPayload>
+          }
+          deleteMany: {
+            args: Prisma.OfferBannerDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OfferBannerUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OfferBannerUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfferBannerPayload>[]
+          }
+          upsert: {
+            args: Prisma.OfferBannerUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfferBannerPayload>
+          }
+          aggregate: {
+            args: Prisma.OfferBannerAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOfferBanner>
+          }
+          groupBy: {
+            args: Prisma.OfferBannerGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OfferBannerGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OfferBannerCountArgs<ExtArgs>
+            result: $Utils.Optional<OfferBannerCountAggregateOutputType> | number
+          }
+        }
+      }
       PageContent: {
         payload: Prisma.$PageContentPayload<ExtArgs>
         fields: Prisma.PageContentFieldRefs
@@ -2416,6 +2506,7 @@ export namespace Prisma {
     productPromotion?: ProductPromotionOmit
     bundleItem?: BundleItemOmit
     slider?: SliderOmit
+    offerBanner?: OfferBannerOmit
     pageContent?: PageContentOmit
   }
 
@@ -23077,6 +23168,1191 @@ export namespace Prisma {
 
 
   /**
+   * Model OfferBanner
+   */
+
+  export type AggregateOfferBanner = {
+    _count: OfferBannerCountAggregateOutputType | null
+    _avg: OfferBannerAvgAggregateOutputType | null
+    _sum: OfferBannerSumAggregateOutputType | null
+    _min: OfferBannerMinAggregateOutputType | null
+    _max: OfferBannerMaxAggregateOutputType | null
+  }
+
+  export type OfferBannerAvgAggregateOutputType = {
+    overlayOpacity: number | null
+  }
+
+  export type OfferBannerSumAggregateOutputType = {
+    overlayOpacity: number | null
+  }
+
+  export type OfferBannerMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    titleAr: string | null
+    subtitle: string | null
+    subtitleAr: string | null
+    buttonText: string | null
+    buttonTextAr: string | null
+    buttonLink: string | null
+    backgroundColor: string | null
+    textColor: string | null
+    buttonColor: string | null
+    overlayColor: string | null
+    overlayOpacity: number | null
+    imageUrl: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OfferBannerMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    titleAr: string | null
+    subtitle: string | null
+    subtitleAr: string | null
+    buttonText: string | null
+    buttonTextAr: string | null
+    buttonLink: string | null
+    backgroundColor: string | null
+    textColor: string | null
+    buttonColor: string | null
+    overlayColor: string | null
+    overlayOpacity: number | null
+    imageUrl: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OfferBannerCountAggregateOutputType = {
+    id: number
+    title: number
+    titleAr: number
+    subtitle: number
+    subtitleAr: number
+    buttonText: number
+    buttonTextAr: number
+    buttonLink: number
+    backgroundColor: number
+    textColor: number
+    buttonColor: number
+    overlayColor: number
+    overlayOpacity: number
+    imageUrl: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type OfferBannerAvgAggregateInputType = {
+    overlayOpacity?: true
+  }
+
+  export type OfferBannerSumAggregateInputType = {
+    overlayOpacity?: true
+  }
+
+  export type OfferBannerMinAggregateInputType = {
+    id?: true
+    title?: true
+    titleAr?: true
+    subtitle?: true
+    subtitleAr?: true
+    buttonText?: true
+    buttonTextAr?: true
+    buttonLink?: true
+    backgroundColor?: true
+    textColor?: true
+    buttonColor?: true
+    overlayColor?: true
+    overlayOpacity?: true
+    imageUrl?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OfferBannerMaxAggregateInputType = {
+    id?: true
+    title?: true
+    titleAr?: true
+    subtitle?: true
+    subtitleAr?: true
+    buttonText?: true
+    buttonTextAr?: true
+    buttonLink?: true
+    backgroundColor?: true
+    textColor?: true
+    buttonColor?: true
+    overlayColor?: true
+    overlayOpacity?: true
+    imageUrl?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OfferBannerCountAggregateInputType = {
+    id?: true
+    title?: true
+    titleAr?: true
+    subtitle?: true
+    subtitleAr?: true
+    buttonText?: true
+    buttonTextAr?: true
+    buttonLink?: true
+    backgroundColor?: true
+    textColor?: true
+    buttonColor?: true
+    overlayColor?: true
+    overlayOpacity?: true
+    imageUrl?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type OfferBannerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OfferBanner to aggregate.
+     */
+    where?: OfferBannerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OfferBanners to fetch.
+     */
+    orderBy?: OfferBannerOrderByWithRelationInput | OfferBannerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OfferBannerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OfferBanners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OfferBanners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OfferBanners
+    **/
+    _count?: true | OfferBannerCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OfferBannerAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OfferBannerSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OfferBannerMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OfferBannerMaxAggregateInputType
+  }
+
+  export type GetOfferBannerAggregateType<T extends OfferBannerAggregateArgs> = {
+        [P in keyof T & keyof AggregateOfferBanner]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOfferBanner[P]>
+      : GetScalarType<T[P], AggregateOfferBanner[P]>
+  }
+
+
+
+
+  export type OfferBannerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OfferBannerWhereInput
+    orderBy?: OfferBannerOrderByWithAggregationInput | OfferBannerOrderByWithAggregationInput[]
+    by: OfferBannerScalarFieldEnum[] | OfferBannerScalarFieldEnum
+    having?: OfferBannerScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OfferBannerCountAggregateInputType | true
+    _avg?: OfferBannerAvgAggregateInputType
+    _sum?: OfferBannerSumAggregateInputType
+    _min?: OfferBannerMinAggregateInputType
+    _max?: OfferBannerMaxAggregateInputType
+  }
+
+  export type OfferBannerGroupByOutputType = {
+    id: string
+    title: string
+    titleAr: string | null
+    subtitle: string
+    subtitleAr: string | null
+    buttonText: string
+    buttonTextAr: string | null
+    buttonLink: string
+    backgroundColor: string
+    textColor: string | null
+    buttonColor: string | null
+    overlayColor: string | null
+    overlayOpacity: number | null
+    imageUrl: string
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: OfferBannerCountAggregateOutputType | null
+    _avg: OfferBannerAvgAggregateOutputType | null
+    _sum: OfferBannerSumAggregateOutputType | null
+    _min: OfferBannerMinAggregateOutputType | null
+    _max: OfferBannerMaxAggregateOutputType | null
+  }
+
+  type GetOfferBannerGroupByPayload<T extends OfferBannerGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OfferBannerGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OfferBannerGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OfferBannerGroupByOutputType[P]>
+            : GetScalarType<T[P], OfferBannerGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OfferBannerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    titleAr?: boolean
+    subtitle?: boolean
+    subtitleAr?: boolean
+    buttonText?: boolean
+    buttonTextAr?: boolean
+    buttonLink?: boolean
+    backgroundColor?: boolean
+    textColor?: boolean
+    buttonColor?: boolean
+    overlayColor?: boolean
+    overlayOpacity?: boolean
+    imageUrl?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["offerBanner"]>
+
+  export type OfferBannerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    titleAr?: boolean
+    subtitle?: boolean
+    subtitleAr?: boolean
+    buttonText?: boolean
+    buttonTextAr?: boolean
+    buttonLink?: boolean
+    backgroundColor?: boolean
+    textColor?: boolean
+    buttonColor?: boolean
+    overlayColor?: boolean
+    overlayOpacity?: boolean
+    imageUrl?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["offerBanner"]>
+
+  export type OfferBannerSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    titleAr?: boolean
+    subtitle?: boolean
+    subtitleAr?: boolean
+    buttonText?: boolean
+    buttonTextAr?: boolean
+    buttonLink?: boolean
+    backgroundColor?: boolean
+    textColor?: boolean
+    buttonColor?: boolean
+    overlayColor?: boolean
+    overlayOpacity?: boolean
+    imageUrl?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["offerBanner"]>
+
+  export type OfferBannerSelectScalar = {
+    id?: boolean
+    title?: boolean
+    titleAr?: boolean
+    subtitle?: boolean
+    subtitleAr?: boolean
+    buttonText?: boolean
+    buttonTextAr?: boolean
+    buttonLink?: boolean
+    backgroundColor?: boolean
+    textColor?: boolean
+    buttonColor?: boolean
+    overlayColor?: boolean
+    overlayOpacity?: boolean
+    imageUrl?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type OfferBannerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "titleAr" | "subtitle" | "subtitleAr" | "buttonText" | "buttonTextAr" | "buttonLink" | "backgroundColor" | "textColor" | "buttonColor" | "overlayColor" | "overlayOpacity" | "imageUrl" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["offerBanner"]>
+
+  export type $OfferBannerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OfferBanner"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      titleAr: string | null
+      subtitle: string
+      subtitleAr: string | null
+      buttonText: string
+      buttonTextAr: string | null
+      buttonLink: string
+      backgroundColor: string
+      textColor: string | null
+      buttonColor: string | null
+      overlayColor: string | null
+      overlayOpacity: number | null
+      imageUrl: string
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["offerBanner"]>
+    composites: {}
+  }
+
+  type OfferBannerGetPayload<S extends boolean | null | undefined | OfferBannerDefaultArgs> = $Result.GetResult<Prisma.$OfferBannerPayload, S>
+
+  type OfferBannerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OfferBannerFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OfferBannerCountAggregateInputType | true
+    }
+
+  export interface OfferBannerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OfferBanner'], meta: { name: 'OfferBanner' } }
+    /**
+     * Find zero or one OfferBanner that matches the filter.
+     * @param {OfferBannerFindUniqueArgs} args - Arguments to find a OfferBanner
+     * @example
+     * // Get one OfferBanner
+     * const offerBanner = await prisma.offerBanner.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OfferBannerFindUniqueArgs>(args: SelectSubset<T, OfferBannerFindUniqueArgs<ExtArgs>>): Prisma__OfferBannerClient<$Result.GetResult<Prisma.$OfferBannerPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OfferBanner that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OfferBannerFindUniqueOrThrowArgs} args - Arguments to find a OfferBanner
+     * @example
+     * // Get one OfferBanner
+     * const offerBanner = await prisma.offerBanner.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OfferBannerFindUniqueOrThrowArgs>(args: SelectSubset<T, OfferBannerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OfferBannerClient<$Result.GetResult<Prisma.$OfferBannerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OfferBanner that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfferBannerFindFirstArgs} args - Arguments to find a OfferBanner
+     * @example
+     * // Get one OfferBanner
+     * const offerBanner = await prisma.offerBanner.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OfferBannerFindFirstArgs>(args?: SelectSubset<T, OfferBannerFindFirstArgs<ExtArgs>>): Prisma__OfferBannerClient<$Result.GetResult<Prisma.$OfferBannerPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OfferBanner that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfferBannerFindFirstOrThrowArgs} args - Arguments to find a OfferBanner
+     * @example
+     * // Get one OfferBanner
+     * const offerBanner = await prisma.offerBanner.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OfferBannerFindFirstOrThrowArgs>(args?: SelectSubset<T, OfferBannerFindFirstOrThrowArgs<ExtArgs>>): Prisma__OfferBannerClient<$Result.GetResult<Prisma.$OfferBannerPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OfferBanners that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfferBannerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OfferBanners
+     * const offerBanners = await prisma.offerBanner.findMany()
+     * 
+     * // Get first 10 OfferBanners
+     * const offerBanners = await prisma.offerBanner.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const offerBannerWithIdOnly = await prisma.offerBanner.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OfferBannerFindManyArgs>(args?: SelectSubset<T, OfferBannerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OfferBannerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OfferBanner.
+     * @param {OfferBannerCreateArgs} args - Arguments to create a OfferBanner.
+     * @example
+     * // Create one OfferBanner
+     * const OfferBanner = await prisma.offerBanner.create({
+     *   data: {
+     *     // ... data to create a OfferBanner
+     *   }
+     * })
+     * 
+     */
+    create<T extends OfferBannerCreateArgs>(args: SelectSubset<T, OfferBannerCreateArgs<ExtArgs>>): Prisma__OfferBannerClient<$Result.GetResult<Prisma.$OfferBannerPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OfferBanners.
+     * @param {OfferBannerCreateManyArgs} args - Arguments to create many OfferBanners.
+     * @example
+     * // Create many OfferBanners
+     * const offerBanner = await prisma.offerBanner.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OfferBannerCreateManyArgs>(args?: SelectSubset<T, OfferBannerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OfferBanners and returns the data saved in the database.
+     * @param {OfferBannerCreateManyAndReturnArgs} args - Arguments to create many OfferBanners.
+     * @example
+     * // Create many OfferBanners
+     * const offerBanner = await prisma.offerBanner.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OfferBanners and only return the `id`
+     * const offerBannerWithIdOnly = await prisma.offerBanner.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OfferBannerCreateManyAndReturnArgs>(args?: SelectSubset<T, OfferBannerCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OfferBannerPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OfferBanner.
+     * @param {OfferBannerDeleteArgs} args - Arguments to delete one OfferBanner.
+     * @example
+     * // Delete one OfferBanner
+     * const OfferBanner = await prisma.offerBanner.delete({
+     *   where: {
+     *     // ... filter to delete one OfferBanner
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OfferBannerDeleteArgs>(args: SelectSubset<T, OfferBannerDeleteArgs<ExtArgs>>): Prisma__OfferBannerClient<$Result.GetResult<Prisma.$OfferBannerPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OfferBanner.
+     * @param {OfferBannerUpdateArgs} args - Arguments to update one OfferBanner.
+     * @example
+     * // Update one OfferBanner
+     * const offerBanner = await prisma.offerBanner.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OfferBannerUpdateArgs>(args: SelectSubset<T, OfferBannerUpdateArgs<ExtArgs>>): Prisma__OfferBannerClient<$Result.GetResult<Prisma.$OfferBannerPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OfferBanners.
+     * @param {OfferBannerDeleteManyArgs} args - Arguments to filter OfferBanners to delete.
+     * @example
+     * // Delete a few OfferBanners
+     * const { count } = await prisma.offerBanner.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OfferBannerDeleteManyArgs>(args?: SelectSubset<T, OfferBannerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OfferBanners.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfferBannerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OfferBanners
+     * const offerBanner = await prisma.offerBanner.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OfferBannerUpdateManyArgs>(args: SelectSubset<T, OfferBannerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OfferBanners and returns the data updated in the database.
+     * @param {OfferBannerUpdateManyAndReturnArgs} args - Arguments to update many OfferBanners.
+     * @example
+     * // Update many OfferBanners
+     * const offerBanner = await prisma.offerBanner.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OfferBanners and only return the `id`
+     * const offerBannerWithIdOnly = await prisma.offerBanner.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OfferBannerUpdateManyAndReturnArgs>(args: SelectSubset<T, OfferBannerUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OfferBannerPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OfferBanner.
+     * @param {OfferBannerUpsertArgs} args - Arguments to update or create a OfferBanner.
+     * @example
+     * // Update or create a OfferBanner
+     * const offerBanner = await prisma.offerBanner.upsert({
+     *   create: {
+     *     // ... data to create a OfferBanner
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OfferBanner we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OfferBannerUpsertArgs>(args: SelectSubset<T, OfferBannerUpsertArgs<ExtArgs>>): Prisma__OfferBannerClient<$Result.GetResult<Prisma.$OfferBannerPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OfferBanners.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfferBannerCountArgs} args - Arguments to filter OfferBanners to count.
+     * @example
+     * // Count the number of OfferBanners
+     * const count = await prisma.offerBanner.count({
+     *   where: {
+     *     // ... the filter for the OfferBanners we want to count
+     *   }
+     * })
+    **/
+    count<T extends OfferBannerCountArgs>(
+      args?: Subset<T, OfferBannerCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OfferBannerCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OfferBanner.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfferBannerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OfferBannerAggregateArgs>(args: Subset<T, OfferBannerAggregateArgs>): Prisma.PrismaPromise<GetOfferBannerAggregateType<T>>
+
+    /**
+     * Group by OfferBanner.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfferBannerGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OfferBannerGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OfferBannerGroupByArgs['orderBy'] }
+        : { orderBy?: OfferBannerGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OfferBannerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOfferBannerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OfferBanner model
+   */
+  readonly fields: OfferBannerFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OfferBanner.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OfferBannerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OfferBanner model
+   */
+  interface OfferBannerFieldRefs {
+    readonly id: FieldRef<"OfferBanner", 'String'>
+    readonly title: FieldRef<"OfferBanner", 'String'>
+    readonly titleAr: FieldRef<"OfferBanner", 'String'>
+    readonly subtitle: FieldRef<"OfferBanner", 'String'>
+    readonly subtitleAr: FieldRef<"OfferBanner", 'String'>
+    readonly buttonText: FieldRef<"OfferBanner", 'String'>
+    readonly buttonTextAr: FieldRef<"OfferBanner", 'String'>
+    readonly buttonLink: FieldRef<"OfferBanner", 'String'>
+    readonly backgroundColor: FieldRef<"OfferBanner", 'String'>
+    readonly textColor: FieldRef<"OfferBanner", 'String'>
+    readonly buttonColor: FieldRef<"OfferBanner", 'String'>
+    readonly overlayColor: FieldRef<"OfferBanner", 'String'>
+    readonly overlayOpacity: FieldRef<"OfferBanner", 'Float'>
+    readonly imageUrl: FieldRef<"OfferBanner", 'String'>
+    readonly isActive: FieldRef<"OfferBanner", 'Boolean'>
+    readonly createdAt: FieldRef<"OfferBanner", 'DateTime'>
+    readonly updatedAt: FieldRef<"OfferBanner", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OfferBanner findUnique
+   */
+  export type OfferBannerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfferBanner
+     */
+    select?: OfferBannerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OfferBanner
+     */
+    omit?: OfferBannerOmit<ExtArgs> | null
+    /**
+     * Filter, which OfferBanner to fetch.
+     */
+    where: OfferBannerWhereUniqueInput
+  }
+
+  /**
+   * OfferBanner findUniqueOrThrow
+   */
+  export type OfferBannerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfferBanner
+     */
+    select?: OfferBannerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OfferBanner
+     */
+    omit?: OfferBannerOmit<ExtArgs> | null
+    /**
+     * Filter, which OfferBanner to fetch.
+     */
+    where: OfferBannerWhereUniqueInput
+  }
+
+  /**
+   * OfferBanner findFirst
+   */
+  export type OfferBannerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfferBanner
+     */
+    select?: OfferBannerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OfferBanner
+     */
+    omit?: OfferBannerOmit<ExtArgs> | null
+    /**
+     * Filter, which OfferBanner to fetch.
+     */
+    where?: OfferBannerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OfferBanners to fetch.
+     */
+    orderBy?: OfferBannerOrderByWithRelationInput | OfferBannerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OfferBanners.
+     */
+    cursor?: OfferBannerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OfferBanners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OfferBanners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OfferBanners.
+     */
+    distinct?: OfferBannerScalarFieldEnum | OfferBannerScalarFieldEnum[]
+  }
+
+  /**
+   * OfferBanner findFirstOrThrow
+   */
+  export type OfferBannerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfferBanner
+     */
+    select?: OfferBannerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OfferBanner
+     */
+    omit?: OfferBannerOmit<ExtArgs> | null
+    /**
+     * Filter, which OfferBanner to fetch.
+     */
+    where?: OfferBannerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OfferBanners to fetch.
+     */
+    orderBy?: OfferBannerOrderByWithRelationInput | OfferBannerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OfferBanners.
+     */
+    cursor?: OfferBannerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OfferBanners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OfferBanners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OfferBanners.
+     */
+    distinct?: OfferBannerScalarFieldEnum | OfferBannerScalarFieldEnum[]
+  }
+
+  /**
+   * OfferBanner findMany
+   */
+  export type OfferBannerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfferBanner
+     */
+    select?: OfferBannerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OfferBanner
+     */
+    omit?: OfferBannerOmit<ExtArgs> | null
+    /**
+     * Filter, which OfferBanners to fetch.
+     */
+    where?: OfferBannerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OfferBanners to fetch.
+     */
+    orderBy?: OfferBannerOrderByWithRelationInput | OfferBannerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OfferBanners.
+     */
+    cursor?: OfferBannerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OfferBanners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OfferBanners.
+     */
+    skip?: number
+    distinct?: OfferBannerScalarFieldEnum | OfferBannerScalarFieldEnum[]
+  }
+
+  /**
+   * OfferBanner create
+   */
+  export type OfferBannerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfferBanner
+     */
+    select?: OfferBannerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OfferBanner
+     */
+    omit?: OfferBannerOmit<ExtArgs> | null
+    /**
+     * The data needed to create a OfferBanner.
+     */
+    data: XOR<OfferBannerCreateInput, OfferBannerUncheckedCreateInput>
+  }
+
+  /**
+   * OfferBanner createMany
+   */
+  export type OfferBannerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OfferBanners.
+     */
+    data: OfferBannerCreateManyInput | OfferBannerCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OfferBanner createManyAndReturn
+   */
+  export type OfferBannerCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfferBanner
+     */
+    select?: OfferBannerSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OfferBanner
+     */
+    omit?: OfferBannerOmit<ExtArgs> | null
+    /**
+     * The data used to create many OfferBanners.
+     */
+    data: OfferBannerCreateManyInput | OfferBannerCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OfferBanner update
+   */
+  export type OfferBannerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfferBanner
+     */
+    select?: OfferBannerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OfferBanner
+     */
+    omit?: OfferBannerOmit<ExtArgs> | null
+    /**
+     * The data needed to update a OfferBanner.
+     */
+    data: XOR<OfferBannerUpdateInput, OfferBannerUncheckedUpdateInput>
+    /**
+     * Choose, which OfferBanner to update.
+     */
+    where: OfferBannerWhereUniqueInput
+  }
+
+  /**
+   * OfferBanner updateMany
+   */
+  export type OfferBannerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OfferBanners.
+     */
+    data: XOR<OfferBannerUpdateManyMutationInput, OfferBannerUncheckedUpdateManyInput>
+    /**
+     * Filter which OfferBanners to update
+     */
+    where?: OfferBannerWhereInput
+    /**
+     * Limit how many OfferBanners to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OfferBanner updateManyAndReturn
+   */
+  export type OfferBannerUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfferBanner
+     */
+    select?: OfferBannerSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OfferBanner
+     */
+    omit?: OfferBannerOmit<ExtArgs> | null
+    /**
+     * The data used to update OfferBanners.
+     */
+    data: XOR<OfferBannerUpdateManyMutationInput, OfferBannerUncheckedUpdateManyInput>
+    /**
+     * Filter which OfferBanners to update
+     */
+    where?: OfferBannerWhereInput
+    /**
+     * Limit how many OfferBanners to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OfferBanner upsert
+   */
+  export type OfferBannerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfferBanner
+     */
+    select?: OfferBannerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OfferBanner
+     */
+    omit?: OfferBannerOmit<ExtArgs> | null
+    /**
+     * The filter to search for the OfferBanner to update in case it exists.
+     */
+    where: OfferBannerWhereUniqueInput
+    /**
+     * In case the OfferBanner found by the `where` argument doesn't exist, create a new OfferBanner with this data.
+     */
+    create: XOR<OfferBannerCreateInput, OfferBannerUncheckedCreateInput>
+    /**
+     * In case the OfferBanner was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OfferBannerUpdateInput, OfferBannerUncheckedUpdateInput>
+  }
+
+  /**
+   * OfferBanner delete
+   */
+  export type OfferBannerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfferBanner
+     */
+    select?: OfferBannerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OfferBanner
+     */
+    omit?: OfferBannerOmit<ExtArgs> | null
+    /**
+     * Filter which OfferBanner to delete.
+     */
+    where: OfferBannerWhereUniqueInput
+  }
+
+  /**
+   * OfferBanner deleteMany
+   */
+  export type OfferBannerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OfferBanners to delete
+     */
+    where?: OfferBannerWhereInput
+    /**
+     * Limit how many OfferBanners to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OfferBanner without action
+   */
+  export type OfferBannerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfferBanner
+     */
+    select?: OfferBannerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OfferBanner
+     */
+    omit?: OfferBannerOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model PageContent
    */
 
@@ -24439,6 +25715,29 @@ export namespace Prisma {
   };
 
   export type SliderScalarFieldEnum = (typeof SliderScalarFieldEnum)[keyof typeof SliderScalarFieldEnum]
+
+
+  export const OfferBannerScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    titleAr: 'titleAr',
+    subtitle: 'subtitle',
+    subtitleAr: 'subtitleAr',
+    buttonText: 'buttonText',
+    buttonTextAr: 'buttonTextAr',
+    buttonLink: 'buttonLink',
+    backgroundColor: 'backgroundColor',
+    textColor: 'textColor',
+    buttonColor: 'buttonColor',
+    overlayColor: 'overlayColor',
+    overlayOpacity: 'overlayOpacity',
+    imageUrl: 'imageUrl',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type OfferBannerScalarFieldEnum = (typeof OfferBannerScalarFieldEnum)[keyof typeof OfferBannerScalarFieldEnum]
 
 
   export const PageContentScalarFieldEnum: {
@@ -26220,6 +27519,120 @@ export namespace Prisma {
     accentColor?: StringNullableWithAggregatesFilter<"Slider"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Slider"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Slider"> | Date | string
+  }
+
+  export type OfferBannerWhereInput = {
+    AND?: OfferBannerWhereInput | OfferBannerWhereInput[]
+    OR?: OfferBannerWhereInput[]
+    NOT?: OfferBannerWhereInput | OfferBannerWhereInput[]
+    id?: StringFilter<"OfferBanner"> | string
+    title?: StringFilter<"OfferBanner"> | string
+    titleAr?: StringNullableFilter<"OfferBanner"> | string | null
+    subtitle?: StringFilter<"OfferBanner"> | string
+    subtitleAr?: StringNullableFilter<"OfferBanner"> | string | null
+    buttonText?: StringFilter<"OfferBanner"> | string
+    buttonTextAr?: StringNullableFilter<"OfferBanner"> | string | null
+    buttonLink?: StringFilter<"OfferBanner"> | string
+    backgroundColor?: StringFilter<"OfferBanner"> | string
+    textColor?: StringNullableFilter<"OfferBanner"> | string | null
+    buttonColor?: StringNullableFilter<"OfferBanner"> | string | null
+    overlayColor?: StringNullableFilter<"OfferBanner"> | string | null
+    overlayOpacity?: FloatNullableFilter<"OfferBanner"> | number | null
+    imageUrl?: StringFilter<"OfferBanner"> | string
+    isActive?: BoolFilter<"OfferBanner"> | boolean
+    createdAt?: DateTimeFilter<"OfferBanner"> | Date | string
+    updatedAt?: DateTimeFilter<"OfferBanner"> | Date | string
+  }
+
+  export type OfferBannerOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    titleAr?: SortOrderInput | SortOrder
+    subtitle?: SortOrder
+    subtitleAr?: SortOrderInput | SortOrder
+    buttonText?: SortOrder
+    buttonTextAr?: SortOrderInput | SortOrder
+    buttonLink?: SortOrder
+    backgroundColor?: SortOrder
+    textColor?: SortOrderInput | SortOrder
+    buttonColor?: SortOrderInput | SortOrder
+    overlayColor?: SortOrderInput | SortOrder
+    overlayOpacity?: SortOrderInput | SortOrder
+    imageUrl?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OfferBannerWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OfferBannerWhereInput | OfferBannerWhereInput[]
+    OR?: OfferBannerWhereInput[]
+    NOT?: OfferBannerWhereInput | OfferBannerWhereInput[]
+    title?: StringFilter<"OfferBanner"> | string
+    titleAr?: StringNullableFilter<"OfferBanner"> | string | null
+    subtitle?: StringFilter<"OfferBanner"> | string
+    subtitleAr?: StringNullableFilter<"OfferBanner"> | string | null
+    buttonText?: StringFilter<"OfferBanner"> | string
+    buttonTextAr?: StringNullableFilter<"OfferBanner"> | string | null
+    buttonLink?: StringFilter<"OfferBanner"> | string
+    backgroundColor?: StringFilter<"OfferBanner"> | string
+    textColor?: StringNullableFilter<"OfferBanner"> | string | null
+    buttonColor?: StringNullableFilter<"OfferBanner"> | string | null
+    overlayColor?: StringNullableFilter<"OfferBanner"> | string | null
+    overlayOpacity?: FloatNullableFilter<"OfferBanner"> | number | null
+    imageUrl?: StringFilter<"OfferBanner"> | string
+    isActive?: BoolFilter<"OfferBanner"> | boolean
+    createdAt?: DateTimeFilter<"OfferBanner"> | Date | string
+    updatedAt?: DateTimeFilter<"OfferBanner"> | Date | string
+  }, "id">
+
+  export type OfferBannerOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    titleAr?: SortOrderInput | SortOrder
+    subtitle?: SortOrder
+    subtitleAr?: SortOrderInput | SortOrder
+    buttonText?: SortOrder
+    buttonTextAr?: SortOrderInput | SortOrder
+    buttonLink?: SortOrder
+    backgroundColor?: SortOrder
+    textColor?: SortOrderInput | SortOrder
+    buttonColor?: SortOrderInput | SortOrder
+    overlayColor?: SortOrderInput | SortOrder
+    overlayOpacity?: SortOrderInput | SortOrder
+    imageUrl?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: OfferBannerCountOrderByAggregateInput
+    _avg?: OfferBannerAvgOrderByAggregateInput
+    _max?: OfferBannerMaxOrderByAggregateInput
+    _min?: OfferBannerMinOrderByAggregateInput
+    _sum?: OfferBannerSumOrderByAggregateInput
+  }
+
+  export type OfferBannerScalarWhereWithAggregatesInput = {
+    AND?: OfferBannerScalarWhereWithAggregatesInput | OfferBannerScalarWhereWithAggregatesInput[]
+    OR?: OfferBannerScalarWhereWithAggregatesInput[]
+    NOT?: OfferBannerScalarWhereWithAggregatesInput | OfferBannerScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OfferBanner"> | string
+    title?: StringWithAggregatesFilter<"OfferBanner"> | string
+    titleAr?: StringNullableWithAggregatesFilter<"OfferBanner"> | string | null
+    subtitle?: StringWithAggregatesFilter<"OfferBanner"> | string
+    subtitleAr?: StringNullableWithAggregatesFilter<"OfferBanner"> | string | null
+    buttonText?: StringWithAggregatesFilter<"OfferBanner"> | string
+    buttonTextAr?: StringNullableWithAggregatesFilter<"OfferBanner"> | string | null
+    buttonLink?: StringWithAggregatesFilter<"OfferBanner"> | string
+    backgroundColor?: StringWithAggregatesFilter<"OfferBanner"> | string
+    textColor?: StringNullableWithAggregatesFilter<"OfferBanner"> | string | null
+    buttonColor?: StringNullableWithAggregatesFilter<"OfferBanner"> | string | null
+    overlayColor?: StringNullableWithAggregatesFilter<"OfferBanner"> | string | null
+    overlayOpacity?: FloatNullableWithAggregatesFilter<"OfferBanner"> | number | null
+    imageUrl?: StringWithAggregatesFilter<"OfferBanner"> | string
+    isActive?: BoolWithAggregatesFilter<"OfferBanner"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"OfferBanner"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"OfferBanner"> | Date | string
   }
 
   export type PageContentWhereInput = {
@@ -28062,6 +29475,146 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type OfferBannerCreateInput = {
+    id?: string
+    title: string
+    titleAr?: string | null
+    subtitle: string
+    subtitleAr?: string | null
+    buttonText: string
+    buttonTextAr?: string | null
+    buttonLink: string
+    backgroundColor?: string
+    textColor?: string | null
+    buttonColor?: string | null
+    overlayColor?: string | null
+    overlayOpacity?: number | null
+    imageUrl: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OfferBannerUncheckedCreateInput = {
+    id?: string
+    title: string
+    titleAr?: string | null
+    subtitle: string
+    subtitleAr?: string | null
+    buttonText: string
+    buttonTextAr?: string | null
+    buttonLink: string
+    backgroundColor?: string
+    textColor?: string | null
+    buttonColor?: string | null
+    overlayColor?: string | null
+    overlayOpacity?: number | null
+    imageUrl: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OfferBannerUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    titleAr?: NullableStringFieldUpdateOperationsInput | string | null
+    subtitle?: StringFieldUpdateOperationsInput | string
+    subtitleAr?: NullableStringFieldUpdateOperationsInput | string | null
+    buttonText?: StringFieldUpdateOperationsInput | string
+    buttonTextAr?: NullableStringFieldUpdateOperationsInput | string | null
+    buttonLink?: StringFieldUpdateOperationsInput | string
+    backgroundColor?: StringFieldUpdateOperationsInput | string
+    textColor?: NullableStringFieldUpdateOperationsInput | string | null
+    buttonColor?: NullableStringFieldUpdateOperationsInput | string | null
+    overlayColor?: NullableStringFieldUpdateOperationsInput | string | null
+    overlayOpacity?: NullableFloatFieldUpdateOperationsInput | number | null
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OfferBannerUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    titleAr?: NullableStringFieldUpdateOperationsInput | string | null
+    subtitle?: StringFieldUpdateOperationsInput | string
+    subtitleAr?: NullableStringFieldUpdateOperationsInput | string | null
+    buttonText?: StringFieldUpdateOperationsInput | string
+    buttonTextAr?: NullableStringFieldUpdateOperationsInput | string | null
+    buttonLink?: StringFieldUpdateOperationsInput | string
+    backgroundColor?: StringFieldUpdateOperationsInput | string
+    textColor?: NullableStringFieldUpdateOperationsInput | string | null
+    buttonColor?: NullableStringFieldUpdateOperationsInput | string | null
+    overlayColor?: NullableStringFieldUpdateOperationsInput | string | null
+    overlayOpacity?: NullableFloatFieldUpdateOperationsInput | number | null
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OfferBannerCreateManyInput = {
+    id?: string
+    title: string
+    titleAr?: string | null
+    subtitle: string
+    subtitleAr?: string | null
+    buttonText: string
+    buttonTextAr?: string | null
+    buttonLink: string
+    backgroundColor?: string
+    textColor?: string | null
+    buttonColor?: string | null
+    overlayColor?: string | null
+    overlayOpacity?: number | null
+    imageUrl: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OfferBannerUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    titleAr?: NullableStringFieldUpdateOperationsInput | string | null
+    subtitle?: StringFieldUpdateOperationsInput | string
+    subtitleAr?: NullableStringFieldUpdateOperationsInput | string | null
+    buttonText?: StringFieldUpdateOperationsInput | string
+    buttonTextAr?: NullableStringFieldUpdateOperationsInput | string | null
+    buttonLink?: StringFieldUpdateOperationsInput | string
+    backgroundColor?: StringFieldUpdateOperationsInput | string
+    textColor?: NullableStringFieldUpdateOperationsInput | string | null
+    buttonColor?: NullableStringFieldUpdateOperationsInput | string | null
+    overlayColor?: NullableStringFieldUpdateOperationsInput | string | null
+    overlayOpacity?: NullableFloatFieldUpdateOperationsInput | number | null
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OfferBannerUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    titleAr?: NullableStringFieldUpdateOperationsInput | string | null
+    subtitle?: StringFieldUpdateOperationsInput | string
+    subtitleAr?: NullableStringFieldUpdateOperationsInput | string | null
+    buttonText?: StringFieldUpdateOperationsInput | string
+    buttonTextAr?: NullableStringFieldUpdateOperationsInput | string | null
+    buttonLink?: StringFieldUpdateOperationsInput | string
+    backgroundColor?: StringFieldUpdateOperationsInput | string
+    textColor?: NullableStringFieldUpdateOperationsInput | string | null
+    buttonColor?: NullableStringFieldUpdateOperationsInput | string | null
+    overlayColor?: NullableStringFieldUpdateOperationsInput | string | null
+    overlayOpacity?: NullableFloatFieldUpdateOperationsInput | number | null
+    imageUrl?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type PageContentCreateInput = {
     id?: string
     pageType: $Enums.PageType
@@ -29502,6 +31055,74 @@ export namespace Prisma {
   export type SliderSumOrderByAggregateInput = {
     overlayOpacity?: SortOrder
     order?: SortOrder
+  }
+
+  export type OfferBannerCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    titleAr?: SortOrder
+    subtitle?: SortOrder
+    subtitleAr?: SortOrder
+    buttonText?: SortOrder
+    buttonTextAr?: SortOrder
+    buttonLink?: SortOrder
+    backgroundColor?: SortOrder
+    textColor?: SortOrder
+    buttonColor?: SortOrder
+    overlayColor?: SortOrder
+    overlayOpacity?: SortOrder
+    imageUrl?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OfferBannerAvgOrderByAggregateInput = {
+    overlayOpacity?: SortOrder
+  }
+
+  export type OfferBannerMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    titleAr?: SortOrder
+    subtitle?: SortOrder
+    subtitleAr?: SortOrder
+    buttonText?: SortOrder
+    buttonTextAr?: SortOrder
+    buttonLink?: SortOrder
+    backgroundColor?: SortOrder
+    textColor?: SortOrder
+    buttonColor?: SortOrder
+    overlayColor?: SortOrder
+    overlayOpacity?: SortOrder
+    imageUrl?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OfferBannerMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    titleAr?: SortOrder
+    subtitle?: SortOrder
+    subtitleAr?: SortOrder
+    buttonText?: SortOrder
+    buttonTextAr?: SortOrder
+    buttonLink?: SortOrder
+    backgroundColor?: SortOrder
+    textColor?: SortOrder
+    buttonColor?: SortOrder
+    overlayColor?: SortOrder
+    overlayOpacity?: SortOrder
+    imageUrl?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OfferBannerSumOrderByAggregateInput = {
+    overlayOpacity?: SortOrder
   }
 
   export type EnumPageTypeFilter<$PrismaModel = never> = {

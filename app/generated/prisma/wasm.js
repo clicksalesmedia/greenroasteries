@@ -364,6 +364,26 @@ exports.Prisma.SliderScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.OfferBannerScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  titleAr: 'titleAr',
+  subtitle: 'subtitle',
+  subtitleAr: 'subtitleAr',
+  buttonText: 'buttonText',
+  buttonTextAr: 'buttonTextAr',
+  buttonLink: 'buttonLink',
+  backgroundColor: 'backgroundColor',
+  textColor: 'textColor',
+  buttonColor: 'buttonColor',
+  overlayColor: 'overlayColor',
+  overlayOpacity: 'overlayOpacity',
+  imageUrl: 'imageUrl',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.PageContentScalarFieldEnum = {
   id: 'id',
   pageType: 'pageType',
@@ -468,6 +488,7 @@ exports.Prisma.ModelName = {
   ProductPromotion: 'ProductPromotion',
   BundleItem: 'BundleItem',
   Slider: 'Slider',
+  OfferBanner: 'OfferBanner',
   PageContent: 'PageContent'
 };
 

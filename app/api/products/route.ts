@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { cookies } from 'next/headers';
 import { verify } from 'jsonwebtoken';
+import { withCache, invalidateCache } from '@/app/lib/cache';
 
 // JWT secret key should be stored in env variables
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
@@ -52,243 +53,254 @@ export async function GET(request: Request) {
       categoryId, category, inStock, search, limit, featured, discounted 
     });
     
-    const filters: any = {};
+    // Create cache key based on parameters
+    const cacheKey = `products-${JSON.stringify({ categoryId, category, inStock, search, limit, featured, discounted })}`;
     
-    if (categoryId) {
-      filters.categoryId = categoryId;
-    }
+    // Use cache for non-search queries (search results should be fresh)
+    const shouldCache = !search || search.trim() === '';
+    const cacheTTL = shouldCache ? 300 : 60; // 5 minutes for regular queries, 1 minute for search
     
-    // Filter by category name
-    if (category) {
-      filters.category = {
-        OR: [
-          { name: { equals: category, mode: 'insensitive' } },
-          { nameAr: { equals: category, mode: 'insensitive' } }
-        ]
-      };
-    }
-    
-    if (inStock === 'true') {
-      filters.inStock = true;
-    } else if (inStock === 'false') {
-      filters.inStock = false;
-    }
-    
-    if (featured) {
-      // Since there's no 'featured' field in the Product model,
-      // we'll use a workaround to get featured products
-      // For example, we can select products with specific categories or properties
+    const result = await withCache(cacheKey, async () => {
+      const filters: any = {};
       
-      // Option 1: Get products from specific categories that you consider "featured"
-      const featuredCategories = ['Coffee Beans', 'Premium', 'Specialty']; // Adjust based on your categories
-      filters.OR = filters.OR || [];
-      filters.OR.push({
-        category: {
-          name: {
-            in: featuredCategories,
-            mode: 'insensitive'
-          }
-        }
-      });
-      
-      // Option 2: Get products with high stock priority or certain characteristics
-      // Example: products that are in stock and have images
-      filters.OR.push({
-        AND: [
-          { inStock: true },
-          { images: { some: {} } }, // Has at least one image
-          { stockQuantity: { gt: 0 } } // Has stock available
-        ]
-      });
-    }
-    
-    // Filter for discounted products with active promotions
-    if (discounted) {
-      // Get active promotions
-      const now = new Date();
-      const activePromotions = await prisma.promotion.findMany({
-        where: {
-          isActive: true,
-          startDate: { lte: now },
-          endDate: { gte: now },
-          type: {
-            in: ['PERCENTAGE', 'FIXED_AMOUNT'] // Only include discount types
-          }
-        },
-        include: {
-          products: {
-            select: {
-              productId: true
-            }
-          }
-        }
-      });
-      
-      if (activePromotions.length > 0) {
-        // Get all product IDs that have active promotions
-        const discountedProductIds = activePromotions.flatMap(promo => 
-          promo.products.map(p => p.productId)
-        );
-        
-        // Add to filters
-        if (discountedProductIds.length > 0) {
-          filters.id = { in: discountedProductIds };
-        } else {
-          // No discounted products found, return empty array early
-          return NextResponse.json([]);
-        }
-      } else {
-        // No active promotions, return empty array early
-        return NextResponse.json([]);
+      if (categoryId) {
+        filters.categoryId = categoryId;
       }
-    }
-    
-    // Comprehensive search across multiple fields
-    if (search && search.trim() !== '') {
-      filters.OR = filters.OR || [];
-      filters.OR.push(
-        // Search in product name and description (both English and Arabic)
-        { name: { contains: search, mode: 'insensitive' } },
-        { nameAr: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { descriptionAr: { contains: search, mode: 'insensitive' } },
-        { origin: { contains: search, mode: 'insensitive' } },
-        { sku: { contains: search, mode: 'insensitive' } },
-        
-        // Search by category
-        { category: { 
+      
+      // Filter by category name
+      if (category) {
+        filters.category = {
           OR: [
-            { name: { contains: search, mode: 'insensitive' } },
-            { nameAr: { contains: search, mode: 'insensitive' } }
+            { name: { equals: category, mode: 'insensitive' } },
+            { nameAr: { equals: category, mode: 'insensitive' } }
           ]
-        }}
-      );
-    }
-    
-    // Query with filtering, include related data
-    console.log('Executing prisma query with filters:', JSON.stringify(filters, null, 2));
-    const products = await prisma.product.findMany({
-      where: filters,
-      include: {
-        category: {
-          select: {
-            id: true,
-            name: true,
-            nameAr: true,
-            slug: true,
-          },
-        },
-        images: true,
-        variations: {
-          where: {
-            isActive: true
-          },
-          include: {
-            size: true,
-            type: true,
-            beans: true,
-          }
-        },
-        promotions: {
-          where: {
-            promotion: {
-              isActive: true,
-              startDate: { lte: new Date() },
-              endDate: { gte: new Date() }
-            }
-          },
-          include: {
-            promotion: {
-              select: {
-                id: true,
-                type: true,
-                value: true
-              }
-            }
-          }
-        }
-      },
-      orderBy: {
-        updatedAt: 'desc',
-      },
-      ...(limit ? { take: limit } : {})
-    });
-    
-    // Process promotion data to include discount information
-    const processedProducts = products.map(product => {
-      // Find the highest percentage discount or fixed amount discount from promotions
-      let highestPercentageDiscount = 0;
-      let highestFixedDiscount = 0;
-      let discountType = 'PERCENTAGE';
-      
-      if (product.promotions && product.promotions.length > 0) {
-        for (const promoLink of product.promotions) {
-          const promo = promoLink.promotion;
-          
-          if (promo.type === 'PERCENTAGE' && promo.value > highestPercentageDiscount) {
-            highestPercentageDiscount = promo.value;
-          } else if (promo.type === 'FIXED_AMOUNT' && promo.value > highestFixedDiscount) {
-            highestFixedDiscount = promo.value;
-          }
-        }
-        
-        // Determine which discount type to use (prefer percentage if both exist)
-        if (highestPercentageDiscount > 0) {
-          discountType = 'PERCENTAGE';
-        } else if (highestFixedDiscount > 0) {
-          discountType = 'FIXED_AMOUNT';
-        }
+        };
       }
       
-      // Check variations for discounts and find the lowest price
-      let lowestVariationPrice = product.price;
-      let highestVariationDiscount = 0;
-      let hasVariationDiscount = false;
+      if (inStock === 'true') {
+        filters.inStock = true;
+      } else if (inStock === 'false') {
+        filters.inStock = false;
+      }
       
-      if (product.variations && product.variations.length > 0) {
-        product.variations.forEach((variation: any) => {
-          // Calculate effective price for this variation
-          let effectivePrice = variation.price;
-          if (variation.discount && variation.discount > 0) {
-            hasVariationDiscount = true;
-            if (variation.discountType === 'PERCENTAGE') {
-              effectivePrice = variation.price * (1 - variation.discount);
-              if (variation.discount > highestVariationDiscount) {
-                highestVariationDiscount = variation.discount;
-              }
-            } else if (variation.discountType === 'FIXED_AMOUNT') {
-              effectivePrice = Math.max(0, variation.price - variation.discount);
+      if (featured) {
+        // Since there's no 'featured' field in the Product model,
+        // we'll use a workaround to get featured products
+        // For example, we can select products with specific categories or properties
+        
+        // Option 1: Get products from specific categories that you consider "featured"
+        const featuredCategories = ['Coffee Beans', 'Premium', 'Specialty']; // Adjust based on your categories
+        filters.OR = filters.OR || [];
+        filters.OR.push({
+          category: {
+            name: {
+              in: featuredCategories,
+              mode: 'insensitive'
             }
           }
-          
-          // Update lowest price
-          if (effectivePrice < lowestVariationPrice) {
-            lowestVariationPrice = effectivePrice;
-          }
+        });
+        
+        // Option 2: Get products with high stock priority or certain characteristics
+        // Example: products that are in stock and have images
+        filters.OR.push({
+          AND: [
+            { inStock: true },
+            { images: { some: {} } }, // Has at least one image
+            { stockQuantity: { gt: 0 } } // Has stock available
+          ]
         });
       }
       
-      // Use the higher of promotion discount or variation discount
-      const finalDiscount = hasVariationDiscount && highestVariationDiscount > 0 
-        ? highestVariationDiscount * 100  // Convert to percentage
-        : (highestPercentageDiscount > 0 ? highestPercentageDiscount : highestFixedDiscount);
+      // Filter for discounted products with active promotions
+      if (discounted) {
+        // Get active promotions
+        const now = new Date();
+        const activePromotions = await prisma.promotion.findMany({
+          where: {
+            isActive: true,
+            startDate: { lte: now },
+            endDate: { gte: now },
+            type: {
+              in: ['PERCENTAGE', 'FIXED_AMOUNT'] // Only include discount types
+            }
+          },
+          include: {
+            products: {
+              select: {
+                productId: true
+              }
+            }
+          }
+        });
+        
+        if (activePromotions.length > 0) {
+          // Get all product IDs that have active promotions
+          const discountedProductIds = activePromotions.flatMap(promo => 
+            promo.products.map(p => p.productId)
+          );
+          
+          // Add to filters
+          if (discountedProductIds.length > 0) {
+            filters.id = { in: discountedProductIds };
+          } else {
+            // No discounted products found, return empty array early
+            return [];
+          }
+        } else {
+          // No active promotions, return empty array early
+          return [];
+        }
+      }
       
-      const finalDiscountType = hasVariationDiscount && highestVariationDiscount > 0
-        ? 'PERCENTAGE'
-        : discountType;
+      // Comprehensive search across multiple fields
+      if (search && search.trim() !== '') {
+        filters.OR = filters.OR || [];
+        filters.OR.push(
+          // Search in product name and description (both English and Arabic)
+          { name: { contains: search, mode: 'insensitive' } },
+          { nameAr: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
+          { descriptionAr: { contains: search, mode: 'insensitive' } },
+          { origin: { contains: search, mode: 'insensitive' } },
+          { sku: { contains: search, mode: 'insensitive' } },
+          
+          // Search by category
+          { category: { 
+            OR: [
+              { name: { contains: search, mode: 'insensitive' } },
+              { nameAr: { contains: search, mode: 'insensitive' } }
+            ]
+          }}
+        );
+      }
       
-      // Add discount properties to the product
-      return {
-        ...product,
-        price: lowestVariationPrice, // Use the lowest variation price as the display price
-        discount: finalDiscount,
-        discountType: finalDiscountType,
-        hasVariationDiscount: hasVariationDiscount
-      };
-    });
+      // Query with filtering, include related data
+      console.log('Executing prisma query with filters:', JSON.stringify(filters, null, 2));
+      const products = await prisma.product.findMany({
+        where: filters,
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+              nameAr: true,
+              slug: true,
+            },
+          },
+          images: true,
+          variations: {
+            where: {
+              isActive: true
+            },
+            include: {
+              size: true,
+              type: true,
+              beans: true,
+            }
+          },
+          promotions: {
+            where: {
+              promotion: {
+                isActive: true,
+                startDate: { lte: new Date() },
+                endDate: { gte: new Date() }
+              }
+            },
+            include: {
+              promotion: {
+                select: {
+                  id: true,
+                  type: true,
+                  value: true
+                }
+              }
+            }
+          }
+        },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+        ...(limit ? { take: limit } : {})
+      });
+      
+      // Process promotion data to include discount information
+      const processedProducts = products.map(product => {
+        // Find the highest percentage discount or fixed amount discount from promotions
+        let highestPercentageDiscount = 0;
+        let highestFixedDiscount = 0;
+        let discountType = 'PERCENTAGE';
+        
+        if (product.promotions && product.promotions.length > 0) {
+          for (const promoLink of product.promotions) {
+            const promo = promoLink.promotion;
+            
+            if (promo.type === 'PERCENTAGE' && promo.value > highestPercentageDiscount) {
+              highestPercentageDiscount = promo.value;
+            } else if (promo.type === 'FIXED_AMOUNT' && promo.value > highestFixedDiscount) {
+              highestFixedDiscount = promo.value;
+            }
+          }
+          
+          // Determine which discount type to use (prefer percentage if both exist)
+          if (highestPercentageDiscount > 0) {
+            discountType = 'PERCENTAGE';
+          } else if (highestFixedDiscount > 0) {
+            discountType = 'FIXED_AMOUNT';
+          }
+        }
+        
+        // Check variations for discounts and find the lowest price
+        let lowestVariationPrice = product.price;
+        let highestVariationDiscount = 0;
+        let hasVariationDiscount = false;
+        
+        if (product.variations && product.variations.length > 0) {
+          product.variations.forEach((variation: any) => {
+            // Calculate effective price for this variation
+            let effectivePrice = variation.price;
+            if (variation.discount && variation.discount > 0) {
+              hasVariationDiscount = true;
+              if (variation.discountType === 'PERCENTAGE') {
+                effectivePrice = variation.price * (1 - variation.discount);
+                if (variation.discount > highestVariationDiscount) {
+                  highestVariationDiscount = variation.discount;
+                }
+              } else if (variation.discountType === 'FIXED_AMOUNT') {
+                effectivePrice = Math.max(0, variation.price - variation.discount);
+              }
+            }
+            
+            // Update lowest price
+            if (effectivePrice < lowestVariationPrice) {
+              lowestVariationPrice = effectivePrice;
+            }
+          });
+        }
+        
+        // Use the higher of promotion discount or variation discount
+        const finalDiscount = hasVariationDiscount && highestVariationDiscount > 0 
+          ? highestVariationDiscount * 100  // Convert to percentage
+          : (highestPercentageDiscount > 0 ? highestPercentageDiscount : highestFixedDiscount);
+        
+        const finalDiscountType = hasVariationDiscount && highestVariationDiscount > 0
+          ? 'PERCENTAGE'
+          : discountType;
+        
+        // Add discount properties to the product
+        return {
+          ...product,
+          price: lowestVariationPrice, // Use the lowest variation price as the display price
+          discount: finalDiscount,
+          discountType: finalDiscountType,
+          hasVariationDiscount: hasVariationDiscount
+        };
+      });
+      
+      console.log(`Found ${processedProducts.length} products`);
+      return processedProducts;
+    }, cacheTTL);
     
-    console.log(`Found ${processedProducts.length} products`);
-    return NextResponse.json(processedProducts);
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Failed to fetch products:', error);
     // More detailed error information
@@ -398,6 +410,9 @@ export async function POST(request: Request) {
         });
       }
     }
+    
+    // Invalidate products cache after creating new product
+    invalidateCache.products();
     
     return NextResponse.json(product, { status: 201 });
   } catch (error) {

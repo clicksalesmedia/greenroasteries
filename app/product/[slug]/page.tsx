@@ -390,6 +390,36 @@ export default function ProductPage() {
     }
   }, [product, language]);
   
+  // Auto-select first variation for products in excluded categories
+  useEffect(() => {
+    if (product?.variations && !selectedVariation) {
+      // Get current category name
+      const categoryName = getCategoryName().toUpperCase();
+      
+      // List of categories where additions should NOT be shown
+      const excludedCategories = [
+        'NUTS & DRIED FRUITS',
+        'EID AL ADHA - CATALOG'
+      ];
+      
+      // Check if current category is in the excluded list
+      const shouldHideAdditions = excludedCategories.some(excludedCat => 
+        categoryName.includes(excludedCat.toUpperCase())
+      );
+      
+      // If additions are hidden for this category, automatically select the first variation
+      if (shouldHideAdditions && product.variations.length > 0) {
+        console.log('Auto-selecting first variation for excluded category:', categoryName);
+        setSelectedVariation(product.variations[0]);
+        
+        // Set variation image if available
+        if (product.variations[0].imageUrl) {
+          setVariationImage(product.variations[0].imageUrl);
+        }
+      }
+    }
+  }, [product, selectedVariation]);
+  
   const fetchRecommendedProducts = async (currentProduct: Product) => {
     try {
       // In a real application, you would fetch related products from an API
@@ -1334,34 +1364,55 @@ export default function ProductPage() {
               )}
               
               {/* Additions Variation */}
-              {availableAdditions.length > 0 && (
-                <div>
-                  <h2 className="text-lg font-medium mb-2">{t('additions', 'Additions')}</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {availableAdditions.map((addition) => {
-                      // Get current selected addition
-                      const currentAddition = extractValue(selectedVariation?.additions || selectedVariation?.type, language);
-                      
-                      // Check if this addition is selected (exact match only)
-                      const isSelected = currentAddition.toLowerCase() === addition.toLowerCase();
-                      
-                      return (
-                        <button 
-                          key={addition}
-                          onClick={() => handleVariationChange('additions', addition)}
-                          className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors
-                            ${isSelected
-                              ? 'bg-black text-white border-black' 
-                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                            }`}
-                        >
-                          {addition}
-                        </button>
-                      );
-                    })}
+              {availableAdditions.length > 0 && (() => {
+                // Get current category name
+                const categoryName = getCategoryName().toUpperCase();
+                
+                // List of categories where additions should NOT be shown
+                const excludedCategories = [
+                  'NUTS & DRIED FRUITS',
+                  'EID AL ADHA - CATALOG'
+                ];
+                
+                // Check if current category is in the excluded list
+                const shouldHideAdditions = excludedCategories.some(excludedCat => 
+                  categoryName.includes(excludedCat.toUpperCase())
+                );
+                
+                // Only render additions if not in excluded categories
+                if (shouldHideAdditions) {
+                  return null;
+                }
+                
+                return (
+                  <div>
+                    <h2 className="text-lg font-medium mb-2">{t('additions', 'Additions')}</h2>
+                    <div className="flex flex-wrap gap-2">
+                      {availableAdditions.map((addition) => {
+                        // Get current selected addition
+                        const currentAddition = extractValue(selectedVariation?.additions || selectedVariation?.type, language);
+                        
+                        // Check if this addition is selected (exact match only)
+                        const isSelected = currentAddition.toLowerCase() === addition.toLowerCase();
+                        
+                        return (
+                          <button 
+                            key={addition}
+                            onClick={() => handleVariationChange('additions', addition)}
+                            className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors
+                              ${isSelected
+                                ? 'bg-black text-white border-black' 
+                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                              }`}
+                          >
+                            {addition}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
             
             {/* Quantity */}
