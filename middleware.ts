@@ -15,7 +15,6 @@ interface JwtPayload {
 const protectedPaths = [
   '/backend',
   '/api/variations',
-  '/api/orders',
   '/api/promotions',
   '/api/users',
 ];
@@ -27,9 +26,14 @@ const PUBLIC_PATHS = [
   '/api/auth/logout',
   '/api/auth/session',
   '/api/auth/register',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
   '/api/products',
   '/api/categories',
   '/api/sliders',
+  '/api/orders',
+  '/api/create-payment-intent',
+  '/api/test-email',
 ];
 
 // Middleware for auth checks
@@ -124,7 +128,6 @@ export const config = {
     '/backend/:path*',
     // Match protected API routes
     '/api/variations/:path*',
-    '/api/orders/:path*',
     '/api/promotions/:path*',
     '/api/users/:path*',
   ],

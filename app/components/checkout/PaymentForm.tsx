@@ -5,6 +5,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import {
   Elements,
   CardElement,
+  PaymentRequestButtonElement,
   useStripe,
   useElements
 } from '@stripe/react-stripe-js';
@@ -53,6 +54,7 @@ function StripePaymentForm({
   const [paymentIntentId, setPaymentIntentId] = useState<string>('');
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string>('');
+  const [paymentRequest, setPaymentRequest] = useState<any>(null);
 
   useEffect(() => {
     // Create payment intent when component mounts
@@ -87,6 +89,90 @@ function StripePaymentForm({
 
     createPaymentIntent();
   }, [totalAmount, customerInfo, shippingInfo, items]);
+
+  // Set up payment request for Apple Pay / Google Pay
+  useEffect(() => {
+    if (!stripe) return;
+
+    const pr = stripe.paymentRequest({
+      country: 'AE',
+      currency: 'aed',
+      total: {
+        label: 'Green Roasteries Order',
+        amount: Math.round(totalAmount * 100),
+      },
+      requestPayerName: true,
+      requestPayerEmail: true,
+      requestPayerPhone: true,
+    });
+
+    // Check if payment request is available (Apple Pay, Google Pay, etc.)
+    pr.canMakePayment().then(result => {
+      if (result) {
+        setPaymentRequest(pr);
+      }
+    });
+
+    pr.on('paymentmethod', async (event) => {
+      if (!clientSecret) {
+        event.complete('fail');
+        return;
+      }
+
+      setProcessing(true);
+      setError('');
+
+      // Confirm payment with Stripe
+      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: event.paymentMethod.id,
+        }
+      );
+
+      if (stripeError) {
+        setError(stripeError.message || 'Payment failed');
+        event.complete('fail');
+        setProcessing(false);
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        // Create order in database
+        try {
+          const orderResponse = await fetch('/api/orders', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              customerInfo,
+              shippingInfo,
+              items,
+              totalAmount,
+              subtotal,
+              tax,
+              shippingCost,
+              discount,
+              paymentIntentId: paymentIntent.id,
+            }),
+          });
+
+          const orderData = await orderResponse.json();
+
+          if (orderData.success) {
+            event.complete('success');
+            onSuccess(orderData.orderId, orderData.isNewCustomer);
+          } else {
+            event.complete('fail');
+            setError(orderData.error || 'Failed to create order');
+          }
+        } catch (err) {
+          event.complete('fail');
+          setError('Failed to create order');
+        }
+      }
+
+      setProcessing(false);
+    });
+  }, [stripe, totalAmount, clientSecret, customerInfo, shippingInfo, items, subtotal, tax, shippingCost, discount, onSuccess]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -179,6 +265,17 @@ function StripePaymentForm({
     },
   };
 
+  const paymentRequestButtonOptions = {
+    paymentRequest,
+    style: {
+      paymentRequestButton: {
+        type: 'default' as const,
+        theme: 'dark' as const,
+        height: '48px',
+      },
+    },
+  };
+
   return (
     <div dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <h2 className={`text-xl font-bold mb-6 ${language === 'ar' ? 'text-right' : ''}`}>
@@ -186,8 +283,12 @@ function StripePaymentForm({
       </h2>
       
       <div className="mb-6 bg-gray-50 rounded-lg p-4 flex flex-col sm:flex-row items-center justify-center sm:justify-between">
-        <div className="flex space-x-3 mb-2 sm:mb-0">
-          <img src="/images/payment-methods.svg" alt="Payment Methods" className="h-8" />
+        <div className="flex flex-wrap items-center justify-center space-x-3 mb-2 sm:mb-0">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium">💳 Cards</span>
+            <span className="text-sm font-medium">🍎 Apple Pay</span>
+            <span className="text-sm font-medium">🌐 Google Pay</span>
+          </div>
         </div>
         <p className={`text-sm text-gray-600 text-center sm:text-left ${language === 'ar' ? 'sm:text-right' : ''}`}>
           {t('all_transactions_secure', 'All transactions are secure and encrypted with Stripe.')}
@@ -196,6 +297,28 @@ function StripePaymentForm({
       
       <form onSubmit={handleSubmit}>
         <div className="space-y-6">
+          {/* Apple Pay / Google Pay Button */}
+          {paymentRequest && (
+            <div>
+              <div className="text-center mb-4">
+                <PaymentRequestButtonElement 
+                  options={paymentRequestButtonOptions} 
+                  className="StripeElement"
+                />
+              </div>
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">
+                    {t('or_pay_with_card', 'Or pay with card')}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Card Element */}
           <div>
             <label className={`block text-sm font-medium text-gray-700 mb-1 ${language === 'ar' ? 'text-right' : ''}`}>
