@@ -22,15 +22,22 @@ fi
 
 # 2. Check if environment variables are set
 echo -e "${YELLOW}Checking environment variables...${NC}"
-if [ -f .env.local ]; then
-    if grep -q "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY" .env.local; then
-        echo -e "${GREEN}✓ Stripe publishable key is set${NC}"
-    else
-        echo -e "${RED}✗ Stripe publishable key is not set${NC}"
-        ERRORS=$((ERRORS + 1))
-    fi
+STRIPE_KEY_FOUND=false
+
+# Check in .env.local first
+if [ -f .env.local ] && grep -q "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY" .env.local; then
+    STRIPE_KEY_FOUND=true
+fi
+
+# Check in .env if not found in .env.local
+if [ "$STRIPE_KEY_FOUND" = false ] && [ -f .env ] && grep -q "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY" .env; then
+    STRIPE_KEY_FOUND=true
+fi
+
+if [ "$STRIPE_KEY_FOUND" = true ]; then
+    echo -e "${GREEN}✓ Stripe publishable key is set${NC}"
 else
-    echo -e "${RED}✗ .env.local file not found${NC}"
+    echo -e "${RED}✗ Stripe publishable key is not set${NC}"
     ERRORS=$((ERRORS + 1))
 fi
 
