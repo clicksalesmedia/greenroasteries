@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronDownIcon, ChevronUpIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ChevronUpIcon, MagnifyingGlassIcon, TrashIcon } from '@heroicons/react/24/outline';
 import BackendLayout from '../components/BackendLayout';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 
@@ -56,11 +56,14 @@ export default function OrdersPage() {
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'ALL'>('ALL');
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [deletingOrder, setDeletingOrder] = useState<string | null>(null);
   
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
+        setError(null);
         const params = new URLSearchParams({
           page: '1',
           limit: '50',
@@ -79,9 +82,6 @@ export default function OrdersPage() {
       } catch (err) {
         console.error('Error fetching orders:', err);
         setError('Failed to load orders. Please try again.');
-        
-        // Create dummy orders for development if API fails
-        createDummyOrders();
       } finally {
         setLoading(false);
       }
@@ -90,87 +90,32 @@ export default function OrdersPage() {
     fetchOrders();
   }, [statusFilter, searchQuery]);
   
-  const createDummyOrders = () => {
-    const statuses: OrderStatus[] = ['NEW', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'];
-    const dummyOrders: Order[] = Array.from({ length: 15 }, (_, i) => {
-      const status = statuses[Math.floor(Math.random() * statuses.length)];
-      const createdAt = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString();
-      const items = Array.from({ length: Math.floor(Math.random() * 4) + 1 }, (_, j) => ({
-        id: `item-${i}-${j}`,
-        productId: `prod-${j}`,
-        product: {
-          id: `prod-${j}`,
-          name: `Coffee Product ${j + 1}`,
-          nameAr: `منتج القهوة ${j + 1}`,
-          imageUrl: `/images/coffee-${(j % 5) + 1}.jpg`
-        },
-        quantity: Math.floor(Math.random() * 3) + 1,
-        unitPrice: 25 + Math.floor(Math.random() * 15),
-        subtotal: 0 // Will be calculated below
-      }));
-      
-      // Calculate item subtotals
-      items.forEach(item => {
-        item.subtotal = item.quantity * item.unitPrice;
-      });
-      
-      const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
-      const tax = subtotal * 0.05;
-      const shippingCost = subtotal > 200 ? 0 : 25;
-      const discount = Math.random() > 0.7 ? subtotal * 0.1 : 0;
-      
-      return {
-        id: `order-${i + 1}`,
-        userId: `user-${i % 5 + 1}`,
-        user: {
-          id: `user-${i % 5 + 1}`,
-          name: `Customer ${i % 5 + 1}`,
-          email: `customer${i % 5 + 1}@example.com`,
-          phone: `+1234567890${i % 5 + 1}`
-        },
-        subtotal,
-        tax,
-        shippingCost,
-        discount,
-        total: subtotal + tax + shippingCost - discount,
-        status,
-        paymentMethod: Math.random() > 0.5 ? 'Credit Card' : 'Cash on Delivery',
-        paymentId: Math.random() > 0.5 ? `pay_${Math.random().toString(36).substring(2, 10)}` : undefined,
-        shippingAddress: `${123 + i} Main St, City, Country`,
-        trackingNumber: status !== 'NEW' ? `TRK${Math.random().toString(36).substring(2, 10).toUpperCase()}` : undefined,
-        notes: Math.random() > 0.7 ? 'Please leave at the door' : undefined,
-        createdAt,
-        updatedAt: new Date(new Date(createdAt).getTime() + Math.random() * 5 * 24 * 60 * 60 * 1000).toISOString(),
-        items
-      };
-    });
-    
-    setOrders(dummyOrders);
-  };
-  
   const toggleOrderDetails = (orderId: string) => {
     setExpandedOrderId(prevId => prevId === orderId ? null : orderId);
   };
   
   const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
     try {
-      // In a real application, you would make an API call to update the status
-      // const response = await fetch(`/api/orders/${orderId}`, {
-      //   method: 'PATCH',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ status: newStatus }),
-      // });
+      setUpdatingStatus(orderId);
       
-      // if (!response.ok) {
-      //   throw new Error('Failed to update order status');
-      // }
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
       
-      // For development, we'll update the status locally
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update order status');
+      }
+      
+      // Update the local state with the updated order
       setOrders(prevOrders => 
         prevOrders.map(order => 
-          order.id === orderId ? { ...order, status: newStatus } : order
+          order.id === orderId ? { ...order, status: newStatus, updatedAt: new Date().toISOString() } : order
         )
       );
       
@@ -178,6 +123,45 @@ export default function OrdersPage() {
       console.log(`Order ${orderId} status updated to ${newStatus}`);
     } catch (error) {
       console.error('Error updating order status:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update order status');
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    // Confirm deletion
+    if (!confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setDeletingOrder(orderId);
+      
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'DELETE',
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete order');
+      }
+      
+      // Remove the order from local state
+      setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
+      
+      // Close expanded details if this order was expanded
+      if (expandedOrderId === orderId) {
+        setExpandedOrderId(null);
+      }
+      
+      console.log(`Order ${orderId} deleted successfully`);
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      setError(error instanceof Error ? error.message : 'Failed to delete order');
+    } finally {
+      setDeletingOrder(null);
     }
   };
   
@@ -246,6 +230,29 @@ export default function OrdersPage() {
             </p>
           </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mt-4 bg-red-50 border border-red-200 rounded-md p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Error</h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>{error}</p>
+                </div>
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    className="bg-red-100 px-2 py-1 text-sm font-medium text-red-800 rounded-md hover:bg-red-200"
+                    onClick={() => setError(null)}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Filters and Search */}
         <div className="mt-6 flex flex-col sm:flex-row gap-4">
@@ -299,8 +306,6 @@ export default function OrdersPage() {
                 <div className="flex justify-center py-12">
                   <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-black"></div>
                 </div>
-              ) : error ? (
-                <div className="bg-red-50 p-4 rounded-md text-red-800">{error}</div>
               ) : filteredOrders.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-gray-500 text-lg">{t('no_orders_found', 'No orders found')}</p>
@@ -335,7 +340,7 @@ export default function OrdersPage() {
                         <React.Fragment key={order.id}>
                           <tr className="hover:bg-gray-50">
                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                              {order.id}
+                              #{order.id.slice(-8).toUpperCase()}
                             </td>
                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                               <div className="font-medium text-gray-900">{order.user.name}</div>
@@ -345,13 +350,14 @@ export default function OrdersPage() {
                               {formatDate(order.createdAt)}
                             </td>
                             <td className="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">
-                              ${formatPrice(order.total)}
+                              {formatPrice(order.total)} AED
                             </td>
                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                               <select
                                 value={order.status}
                                 onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
-                                className={`${getStatusClass(order.status)} border-0 rounded-full py-1 px-3 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black`}
+                                disabled={updatingStatus === order.id}
+                                className={`${getStatusClass(order.status)} border-0 rounded-full py-1 px-3 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:opacity-50`}
                               >
                                 <option value="NEW">{t('new', 'New')}</option>
                                 <option value="PROCESSING">{t('processing', 'Processing')}</option>
@@ -360,19 +366,36 @@ export default function OrdersPage() {
                                 <option value="CANCELLED">{t('cancelled', 'Cancelled')}</option>
                                 <option value="REFUNDED">{t('refunded', 'Refunded')}</option>
                               </select>
+                              {updatingStatus === order.id && (
+                                <div className="mt-1 text-xs text-gray-500">Updating...</div>
+                              )}
                             </td>
                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                              <button
-                                onClick={() => toggleOrderDetails(order.id)}
-                                className="text-indigo-600 hover:text-indigo-900 flex items-center"
-                              >
-                                {t('details', 'Details')}
-                                {expandedOrderId === order.id ? (
-                                  <ChevronUpIcon className="ml-1 h-4 w-4" />
-                                ) : (
-                                  <ChevronDownIcon className="ml-1 h-4 w-4" />
-                                )}
-                              </button>
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => toggleOrderDetails(order.id)}
+                                  className="text-indigo-600 hover:text-indigo-900 flex items-center"
+                                >
+                                  {t('details', 'Details')}
+                                  {expandedOrderId === order.id ? (
+                                    <ChevronUpIcon className="ml-1 h-4 w-4" />
+                                  ) : (
+                                    <ChevronDownIcon className="ml-1 h-4 w-4" />
+                                  )}
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteOrder(order.id)}
+                                  disabled={deletingOrder === order.id}
+                                  className="text-red-600 hover:text-red-900 p-1 disabled:opacity-50"
+                                  title={t('delete_order', 'Delete Order')}
+                                >
+                                  {deletingOrder === order.id ? (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-red-600"></div>
+                                  ) : (
+                                    <TrashIcon className="h-4 w-4" />
+                                  )}
+                                </button>
+                              </div>
                             </td>
                           </tr>
                           {expandedOrderId === order.id && (
@@ -420,13 +443,13 @@ export default function OrdersPage() {
                                               {contentByLang(item.product.name, item.product.nameAr || item.product.name)}
                                             </td>
                                             <td className="px-3 py-2 text-sm text-gray-500">
-                                              ${formatPrice(item.unitPrice)}
+                                              {formatPrice(item.unitPrice)} AED
                                             </td>
                                             <td className="px-3 py-2 text-sm text-gray-500">
                                               {item.quantity}
                                             </td>
                                             <td className="px-3 py-2 text-sm text-gray-500">
-                                              ${formatPrice(item.subtotal)}
+                                              {formatPrice(item.subtotal)} AED
                                             </td>
                                           </tr>
                                         ))}
@@ -434,25 +457,25 @@ export default function OrdersPage() {
                                       <tfoot>
                                         <tr className="bg-gray-50">
                                           <td colSpan={3} className="px-3 py-2 text-sm font-medium text-gray-900 text-right">{t('subtotal', 'Subtotal')}</td>
-                                          <td className="px-3 py-2 text-sm font-medium text-gray-900">${formatPrice(order.subtotal)}</td>
+                                          <td className="px-3 py-2 text-sm font-medium text-gray-900">{formatPrice(order.subtotal)} AED</td>
                                         </tr>
                                         <tr className="bg-gray-50">
                                           <td colSpan={3} className="px-3 py-2 text-sm font-medium text-gray-900 text-right">{t('tax', 'Tax')}</td>
-                                          <td className="px-3 py-2 text-sm font-medium text-gray-900">${formatPrice(order.tax)}</td>
+                                          <td className="px-3 py-2 text-sm font-medium text-gray-900">{formatPrice(order.tax)} AED</td>
                                         </tr>
                                         <tr className="bg-gray-50">
                                           <td colSpan={3} className="px-3 py-2 text-sm font-medium text-gray-900 text-right">{t('shipping', 'Shipping')}</td>
-                                          <td className="px-3 py-2 text-sm font-medium text-gray-900">${formatPrice(order.shippingCost)}</td>
+                                          <td className="px-3 py-2 text-sm font-medium text-gray-900">{formatPrice(order.shippingCost)} AED</td>
                                         </tr>
                                         {order.discount > 0 && (
                                           <tr className="bg-gray-50">
                                             <td colSpan={3} className="px-3 py-2 text-sm font-medium text-gray-900 text-right">{t('discount', 'Discount')}</td>
-                                            <td className="px-3 py-2 text-sm font-medium text-red-600">-${formatPrice(order.discount)}</td>
+                                            <td className="px-3 py-2 text-sm font-medium text-red-600">-{formatPrice(order.discount)} AED</td>
                                           </tr>
                                         )}
                                         <tr className="bg-gray-200">
                                           <td colSpan={3} className="px-3 py-2 text-sm font-bold text-gray-900 text-right">{t('total', 'Total')}</td>
-                                          <td className="px-3 py-2 text-sm font-bold text-gray-900">${formatPrice(order.total)}</td>
+                                          <td className="px-3 py-2 text-sm font-bold text-gray-900">{formatPrice(order.total)} AED</td>
                                         </tr>
                                       </tfoot>
                                     </table>
