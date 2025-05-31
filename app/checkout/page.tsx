@@ -40,12 +40,59 @@ export default function CheckoutPage() {
   // Payment processing state
   const [paymentProcessing, setPaymentProcessing] = useState(false);
 
+  // Shipping calculation state
+  const [shippingCost, setShippingCost] = useState(0);
+  const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
+
   // Redirect if cart is empty
   useEffect(() => {
     if (items.length === 0) {
       router.push('/cart');
     }
   }, [items, router]);
+
+  // Calculate shipping when items or customer info changes
+  useEffect(() => {
+    const calculateShipping = async () => {
+      if (totalPrice <= 0) {
+        setShippingCost(0);
+        return;
+      }
+
+      setIsCalculatingShipping(true);
+      try {
+        const response = await fetch('/api/shipping/calculate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderTotal: totalPrice,
+            items: items
+          }),
+        });
+
+        if (response.ok) {
+          const calculation = await response.json();
+          setShippingCost(calculation.shippingCost || 0);
+        } else {
+          // Fallback: free shipping over 200 AED, otherwise 25 AED
+          setShippingCost(totalPrice >= 200 ? 0 : 25);
+        }
+      } catch (error) {
+        console.error('Error calculating shipping:', error);
+        // Fallback: free shipping over 200 AED, otherwise 25 AED
+        setShippingCost(totalPrice >= 200 ? 0 : 25);
+      } finally {
+        setIsCalculatingShipping(false);
+      }
+    };
+
+    calculateShipping();
+  }, [totalPrice, items]);
+
+  // Calculate final total including shipping
+  const finalTotal = totalPrice + shippingCost;
 
   const handleNextStep = () => {
     setCurrentStep(prev => prev + 1);
@@ -76,7 +123,7 @@ export default function CheckoutPage() {
         customerInfo,
         shippingInfo,
         items,
-        totalAmount: totalPrice,
+        totalAmount: finalTotal,
         orderDate: new Date().toISOString()
       };
       
@@ -186,10 +233,10 @@ export default function CheckoutPage() {
                 customerInfo={customerInfo}
                 shippingInfo={shippingInfo}
                 items={items}
-                totalAmount={totalPrice}
-                subtotal={totalPrice * 0.9} // Assuming 10% tax
-                tax={totalPrice * 0.1}
-                shippingCost={totalPrice > 200 ? 0 : 25}
+                totalAmount={finalTotal}
+                subtotal={totalPrice}
+                tax={0}
+                shippingCost={shippingCost}
                 discount={0}
                 onSuccess={handlePaymentSuccess}
                 onBack={handlePrevStep}

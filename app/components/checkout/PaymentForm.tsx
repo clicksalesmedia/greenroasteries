@@ -360,14 +360,18 @@ function CheckoutForm({
                 <span>{t('subtotal', 'Subtotal')}</span>
                 <span>{subtotal.toFixed(2)} AED</span>
               </div>
-              <div className={`flex justify-between ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
-                <span>{t('tax', 'Tax')}</span>
-                <span>{tax.toFixed(2)} AED</span>
-              </div>
-              <div className={`flex justify-between ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
-                <span>{t('shipping', 'Shipping')}</span>
-                <span>{shippingCost.toFixed(2)} AED</span>
-              </div>
+              {shippingCost > 0 && (
+                <div className={`flex justify-between ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+                  <span>{t('shipping', 'Shipping')}</span>
+                  <span>{shippingCost.toFixed(2)} AED</span>
+                </div>
+              )}
+              {shippingCost === 0 && (
+                <div className={`flex justify-between ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+                  <span>{t('shipping', 'Shipping')}</span>
+                  <span className="text-green-600">{t('free', 'Free')}</span>
+                </div>
+              )}
               {discount > 0 && (
                 <div className={`flex justify-between text-green-600 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
                   <span>{t('discount', 'Discount')}</span>

@@ -78,17 +78,19 @@ export default function ShopContent() {
 
   // Function to format discount display
   const getDiscountDisplay = (product: Product) => {
-    if (!product.discount || product.discount === 0) return null;
+    // Return null if no discount or discount is 0 or invalid
+    if (!product.discount || product.discount <= 0) return null;
     
     if (product.discountType === 'PERCENTAGE') {
-      return `-${Math.round(product.discount)}%`;
+      const discountValue = Math.round(product.discount);
+      return discountValue > 0 ? `-${discountValue}%` : null;
     } else if (product.discountType === 'FIXED_AMOUNT') {
-      return (
+      return product.discount > 0 ? (
         <span className="flex items-center gap-1">
           -{product.discount}
           <UAEDirhamSymbol size={10} />
         </span>
-      );
+      ) : null;
     }
     return null;
   };
@@ -145,7 +147,7 @@ export default function ShopContent() {
                     // The parent already has the appropriate background color
                   }}
                 />
-                {product.discount && product.discount > 0 && (
+                {product.discount && product.discount > 0 && getDiscountDisplay(product) && (
                   <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
                     {getDiscountDisplay(product)}
                   </div>
