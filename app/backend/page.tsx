@@ -34,6 +34,34 @@ ChartJS.register(
   Filler
 );
 
+interface DashboardStats {
+  todayOrders: number;
+  totalProducts: number;
+  activePromotions: number;
+  totalRevenue: number;
+  totalCustomers: number;
+  pendingOrders: number;
+}
+
+interface Order {
+  id: string;
+  customerName?: string;
+  customerEmail?: string;
+  total: number;
+  status: string;
+  createdAt: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  nameAr?: string;
+  category: { name: string; nameAr?: string } | string;
+  price: number;
+  stockQuantity: number;
+  sales?: number;
+}
+
 export default function BackendDashboard() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -44,17 +72,20 @@ export default function BackendDashboard() {
   const { t, language } = useLanguage();
   
   const currentDate = new Date();
-  const productCount = 125;
   
   // Dashboard statistics state
-  const [stats, setStats] = useState({
-    todayOrders: 12,
-    totalProducts: productCount,
-    activePromotions: 3,
-    totalRevenue: 12500,
-    totalCustomers: 89,
-    pendingOrders: 7
+  const [stats, setStats] = useState<DashboardStats>({
+    todayOrders: 0,
+    totalProducts: 0,
+    activePromotions: 0,
+    totalRevenue: 0,
+    totalCustomers: 0,
+    pendingOrders: 0
   });
+  
+  // Data state for real data
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [popularProducts, setPopularProducts] = useState<Product[]>([]);
   
   // Chart data state
   const [salesData, setSalesData] = useState<{
@@ -70,6 +101,7 @@ export default function BackendDashboard() {
     labels: [],
     datasets: []
   });
+  
   const [productPerformance, setProductPerformance] = useState<{
     labels: string[];
     datasets: {
@@ -82,6 +114,7 @@ export default function BackendDashboard() {
     labels: [],
     datasets: []
   });
+  
   const [customerGrowth, setCustomerGrowth] = useState<{
     labels: string[];
     datasets: {
@@ -93,7 +126,219 @@ export default function BackendDashboard() {
     labels: [],
     datasets: []
   });
-  
+
+  const [orderStatusData, setOrderStatusData] = useState<{
+    labels: string[];
+    datasets: {
+      data: number[];
+      backgroundColor: string[];
+    }[];
+  }>({
+    labels: [],
+    datasets: []
+  });
+
+  // Fetch dashboard statistics
+  const fetchDashboardStats = async () => {
+    try {
+      const [ordersRes, productsRes, customersRes, paymentsRes, promotionsRes] = await Promise.all([
+        fetch('/api/orders'),
+        fetch('/api/products'),
+        fetch('/api/customers'),
+        fetch('/api/payments?action=stats', { method: 'PATCH' }),
+        fetch('/api/promotions')
+      ]);
+
+      const [orders, products, customers, paymentsData, promotions] = await Promise.all([
+        ordersRes.ok ? ordersRes.json() : { orders: [] },
+        productsRes.ok ? productsRes.json() : [],
+        customersRes.ok ? customersRes.json() : { customers: [] },
+        paymentsRes.ok ? paymentsRes.json() : { stats: { totalRevenue: 0 } },
+        promotionsRes.ok ? promotionsRes.json() : []
+      ]);
+
+      const today = new Date().toISOString().split('T')[0];
+      const todayOrders = orders.orders?.filter((order: Order) => 
+        order.createdAt.startsWith(today)
+      ).length || 0;
+
+      const pendingOrders = orders.orders?.filter((order: Order) => 
+        ['NEW', 'PROCESSING'].includes(order.status)
+      ).length || 0;
+
+      const activePromotions = Array.isArray(promotions) 
+        ? promotions.filter((promo: any) => 
+            promo.isActive && new Date(promo.endDate) > new Date()
+          ).length
+        : 0;
+
+      setStats({
+        todayOrders,
+        totalProducts: Array.isArray(products) ? products.length : 0,
+        activePromotions,
+        totalRevenue: paymentsData.stats?.totalRevenue || 0,
+        totalCustomers: customers.customers?.length || 0,
+        pendingOrders
+      });
+
+      // Set recent orders (last 5)
+      if (orders.orders) {
+        setRecentOrders(orders.orders.slice(0, 5));
+      }
+
+      // Set popular products (first 5 products)
+      if (Array.isArray(products)) {
+        setPopularProducts(products.slice(0, 5));
+      }
+
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    }
+  };
+
+  // Generate chart data from real data
+  const generateChartData = async () => {
+    try {
+      // Fetch orders for chart data
+      const ordersRes = await fetch('/api/orders?limit=100');
+      const ordersData = await ordersRes.json();
+      const orders = ordersData.orders || [];
+
+      // Generate labels for the last 7 days
+      const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - i));
+        return {
+          label: date.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', { month: 'short', day: 'numeric' }),
+          date: date.toISOString().split('T')[0]
+        };
+      });
+
+      // Calculate daily sales data
+      const dailySales = last7Days.map(day => {
+        const dayOrders = orders.filter((order: Order) => 
+          order.createdAt.startsWith(day.date)
+        );
+        return {
+          revenue: dayOrders.reduce((sum: number, order: Order) => sum + order.total, 0),
+          orderCount: dayOrders.length
+        };
+      });
+
+      // Sales data for the last 7 days
+      setSalesData({
+        labels: last7Days.map(day => day.label),
+        datasets: [
+          {
+            label: t('revenue', 'Revenue (AED)'),
+            data: dailySales.map(day => day.revenue),
+            borderColor: 'rgb(53, 162, 235)',
+            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+            tension: 0.3,
+          },
+          {
+            label: t('orders', 'Orders'),
+            data: dailySales.map(day => day.orderCount),
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            tension: 0.3,
+          }
+        ]
+      });
+
+      // Product performance - fetch products with order items
+      const productsRes = await fetch('/api/products');
+      if (productsRes.ok) {
+        const products = await productsRes.json();
+        const topProducts = products.slice(0, 5);
+        
+        setProductPerformance({
+          labels: topProducts.map((product: Product) => 
+            (language === 'ar' && product.nameAr) ? product.nameAr : product.name
+          ),
+          datasets: [
+            {
+              label: t('product_price', 'Product Price (AED)'),
+              data: topProducts.map((product: Product) => product.price),
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.7)',
+                'rgba(54, 162, 235, 0.7)',
+                'rgba(255, 206, 86, 0.7)',
+                'rgba(75, 192, 192, 0.7)',
+                'rgba(153, 102, 255, 0.7)',
+              ],
+              borderWidth: 1,
+            }
+          ]
+        });
+      }
+
+      // Customer growth by month (last 6 months)
+      const last6Months = Array.from({ length: 6 }, (_, i) => {
+        const date = new Date();
+        date.setMonth(date.getMonth() - (5 - i));
+        return {
+          label: date.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', { month: 'short' }),
+          year: date.getFullYear(),
+          month: date.getMonth()
+        };
+      });
+
+      const customersRes = await fetch('/api/customers');
+      if (customersRes.ok) {
+        const customersData = await customersRes.json();
+        const customers = customersData.customers || [];
+        
+        const monthlyCustomers = last6Months.map(month => {
+          return customers.filter((customer: any) => {
+            const customerDate = new Date(customer.createdAt);
+            return customerDate.getFullYear() === month.year && 
+                   customerDate.getMonth() === month.month;
+          }).length;
+        });
+
+        setCustomerGrowth({
+          labels: last6Months.map(month => month.label),
+          datasets: [
+            {
+              label: t('new_customers', 'New Customers'),
+              data: monthlyCustomers,
+              backgroundColor: 'rgba(75, 192, 192, 0.7)'
+            }
+          ]
+        });
+      }
+
+      // Order status distribution
+      const statusCounts = orders.reduce((acc: any, order: Order) => {
+        acc[order.status] = (acc[order.status] || 0) + 1;
+        return acc;
+      }, {});
+
+      const statusLabels = Object.keys(statusCounts);
+      const statusData = Object.values(statusCounts) as number[];
+
+      setOrderStatusData({
+        labels: statusLabels.map(status => t(status.toLowerCase(), status)),
+        datasets: [
+          {
+            data: statusData,
+            backgroundColor: [
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(255, 206, 86, 0.7)',
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(153, 102, 255, 0.7)',
+              'rgba(255, 99, 132, 0.7)',
+            ],
+          }
+        ]
+      });
+
+    } catch (error) {
+      console.error('Error generating chart data:', error);
+    }
+  };
+
   // Check current maintenance mode status
   useEffect(() => {
     const checkMaintenanceMode = async () => {
@@ -152,11 +397,13 @@ export default function BackendDashboard() {
             console.log('User is authenticated:', data.user);
             setIsAuthenticated(true);
             
-            // Once authenticated, generate dummy data for charts
-            generateChartData();
+            // Fetch real data instead of generating dummy data
+            await Promise.all([
+              fetchDashboardStats(),
+              generateChartData()
+            ]);
           } else {
             console.log('No authenticated user found, redirecting to login');
-            // Use direct navigation to prevent loops
             document.location.href = '/backend/login';
             return;
           }
@@ -177,76 +424,7 @@ export default function BackendDashboard() {
 
     checkAuth();
   }, []);
-  
-  // Generate dummy chart data for demonstration
-  const generateChartData = () => {
-    // Generate labels for the last 7 days
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (6 - i));
-      return date.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', { month: 'short', day: 'numeric' });
-    });
-    
-    // Generate labels for months
-    const last6Months = Array.from({ length: 6 }, (_, i) => {
-      const date = new Date();
-      date.setMonth(date.getMonth() - (5 - i));
-      return date.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', { month: 'short' });
-    });
-    
-    // Sales data for the last 7 days
-    setSalesData({
-      labels: last7Days,
-      datasets: [
-        {
-          label: t('revenue', 'Revenue'),
-          data: [1200, 1900, 1500, 2500, 1800, 2800, 2200],
-          borderColor: 'rgb(53, 162, 235)',
-          backgroundColor: 'rgba(53, 162, 235, 0.5)',
-          tension: 0.3,
-        },
-        {
-          label: t('orders', 'Orders'),
-          data: [8, 12, 9, 14, 10, 15, 12],
-          borderColor: 'rgb(75, 192, 192)',
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-          tension: 0.3,
-        }
-      ]
-    });
-    
-    // Top 5 product performance
-    setProductPerformance({
-      labels: ['Arabica', 'Espresso Blend', 'Ethiopian', 'Colombian', 'Organic Decaf'],
-      datasets: [
-        {
-          label: t('sales_amount', 'Sales Amount'),
-          data: [4200, 3800, 3200, 2700, 2200],
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.7)',
-            'rgba(54, 162, 235, 0.7)',
-            'rgba(255, 206, 86, 0.7)',
-            'rgba(75, 192, 192, 0.7)',
-            'rgba(153, 102, 255, 0.7)',
-          ],
-          borderWidth: 1,
-        }
-      ]
-    });
-    
-    // Customer growth by month
-    setCustomerGrowth({
-      labels: last6Months,
-      datasets: [
-        {
-          label: t('new_customers', 'New Customers'),
-          data: [12, 19, 15, 25, 22, 30],
-          backgroundColor: 'rgba(75, 192, 192, 0.7)'
-        }
-      ]
-    });
-  };
-  
+
   // Chart options
   const lineOptions = {
     responsive: true,
@@ -257,7 +435,7 @@ export default function BackendDashboard() {
       },
       title: {
         display: true,
-        text: t('sales_trend', 'Sales Trend'),
+        text: t('sales_trend', 'Sales Trend (Last 7 Days)'),
       },
     },
     scales: {
@@ -276,7 +454,7 @@ export default function BackendDashboard() {
       },
       title: {
         display: true,
-        text: t('top_products', 'Top Products'),
+        text: t('top_products', 'Product Prices'),
       },
     },
     scales: {
@@ -295,7 +473,7 @@ export default function BackendDashboard() {
       },
       title: {
         display: true,
-        text: t('customer_growth', 'Customer Growth'),
+        text: t('customer_growth', 'Customer Growth (Last 6 Months)'),
       }
     },
     scales: {
@@ -304,28 +482,28 @@ export default function BackendDashboard() {
       }
     }
   };
-  
-  // Generate data for order status doughnut chart
-  const orderStatusData = {
-    labels: [
-      t('new', 'New'),
-      t('processing', 'Processing'),
-      t('shipped', 'Shipped'),
-      t('delivered', 'Delivered'),
-      t('cancelled', 'Cancelled')
-    ],
-    datasets: [
-      {
-        data: [7, 5, 8, 12, 3],
-        backgroundColor: [
-          'rgba(54, 162, 235, 0.7)',
-          'rgba(255, 206, 86, 0.7)',
-          'rgba(75, 192, 192, 0.7)',
-          'rgba(153, 102, 255, 0.7)',
-          'rgba(255, 99, 132, 0.7)',
-        ],
-      }
-    ]
+
+  // Helper function to get status color
+  const getStatusColor = (status: string) => {
+    switch (status.toUpperCase()) {
+      case 'NEW':
+        return 'bg-blue-100 text-blue-800';
+      case 'PROCESSING':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'SHIPPED':
+        return 'bg-purple-100 text-purple-800';
+      case 'DELIVERED':
+        return 'bg-green-100 text-green-800';
+      case 'CANCELLED':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  // Helper function to format currency
+  const formatCurrency = (amount: number) => {
+    return `${amount.toFixed(2)} AED`;
   };
 
   if (isLoading) {
@@ -387,7 +565,7 @@ export default function BackendDashboard() {
         {formatDate(currentDate, language)}
       </div>
       
-      {/* KPI Cards - Now with more statistics */}
+      {/* KPI Cards - Now with real statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-green-50 p-4 rounded-lg border border-green-200">
           <h3 className="text-lg font-semibold text-green-800">{t('todays_orders', 'Today\'s Orders')}</h3>
@@ -402,7 +580,7 @@ export default function BackendDashboard() {
         <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
           <h3 className="text-lg font-semibold text-amber-800">{t('active_promotions', 'Active Promotions')}</h3>
           <p className="text-3xl font-bold mt-2">{stats.activePromotions}</p>
-          <p className="text-sm text-amber-600 mt-1">{t('total_revenue', 'Revenue')}: ${formatNumber(stats.totalRevenue, language)}</p>
+          <p className="text-sm text-amber-600 mt-1">{t('total_revenue', 'Revenue')}: {formatCurrency(stats.totalRevenue)}</p>
         </div>
       </div>
       
@@ -426,7 +604,11 @@ export default function BackendDashboard() {
           <h3 className="text-lg font-semibold mb-4">{t('order_status', 'Order Status')}</h3>
           <div className="w-full h-72 flex items-center justify-center">
             <div className="w-full max-w-md mx-auto">
-              <Doughnut data={orderStatusData} />
+              {orderStatusData.labels.length > 0 ? (
+                <Doughnut data={orderStatusData} />
+              ) : (
+                <div className="text-center text-gray-500">No order data available</div>
+              )}
             </div>
           </div>
         </div>
@@ -465,39 +647,33 @@ export default function BackendDashboard() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#ORD-2451</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Ahmed Hassan</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date().toLocaleDateString()}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$85.00</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    {t('delivered', 'Delivered')}
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#ORD-2450</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Sarah Johnson</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(Date.now() - 86400000).toLocaleDateString()}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$122.50</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                    {t('processing', 'Processing')}
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#ORD-2449</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Mohammed Ali</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(Date.now() - 172800000).toLocaleDateString()}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$210.75</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                    {t('shipped', 'Shipped')}
-                  </span>
-                </td>
-              </tr>
+              {recentOrders.length > 0 ? recentOrders.map((order) => (
+                <tr key={order.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    #{order.id.slice(-8).toUpperCase()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {order.customerName || order.customerEmail || 'Unknown Customer'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatCurrency(order.total)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
+                      {t(order.status.toLowerCase(), order.status)}
+                    </span>
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                    No recent orders found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
           <div className="mt-4 text-right">
@@ -530,33 +706,35 @@ export default function BackendDashboard() {
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {t('in_stock', 'In Stock')}
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('sales', 'Sales')}
-                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Arabica Premium</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Coffee Beans</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$28.50</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">32</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">145</td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Espresso Blend</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Coffee Beans</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$25.00</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">45</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">112</td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Ethiopian Special</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Coffee Beans</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$32.75</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">18</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">98</td>
-              </tr>
+              {popularProducts.length > 0 ? popularProducts.map((product) => (
+                <tr key={product.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {(language === 'ar' && product.nameAr) ? product.nameAr : product.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {typeof product.category === 'string' 
+                      ? product.category 
+                      : (language === 'ar' && product.category.nameAr) 
+                        ? product.category.nameAr 
+                        : product.category.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatCurrency(product.price)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {product.stockQuantity || 'N/A'}
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                    No products found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
           <div className="mt-4 text-right">
