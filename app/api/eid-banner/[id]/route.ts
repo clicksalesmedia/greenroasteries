@@ -26,7 +26,7 @@ async function ensureDataDir() {
 // PUT /api/eid-banner/[id] - Update EID banner
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -36,6 +36,7 @@ export async function PUT(
     }
 
     const { imageUrl, isActive = true } = await request.json();
+    const params = await context.params;
 
     // Validate required fields
     if (!imageUrl) {
