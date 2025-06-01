@@ -90,6 +90,8 @@ export default function SlidersPage() {
   const [previewDirection, setPreviewDirection] = useState(0);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
   
   // Form state
   const [editingSlider, setEditingSlider] = useState<Partial<SliderItem>>({
@@ -122,7 +124,8 @@ export default function SlidersPage() {
     const fetchSliders = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/sliders');
+        // Use admin mode to get all sliders (active and inactive)
+        const response = await fetch('/api/sliders?admin=true');
         
         if (!response.ok) {
           throw new Error('Failed to fetch sliders');
@@ -142,6 +145,12 @@ export default function SlidersPage() {
     
     fetchSliders();
   }, []);
+
+  // Helper function to get the next available order number
+  const getNextOrderNumber = () => {
+    if (sliders.length === 0) return 0;
+    return Math.max(...sliders.map(s => s.order)) + 1;
+  };
 
   // Generate animation preview settings for modal
   const previewSettings = useMemo(() => {
@@ -221,7 +230,7 @@ export default function SlidersPage() {
         accentColor: slider.accentColor || '#c9a961'
       });
     } else {
-      // Adding new slider
+      // Adding new slider - use next available order number instead of length
       setCurrentSlider(null);
       setEditingSlider({
         title: '',
@@ -238,7 +247,7 @@ export default function SlidersPage() {
         overlayColor: 'rgba(0,0,0,0)',
         overlayOpacity: 0,
         overlayImageUrl: '',
-        order: sliders.length,
+        order: getNextOrderNumber(),
         isActive: true,
         textAnimation: 'fade-up',
         imageAnimation: 'fade-in',
@@ -250,6 +259,8 @@ export default function SlidersPage() {
     
     setIsModalOpen(true);
     setIsPreviewMode(false);
+    setSubmitError(null);
+    setSubmitSuccess(false);
   };
   
   // Handle closing modal
@@ -408,22 +419,30 @@ export default function SlidersPage() {
       const savedSlider = await response.json();
       
       if (currentSlider) {
-        // Update existing slider in list
-        setSliders(prevSliders => 
-          prevSliders.map(slider => 
+        // Update existing slider in list and re-sort by order
+        setSliders(prevSliders => {
+          const updatedSliders = prevSliders.map(slider => 
             slider.id === savedSlider.id ? savedSlider : slider
-          )
-        );
+          );
+          // Re-sort by order to reflect any order changes
+          return updatedSliders.sort((a, b) => a.order - b.order);
+        });
       } else {
-        // Add new slider to list
-        setSliders(prevSliders => [...prevSliders, savedSlider]);
+        // Add new slider to list and re-sort by order
+        setSliders(prevSliders => {
+          const newSliders = [...prevSliders, savedSlider];
+          // Sort by order to place the new slider in the correct position
+          return newSliders.sort((a, b) => a.order - b.order);
+        });
       }
       
       // Close modal
       handleCloseModal();
+      setSubmitSuccess(true);
     } catch (err) {
       console.error('Error saving slider:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
+      setSubmitError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsSubmitting(false);
     }
@@ -444,10 +463,12 @@ export default function SlidersPage() {
         throw new Error('Failed to delete slider');
       }
       
-      // Remove deleted slider from list
-      setSliders(prevSliders => 
-        prevSliders.filter(slider => slider.id !== id)
-      );
+      // Remove deleted slider from list and maintain sorting
+      setSliders(prevSliders => {
+        const filteredSliders = prevSliders.filter(slider => slider.id !== id);
+        // Keep the sorting intact after deletion
+        return filteredSliders.sort((a, b) => a.order - b.order);
+      });
     } catch (err) {
       console.error('Error deleting slider:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -905,7 +926,7 @@ export default function SlidersPage() {
               <tbody>
                 {sliders.map((slider) => (
                   <tr key={slider.id}>
-                    <td className="font-medium">#{slider.order + 1}</td>
+                    <td className="font-medium">#{slider.order}</td>
                     <td>
                       <div className="relative w-32 h-20 rounded-md overflow-hidden bg-gray-100">
                         {slider.imageUrl ? (
@@ -1006,6 +1027,28 @@ export default function SlidersPage() {
               </div>
 
               <form onSubmit={handleSubmit} className="p-6">
+                {submitError && (
+                  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="flex items-center">
+                      <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-red-800 text-sm font-medium">{submitError}</span>
+                    </div>
+                  </div>
+                )}
+                
+                {submitSuccess && (
+                  <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center">
+                      <svg className="w-5 h-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-green-800 text-sm font-medium">Slider saved successfully!</span>
+                    </div>
+                  </div>
+                )}
+                
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Left Column - Form Fields */}
                   <div className="space-y-6">
@@ -1540,6 +1583,14 @@ export default function SlidersPage() {
                           className={`px-3 py-1 text-sm rounded-md ${previewDevice === 'mobile' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600'}`}
                         >
                           Mobile
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => window.open('/', '_blank')}
+                          className="ml-auto px-3 py-1 text-sm rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors"
+                          title="Open homepage to see live sliders"
+                        >
+                          🔗 Live Preview
                         </button>
                       </div>
 

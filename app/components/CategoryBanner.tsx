@@ -35,7 +35,7 @@ export default function CategoryBanner({ category }: CategoryBannerProps) {
 
         {/* Try to load the banner image, fallback to styled banner */}
         <Image
-          src="/images/eid-al-adha-banner.jpg"
+          src="/images/eidbanner.webp"
           alt={language === 'ar' ? 'بانر عيد الأضحى' : 'Eid Al Adha Banner'}
           fill
           className="object-cover object-center transition-transform duration-500 hover:scale-105"

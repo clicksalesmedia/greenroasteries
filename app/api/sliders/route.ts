@@ -6,10 +6,20 @@ import { PrismaClient } from '@/app/generated/prisma';
 const prisma = new PrismaClient();
 
 // GET /api/sliders - Get all sliders
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Check if this is coming from the admin interface
+    const url = new URL(request.url);
+    const adminMode = url.searchParams.get('admin') === 'true';
+    
+    let whereClause = {};
+    if (!adminMode) {
+      // For frontend, only return active sliders
+      whereClause = { isActive: true };
+    }
+    
     const sliders = await prisma.slider.findMany({
-      where: { isActive: true },
+      where: whereClause,
       orderBy: { order: 'asc' }
     });
 
