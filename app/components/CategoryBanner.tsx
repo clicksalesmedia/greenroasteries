@@ -147,11 +147,6 @@ export default function CategoryBanner({ category }: CategoryBannerProps) {
             </div>
           </div>
         )}
-        
-        {/* Subtle overlay for better text readability when showing uploaded image */}
-        {!imageError && !isLoading && (
-          <div className="absolute inset-0 bg-black bg-opacity-20 rounded-2xl"></div>
-        )}
       </div>
       
       <style jsx>{`
