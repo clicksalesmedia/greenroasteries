@@ -39,12 +39,11 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Get active shipping rules from database, ordered by cost (cheapest first)
+    // Get active shipping rules from database, ordered appropriately
     const activeRules = await prisma.shippingRule.findMany({
       where: { isActive: true },
       orderBy: [
-        { cost: 'asc' }, // Prefer cheaper shipping first
-        { createdAt: 'asc' } // Then by creation date
+        { createdAt: 'asc' } // Order by creation date to get more predictable results
       ]
     });
     
@@ -80,32 +79,45 @@ export async function POST(request: NextRequest) {
           case 'STANDARD':
           case 'EXPRESS':
           case 'PICKUP':
-            // Standard shipping: charge the cost unless there's a free shipping threshold that's met
-            if (rule.freeShippingThreshold && orderTotal >= rule.freeShippingThreshold) {
+            // Standard shipping: always set as applicable rule
+            if (!applicableRule) {
               applicableRule = rule;
-              shippingCost = 0;
-            } else {
-              applicableRule = rule;
-              shippingCost = rule.cost;
+              // Check if this rule has free shipping threshold that's met
+              if (rule.freeShippingThreshold && orderTotal >= rule.freeShippingThreshold) {
+                shippingCost = 0;
+              } else {
+                shippingCost = rule.cost;
+              }
             }
             break;
           default:
-            applicableRule = rule;
-            shippingCost = rule.cost;
+            if (!applicableRule) {
+              applicableRule = rule;
+              shippingCost = rule.cost;
+            }
         }
         
-        // If we found a rule, break out of the loop
-        if (applicableRule) {
+        // If we found a FREE shipping rule that applies, use it immediately
+        if (applicableRule && applicableRule.type === 'FREE' && shippingCost === 0) {
           break;
         }
       }
     }
     
-    // If no rule applies, use a default shipping rule
+    // If no rule applies, use a standard shipping fallback
     if (!applicableRule) {
-      // Try to find any active rule as fallback
-      applicableRule = activeRules[0] || null;
-      shippingCost = applicableRule ? applicableRule.cost : 25;
+      // Find a standard/express/pickup rule as fallback
+      const standardRule = activeRules.find(rule => 
+        rule.type === 'STANDARD' || rule.type === 'EXPRESS' || rule.type === 'PICKUP'
+      );
+      if (standardRule) {
+        applicableRule = standardRule;
+        shippingCost = standardRule.cost;
+      } else {
+        // Last resort fallback
+        applicableRule = activeRules[0] || null;
+        shippingCost = 25; // Default cost
+      }
     }
     
     // Find the lowest free shipping threshold for display purposes
