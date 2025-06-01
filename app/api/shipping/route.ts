@@ -1,59 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@/app/generated/prisma';
+
+const prisma = new PrismaClient();
 
 interface ShippingRule {
   id: string;
   name: string;
-  nameAr?: string;
-  type: 'FREE' | 'FIXED' | 'PERCENTAGE';
+  nameAr?: string | null;
+  description?: string | null;
+  descriptionAr?: string | null;
+  type: 'STANDARD' | 'EXPRESS' | 'FREE' | 'PICKUP';
   cost: number;
-  minOrderAmount?: number;
-  maxOrderAmount?: number;
+  freeShippingThreshold?: number | null;
   isActive: boolean;
-  priority: number;
-  description?: string;
-  descriptionAr?: string;
-  createdAt: string;
-  updatedAt: string;
+  estimatedDays?: number | null;
+  cities: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// In-memory storage for demo purposes
-// In a real application, this would be stored in a database
-let shippingRules: ShippingRule[] = [
-  {
-    id: '1',
-    name: 'Free Shipping',
-    nameAr: 'شحن مجاني',
-    type: 'FREE',
-    cost: 0,
-    minOrderAmount: 200,
-    isActive: true,
-    priority: 1,
-    description: 'Free shipping for orders over 200 AED',
-    descriptionAr: 'شحن مجاني للطلبات التي تزيد عن 200 درهم',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: '2',
-    name: 'Standard Shipping',
-    nameAr: 'شحن عادي',
-    type: 'FIXED',
-    cost: 25,
-    isActive: true,
-    priority: 2,
-    description: 'Standard shipping rate',
-    descriptionAr: 'سعر الشحن العادي',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-];
-
-// GET - Fetch all shipping rules
+// GET - Fetch all shipping rules from database
 export async function GET() {
   try {
-    // Sort by priority (lower numbers first)
-    const sortedRules = [...shippingRules].sort((a, b) => a.priority - b.priority);
-    return NextResponse.json(sortedRules);
+    const shippingRules = await prisma.shippingRule.findMany({
+      orderBy: {
+        createdAt: 'asc'
+      }
+    });
+
+    return NextResponse.json(shippingRules);
   } catch (error) {
     console.error('Error fetching shipping rules:', error);
     return NextResponse.json(
@@ -63,7 +38,7 @@ export async function GET() {
   }
 }
 
-// POST - Create new shipping rule
+// POST - Create new shipping rule in database
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -76,26 +51,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate new ID
-    const newId = (Math.max(...shippingRules.map(r => parseInt(r.id)), 0) + 1).toString();
-    
-    const newRule: ShippingRule = {
-      id: newId,
-      name: body.name,
-      nameAr: body.nameAr,
-      type: body.type,
-      cost: body.type === 'FREE' ? 0 : (body.cost || 0),
-      minOrderAmount: body.minOrderAmount,
-      maxOrderAmount: body.maxOrderAmount,
-      isActive: body.isActive !== undefined ? body.isActive : true,
-      priority: body.priority || shippingRules.length + 1,
-      description: body.description,
-      descriptionAr: body.descriptionAr,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    // Map the frontend type to database enum if needed
+    let mappedType = body.type;
+    if (body.type === 'FIXED') {
+      mappedType = 'STANDARD';
+    } else if (body.type === 'PERCENTAGE') {
+      mappedType = 'STANDARD'; // Treat percentage as standard with calculated cost
+    }
 
-    shippingRules.push(newRule);
+    const newRule = await prisma.shippingRule.create({
+      data: {
+        name: body.name,
+        nameAr: body.nameAr || null,
+        description: body.description || null,
+        descriptionAr: body.descriptionAr || null,
+        type: mappedType,
+        cost: body.type === 'FREE' ? 0 : (body.cost || 0),
+        freeShippingThreshold: body.minOrderAmount || null,
+        isActive: body.isActive !== undefined ? body.isActive : true,
+        estimatedDays: body.estimatedDays || null,
+        cities: body.cities || []
+      }
+    });
     
     return NextResponse.json(newRule, { status: 201 });
   } catch (error) {

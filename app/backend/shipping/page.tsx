@@ -9,18 +9,46 @@ import { PlusIcon, TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
 interface ShippingRule {
   id: string;
   name: string;
-  nameAr?: string;
-  type: 'FREE' | 'FIXED' | 'PERCENTAGE';
+  nameAr?: string | null;
+  description?: string | null;
+  descriptionAr?: string | null;
+  type: 'STANDARD' | 'EXPRESS' | 'FREE' | 'PICKUP';
   cost: number;
-  minOrderAmount?: number;
-  maxOrderAmount?: number;
+  freeShippingThreshold?: number | null;
   isActive: boolean;
-  priority: number;
-  description?: string;
-  descriptionAr?: string;
+  estimatedDays?: number | null;
+  cities: string[];
   createdAt: string;
   updatedAt: string;
 }
+
+// Frontend display types for user interface
+type FrontendShippingType = 'FREE' | 'FIXED' | 'PERCENTAGE';
+
+// Mapping functions between frontend and database types
+const mapDatabaseToFrontend = (rule: ShippingRule): ShippingRule & { displayType: FrontendShippingType } => {
+  let displayType: FrontendShippingType = 'FIXED';
+  
+  if (rule.type === 'FREE' || (rule.freeShippingThreshold && rule.cost === 0)) {
+    displayType = 'FREE';
+  } else if (rule.type === 'STANDARD' || rule.type === 'EXPRESS' || rule.type === 'PICKUP') {
+    displayType = 'FIXED';
+  }
+  
+  return { ...rule, displayType };
+};
+
+const mapFrontendToDatabase = (frontendType: FrontendShippingType, cost: number): 'STANDARD' | 'EXPRESS' | 'FREE' | 'PICKUP' => {
+  switch (frontendType) {
+    case 'FREE':
+      return 'FREE';
+    case 'FIXED':
+    case 'PERCENTAGE':
+      return 'STANDARD';
+    default:
+      return 'STANDARD';
+  }
+};
 
 export default function ShippingManagement() {
   const { t, language } = useLanguage();
@@ -31,12 +59,13 @@ export default function ShippingManagement() {
   const [formData, setFormData] = useState({
     name: '',
     nameAr: '',
-    type: 'FIXED' as 'FREE' | 'FIXED' | 'PERCENTAGE',
+    type: 'FIXED' as FrontendShippingType,
     cost: 0,
     minOrderAmount: '',
     maxOrderAmount: '',
     isActive: true,
-    priority: 1,
+    estimatedDays: '',
+    cities: [] as string[],
     description: '',
     descriptionAr: ''
   });
@@ -54,40 +83,12 @@ export default function ShippingManagement() {
         const data = await response.json();
         setShippingRules(data);
       } else {
-        // Create default shipping rules if none exist
-        const defaultRules: ShippingRule[] = [
-          {
-            id: '1',
-            name: 'Free Shipping',
-            nameAr: 'شحن مجاني',
-            type: 'FREE',
-            cost: 0,
-            minOrderAmount: 200,
-            isActive: true,
-            priority: 1,
-            description: 'Free shipping for orders over 200 AED',
-            descriptionAr: 'شحن مجاني للطلبات التي تزيد عن 200 درهم',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          },
-          {
-            id: '2',
-            name: 'Standard Shipping',
-            nameAr: 'شحن عادي',
-            type: 'FIXED',
-            cost: 25,
-            isActive: true,
-            priority: 2,
-            description: 'Standard shipping rate',
-            descriptionAr: 'سعر الشحن العادي',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          }
-        ];
-        setShippingRules(defaultRules);
+        console.error('Failed to fetch shipping rules');
+        setShippingRules([]);
       }
     } catch (error) {
       console.error('Error fetching shipping rules:', error);
+      setShippingRules([]);
     } finally {
       setLoading(false);
     }
@@ -98,10 +99,16 @@ export default function ShippingManagement() {
     
     try {
       const ruleData = {
-        ...formData,
-        minOrderAmount: formData.minOrderAmount ? parseFloat(formData.minOrderAmount) : undefined,
-        maxOrderAmount: formData.maxOrderAmount ? parseFloat(formData.maxOrderAmount) : undefined,
-        cost: formData.type === 'FREE' ? 0 : formData.cost
+        name: formData.name,
+        nameAr: formData.nameAr || null,
+        description: formData.description || null,
+        descriptionAr: formData.descriptionAr || null,
+        type: mapFrontendToDatabase(formData.type, formData.cost),
+        cost: formData.type === 'FREE' ? 0 : formData.cost,
+        freeShippingThreshold: formData.minOrderAmount ? parseFloat(formData.minOrderAmount) : null,
+        isActive: formData.isActive,
+        estimatedDays: formData.estimatedDays ? parseInt(formData.estimatedDays) : null,
+        cities: formData.cities
       };
 
       if (editingRule) {
@@ -109,26 +116,34 @@ export default function ShippingManagement() {
         const response = await fetch(`/api/shipping/${editingRule.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(ruleData)
+          body: JSON.stringify({
+            ...ruleData,
+            // Keep backend compatibility
+            minOrderAmount: ruleData.freeShippingThreshold
+          })
         });
         
         if (response.ok) {
-          const updatedRule = await response.json();
-          setShippingRules(prev => prev.map(rule => 
-            rule.id === editingRule.id ? updatedRule : rule
-          ));
+          await fetchShippingRules(); // Refresh the list
+        } else {
+          throw new Error('Failed to update shipping rule');
         }
       } else {
         // Create new rule
         const response = await fetch('/api/shipping', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(ruleData)
+          body: JSON.stringify({
+            ...ruleData,
+            // Keep backend compatibility
+            minOrderAmount: ruleData.freeShippingThreshold
+          })
         });
         
         if (response.ok) {
-          const newRule = await response.json();
-          setShippingRules(prev => [...prev, newRule]);
+          await fetchShippingRules(); // Refresh the list
+        } else {
+          throw new Error('Failed to create shipping rule');
         }
       }
       
@@ -140,16 +155,18 @@ export default function ShippingManagement() {
   };
 
   const handleEdit = (rule: ShippingRule) => {
+    const mappedRule = mapDatabaseToFrontend(rule);
     setEditingRule(rule);
     setFormData({
       name: rule.name,
       nameAr: rule.nameAr || '',
-      type: rule.type,
+      type: mappedRule.displayType,
       cost: rule.cost,
-      minOrderAmount: rule.minOrderAmount?.toString() || '',
-      maxOrderAmount: rule.maxOrderAmount?.toString() || '',
+      minOrderAmount: rule.freeShippingThreshold?.toString() || '',
+      maxOrderAmount: '',
       isActive: rule.isActive,
-      priority: rule.priority,
+      estimatedDays: rule.estimatedDays?.toString() || '',
+      cities: rule.cities || [],
       description: rule.description || '',
       descriptionAr: rule.descriptionAr || ''
     });
@@ -164,7 +181,9 @@ export default function ShippingManagement() {
         });
         
         if (response.ok) {
-          setShippingRules(prev => prev.filter(rule => rule.id !== id));
+          await fetchShippingRules(); // Refresh the list
+        } else {
+          throw new Error('Failed to delete shipping rule');
         }
       } catch (error) {
         console.error('Error deleting shipping rule:', error);
@@ -181,9 +200,9 @@ export default function ShippingManagement() {
       });
       
       if (response.ok) {
-        setShippingRules(prev => prev.map(rule => 
-          rule.id === id ? { ...rule, isActive: !isActive } : rule
-        ));
+        await fetchShippingRules(); // Refresh the list
+      } else {
+        throw new Error('Failed to toggle shipping rule');
       }
     } catch (error) {
       console.error('Error toggling shipping rule:', error);
@@ -199,7 +218,8 @@ export default function ShippingManagement() {
       minOrderAmount: '',
       maxOrderAmount: '',
       isActive: true,
-      priority: 1,
+      estimatedDays: '',
+      cities: [],
       description: '',
       descriptionAr: ''
     });
@@ -212,6 +232,11 @@ export default function ShippingManagement() {
       <UAEDirhamSymbol size={12} />
     </span>
   );
+
+  const getDisplayType = (rule: ShippingRule) => {
+    const mapped = mapDatabaseToFrontend(rule);
+    return mapped.displayType;
+  };
 
   return (
     <BackendLayout activePage="shipping">
@@ -256,7 +281,7 @@ export default function ShippingManagement() {
                     {t('status', 'Status')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {t('priority', 'Priority')}
+                    {t('estimated_days', 'Estimated Days')}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {t('actions', 'Actions')}
@@ -264,84 +289,85 @@ export default function ShippingManagement() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {shippingRules.map((rule) => (
-                  <tr key={rule.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {language === 'ar' && rule.nameAr ? rule.nameAr : rule.name}
+                {shippingRules.map((rule) => {
+                  const displayType = getDisplayType(rule);
+                  return (
+                    <tr key={rule.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {language === 'ar' && rule.nameAr ? rule.nameAr : rule.name}
+                          </div>
+                          {rule.description && (
+                            <div className="text-sm text-gray-500">
+                              {language === 'ar' && rule.descriptionAr ? rule.descriptionAr : rule.description}
+                            </div>
+                          )}
                         </div>
-                        {rule.description && (
-                          <div className="text-sm text-gray-500">
-                            {language === 'ar' && rule.descriptionAr ? rule.descriptionAr : rule.description}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          displayType === 'FREE' ? 'bg-green-100 text-green-800' :
+                          displayType === 'FIXED' ? 'bg-blue-100 text-blue-800' :
+                          'bg-purple-100 text-purple-800'
+                        }`}>
+                          {displayType}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {rule.type === 'FREE' || (rule.freeShippingThreshold && rule.cost === 0) ? (
+                          <span className="text-green-600 font-medium">{t('free', 'Free')}</span>
+                        ) : (
+                          formatPrice(rule.cost)
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {rule.freeShippingThreshold && (
+                          <div className="flex items-center gap-1">
+                            {t('min_order', 'Min order')}: {formatPrice(rule.freeShippingThreshold)}
                           </div>
                         )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        rule.type === 'FREE' ? 'bg-green-100 text-green-800' :
-                        rule.type === 'FIXED' ? 'bg-blue-100 text-blue-800' :
-                        'bg-purple-100 text-purple-800'
-                      }`}>
-                        {rule.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {rule.type === 'FREE' ? (
-                        <span className="text-green-600 font-medium">{t('free', 'Free')}</span>
-                      ) : rule.type === 'PERCENTAGE' ? (
-                        `${rule.cost}%`
-                      ) : (
-                        formatPrice(rule.cost)
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {rule.minOrderAmount && (
-                        <div className="flex items-center gap-1">
-                          {t('min_order', 'Min order')}: {formatPrice(rule.minOrderAmount)}
-                        </div>
-                      )}
-                      {rule.maxOrderAmount && (
-                        <div className="flex items-center gap-1">
-                          {t('max_order', 'Max order')}: {formatPrice(rule.maxOrderAmount)}
-                        </div>
-                      )}
-                      {!rule.minOrderAmount && !rule.maxOrderAmount && (
-                        <span className="text-gray-400">{t('no_conditions', 'No conditions')}</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => toggleActive(rule.id, rule.isActive)}
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          rule.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {rule.isActive ? t('active', 'Active') : t('inactive', 'Inactive')}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {rule.priority}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end gap-2">
+                        {rule.cities.length > 0 && (
+                          <div className="text-xs text-gray-400 mt-1">
+                            {t('cities', 'Cities')}: {rule.cities.join(', ')}
+                          </div>
+                        )}
+                        {!rule.freeShippingThreshold && rule.cities.length === 0 && (
+                          <span className="text-gray-400">{t('no_conditions', 'No conditions')}</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <button
-                          onClick={() => handleEdit(rule)}
-                          className="text-blue-600 hover:text-blue-900"
+                          onClick={() => toggleActive(rule.id, rule.isActive)}
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            rule.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}
                         >
-                          <PencilIcon className="h-4 w-4" />
+                          {rule.isActive ? t('active', 'Active') : t('inactive', 'Inactive')}
                         </button>
-                        <button
-                          onClick={() => handleDelete(rule.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {rule.estimatedDays ? `${rule.estimatedDays} ${t('days', 'days')}` : '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => handleEdit(rule)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            <PencilIcon className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(rule.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -388,19 +414,18 @@ export default function ShippingManagement() {
                   </label>
                   <select
                     value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value as 'FREE' | 'FIXED' | 'PERCENTAGE' })}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value as FrontendShippingType })}
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
                   >
                     <option value="FREE">{t('free_shipping', 'Free Shipping')}</option>
                     <option value="FIXED">{t('fixed_rate', 'Fixed Rate')}</option>
-                    <option value="PERCENTAGE">{t('percentage_rate', 'Percentage Rate')}</option>
                   </select>
                 </div>
 
                 {formData.type !== 'FREE' && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {formData.type === 'PERCENTAGE' ? t('percentage', 'Percentage (%)') : t('cost_aed', 'Cost (AED)')}
+                      {t('cost_aed', 'Cost (AED)')}
                     </label>
                     <input
                       type="number"
@@ -416,7 +441,7 @@ export default function ShippingManagement() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('min_order_amount', 'Minimum Order Amount (AED)')}
+                    {t('free_shipping_threshold', 'Free Shipping Threshold (AED)')}
                   </label>
                   <input
                     type="number"
@@ -427,38 +452,23 @@ export default function ShippingManagement() {
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
                     placeholder={t('optional', 'Optional')}
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {t('free_shipping_help', 'Orders above this amount get free shipping')}
+                  </p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('max_order_amount', 'Maximum Order Amount (AED)')}
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.maxOrderAmount}
-                    onChange={(e) => setFormData({ ...formData, maxOrderAmount: e.target.value })}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    placeholder={t('optional', 'Optional')}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('priority', 'Priority')}
+                    {t('estimated_delivery_days', 'Estimated Delivery Days')}
                   </label>
                   <input
                     type="number"
                     min="1"
-                    value={formData.priority}
-                    onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 1 })}
+                    value={formData.estimatedDays}
+                    onChange={(e) => setFormData({ ...formData, estimatedDays: e.target.value })}
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    required
+                    placeholder={t('optional', 'Optional')}
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    {t('priority_help', 'Lower numbers have higher priority')}
-                  </p>
                 </div>
 
                 <div>

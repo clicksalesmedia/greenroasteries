@@ -1,61 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@/app/generated/prisma';
+
+const prisma = new PrismaClient();
 
 interface ShippingRule {
   id: string;
   name: string;
-  nameAr?: string;
-  type: 'FREE' | 'FIXED' | 'PERCENTAGE';
+  nameAr?: string | null;
+  description?: string | null;
+  descriptionAr?: string | null;
+  type: 'STANDARD' | 'EXPRESS' | 'FREE' | 'PICKUP';
   cost: number;
-  minOrderAmount?: number;
-  maxOrderAmount?: number;
+  freeShippingThreshold?: number | null;
   isActive: boolean;
-  priority: number;
-  description?: string;
-  descriptionAr?: string;
-  createdAt: string;
-  updatedAt: string;
+  estimatedDays?: number | null;
+  cities: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// Import the same in-memory storage (in a real app, this would be a database)
-// For demo purposes, we'll recreate the initial data here
-let shippingRules: ShippingRule[] = [
-  {
-    id: '1',
-    name: 'Free Shipping',
-    nameAr: 'شحن مجاني',
-    type: 'FREE',
-    cost: 0,
-    minOrderAmount: 200,
-    isActive: true,
-    priority: 1,
-    description: 'Free shipping for orders over 200 AED',
-    descriptionAr: 'شحن مجاني للطلبات التي تزيد عن 200 درهم',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: '2',
-    name: 'Standard Shipping',
-    nameAr: 'شحن عادي',
-    type: 'FIXED',
-    cost: 25,
-    isActive: true,
-    priority: 2,
-    description: 'Standard shipping rate',
-    descriptionAr: 'سعر الشحن العادي',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-];
-
-// GET - Fetch specific shipping rule
+// GET - Fetch specific shipping rule from database
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const rule = shippingRules.find(r => r.id === id);
+    const rule = await prisma.shippingRule.findUnique({
+      where: { id }
+    });
     
     if (!rule) {
       return NextResponse.json(
@@ -74,7 +47,7 @@ export async function GET(
   }
 }
 
-// PUT - Update shipping rule
+// PUT - Update shipping rule in database
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -82,27 +55,44 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const ruleIndex = shippingRules.findIndex(r => r.id === id);
     
-    if (ruleIndex === -1) {
+    // Check if rule exists
+    const existingRule = await prisma.shippingRule.findUnique({
+      where: { id }
+    });
+    
+    if (!existingRule) {
       return NextResponse.json(
         { error: 'Shipping rule not found' },
         { status: 404 }
       );
     }
     
-    const existingRule = shippingRules[ruleIndex];
+    // Map the frontend type to database enum if needed
+    let mappedType = body.type;
+    if (body.type === 'FIXED') {
+      mappedType = 'STANDARD';
+    } else if (body.type === 'PERCENTAGE') {
+      mappedType = 'STANDARD'; // Treat percentage as standard with calculated cost
+    }
     
-    // Update the rule
-    const updatedRule: ShippingRule = {
-      ...existingRule,
-      ...body,
-      id: id, // Ensure ID doesn't change
-      cost: body.type === 'FREE' ? 0 : (body.cost !== undefined ? body.cost : existingRule.cost),
-      updatedAt: new Date().toISOString()
-    };
-    
-    shippingRules[ruleIndex] = updatedRule;
+    // Update the rule in database
+    const updatedRule = await prisma.shippingRule.update({
+      where: { id },
+      data: {
+        ...(body.name && { name: body.name }),
+        ...(body.nameAr !== undefined && { nameAr: body.nameAr || null }),
+        ...(body.description !== undefined && { description: body.description || null }),
+        ...(body.descriptionAr !== undefined && { descriptionAr: body.descriptionAr || null }),
+        ...(body.type && { type: mappedType }),
+        ...(body.cost !== undefined && { cost: body.type === 'FREE' ? 0 : body.cost }),
+        ...(body.minOrderAmount !== undefined && { freeShippingThreshold: body.minOrderAmount || null }),
+        ...(body.isActive !== undefined && { isActive: body.isActive }),
+        ...(body.estimatedDays !== undefined && { estimatedDays: body.estimatedDays || null }),
+        ...(body.cities !== undefined && { cities: body.cities || [] }),
+        updatedAt: new Date()
+      }
+    });
     
     return NextResponse.json(updatedRule);
   } catch (error) {
@@ -114,24 +104,30 @@ export async function PUT(
   }
 }
 
-// DELETE - Delete shipping rule
+// DELETE - Delete shipping rule from database
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const ruleIndex = shippingRules.findIndex(r => r.id === id);
     
-    if (ruleIndex === -1) {
+    // Check if rule exists
+    const existingRule = await prisma.shippingRule.findUnique({
+      where: { id }
+    });
+    
+    if (!existingRule) {
       return NextResponse.json(
         { error: 'Shipping rule not found' },
         { status: 404 }
       );
     }
     
-    // Remove the rule
-    shippingRules.splice(ruleIndex, 1);
+    // Delete the rule from database
+    await prisma.shippingRule.delete({
+      where: { id }
+    });
     
     return NextResponse.json({ message: 'Shipping rule deleted successfully' });
   } catch (error) {

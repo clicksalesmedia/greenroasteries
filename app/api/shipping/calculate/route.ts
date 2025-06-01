@@ -1,19 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@/app/generated/prisma';
+
+const prisma = new PrismaClient();
 
 interface ShippingRule {
   id: string;
   name: string;
-  nameAr?: string;
-  type: 'FREE' | 'FIXED' | 'PERCENTAGE';
+  nameAr?: string | null;
+  description?: string | null;
+  descriptionAr?: string | null;
+  type: 'STANDARD' | 'EXPRESS' | 'FREE' | 'PICKUP';
   cost: number;
-  minOrderAmount?: number;
-  maxOrderAmount?: number;
+  freeShippingThreshold?: number | null;
   isActive: boolean;
-  priority: number;
-  description?: string;
-  descriptionAr?: string;
-  createdAt: string;
-  updatedAt: string;
+  estimatedDays?: number | null;
+  cities: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface ShippingCalculation {
@@ -23,42 +26,11 @@ interface ShippingCalculation {
   amountToFreeShipping?: number;
 }
 
-// Import the same in-memory storage (in a real app, this would be a database)
-let shippingRules: ShippingRule[] = [
-  {
-    id: '1',
-    name: 'Free Shipping',
-    nameAr: 'شحن مجاني',
-    type: 'FREE',
-    cost: 0,
-    minOrderAmount: 200,
-    isActive: true,
-    priority: 1,
-    description: 'Free shipping for orders over 200 AED',
-    descriptionAr: 'شحن مجاني للطلبات التي تزيد عن 200 درهم',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: '2',
-    name: 'Standard Shipping',
-    nameAr: 'شحن عادي',
-    type: 'FIXED',
-    cost: 25,
-    isActive: true,
-    priority: 2,
-    description: 'Standard shipping rate',
-    descriptionAr: 'سعر الشحن العادي',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-];
-
-// POST - Calculate shipping cost for an order
+// POST - Calculate shipping cost for an order using database rules
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { orderTotal, items = [] } = body;
+    const { orderTotal, items = [], city = null } = body;
     
     if (typeof orderTotal !== 'number' || orderTotal < 0) {
       return NextResponse.json(
@@ -67,73 +39,84 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Get active shipping rules sorted by priority
-    const activeRules = shippingRules
-      .filter(rule => rule.isActive)
-      .sort((a, b) => a.priority - b.priority);
+    // Get active shipping rules from database, ordered by cost (cheapest first)
+    const activeRules = await prisma.shippingRule.findMany({
+      where: { isActive: true },
+      orderBy: [
+        { cost: 'asc' }, // Prefer cheaper shipping first
+        { createdAt: 'asc' } // Then by creation date
+      ]
+    });
+    
+    if (activeRules.length === 0) {
+      // Fallback to default if no rules configured
+      return NextResponse.json({
+        shippingCost: orderTotal >= 200 ? 0 : 25,
+        shippingRule: null,
+        freeShippingThreshold: 200,
+        amountToFreeShipping: orderTotal >= 200 ? 0 : 200 - orderTotal
+      });
+    }
     
     let applicableRule: ShippingRule | null = null;
     let shippingCost = 0;
     
-    // Find the first applicable rule based on priority
+    // Find the best applicable rule based on order total and city
     for (const rule of activeRules) {
-      const meetsMinimum = !rule.minOrderAmount || orderTotal >= rule.minOrderAmount;
-      const meetsMaximum = !rule.maxOrderAmount || orderTotal <= rule.maxOrderAmount;
+      // Check if rule applies to this city (if cities are specified)
+      const cityMatches = rule.cities.length === 0 || !city || rule.cities.includes(city);
       
-      if (meetsMinimum && meetsMaximum) {
+      // Check if order meets free shipping threshold
+      const meetsFreeShippingThreshold = !rule.freeShippingThreshold || orderTotal >= rule.freeShippingThreshold;
+      
+      if (cityMatches) {
         applicableRule = rule;
         
         // Calculate shipping cost based on rule type
         switch (rule.type) {
           case 'FREE':
-            shippingCost = 0;
+            // Free shipping if threshold is met, otherwise use cost
+            shippingCost = meetsFreeShippingThreshold ? 0 : rule.cost;
             break;
-          case 'FIXED':
+          case 'STANDARD':
+          case 'EXPRESS':
+          case 'PICKUP':
+            // If there's a free shipping threshold and it's met, shipping is free
+            if (meetsFreeShippingThreshold && rule.freeShippingThreshold) {
+              shippingCost = 0;
+            } else {
+              shippingCost = rule.cost;
+            }
+            break;
+          default:
             shippingCost = rule.cost;
-            break;
-          case 'PERCENTAGE':
-            shippingCost = (orderTotal * rule.cost) / 100;
-            break;
         }
         
-        break; // Use the first applicable rule (highest priority)
+        // If we found a free shipping option, use it immediately
+        if (shippingCost === 0) {
+          break;
+        }
       }
     }
     
-    // If no rule applies, use the default shipping rule (if any)
+    // If no rule applies, use a default shipping rule
     if (!applicableRule) {
-      const defaultRule = activeRules.find(rule => 
-        !rule.minOrderAmount && !rule.maxOrderAmount
-      );
-      
-      if (defaultRule) {
-        applicableRule = defaultRule;
-        
-        switch (defaultRule.type) {
-          case 'FREE':
-            shippingCost = 0;
-            break;
-          case 'FIXED':
-            shippingCost = defaultRule.cost;
-            break;
-          case 'PERCENTAGE':
-            shippingCost = (orderTotal * defaultRule.cost) / 100;
-            break;
-        }
-      }
+      // Try to find any active rule as fallback
+      applicableRule = activeRules[0] || null;
+      shippingCost = applicableRule ? applicableRule.cost : 25;
     }
     
     // Find the lowest free shipping threshold for display purposes
     const freeShippingRule = activeRules.find(rule => 
-      rule.type === 'FREE' && rule.minOrderAmount && rule.minOrderAmount > orderTotal
+      rule.freeShippingThreshold && rule.freeShippingThreshold > orderTotal
     );
     
     const result: ShippingCalculation = {
       shippingCost: Math.round(shippingCost * 100) / 100, // Round to 2 decimal places
       shippingRule: applicableRule,
-      freeShippingThreshold: freeShippingRule?.minOrderAmount,
-      amountToFreeShipping: freeShippingRule?.minOrderAmount 
-        ? Math.max(0, freeShippingRule.minOrderAmount - orderTotal)
+      freeShippingThreshold: freeShippingRule?.freeShippingThreshold || undefined,
+      amountToFreeShipping: freeShippingRule?.freeShippingThreshold 
+        ? Math.max(0, freeShippingRule.freeShippingThreshold - orderTotal)
         : undefined
     };
     
@@ -152,6 +135,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const orderTotal = parseFloat(searchParams.get('orderTotal') || '0');
+    const city = searchParams.get('city') || null;
     
     if (isNaN(orderTotal) || orderTotal < 0) {
       return NextResponse.json(
@@ -163,7 +147,7 @@ export async function GET(request: NextRequest) {
     // Reuse the POST logic
     const mockRequest = new Request(request.url, {
       method: 'POST',
-      body: JSON.stringify({ orderTotal }),
+      body: JSON.stringify({ orderTotal, city }),
       headers: { 'Content-Type': 'application/json' }
     });
     

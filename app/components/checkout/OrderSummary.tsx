@@ -11,10 +11,15 @@ interface ShippingCalculation {
   shippingRule: {
     id: string;
     name: string;
-    nameAr?: string;
-    type: 'FREE' | 'FIXED' | 'PERCENTAGE';
-    description?: string;
-    descriptionAr?: string;
+    nameAr?: string | null;
+    description?: string | null;
+    descriptionAr?: string | null;
+    type: 'STANDARD' | 'EXPRESS' | 'FREE' | 'PICKUP';
+    cost: number;
+    freeShippingThreshold?: number | null;
+    isActive: boolean;
+    estimatedDays?: number | null;
+    cities: string[];
   } | null;
   freeShippingThreshold?: number;
   amountToFreeShipping?: number;
@@ -74,8 +79,14 @@ export default function OrderSummary() {
               id: 'fallback',
               name: totalPrice >= 200 ? 'Free Shipping' : 'Standard Shipping',
               nameAr: totalPrice >= 200 ? 'شحن مجاني' : 'شحن عادي',
-              type: totalPrice >= 200 ? 'FREE' : 'FIXED',
-              description: totalPrice >= 200 ? 'Free shipping for orders over 200 AED' : 'Standard shipping rate'
+              type: totalPrice >= 200 ? 'FREE' : 'STANDARD',
+              description: totalPrice >= 200 ? 'Free shipping for orders over 200 AED' : 'Standard shipping rate',
+              descriptionAr: totalPrice >= 200 ? 'شحن مجاني للطلبات التي تزيد عن 200 درهم' : 'سعر الشحن العادي',
+              cost: totalPrice >= 200 ? 0 : 25,
+              freeShippingThreshold: totalPrice >= 200 ? null : 200,
+              isActive: true,
+              estimatedDays: null,
+              cities: []
             },
             freeShippingThreshold: totalPrice < 200 ? 200 : undefined,
             amountToFreeShipping: totalPrice < 200 ? 200 - totalPrice : undefined
@@ -90,9 +101,17 @@ export default function OrderSummary() {
             id: 'fallback',
             name: totalPrice >= 200 ? 'Free Shipping' : 'Standard Shipping',
             nameAr: totalPrice >= 200 ? 'شحن مجاني' : 'شحن عادي',
-            type: totalPrice >= 200 ? 'FREE' : 'FIXED',
-            description: totalPrice >= 200 ? 'Free shipping for orders over 200 AED' : 'Standard shipping rate'
-          }
+            type: totalPrice >= 200 ? 'FREE' : 'STANDARD',
+            description: totalPrice >= 200 ? 'Free shipping for orders over 200 AED' : 'Standard shipping rate',
+            descriptionAr: totalPrice >= 200 ? 'شحن مجاني للطلبات التي تزيد عن 200 درهم' : 'سعر الشحن العادي',
+            cost: totalPrice >= 200 ? 0 : 25,
+            freeShippingThreshold: totalPrice >= 200 ? null : 200,
+            isActive: true,
+            estimatedDays: null,
+            cities: []
+          },
+          freeShippingThreshold: totalPrice < 200 ? 200 : undefined,
+          amountToFreeShipping: totalPrice < 200 ? 200 - totalPrice : undefined
         });
       } finally {
         setLoading(false);
@@ -173,6 +192,11 @@ export default function OrderSummary() {
             {language === 'ar' && shippingCalculation.shippingRule.descriptionAr 
               ? shippingCalculation.shippingRule.descriptionAr 
               : shippingCalculation.shippingRule.description}
+            {shippingCalculation.shippingRule.estimatedDays && (
+              <span className="block mt-1">
+                {t('estimated_delivery', 'Estimated delivery')}: {shippingCalculation.shippingRule.estimatedDays} {t('days', 'days')}
+              </span>
+            )}
           </div>
         )}
         
