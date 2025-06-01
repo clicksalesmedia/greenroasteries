@@ -92,6 +92,7 @@ export default function EidBannerPage() {
 
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('type', 'eid-banner');
 
       const response = await fetch('/api/upload', {
         method: 'POST',
