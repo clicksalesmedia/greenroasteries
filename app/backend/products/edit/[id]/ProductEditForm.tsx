@@ -112,6 +112,7 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+  const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
   
   // UI state
   const [isUploading, setIsUploading] = useState(false);
@@ -313,6 +314,15 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
   };
 
   const removeGalleryImage = (index: number) => {
+    // Check if this is an existing image from the database
+    const imageToRemove = galleryPreviews[index];
+    
+    // If it's an existing image (not a data: URL), track it for deletion
+    if (imageToRemove && !imageToRemove.startsWith('data:') && !imageToRemove.startsWith('blob:')) {
+      setImagesToDelete(prev => [...prev, imageToRemove]);
+    }
+    
+    // Remove from local state
     setGalleryFiles(prev => prev.filter((_, i) => i !== index));
     setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
   };
@@ -521,6 +531,7 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
         isActive,
         isFeatured,
         newGalleryImages: uploadResults.galleryUrls || [],
+        imagesToDelete: imagesToDelete,
         variations: productVariations.map(v => ({
           id: v.id && !v.id.startsWith('temp_') ? v.id : undefined,
           sizeId: v.sizeId,
