@@ -39,13 +39,9 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Get active shipping rules from database, prioritizing STANDARD rules first
+    // Get active shipping rules from database
     const activeRules = await prisma.shippingRule.findMany({
-      where: { isActive: true },
-      orderBy: [
-        { type: 'asc' }, // FREE comes before STANDARD alphabetically, so we want to reverse this
-        { createdAt: 'asc' }
-      ]
+      where: { isActive: true }
     });
     
     if (activeRules.length === 0) {
@@ -61,52 +57,42 @@ export async function POST(request: NextRequest) {
     let applicableRule: ShippingRule | null = null;
     let shippingCost = 0;
     
-    // First, check if any FREE shipping rule applies (threshold met)
+    // Simple logic: Check if free shipping threshold is met
     const freeShippingRule = activeRules.find(rule => 
-      rule.type === 'FREE' && 
-      rule.freeShippingThreshold && 
-      orderTotal >= rule.freeShippingThreshold
+      rule.type === 'FREE' && rule.freeShippingThreshold && orderTotal >= rule.freeShippingThreshold
     );
     
-    console.log('DEBUG: orderTotal:', orderTotal);
-    console.log('DEBUG: activeRules:', activeRules.map(r => ({ type: r.type, name: r.name, cost: r.cost, threshold: r.freeShippingThreshold })));
-    console.log('DEBUG: freeShippingRule found:', !!freeShippingRule);
-    
     if (freeShippingRule) {
-      // Free shipping applies
-      console.log('DEBUG: Using FREE shipping rule');
+      // Order qualifies for free shipping
       applicableRule = freeShippingRule;
       shippingCost = 0;
     } else {
-      // No free shipping applies, find a standard/express/pickup rule
+      // Order does not qualify for free shipping, use standard shipping
       const standardRule = activeRules.find(rule => 
         rule.type === 'STANDARD' || rule.type === 'EXPRESS' || rule.type === 'PICKUP'
       );
       
-      console.log('DEBUG: standardRule found:', !!standardRule);
       if (standardRule) {
-        console.log('DEBUG: Using STANDARD shipping rule:', standardRule.name, 'cost:', standardRule.cost);
         applicableRule = standardRule;
         shippingCost = standardRule.cost;
       } else {
-        // Last resort fallback
-        console.log('DEBUG: Using fallback');
+        // Fallback
         applicableRule = activeRules[0] || null;
-        shippingCost = 25; // Default cost
+        shippingCost = 25;
       }
     }
     
-    // Find the lowest free shipping threshold for display purposes
-    const freeShippingThresholdRule = activeRules.find(rule => 
-      rule.freeShippingThreshold && rule.freeShippingThreshold > orderTotal
+    // Find free shipping threshold for display
+    const freeThresholdRule = activeRules.find(rule => 
+      rule.type === 'FREE' && rule.freeShippingThreshold && rule.freeShippingThreshold > orderTotal
     );
     
     const result: ShippingCalculation = {
-      shippingCost: Math.round(shippingCost * 100) / 100, // Round to 2 decimal places
+      shippingCost: Math.round(shippingCost * 100) / 100,
       shippingRule: applicableRule,
-      freeShippingThreshold: freeShippingThresholdRule?.freeShippingThreshold || undefined,
-      amountToFreeShipping: freeShippingThresholdRule?.freeShippingThreshold 
-        ? Math.max(0, freeShippingThresholdRule.freeShippingThreshold - orderTotal)
+      freeShippingThreshold: freeThresholdRule?.freeShippingThreshold || undefined,
+      amountToFreeShipping: freeThresholdRule?.freeShippingThreshold 
+        ? Math.max(0, freeThresholdRule.freeShippingThreshold - orderTotal)
         : undefined
     };
     
