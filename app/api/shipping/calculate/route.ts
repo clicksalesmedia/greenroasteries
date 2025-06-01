@@ -66,34 +66,36 @@ export async function POST(request: NextRequest) {
       // Check if rule applies to this city (if cities are specified)
       const cityMatches = rule.cities.length === 0 || !city || rule.cities.includes(city);
       
-      // Check if order meets free shipping threshold
-      const meetsFreeShippingThreshold = !rule.freeShippingThreshold || orderTotal >= rule.freeShippingThreshold;
-      
       if (cityMatches) {
-        applicableRule = rule;
-        
         // Calculate shipping cost based on rule type
         switch (rule.type) {
           case 'FREE':
-            // Free shipping if threshold is met, otherwise use cost
-            shippingCost = meetsFreeShippingThreshold ? 0 : rule.cost;
+            // Free shipping rule: only applies if threshold is met
+            if (rule.freeShippingThreshold && orderTotal >= rule.freeShippingThreshold) {
+              applicableRule = rule;
+              shippingCost = 0;
+            }
+            // If threshold is not met, continue to check other rules
             break;
           case 'STANDARD':
           case 'EXPRESS':
           case 'PICKUP':
-            // If there's a free shipping threshold and it's met, shipping is free
-            if (meetsFreeShippingThreshold && rule.freeShippingThreshold) {
+            // Standard shipping: charge the cost unless there's a free shipping threshold that's met
+            if (rule.freeShippingThreshold && orderTotal >= rule.freeShippingThreshold) {
+              applicableRule = rule;
               shippingCost = 0;
             } else {
+              applicableRule = rule;
               shippingCost = rule.cost;
             }
             break;
           default:
+            applicableRule = rule;
             shippingCost = rule.cost;
         }
         
-        // If we found a free shipping option, use it immediately
-        if (shippingCost === 0) {
+        // If we found a rule, break out of the loop
+        if (applicableRule) {
           break;
         }
       }
