@@ -68,8 +68,13 @@ export async function POST(request: NextRequest) {
       orderTotal >= rule.freeShippingThreshold
     );
     
+    console.log('DEBUG: orderTotal:', orderTotal);
+    console.log('DEBUG: activeRules:', activeRules.map(r => ({ type: r.type, name: r.name, cost: r.cost, threshold: r.freeShippingThreshold })));
+    console.log('DEBUG: freeShippingRule found:', !!freeShippingRule);
+    
     if (freeShippingRule) {
       // Free shipping applies
+      console.log('DEBUG: Using FREE shipping rule');
       applicableRule = freeShippingRule;
       shippingCost = 0;
     } else {
@@ -78,11 +83,14 @@ export async function POST(request: NextRequest) {
         rule.type === 'STANDARD' || rule.type === 'EXPRESS' || rule.type === 'PICKUP'
       );
       
+      console.log('DEBUG: standardRule found:', !!standardRule);
       if (standardRule) {
+        console.log('DEBUG: Using STANDARD shipping rule:', standardRule.name, 'cost:', standardRule.cost);
         applicableRule = standardRule;
         shippingCost = standardRule.cost;
       } else {
         // Last resort fallback
+        console.log('DEBUG: Using fallback');
         applicableRule = activeRules[0] || null;
         shippingCost = 25; // Default cost
       }
