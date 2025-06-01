@@ -39,11 +39,12 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Get active shipping rules from database, ordered appropriately
+    // Get active shipping rules from database, prioritizing STANDARD rules first
     const activeRules = await prisma.shippingRule.findMany({
       where: { isActive: true },
       orderBy: [
-        { createdAt: 'asc' } // Order by creation date to get more predictable results
+        { type: 'asc' }, // FREE comes before STANDARD alphabetically, so we want to reverse this
+        { createdAt: 'asc' }
       ]
     });
     
@@ -60,56 +61,23 @@ export async function POST(request: NextRequest) {
     let applicableRule: ShippingRule | null = null;
     let shippingCost = 0;
     
-    // Find the best applicable rule based on order total and city
-    for (const rule of activeRules) {
-      // Check if rule applies to this city (if cities are specified)
-      const cityMatches = rule.cities.length === 0 || !city || rule.cities.includes(city);
-      
-      if (cityMatches) {
-        // Calculate shipping cost based on rule type
-        switch (rule.type) {
-          case 'FREE':
-            // Free shipping rule: only applies if threshold is met
-            if (rule.freeShippingThreshold && orderTotal >= rule.freeShippingThreshold) {
-              applicableRule = rule;
-              shippingCost = 0;
-            }
-            // If threshold is not met, continue to check other rules
-            break;
-          case 'STANDARD':
-          case 'EXPRESS':
-          case 'PICKUP':
-            // Standard shipping: always set as applicable rule
-            if (!applicableRule) {
-              applicableRule = rule;
-              // Check if this rule has free shipping threshold that's met
-              if (rule.freeShippingThreshold && orderTotal >= rule.freeShippingThreshold) {
-                shippingCost = 0;
-              } else {
-                shippingCost = rule.cost;
-              }
-            }
-            break;
-          default:
-            if (!applicableRule) {
-              applicableRule = rule;
-              shippingCost = rule.cost;
-            }
-        }
-        
-        // If we found a FREE shipping rule that applies, use it immediately
-        if (applicableRule && applicableRule.type === 'FREE' && shippingCost === 0) {
-          break;
-        }
-      }
-    }
+    // First, check if any FREE shipping rule applies (threshold met)
+    const freeShippingRule = activeRules.find(rule => 
+      rule.type === 'FREE' && 
+      rule.freeShippingThreshold && 
+      orderTotal >= rule.freeShippingThreshold
+    );
     
-    // If no rule applies, use a standard shipping fallback
-    if (!applicableRule) {
-      // Find a standard/express/pickup rule as fallback
+    if (freeShippingRule) {
+      // Free shipping applies
+      applicableRule = freeShippingRule;
+      shippingCost = 0;
+    } else {
+      // No free shipping applies, find a standard/express/pickup rule
       const standardRule = activeRules.find(rule => 
         rule.type === 'STANDARD' || rule.type === 'EXPRESS' || rule.type === 'PICKUP'
       );
+      
       if (standardRule) {
         applicableRule = standardRule;
         shippingCost = standardRule.cost;
@@ -121,16 +89,16 @@ export async function POST(request: NextRequest) {
     }
     
     // Find the lowest free shipping threshold for display purposes
-    const freeShippingRule = activeRules.find(rule => 
+    const freeShippingThresholdRule = activeRules.find(rule => 
       rule.freeShippingThreshold && rule.freeShippingThreshold > orderTotal
     );
     
     const result: ShippingCalculation = {
       shippingCost: Math.round(shippingCost * 100) / 100, // Round to 2 decimal places
       shippingRule: applicableRule,
-      freeShippingThreshold: freeShippingRule?.freeShippingThreshold || undefined,
-      amountToFreeShipping: freeShippingRule?.freeShippingThreshold 
-        ? Math.max(0, freeShippingRule.freeShippingThreshold - orderTotal)
+      freeShippingThreshold: freeShippingThresholdRule?.freeShippingThreshold || undefined,
+      amountToFreeShipping: freeShippingThresholdRule?.freeShippingThreshold 
+        ? Math.max(0, freeShippingThresholdRule.freeShippingThreshold - orderTotal)
         : undefined
     };
     
