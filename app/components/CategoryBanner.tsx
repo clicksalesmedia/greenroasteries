@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -8,8 +8,19 @@ interface CategoryBannerProps {
   category: string | null;
 }
 
+interface EidBanner {
+  id: string;
+  imageUrl: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function CategoryBanner({ category }: CategoryBannerProps) {
   const { t, language } = useLanguage();
+  const [eidBanner, setEidBanner] = useState<EidBanner | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
   
   // Only show banner for "EID AL ADHA - CATALOG" category
   const showBanner = category === 'EID AL ADHA - CATALOG' || 
@@ -17,9 +28,34 @@ export default function CategoryBanner({ category }: CategoryBannerProps) {
                     category === 'عيد الأضحى - كتالوج' ||
                     category === 'عيد الأضحى كتالوج';
 
+  // Fetch EID banner data when component mounts and category matches
+  useEffect(() => {
+    if (showBanner) {
+      const fetchEidBanner = async () => {
+        try {
+          setIsLoading(true);
+          const response = await fetch('/api/eid-banner');
+          if (response.ok) {
+            const data = await response.json();
+            setEidBanner(data);
+          }
+        } catch (error) {
+          console.error('Error fetching EID banner:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      fetchEidBanner();
+    }
+  }, [showBanner]);
+
   if (!showBanner) {
     return null;
   }
+
+  // Get the banner image URL - use uploaded image if available, fallback to default
+  const bannerImageUrl = eidBanner?.imageUrl || '/images/eidbanner.webp';
 
   return (
     <div className="w-full mb-8">
@@ -33,58 +69,71 @@ export default function CategoryBanner({ category }: CategoryBannerProps) {
           }} />
         </div>
 
-        {/* Try to load the banner image, fallback to styled banner */}
-        <Image
-          src="/images/eidbanner.webp"
-          alt={language === 'ar' ? 'بانر عيد الأضحى' : 'Eid Al Adha Banner'}
-          fill
-          className="object-cover object-center transition-transform duration-500 hover:scale-105"
-          priority
-          sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 100vw, 1200px"
-          style={{
-            objectFit: 'cover',
-            objectPosition: 'center'
-          }}
-          onError={(e) => {
-            console.warn('Eid Al Adha banner image not found, using fallback design');
-            // Hide the image and show the fallback design
-            const target = e.target as HTMLImageElement;
-            target.style.display = 'none';
-          }}
-        />
-        
-        {/* Fallback content when image is not available */}
-        <div className="absolute inset-0 flex items-center justify-center text-white">
-          <div className="text-center px-4">
-            <div className="mb-4">
-              {/* Decorative Islamic pattern */}
-              <div className="inline-flex items-center space-x-2 mb-2">
-                <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center">
-                  <div className="w-4 h-4 bg-white rounded-full"></div>
-                </div>
-                <div className="text-2xl">☪</div>
-                <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center">
-                  <div className="w-4 h-4 bg-white rounded-full"></div>
+        {/* Loading state */}
+        {isLoading ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+          </div>
+        ) : (
+          <>
+            {/* Banner image - use uploaded image or fallback */}
+            {!imageError && (
+              <Image
+                src={bannerImageUrl}
+                alt={language === 'ar' ? 'بانر عيد الأضحى' : 'Eid Al Adha Banner'}
+                fill
+                className="object-cover object-center transition-transform duration-500 hover:scale-105"
+                priority
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 100vw, 1200px"
+                style={{
+                  objectFit: 'cover',
+                  objectPosition: 'center'
+                }}
+                onError={(e) => {
+                  console.warn('Eid Al Adha banner image failed to load:', bannerImageUrl);
+                  setImageError(true);
+                }}
+              />
+            )}
+            
+            {/* Fallback content when image is not available or fails to load */}
+            {imageError && (
+              <div className="absolute inset-0 flex items-center justify-center text-white">
+                <div className="text-center px-4">
+                  <div className="mb-4">
+                    {/* Decorative Islamic pattern */}
+                    <div className="inline-flex items-center space-x-2 mb-2">
+                      <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center">
+                        <div className="w-4 h-4 bg-white rounded-full"></div>
+                      </div>
+                      <div className="text-2xl">☪</div>
+                      <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center">
+                        <div className="w-4 h-4 bg-white rounded-full"></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 tracking-wide">
+                    {language === 'ar' ? 'عيد الأضحى مبارك' : 'EID AL ADHA MUBARAK'}
+                  </h2>
+                  <p className="text-sm sm:text-base md:text-lg lg:text-xl opacity-90 font-medium">
+                    {language === 'ar' ? 'تسوق مجموعتنا الخاصة بعيد الأضحى' : 'Shop Our Special Eid Al Adha Collection'}
+                  </p>
+                  
+                  {/* Decorative bottom element */}
+                  <div className="mt-4 flex justify-center">
+                    <div className="h-1 w-24 bg-white bg-opacity-60 rounded-full"></div>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 tracking-wide">
-              {language === 'ar' ? 'عيد الأضحى مبارك' : 'EID AL ADHA MUBARAK'}
-            </h2>
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl opacity-90 font-medium">
-              {language === 'ar' ? 'تسوق مجموعتنا الخاصة بعيد الأضحى' : 'Shop Our Special Eid Al Adha Collection'}
-            </p>
-            
-            {/* Decorative bottom element */}
-            <div className="mt-4 flex justify-center">
-              <div className="h-1 w-24 bg-white bg-opacity-60 rounded-full"></div>
-            </div>
-          </div>
-        </div>
+            )}
+          </>
+        )}
         
-        {/* Subtle overlay for better text readability */}
-        <div className="absolute inset-0 bg-black bg-opacity-20 rounded-2xl"></div>
+        {/* Subtle overlay for better text readability when showing uploaded image */}
+        {!imageError && !isLoading && (
+          <div className="absolute inset-0 bg-black bg-opacity-20 rounded-2xl"></div>
+        )}
       </div>
       
       <style jsx>{`
