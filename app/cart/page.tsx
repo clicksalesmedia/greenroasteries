@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '../contexts/CartContext';
@@ -12,6 +12,53 @@ export default function CartPage() {
   const { items, totalItems, totalPrice, removeItem, updateItemQuantity } = useCart();
   const { t } = useLanguage();
   const [couponCode, setCouponCode] = useState('');
+  
+  // Shipping calculation state
+  const [shippingCost, setShippingCost] = useState(0);
+  const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
+
+  // Calculate shipping when items or total price changes
+  useEffect(() => {
+    const calculateShipping = async () => {
+      if (totalPrice <= 0) {
+        setShippingCost(0);
+        return;
+      }
+
+      setIsCalculatingShipping(true);
+      try {
+        const response = await fetch('/api/shipping/calculate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderTotal: totalPrice,
+            items: items
+          }),
+        });
+
+        if (response.ok) {
+          const calculation = await response.json();
+          setShippingCost(calculation.shippingCost || 0);
+        } else {
+          // Fallback: free shipping over 200 AED, otherwise 25 AED
+          setShippingCost(totalPrice >= 200 ? 0 : 25);
+        }
+      } catch (error) {
+        console.error('Error calculating shipping:', error);
+        // Fallback: free shipping over 200 AED, otherwise 25 AED
+        setShippingCost(totalPrice >= 200 ? 0 : 25);
+      } finally {
+        setIsCalculatingShipping(false);
+      }
+    };
+
+    calculateShipping();
+  }, [totalPrice, items]);
+
+  // Calculate final total including shipping
+  const finalTotal = totalPrice + shippingCost;
 
   // Format price to 2 decimal places with UAE Dirham symbol
   const formatPrice = (price: number) => {
@@ -206,7 +253,15 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">{t('shipping', 'Shipping')}</span>
-                <span className="font-medium">{t('free', 'Free')}</span>
+                <span className="font-medium">
+                  {isCalculatingShipping ? (
+                    <span className="text-gray-400">{t('calculating', 'Calculating...')}</span>
+                  ) : shippingCost === 0 ? (
+                    <span className="text-green-600">{t('free', 'Free')}</span>
+                  ) : (
+                    formatPrice(shippingCost)
+                  )}
+                </span>
               </div>
               {/* Discount would go here if coupon is valid */}
             </div>
@@ -214,7 +269,7 @@ export default function CartPage() {
             {/* Total */}
             <div className="flex justify-between mb-6">
               <span className="text-lg font-bold">{t('total', 'Total')}</span>
-              <span className="text-lg font-bold flex items-center">{formatPrice(totalPrice)}</span>
+              <span className="text-lg font-bold flex items-center">{formatPrice(finalTotal)}</span>
             </div>
             
             {/* Checkout Button */}
