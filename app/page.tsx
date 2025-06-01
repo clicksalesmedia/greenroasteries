@@ -12,6 +12,7 @@ import ProductVariationModal from './components/ProductVariationModal';
 import { ShoppingCartIcon, ArrowRightIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import dynamic from 'next/dynamic';
 import UAEDirhamSymbol from './components/UAEDirhamSymbol';
+import CategoryBanner from './components/CategoryBanner';
 
 interface Product {
   id: string;
@@ -2117,6 +2118,9 @@ export default function Home() {
           </>
         )}
       </section>
+
+      {/* EID Banner Section - Dynamic based on category */}
+      <CategoryBanner category="EID AL ADHA - CATALOG" />
 
       {/* Modern Categories Section */}
       <section className="section bg-white">
