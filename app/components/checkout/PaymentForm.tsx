@@ -299,9 +299,11 @@ function CheckoutForm({
       <div className="mb-6 bg-gray-50 rounded-lg p-4 flex flex-col sm:flex-row items-center justify-center sm:justify-between">
         <div className="flex flex-wrap items-center justify-center space-x-3 mb-2 sm:mb-0">
           <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium">💳 Cards</span>
-            <span className="text-sm font-medium">🍎 Apple Pay</span>
-            <span className="text-sm font-medium">🌐 Google Pay</span>
+            <img 
+              src="/images/creditvcard.webp" 
+              alt="Accepted payment methods: Visa, MasterCard, American Express, Apple Pay, Google Pay" 
+              className="h-8 w-auto"
+            />
           </div>
         </div>
         <p className={`text-sm text-gray-600 text-center sm:text-left ${language === 'ar' ? 'sm:text-right' : ''}`}>

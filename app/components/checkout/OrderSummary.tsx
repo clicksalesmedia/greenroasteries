@@ -219,7 +219,11 @@ export default function OrderSummary() {
       {/* Payment methods icons */}
       <div className="border-t pt-4">
         <div className="flex justify-center space-x-2 mb-2">
-          <img src="/images/payment-methods.svg" alt="Payment methods" className="h-6" />
+          <img 
+            src="/images/creditvcard.webp" 
+            alt="Accepted payment methods: Visa, MasterCard, American Express, Apple Pay, Google Pay" 
+            className="h-6 w-auto" 
+          />
         </div>
         <p className={`text-xs text-center text-gray-500 ${language === 'ar' ? 'text-center' : ''}`}>
           {t('all_transactions_encrypted', 'All transactions are secure and encrypted.')}
