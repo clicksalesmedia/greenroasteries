@@ -44,12 +44,15 @@ export default function CheckoutPage() {
   const [shippingCost, setShippingCost] = useState(0);
   const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
 
-  // Redirect if cart is empty
+  // Payment success state to prevent cart redirect
+  const [isCompletingOrder, setIsCompletingOrder] = useState(false);
+
+  // Redirect if cart is empty (but not during order completion)
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !isCompletingOrder) {
       router.push('/cart');
     }
-  }, [items, router]);
+  }, [items, router, isCompletingOrder]);
 
   // Calculate shipping when items or customer info changes
   useEffect(() => {
@@ -116,6 +119,9 @@ export default function CheckoutPage() {
 
   const handlePaymentSuccess = async (orderId: string, isNewCustomer: boolean) => {
     try {
+      // Set completing order state to prevent cart redirect
+      setIsCompletingOrder(true);
+      
       // Store order info for thank you page
       const orderInfo = {
         orderId,
@@ -129,9 +135,6 @@ export default function CheckoutPage() {
       
       localStorage.setItem('lastOrder', JSON.stringify(orderInfo));
       
-      // Clear the cart
-      clearCart();
-      
       // Show success message
       showToast(
         isNewCustomer 
@@ -140,11 +143,13 @@ export default function CheckoutPage() {
         'success'
       );
       
-      // Redirect to thank you page
+      // Clear the cart and redirect to thank you page
+      clearCart();
       router.push('/checkout/thank-you');
     } catch (error) {
       console.error('Order completion error:', error);
       showToast('Order completed but there was an issue. Please contact support.', 'error');
+      setIsCompletingOrder(false);
     }
   };
 
@@ -155,7 +160,7 @@ export default function CheckoutPage() {
     { name: t('payment_info', 'Payment'), description: t('secure_payment', 'Secure payment') }
   ];
 
-  if (items.length === 0) {
+  if (items.length === 0 && !isCompletingOrder) {
     return <div className="container mx-auto py-16 px-4 text-center">Loading...</div>;
   }
 
@@ -253,4 +258,4 @@ export default function CheckoutPage() {
       </div>
     </div>
   );
-} 
+}
