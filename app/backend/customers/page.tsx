@@ -19,11 +19,15 @@ interface Customer {
   email: string;
   phone?: string;
   address?: string;
-  joinedDate: string;
+  city?: string;
+  isActive?: boolean;
+  isNewCustomer?: boolean;
+  emailVerified?: boolean;
+  lastLoginAt?: string;
+  createdAt: string; // This is joinedDate in the frontend
   totalSpent: number;
   totalOrders: number;
   lastOrderDate?: string;
-  purchaseStatus: 'active' | 'inactive' | 'new' | 'returned' | 'refunded';
   orders: Order[];
 }
 
@@ -67,8 +71,15 @@ export default function CustomersPage() {
         }
         
         const data = await response.json();
-        setCustomers(data.customers || []);
-        calculateStats(data.customers || []);
+        
+        // Map API response to our Customer interface
+        const mappedCustomers: Customer[] = (data.customers || []).map((customer: any) => ({
+          ...customer,
+          // API already includes totalSpent, totalOrders, lastOrderDate from the response
+        }));
+        
+        setCustomers(mappedCustomers);
+        calculateStats(mappedCustomers);
         
       } catch (err) {
         console.error('Error fetching customers:', err);
@@ -88,15 +99,15 @@ export default function CustomersPage() {
   
   // Calculate customer stats
   const calculateStats = (customerData: Customer[]) => {
-    const activeCustomers = customerData.filter(c => c.purchaseStatus === 'active').length;
+    const activeCustomers = customerData.filter(c => c.isActive !== false).length;
     
     // Assuming customers joined in the last 30 days are considered "new"
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     
     const newCustomers = customerData.filter(c => {
-      const joinDate = new Date(c.joinedDate);
-      return joinDate >= thirtyDaysAgo;
+      const joinDate = new Date(c.createdAt);
+      return joinDate >= thirtyDaysAgo || c.isNewCustomer;
     }).length;
     
     // Customers who have made more than one order
@@ -111,21 +122,21 @@ export default function CustomersPage() {
   };
   
   const createDummyCustomers = (): Customer[] => {
-    const statuses: CustomerStatus[] = ['active', 'inactive', 'new', 'returned', 'refunded'];
     const orderStatuses: Order['status'][] = ['NEW', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'];
     
     return Array.from({ length: 50 }, (_, i) => {
-      const purchaseStatus = statuses[Math.floor(Math.random() * statuses.length)];
-      const totalOrders = Math.floor(Math.random() * 10) + (purchaseStatus === 'new' ? 0 : 1);
+      const isActive = Math.random() > 0.2;
+      const isNewCustomer = Math.random() > 0.7;
+      const totalOrders = Math.floor(Math.random() * 10) + (isNewCustomer ? 0 : 1);
       
       // Generate join date between 1 year ago and now
-      const joinedDate = new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString();
+      const createdAt = new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString();
       
       // Generate orders
       const orders: Order[] = Array.from({ length: totalOrders }, (_, j) => {
         const orderStatus = orderStatuses[Math.floor(Math.random() * orderStatuses.length)];
         // Orders should be after join date
-        const joinDate = new Date(joinedDate);
+        const joinDate = new Date(createdAt);
         const orderDate = new Date(joinDate.getTime() + Math.random() * (Date.now() - joinDate.getTime()));
         
         return {
@@ -157,11 +168,14 @@ export default function CustomersPage() {
         email: `customer${i + 1}@example.com`,
         phone: Math.random() > 0.3 ? `+1-${Math.floor(Math.random() * 1000)}-${Math.floor(Math.random() * 1000)}-${Math.floor(Math.random() * 10000)}` : undefined,
         address: Math.random() > 0.4 ? `${Math.floor(Math.random() * 1000) + 1} Main St, City, Country` : undefined,
-        joinedDate,
+        city: Math.random() > 0.5 ? `City ${i + 1}` : undefined,
+        createdAt,
+        isActive,
+        isNewCustomer,
+        emailVerified: Math.random() > 0.3,
         totalSpent,
         totalOrders,
         lastOrderDate,
-        purchaseStatus,
         orders
       };
     });
@@ -172,7 +186,10 @@ export default function CustomersPage() {
     // Apply status filter
     .filter(customer => {
       if (statusFilter === 'all') return true;
-      return customer.purchaseStatus === statusFilter;
+      if (statusFilter === 'active') return customer.isActive !== false;
+      if (statusFilter === 'inactive') return customer.isActive === false;
+      if (statusFilter === 'new') return customer.isNewCustomer === true;
+      return true; // For other filters that might not be implemented yet
     })
     // Apply search filter
     .filter(customer => {
@@ -201,8 +218,8 @@ export default function CustomersPage() {
             : b.totalOrders - a.totalOrders;
         case 'recent':
           // Sort by last order date or join date if no orders
-          const aDate = a.lastOrderDate ? new Date(a.lastOrderDate) : new Date(a.joinedDate);
-          const bDate = b.lastOrderDate ? new Date(b.lastOrderDate) : new Date(b.joinedDate);
+          const aDate = a.lastOrderDate ? new Date(a.lastOrderDate) : new Date(a.createdAt);
+          const bDate = b.lastOrderDate ? new Date(b.lastOrderDate) : new Date(b.createdAt);
           return sortOrder === 'asc' 
             ? aDate.getTime() - bDate.getTime() 
             : bDate.getTime() - aDate.getTime();
@@ -255,15 +272,20 @@ export default function CustomersPage() {
   };
   
   const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-AE', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'AED',
       minimumFractionDigits: 2
     }).format(amount);
   };
   
   const handleViewCustomer = (customerId: string) => {
-    router.push(`/backend/customers/${customerId}`);
+    // For now, just show customer details in an alert or expand inline
+    // Could be replaced with a modal or dedicated customer detail page later
+    const customer = customers.find(c => c.id === customerId);
+    if (customer) {
+      alert(`Customer Details:\nName: ${customer.name}\nEmail: ${customer.email}\nPhone: ${customer.phone || 'N/A'}\nTotal Orders: ${customer.totalOrders}\nTotal Spent: ${formatCurrency(customer.totalSpent)}\nStatus: ${customer.isActive ? 'Active' : 'Inactive'}`);
+    }
   };
   
   return (
@@ -376,9 +398,7 @@ export default function CustomersPage() {
               <option value="all">{t('all_statuses', 'All Statuses')}</option>
               <option value="active">{t('active', 'Active')}</option>
               <option value="inactive">{t('inactive', 'Inactive')}</option>
-              <option value="new">{t('new', 'New')}</option>
-              <option value="returned">{t('returned', 'Returned')}</option>
-              <option value="refunded">{t('refunded', 'Refunded')}</option>
+              <option value="new">{t('new', 'New Customers')}</option>
             </select>
           </div>
           
@@ -484,8 +504,8 @@ export default function CustomersPage() {
                             {customer.phone && <div>{customer.phone}</div>}
                           </td>
                           <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                            <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getStatusClass(customer.purchaseStatus)}`}>
-                              {t(customer.purchaseStatus, customer.purchaseStatus.charAt(0).toUpperCase() + customer.purchaseStatus.slice(1))}
+                            <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getStatusClass(customer.isActive ? 'active' : 'inactive')}`}>
+                              {t(customer.isActive ? 'active' : 'inactive', customer.isActive ? 'Active' : 'Inactive')}
                             </span>
                           </td>
                           <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">

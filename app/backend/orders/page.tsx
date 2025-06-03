@@ -9,6 +9,7 @@ import { useLanguage } from '@/app/contexts/LanguageContext';
 interface OrderItem {
   id: string;
   productId: string;
+  variationId?: string;
   product: {
     id: string;
     name: string;
@@ -19,12 +20,24 @@ interface OrderItem {
       name: string;
       nameAr?: string;
     };
-    variations?: Array<{
+  };
+  selectedVariation?: {
+    id: string;
+    size?: { 
       id: string;
-      size?: { displayName: string };
-      type?: { name: string };
-      beans?: { name: string };
-    }>;
+      displayName: string;
+      name?: string;
+    };
+    type?: { 
+      id: string;
+      name: string;
+    };
+    beans?: { 
+      id: string;
+      name: string;
+    };
+    price?: number;
+    stockQuantity?: number;
   };
   quantity: number;
   unitPrice: number;
@@ -612,7 +625,7 @@ export default function OrdersPage() {
                                           <tr className="bg-gray-100">
                                             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('product', 'Product')}</th>
                                             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('category', 'Category')}</th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('variations', 'Variations')}</th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('selected_variations', 'Selected Options')}</th>
                                             <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{t('quantity', 'Quantity')}</th>
                                             <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{t('unit_price', 'Unit Price')}</th>
                                             <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{t('subtotal', 'Subtotal')}</th>
@@ -652,18 +665,25 @@ export default function OrdersPage() {
                                                 )}
                                               </td>
                                               <td className="px-4 py-3 text-sm text-gray-600">
-                                                {item.product.variations && item.product.variations.length > 0 ? (
+                                                {item.selectedVariation ? (
                                                   <div className="space-y-1">
-                                                    {item.product.variations.map((variation, idx) => (
-                                                      <div key={idx} className="text-xs bg-gray-100 px-2 py-1 rounded">
-                                                        {variation.size?.displayName && <span>Size: {variation.size.displayName}</span>}
-                                                        {variation.type?.name && <span> • Type: {variation.type.name}</span>}
-                                                        {variation.beans?.name && <span> • Beans: {variation.beans.name}</span>}
-                                                      </div>
-                                                    ))}
+                                                    <div className="text-xs bg-gray-100 px-2 py-1 rounded flex flex-wrap gap-1">
+                                                      {item.selectedVariation.size?.displayName && (
+                                                        <span className="font-medium text-blue-600">Size: {item.selectedVariation.size.displayName}</span>
+                                                      )}
+                                                      {item.selectedVariation.type?.name && (
+                                                        <span className="font-medium text-green-600">• Type: {item.selectedVariation.type.name}</span>
+                                                      )}
+                                                      {item.selectedVariation.beans?.name && (
+                                                        <span className="font-medium text-orange-600">• Beans: {item.selectedVariation.beans.name}</span>
+                                                      )}
+                                                      {item.selectedVariation.price && (
+                                                        <span className="font-medium text-gray-600">• Price: {formatPrice(item.selectedVariation.price)} AED</span>
+                                                      )}
+                                                    </div>
                                                   </div>
                                                 ) : (
-                                                  <span className="text-gray-400">Standard</span>
+                                                  <span className="text-gray-400 text-xs bg-gray-50 px-2 py-1 rounded">Standard Product</span>
                                                 )}
                                               </td>
                                               <td className="px-4 py-3 text-center text-sm font-medium text-gray-900">
