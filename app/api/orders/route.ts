@@ -6,6 +6,22 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+// Type definitions for stock management
+interface OrderItemData {
+  productId: string;
+  variationId: string | null;
+  quantity: number;
+  unitPrice: number;
+  subtotal: number;
+}
+
+interface StockUpdate {
+  type: 'variation' | 'product';
+  id: string;
+  currentStock: number;
+  reduceBy: number;
+}
+
 // Generate random password
 function generatePassword(length: number = 8): string {
   const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -75,13 +91,15 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Validate that all products exist
+    // Validate that all products exist and check stock availability
     const productIds = items.map((item: any) => item.productId || item.id);
     const existingProducts = await prisma.product.findMany({
       where: {
         id: { in: productIds }
       },
-      select: { id: true, name: true }
+      include: {
+        variations: true
+      }
     });
 
     if (existingProducts.length !== productIds.length) {
@@ -94,54 +112,143 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create order
-    const order = await prisma.order.create({
-      data: {
-        userId: user.id,
-        customerName: customerInfo.fullName,
-        customerEmail: customerInfo.email,
-        customerPhone: customerInfo.phone,
-        city: shippingInfo.city,
-        shippingAddress: shippingInfo.address,
-        subtotal,
-        tax,
-        shippingCost,
-        discount,
-        total: totalAmount,
-        status: 'PROCESSING',
-        paymentMethod: 'stripe',
-        stripePaymentIntentId: paymentIntentId,
-        items: {
-          create: items.map((item: any) => {
-            // Extract variation ID from cart item
-            // Cart items have ID format: ${productId}-${variationId}
-            let variationId = null;
-            
-            if (item.id && item.id.includes('-')) {
-              const parts = item.id.split('-');
-              // If the ID has more than one part and the last part is not just a timestamp
-              if (parts.length >= 2 && parts[parts.length - 1].length > 10) {
-                variationId = parts.slice(1).join('-'); // Join back in case variation ID has dashes
-              }
-            }
-            
-            return {
-              productId: item.productId || item.id,
-              variationId: variationId,
-              quantity: item.quantity,
-              unitPrice: item.price,
-              subtotal: item.price * item.quantity
-            };
-          })
-        }
-      },
-      include: {
-        items: {
-          include: {
-            product: true
-          }
+    // Prepare order items and check stock
+    const orderItems: OrderItemData[] = [];
+    const stockUpdates: StockUpdate[] = [];
+
+    for (const item of items) {
+      const productId = item.productId || item.id;
+      const product = existingProducts.find(p => p.id === productId);
+      
+      if (!product) {
+        return NextResponse.json(
+          { error: `Product ${productId} not found` },
+          { status: 400 }
+        );
+      }
+
+      // Extract variation ID from cart item
+      let variationId = null;
+      if (item.id && item.id.includes('-')) {
+        const parts = item.id.split('-');
+        if (parts.length >= 2 && parts[parts.length - 1].length > 10) {
+          variationId = parts.slice(1).join('-');
         }
       }
+
+      // Check if variation exists if variationId is provided
+      let variation = null;
+      if (variationId) {
+        variation = product.variations.find(v => v.id === variationId);
+        if (!variation) {
+          return NextResponse.json(
+            { error: `Variation ${variationId} not found for product ${product.name}` },
+            { status: 400 }
+          );
+        }
+      }
+
+      // Check stock availability
+      const requestedQuantity = item.quantity;
+      let availableStock = 0;
+      
+      if (variation) {
+        // Check variation stock
+        availableStock = variation.stockQuantity || 0;
+        
+        if (availableStock < requestedQuantity) {
+          return NextResponse.json(
+            { error: `Insufficient stock for ${product.name}. Available: ${availableStock}, Requested: ${requestedQuantity}` },
+            { status: 400 }
+          );
+        }
+
+        // Prepare variation stock update
+        stockUpdates.push({
+          type: 'variation',
+          id: variation.id,
+          currentStock: availableStock,
+          reduceBy: requestedQuantity
+        });
+      } else {
+        // Check main product stock
+        availableStock = product.stockQuantity || 0;
+        
+        if (availableStock < requestedQuantity) {
+          return NextResponse.json(
+            { error: `Insufficient stock for ${product.name}. Available: ${availableStock}, Requested: ${requestedQuantity}` },
+            { status: 400 }
+          );
+        }
+
+        // Prepare product stock update
+        stockUpdates.push({
+          type: 'product',
+          id: product.id,
+          currentStock: availableStock,
+          reduceBy: requestedQuantity
+        });
+      }
+
+      orderItems.push({
+        productId: productId,
+        variationId: variationId,
+        quantity: requestedQuantity,
+        unitPrice: item.price,
+        subtotal: item.price * requestedQuantity
+      });
+    }
+
+    // Create order and update stock in a transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // Create order
+      const order = await tx.order.create({
+        data: {
+          userId: user.id,
+          customerName: customerInfo.fullName,
+          customerEmail: customerInfo.email,
+          customerPhone: customerInfo.phone,
+          city: shippingInfo.city,
+          shippingAddress: shippingInfo.address,
+          subtotal,
+          tax,
+          shippingCost,
+          discount,
+          total: totalAmount,
+          status: 'PROCESSING',
+          paymentMethod: 'stripe',
+          stripePaymentIntentId: paymentIntentId,
+          items: {
+            create: orderItems
+          }
+        },
+        include: {
+          items: {
+            include: {
+              product: true
+            }
+          }
+        }
+      });
+
+      // Update stock quantities
+      for (const stockUpdate of stockUpdates) {
+        const newStock = stockUpdate.currentStock - stockUpdate.reduceBy;
+        
+        if (stockUpdate.type === 'variation') {
+          await tx.productVariation.update({
+            where: { id: stockUpdate.id },
+            data: { stockQuantity: newStock }
+          });
+        } else {
+          await tx.product.update({
+            where: { id: stockUpdate.id },
+            data: { stockQuantity: newStock }
+          });
+        }
+      }
+
+      return order;
     });
 
     // Create payment record
@@ -157,7 +264,7 @@ export async function POST(request: NextRequest) {
 
     await prisma.payment.create({
       data: {
-        orderId: order.id,
+        orderId: result.id,
         userId: user.id,
         stripePaymentIntentId: paymentIntentId,
         stripeChargeId: typeof charge === 'string' ? charge : charge?.id,
@@ -178,15 +285,15 @@ export async function POST(request: NextRequest) {
           customerName: customerInfo.fullName,
           email: customerInfo.email,
           password: temporaryPassword,
-          orderId: order.id
+          orderId: result.id
         });
       } else {
         await emailService.sendThankYouEmail({
           customerName: customerInfo.fullName,
           email: customerInfo.email,
-          orderId: order.id,
+          orderId: result.id,
           orderTotal: totalAmount,
-          items: order.items.map(item => ({
+          items: result.items.map(item => ({
             name: item.product.name,
             quantity: item.quantity,
             price: item.unitPrice
@@ -196,7 +303,7 @@ export async function POST(request: NextRequest) {
 
       // Mark email as sent
       await prisma.order.update({
-        where: { id: order.id },
+        where: { id: result.id },
         data: { emailSent: true }
       });
     } catch (emailError) {
@@ -206,11 +313,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      orderId: order.id,
+      orderId: result.id,
       isNewCustomer,
       message: isNewCustomer 
         ? 'Order created successfully! Check your email for account credentials.'
-        : 'Order created successfully! Thank you for your purchase.'
+        : 'Order created successfully! Thank you for your purchase.',
+      stockUpdated: stockUpdates.length
     });
 
   } catch (error: any) {
