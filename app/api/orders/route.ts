@@ -112,12 +112,27 @@ export async function POST(request: NextRequest) {
         paymentMethod: 'stripe',
         stripePaymentIntentId: paymentIntentId,
         items: {
-          create: items.map((item: any) => ({
-            productId: item.productId || item.id,
-            quantity: item.quantity,
-            unitPrice: item.price,
-            subtotal: item.price * item.quantity
-          }))
+          create: items.map((item: any) => {
+            // Extract variation ID from cart item
+            // Cart items have ID format: ${productId}-${variationId}
+            let variationId = null;
+            
+            if (item.id && item.id.includes('-')) {
+              const parts = item.id.split('-');
+              // If the ID has more than one part and the last part is not just a timestamp
+              if (parts.length >= 2 && parts[parts.length - 1].length > 10) {
+                variationId = parts.slice(1).join('-'); // Join back in case variation ID has dashes
+              }
+            }
+            
+            return {
+              productId: item.productId || item.id,
+              variationId: variationId,
+              quantity: item.quantity,
+              unitPrice: item.price,
+              subtotal: item.price * item.quantity
+            };
+          })
         }
       },
       include: {
@@ -261,7 +276,21 @@ export async function GET(request: NextRequest) {
                   id: true,
                   name: true,
                   nameAr: true,
-                  imageUrl: true
+                  imageUrl: true,
+                  category: {
+                    select: {
+                      id: true,
+                      name: true,
+                      nameAr: true
+                    }
+                  }
+                }
+              },
+              variation: {
+                include: {
+                  size: true,
+                  type: true,
+                  beans: true
                 }
               }
             }

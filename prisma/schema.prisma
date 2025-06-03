@@ -156,6 +156,7 @@ model ProductVariation {
   product       Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
   size          VariationSize   @relation(fields: [sizeId], references: [id])
   type          VariationType?  @relation(fields: [typeId], references: [id])
+  orderItems    OrderItem[]
 }
 
 model Order {
@@ -188,14 +189,16 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
-  orderId   String
-  productId String
-  quantity  Int
-  unitPrice Float
-  subtotal  Float
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product   Product @relation(fields: [productId], references: [id])
+  id          String             @id @default(uuid())
+  orderId     String
+  productId   String
+  variationId String?
+  quantity    Int
+  unitPrice   Float
+  subtotal    Float
+  order       Order              @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product            @relation(fields: [productId], references: [id])
+  variation   ProductVariation?  @relation(fields: [variationId], references: [id], onDelete: SetNull)
 }
 
 model Payment {
