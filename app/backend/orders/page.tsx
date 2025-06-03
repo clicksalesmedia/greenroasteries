@@ -14,10 +14,35 @@ interface OrderItem {
     name: string;
     nameAr?: string;
     imageUrl?: string;
+    category?: {
+      id: string;
+      name: string;
+      nameAr?: string;
+    };
+    variations?: Array<{
+      id: string;
+      size?: { displayName: string };
+      type?: { name: string };
+      beans?: { name: string };
+    }>;
   };
   quantity: number;
   unitPrice: number;
   subtotal: number;
+}
+
+interface Payment {
+  id: string;
+  stripePaymentIntentId?: string;
+  stripeChargeId?: string;
+  amount: number;
+  currency: string;
+  status: string;
+  paymentMethod?: string;
+  last4?: string;
+  brand?: string;
+  receiptUrl?: string;
+  createdAt: string;
 }
 
 interface Order {
@@ -28,7 +53,17 @@ interface Order {
     name: string;
     email: string;
     phone?: string;
+    city?: string;
+    address?: string;
+    isNewCustomer?: boolean;
+    emailVerified?: boolean;
+    lastLoginAt?: string;
   };
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  city?: string;
+  shippingAddress?: string;
   subtotal: number;
   tax: number;
   shippingCost: number;
@@ -37,12 +72,14 @@ interface Order {
   status: 'NEW' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'REFUNDED';
   paymentMethod?: string;
   paymentId?: string;
-  shippingAddress?: string;
+  stripePaymentIntentId?: string;
   trackingNumber?: string;
   notes?: string;
+  emailSent?: boolean;
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];
+  payment?: Payment[];
 }
 
 type OrderStatus = 'NEW' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'REFUNDED';
@@ -400,94 +437,300 @@ export default function OrdersPage() {
                           </tr>
                           {expandedOrderId === order.id && (
                             <tr>
-                              <td colSpan={6} className="px-4 py-4 sm:px-6">
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                  {/* Order Details */}
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                              <td colSpan={6} className="px-4 py-6 sm:px-6">
+                                <div className="bg-gray-50 p-6 rounded-lg space-y-6">
+                                  
+                                  {/* Order Summary Header */}
+                                  <div className="flex justify-between items-start border-b border-gray-200 pb-4">
                                     <div>
-                                      <h4 className="text-sm font-medium text-gray-900 mb-2">{t('shipping_information', 'Shipping Information')}</h4>
-                                      <div className="text-sm text-gray-500">
-                                        <p>{order.user.name}</p>
-                                        {order.user.phone && <p>{order.user.phone}</p>}
-                                        {order.shippingAddress && <p>{order.shippingAddress}</p>}
+                                      <h3 className="text-lg font-semibold text-gray-900">
+                                        {t('order_details', 'Order Details')} - #{order.id.slice(-8).toUpperCase()}
+                                      </h3>
+                                      <p className="text-sm text-gray-500 mt-1">
+                                        {t('created_on', 'Created on')} {formatDate(order.createdAt)}
+                                        {order.updatedAt !== order.createdAt && (
+                                          <span> • {t('last_updated', 'Last updated')} {formatDate(order.updatedAt)}</span>
+                                        )}
+                                      </p>
+                                    </div>
+                                    <div className="text-right">
+                                      <div className="text-2xl font-bold text-gray-900">{formatPrice(order.total)} AED</div>
+                                      <div className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(order.status)}`}>
+                                        {order.status}
                                       </div>
                                     </div>
-                                    <div>
-                                      <h4 className="text-sm font-medium text-gray-900 mb-2">{t('payment_information', 'Payment Information')}</h4>
-                                      <div className="text-sm text-gray-500">
-                                        <p>{t('payment_method', 'Payment Method')}: {order.paymentMethod || '-'}</p>
-                                        {order.paymentId && <p>{t('payment_id', 'Payment ID')}: {order.paymentId}</p>}
+                                  </div>
+
+                                  {/* Customer & Shipping Information Grid */}
+                                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    
+                                    {/* Customer Information */}
+                                    <div className="bg-white p-4 rounded-lg border">
+                                      <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                                        <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        {t('customer_information', 'Customer Information')}
+                                      </h4>
+                                      <div className="space-y-2 text-sm">
+                                        <div>
+                                          <span className="font-medium text-gray-900">{order.customerName || order.user.name}</span>
+                                          {order.user.isNewCustomer && (
+                                            <span className="ml-2 inline-flex px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                              {t('new_customer', 'New Customer')}
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div className="text-gray-600">
+                                          <div>📧 {order.customerEmail || order.user.email}</div>
+                                          {(order.customerPhone || order.user.phone) && (
+                                            <div>📱 {order.customerPhone || order.user.phone}</div>
+                                          )}
+                                        </div>
+                                        <div className="pt-2 border-t border-gray-100">
+                                          <div className="text-xs text-gray-500">
+                                            {t('email_verified', 'Email Verified')}: {order.user.emailVerified ? '✅ Yes' : '❌ No'}
+                                          </div>
+                                          {order.user.lastLoginAt && (
+                                            <div className="text-xs text-gray-500">
+                                              {t('last_login', 'Last Login')}: {formatDate(order.user.lastLoginAt)}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Shipping Information */}
+                                    <div className="bg-white p-4 rounded-lg border">
+                                      <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                                        <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        {t('shipping_information', 'Shipping Information')}
+                                      </h4>
+                                      <div className="space-y-2 text-sm">
+                                        <div>
+                                          <span className="font-medium text-gray-900">{t('city_region', 'City/Region')}</span>
+                                          <div className="text-gray-600">{order.city || order.user.city || '-'}</div>
+                                        </div>
+                                        <div>
+                                          <span className="font-medium text-gray-900">{t('shipping_address', 'Shipping Address')}</span>
+                                          <div className="text-gray-600">{order.shippingAddress || order.user.address || '-'}</div>
+                                        </div>
                                         {order.trackingNumber && (
-                                          <p>{t('tracking_number', 'Tracking Number')}: {order.trackingNumber}</p>
+                                          <div>
+                                            <span className="font-medium text-gray-900">{t('tracking_number', 'Tracking Number')}</span>
+                                            <div className="text-gray-600 font-mono">{order.trackingNumber}</div>
+                                          </div>
                                         )}
+                                        <div className="pt-2 border-t border-gray-100">
+                                          <div className="text-xs text-gray-500">
+                                            {t('shipping_cost', 'Shipping Cost')}: <span className="font-medium">{formatPrice(order.shippingCost)} AED</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Payment Information */}
+                                    <div className="bg-white p-4 rounded-lg border">
+                                      <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                                        <svg className="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                        </svg>
+                                        {t('payment_information', 'Payment Information')}
+                                      </h4>
+                                      <div className="space-y-2 text-sm">
+                                        <div>
+                                          <span className="font-medium text-gray-900">{t('payment_method', 'Payment Method')}</span>
+                                          <div className="text-gray-600">
+                                            {order.paymentMethod || 'Stripe'}
+                                            {order.payment && order.payment[0] && (
+                                              <span className="ml-2">
+                                                {order.payment[0].brand && order.payment[0].last4 
+                                                  ? `${order.payment[0].brand.toUpperCase()} ****${order.payment[0].last4}`
+                                                  : ''
+                                                }
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
+                                        {(order.stripePaymentIntentId || order.paymentId) && (
+                                          <div>
+                                            <span className="font-medium text-gray-900">{t('payment_id', 'Payment ID')}</span>
+                                            <div className="text-gray-600 font-mono text-xs">
+                                              {order.stripePaymentIntentId || order.paymentId}
+                                            </div>
+                                          </div>
+                                        )}
+                                        {order.payment && order.payment[0] && (
+                                          <>
+                                            <div>
+                                              <span className="font-medium text-gray-900">{t('payment_status', 'Payment Status')}</span>
+                                              <div className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ml-2 ${
+                                                order.payment[0].status === 'SUCCEEDED' 
+                                                  ? 'bg-green-100 text-green-800' 
+                                                  : 'bg-yellow-100 text-yellow-800'
+                                              }`}>
+                                                {order.payment[0].status}
+                                              </div>
+                                            </div>
+                                            {order.payment[0].receiptUrl && (
+                                              <div>
+                                                <a 
+                                                  href={order.payment[0].receiptUrl} 
+                                                  target="_blank" 
+                                                  rel="noopener noreferrer"
+                                                  className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                                                >
+                                                  📄 {t('view_receipt', 'View Receipt')}
+                                                </a>
+                                              </div>
+                                            )}
+                                          </>
+                                        )}
+                                        <div className="pt-2 border-t border-gray-100">
+                                          <div className="text-xs text-gray-500">
+                                            {t('email_sent', 'Email Sent')}: {order.emailSent ? '✅ Yes' : '❌ No'}
+                                          </div>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                  
-                                  {/* Order Items */}
-                                  <h4 className="text-sm font-medium text-gray-900 mb-3">{t('order_items', 'Order Items')}</h4>
-                                  <div className="overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-200">
-                                      <thead>
-                                        <tr className="bg-gray-100">
-                                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">{t('product', 'Product')}</th>
-                                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">{t('unit_price', 'Unit Price')}</th>
-                                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">{t('quantity', 'Quantity')}</th>
-                                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">{t('subtotal', 'Subtotal')}</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody className="bg-white divide-y divide-gray-200">
-                                        {order.items.map((item) => (
-                                          <tr key={item.id} className="hover:bg-gray-50">
-                                            <td className="px-3 py-2 text-sm text-gray-500">
-                                              {contentByLang(item.product.name, item.product.nameAr || item.product.name)}
-                                            </td>
-                                            <td className="px-3 py-2 text-sm text-gray-500">
-                                              {formatPrice(item.unitPrice)} AED
-                                            </td>
-                                            <td className="px-3 py-2 text-sm text-gray-500">
-                                              {item.quantity}
-                                            </td>
-                                            <td className="px-3 py-2 text-sm text-gray-500">
-                                              {formatPrice(item.subtotal)} AED
-                                            </td>
+
+                                  {/* Order Items with Enhanced Details */}
+                                  <div className="bg-white p-4 rounded-lg border">
+                                    <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center">
+                                      <svg className="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                      </svg>
+                                      {t('order_items', 'Order Items')} ({order.items.length} {order.items.length === 1 ? 'item' : 'items'})
+                                    </h4>
+                                    <div className="overflow-x-auto">
+                                      <table className="min-w-full divide-y divide-gray-200">
+                                        <thead>
+                                          <tr className="bg-gray-100">
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('product', 'Product')}</th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('category', 'Category')}</th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('variations', 'Variations')}</th>
+                                            <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{t('quantity', 'Quantity')}</th>
+                                            <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{t('unit_price', 'Unit Price')}</th>
+                                            <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{t('subtotal', 'Subtotal')}</th>
                                           </tr>
-                                        ))}
-                                      </tbody>
-                                      <tfoot>
-                                        <tr className="bg-gray-50">
-                                          <td colSpan={3} className="px-3 py-2 text-sm font-medium text-gray-900 text-right">{t('subtotal', 'Subtotal')}</td>
-                                          <td className="px-3 py-2 text-sm font-medium text-gray-900">{formatPrice(order.subtotal)} AED</td>
-                                        </tr>
-                                        <tr className="bg-gray-50">
-                                          <td colSpan={3} className="px-3 py-2 text-sm font-medium text-gray-900 text-right">{t('tax', 'Tax')}</td>
-                                          <td className="px-3 py-2 text-sm font-medium text-gray-900">{formatPrice(order.tax)} AED</td>
-                                        </tr>
-                                        <tr className="bg-gray-50">
-                                          <td colSpan={3} className="px-3 py-2 text-sm font-medium text-gray-900 text-right">{t('shipping', 'Shipping')}</td>
-                                          <td className="px-3 py-2 text-sm font-medium text-gray-900">{formatPrice(order.shippingCost)} AED</td>
-                                        </tr>
-                                        {order.discount > 0 && (
-                                          <tr className="bg-gray-50">
-                                            <td colSpan={3} className="px-3 py-2 text-sm font-medium text-gray-900 text-right">{t('discount', 'Discount')}</td>
-                                            <td className="px-3 py-2 text-sm font-medium text-red-600">-{formatPrice(order.discount)} AED</td>
-                                          </tr>
-                                        )}
-                                        <tr className="bg-gray-200">
-                                          <td colSpan={3} className="px-3 py-2 text-sm font-bold text-gray-900 text-right">{t('total', 'Total')}</td>
-                                          <td className="px-3 py-2 text-sm font-bold text-gray-900">{formatPrice(order.total)} AED</td>
-                                        </tr>
-                                      </tfoot>
-                                    </table>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                          {order.items.map((item) => (
+                                            <tr key={item.id} className="hover:bg-gray-50">
+                                              <td className="px-4 py-3">
+                                                <div className="flex items-center">
+                                                  {item.product.imageUrl && (
+                                                    <img
+                                                      className="h-12 w-12 rounded-lg object-cover mr-3"
+                                                      src={item.product.imageUrl}
+                                                      alt={item.product.name}
+                                                      onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.style.display = 'none';
+                                                      }}
+                                                    />
+                                                  )}
+                                                  <div>
+                                                    <div className="text-sm font-medium text-gray-900">
+                                                      {contentByLang(item.product.name, item.product.nameAr || item.product.name)}
+                                                    </div>
+                                                    <div className="text-xs text-gray-500">ID: {item.productId}</div>
+                                                  </div>
+                                                </div>
+                                              </td>
+                                              <td className="px-4 py-3 text-sm text-gray-600">
+                                                {item.product.category ? (
+                                                  <span className="inline-flex px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                                                    {contentByLang(item.product.category.name, item.product.category.nameAr || item.product.category.name)}
+                                                  </span>
+                                                ) : (
+                                                  <span className="text-gray-400">-</span>
+                                                )}
+                                              </td>
+                                              <td className="px-4 py-3 text-sm text-gray-600">
+                                                {item.product.variations && item.product.variations.length > 0 ? (
+                                                  <div className="space-y-1">
+                                                    {item.product.variations.map((variation, idx) => (
+                                                      <div key={idx} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                                                        {variation.size?.displayName && <span>Size: {variation.size.displayName}</span>}
+                                                        {variation.type?.name && <span> • Type: {variation.type.name}</span>}
+                                                        {variation.beans?.name && <span> • Beans: {variation.beans.name}</span>}
+                                                      </div>
+                                                    ))}
+                                                  </div>
+                                                ) : (
+                                                  <span className="text-gray-400">Standard</span>
+                                                )}
+                                              </td>
+                                              <td className="px-4 py-3 text-center text-sm font-medium text-gray-900">
+                                                {item.quantity}
+                                              </td>
+                                              <td className="px-4 py-3 text-center text-sm text-gray-600">
+                                                {formatPrice(item.unitPrice)} AED
+                                              </td>
+                                              <td className="px-4 py-3 text-center text-sm font-medium text-gray-900">
+                                                {formatPrice(item.subtotal)} AED
+                                              </td>
+                                            </tr>
+                                          ))}
+                                        </tbody>
+                                      </table>
+                                    </div>
                                   </div>
-                                  
-                                  {/* Notes */}
+
+                                  {/* Order Financial Summary */}
+                                  <div className="bg-white p-4 rounded-lg border">
+                                    <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                                      <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                      </svg>
+                                      {t('financial_summary', 'Financial Summary')}
+                                    </h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                      <div className="bg-gray-50 p-3 rounded-lg">
+                                        <div className="text-xs text-gray-500">{t('subtotal', 'Subtotal')}</div>
+                                        <div className="text-lg font-semibold text-gray-900">{formatPrice(order.subtotal)} AED</div>
+                                      </div>
+                                      <div className="bg-gray-50 p-3 rounded-lg">
+                                        <div className="text-xs text-gray-500">{t('tax', 'Tax')}</div>
+                                        <div className="text-lg font-semibold text-gray-900">{formatPrice(order.tax)} AED</div>
+                                      </div>
+                                      <div className="bg-gray-50 p-3 rounded-lg">
+                                        <div className="text-xs text-gray-500">{t('shipping', 'Shipping')}</div>
+                                        <div className="text-lg font-semibold text-gray-900">{formatPrice(order.shippingCost)} AED</div>
+                                      </div>
+                                      {order.discount > 0 && (
+                                        <div className="bg-red-50 p-3 rounded-lg">
+                                          <div className="text-xs text-red-500">{t('discount', 'Discount')}</div>
+                                          <div className="text-lg font-semibold text-red-600">-{formatPrice(order.discount)} AED</div>
+                                        </div>
+                                      )}
+                                      <div className="bg-green-50 p-3 rounded-lg">
+                                        <div className="text-xs text-green-500">{t('total', 'Total')}</div>
+                                        <div className="text-xl font-bold text-green-700">{formatPrice(order.total)} AED</div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Notes and Additional Information */}
                                   {order.notes && (
-                                    <div className="mt-4">
-                                      <h4 className="text-sm font-medium text-gray-900 mb-2">{t('notes', 'Notes')}</h4>
-                                      <p className="text-sm text-gray-500">{order.notes}</p>
+                                    <div className="bg-white p-4 rounded-lg border">
+                                      <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                                        <svg className="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        {t('notes', 'Notes')}
+                                      </h4>
+                                      <div className="text-sm text-gray-600 bg-yellow-50 p-3 rounded-lg">
+                                        {order.notes}
+                                      </div>
                                     </div>
                                   )}
+
                                 </div>
                               </td>
                             </tr>
