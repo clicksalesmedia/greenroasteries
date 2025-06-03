@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/app/generated/prisma';
-
-const prisma = new PrismaClient();
+import prisma from '@/app/lib/prisma';
 
 interface TrackingConfigRequest {
   // Google Tag Manager
@@ -39,139 +37,174 @@ interface TrackingConfigRequest {
 
 // Get or create tracking configuration
 async function getOrCreateConfig() {
-  let config = await prisma.trackingConfiguration.findFirst();
-  
-  if (!config) {
-    config = await prisma.trackingConfiguration.create({
-      data: {
-        gtmEnabled: false,
-        ga4Enabled: false,
-        metaEnabled: false,
-        googleAdsEnabled: false,
-        serverSideEnabled: false,
-        facebookConversionsApi: false,
-        googleConversionsApi: false,
-        dataRetentionDays: 90,
-        anonymizeIp: true,
-        cookieConsent: true,
-        debugMode: false,
-      }
-    });
+  try {
+    console.log('Attempting to find existing tracking configuration...');
+    let config = await prisma.trackingConfiguration.findFirst();
+    
+    if (!config) {
+      console.log('No existing config found, creating new one...');
+      config = await prisma.trackingConfiguration.create({
+        data: {
+          gtmEnabled: false,
+          ga4Enabled: false,
+          metaEnabled: false,
+          googleAdsEnabled: false,
+          serverSideEnabled: false,
+          facebookConversionsApi: false,
+          googleConversionsApi: false,
+          dataRetentionDays: 90,
+          anonymizeIp: true,
+          cookieConsent: true,
+          debugMode: false,
+        }
+      });
+      console.log('Created new tracking configuration:', config.id);
+    } else {
+      console.log('Found existing tracking configuration:', config.id);
+    }
+    
+    return config;
+  } catch (error) {
+    console.error('Error in getOrCreateConfig:', error);
+    throw error;
   }
-  
-  return config;
 }
 
 // Update configuration status based on settings
 function updateConfigStatus(data: any) {
-  // GTM Status
-  if (data.gtmEnabled && data.gtmContainerId) {
-    data.gtmStatus = 'ACTIVE';
-  } else if (data.gtmEnabled && !data.gtmContainerId) {
-    data.gtmStatus = 'ERROR';
-  } else {
-    data.gtmStatus = 'INACTIVE';
+  try {
+    // GTM Status
+    if (data.gtmEnabled && data.gtmContainerId) {
+      data.gtmStatus = 'ACTIVE';
+    } else if (data.gtmEnabled && !data.gtmContainerId) {
+      data.gtmStatus = 'ERROR';
+    } else {
+      data.gtmStatus = 'INACTIVE';
+    }
+    
+    // GA4 Status
+    if (data.ga4Enabled && data.ga4MeasurementId) {
+      data.ga4Status = 'ACTIVE';
+    } else if (data.ga4Enabled && !data.ga4MeasurementId) {
+      data.ga4Status = 'ERROR';
+    } else {
+      data.ga4Status = 'INACTIVE';
+    }
+    
+    // Meta Status
+    if (data.metaEnabled && data.metaPixelId) {
+      data.metaStatus = 'ACTIVE';
+    } else if (data.metaEnabled && !data.metaPixelId) {
+      data.metaStatus = 'ERROR';
+    } else {
+      data.metaStatus = 'INACTIVE';
+    }
+    
+    // Google Ads Status
+    if (data.googleAdsEnabled && data.googleAdsConversionId && data.googleAdsConversionLabel) {
+      data.googleAdsStatus = 'ACTIVE';
+    } else if (data.googleAdsEnabled && (!data.googleAdsConversionId || !data.googleAdsConversionLabel)) {
+      data.googleAdsStatus = 'ERROR';
+    } else {
+      data.googleAdsStatus = 'INACTIVE';
+    }
+    
+    // Server-side Status
+    if (data.serverSideEnabled && (data.facebookConversionsApi || data.googleConversionsApi)) {
+      data.serverSideStatus = 'ACTIVE';
+    } else if (data.serverSideEnabled && !data.facebookConversionsApi && !data.googleConversionsApi) {
+      data.serverSideStatus = 'ERROR';
+    } else {
+      data.serverSideStatus = 'INACTIVE';
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error in updateConfigStatus:', error);
+    throw error;
   }
-  
-  // GA4 Status
-  if (data.ga4Enabled && data.ga4MeasurementId) {
-    data.ga4Status = 'ACTIVE';
-  } else if (data.ga4Enabled && !data.ga4MeasurementId) {
-    data.ga4Status = 'ERROR';
-  } else {
-    data.ga4Status = 'INACTIVE';
-  }
-  
-  // Meta Status
-  if (data.metaEnabled && data.metaPixelId) {
-    data.metaStatus = 'ACTIVE';
-  } else if (data.metaEnabled && !data.metaPixelId) {
-    data.metaStatus = 'ERROR';
-  } else {
-    data.metaStatus = 'INACTIVE';
-  }
-  
-  // Google Ads Status
-  if (data.googleAdsEnabled && data.googleAdsConversionId && data.googleAdsConversionLabel) {
-    data.googleAdsStatus = 'ACTIVE';
-  } else if (data.googleAdsEnabled && (!data.googleAdsConversionId || !data.googleAdsConversionLabel)) {
-    data.googleAdsStatus = 'ERROR';
-  } else {
-    data.googleAdsStatus = 'INACTIVE';
-  }
-  
-  // Server-side Status
-  if (data.serverSideEnabled && (data.facebookConversionsApi || data.googleConversionsApi)) {
-    data.serverSideStatus = 'ACTIVE';
-  } else if (data.serverSideEnabled && !data.facebookConversionsApi && !data.googleConversionsApi) {
-    data.serverSideStatus = 'ERROR';
-  } else {
-    data.serverSideStatus = 'INACTIVE';
-  }
-  
-  return data;
 }
 
 // Format config for frontend response
 function formatConfigResponse(config: any) {
-  return {
-    googleTagManager: {
-      enabled: config.gtmEnabled,
-      containerId: config.gtmContainerId || '',
-      status: config.gtmStatus?.toLowerCase() || 'inactive'
-    },
-    googleAnalytics: {
-      enabled: config.ga4Enabled,
-      measurementId: config.ga4MeasurementId || '',
-      status: config.ga4Status?.toLowerCase() || 'inactive'
-    },
-    metaAds: {
-      enabled: config.metaEnabled,
-      pixelId: config.metaPixelId || '',
-      accessToken: config.metaAccessToken ? '***hidden***' : '',
-      status: config.metaStatus?.toLowerCase() || 'inactive'
-    },
-    googleAds: {
-      enabled: config.googleAdsEnabled,
-      conversionId: config.googleAdsConversionId || '',
-      conversionLabel: config.googleAdsConversionLabel || '',
-      status: config.googleAdsStatus?.toLowerCase() || 'inactive'
-    },
-    serverSideTracking: {
-      enabled: config.serverSideEnabled,
-      facebookConversionsApi: config.facebookConversionsApi,
-      googleConversionsApi: config.googleConversionsApi,
-      status: config.serverSideStatus?.toLowerCase() || 'inactive'
-    },
-    advanced: {
-      dataRetentionDays: config.dataRetentionDays,
-      anonymizeIp: config.anonymizeIp,
-      cookieConsent: config.cookieConsent,
-      debugMode: config.debugMode
-    }
-  };
+  try {
+    return {
+      googleTagManager: {
+        enabled: config.gtmEnabled,
+        containerId: config.gtmContainerId || '',
+        status: config.gtmStatus?.toLowerCase() || 'inactive'
+      },
+      googleAnalytics: {
+        enabled: config.ga4Enabled,
+        measurementId: config.ga4MeasurementId || '',
+        status: config.ga4Status?.toLowerCase() || 'inactive'
+      },
+      metaAds: {
+        enabled: config.metaEnabled,
+        pixelId: config.metaPixelId || '',
+        accessToken: config.metaAccessToken ? '***hidden***' : '',
+        status: config.metaStatus?.toLowerCase() || 'inactive'
+      },
+      googleAds: {
+        enabled: config.googleAdsEnabled,
+        conversionId: config.googleAdsConversionId || '',
+        conversionLabel: config.googleAdsConversionLabel || '',
+        status: config.googleAdsStatus?.toLowerCase() || 'inactive'
+      },
+      serverSideTracking: {
+        enabled: config.serverSideEnabled,
+        facebookConversionsApi: config.facebookConversionsApi,
+        googleConversionsApi: config.googleConversionsApi,
+        status: config.serverSideStatus?.toLowerCase() || 'inactive'
+      },
+      advanced: {
+        dataRetentionDays: config.dataRetentionDays,
+        anonymizeIp: config.anonymizeIp,
+        cookieConsent: config.cookieConsent,
+        debugMode: config.debugMode
+      }
+    };
+  } catch (error) {
+    console.error('Error in formatConfigResponse:', error);
+    throw error;
+  }
 }
 
 // GET - Retrieve tracking configuration
 export async function GET() {
   try {
+    console.log('GET /api/tracking/config - Starting request');
+
     const config = await getOrCreateConfig();
-    return NextResponse.json(formatConfigResponse(config));
+    const response = formatConfigResponse(config);
+    
+    console.log('GET /api/tracking/config - Success');
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error retrieving tracking config:', error);
+    
+    // More detailed error response
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    
     return NextResponse.json(
-      { error: 'Failed to retrieve tracking configuration' },
+      { 
+        error: 'Failed to retrieve tracking configuration',
+        details: errorMessage,
+        stack: errorStack
+      },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
 // POST - Update tracking configuration
 export async function POST(request: NextRequest) {
   try {
+    console.log('POST /api/tracking/config - Starting request');
+    
     const body: TrackingConfigRequest = await request.json();
+    console.log('Received configuration update:', body);
     
     // Get current config
     const currentConfig = await getOrCreateConfig();
@@ -191,21 +224,32 @@ export async function POST(request: NextRequest) {
       data: dataWithStatus
     });
     
-    return NextResponse.json(formatConfigResponse(updatedConfig));
+    const response = formatConfigResponse(updatedConfig);
+    console.log('POST /api/tracking/config - Success');
+    
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error updating tracking config:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    
     return NextResponse.json(
-      { error: 'Failed to update tracking configuration' },
+      { 
+        error: 'Failed to update tracking configuration',
+        details: errorMessage,
+        stack: errorStack
+      },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
 // PUT - Reset configuration to defaults
 export async function PUT() {
   try {
+    console.log('PUT /api/tracking/config - Starting reset request');
+    
     const currentConfig = await getOrCreateConfig();
     
     const resetConfig = await prisma.trackingConfiguration.update({
@@ -240,14 +284,23 @@ export async function PUT() {
       }
     });
     
-    return NextResponse.json(formatConfigResponse(resetConfig));
+    const response = formatConfigResponse(resetConfig);
+    console.log('PUT /api/tracking/config - Success');
+    
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error resetting tracking config:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    
     return NextResponse.json(
-      { error: 'Failed to reset tracking configuration' },
+      { 
+        error: 'Failed to reset tracking configuration',
+        details: errorMessage,
+        stack: errorStack
+      },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 } 

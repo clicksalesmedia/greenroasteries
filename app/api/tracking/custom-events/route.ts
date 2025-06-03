@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/app/generated/prisma';
-
-const prisma = new PrismaClient();
+import prisma from '@/app/lib/prisma';
 
 interface CustomEventRequest {
   name: string;
@@ -61,8 +59,6 @@ export async function GET(request: NextRequest) {
       { error: 'Failed to retrieve custom events' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -130,8 +126,6 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -164,8 +158,6 @@ export async function PUT(request: NextRequest) {
       { error: 'Failed to update custom event' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -191,7 +183,5 @@ export async function DELETE(request: NextRequest) {
       { error: 'Failed to delete custom event' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 } 

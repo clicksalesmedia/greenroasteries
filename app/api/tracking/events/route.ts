@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/app/generated/prisma';
+import prisma from '@/app/lib/prisma';
 import crypto from 'crypto';
-
-const prisma = new PrismaClient();
 
 interface TrackingEventRequest {
   sessionId: string;
@@ -248,8 +246,6 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -383,7 +379,5 @@ export async function GET(request: NextRequest) {
       { error: 'Failed to retrieve events' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 } 
