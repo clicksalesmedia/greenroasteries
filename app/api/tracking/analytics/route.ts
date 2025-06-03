@@ -180,8 +180,7 @@ async function getEventAnalytics(configId: string, startDate: Date, endDate: Dat
         timestamp: { gte: startDate, lte: endDate }
       },
       _count: { _all: true },
-      _sum: { value: true },
-      orderBy: { _count: { _all: 'desc' } }
+      _sum: { value: true }
     }),
 
     // Events by platform
@@ -223,9 +222,12 @@ async function getEventAnalytics(configId: string, startDate: Date, endDate: Dat
     `
   ]);
 
+  // Sort events by count manually
+  const sortedEventsByName = eventsByName.sort((a, b) => b._count._all - a._count._all);
+
   return {
     events: {
-      byName: eventsByName,
+      byName: sortedEventsByName,
       byPlatform: eventsByPlatform,
       recent: recentEvents,
       trends: eventTrends
