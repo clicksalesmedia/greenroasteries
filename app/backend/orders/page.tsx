@@ -21,7 +21,7 @@ interface OrderItem {
       nameAr?: string;
     };
   };
-  selectedVariation?: {
+  variation?: {
     id: string;
     size?: { 
       id: string;
@@ -665,20 +665,20 @@ export default function OrdersPage() {
                                                 )}
                                               </td>
                                               <td className="px-4 py-3 text-sm text-gray-600">
-                                                {item.selectedVariation ? (
+                                                {item.variation ? (
                                                   <div className="space-y-1">
                                                     <div className="text-xs bg-gray-100 px-2 py-1 rounded flex flex-wrap gap-1">
-                                                      {item.selectedVariation.size?.displayName && (
-                                                        <span className="font-medium text-blue-600">Size: {item.selectedVariation.size.displayName}</span>
+                                                      {item.variation.size?.displayName && (
+                                                        <span className="font-medium text-blue-600">Size: {item.variation.size.displayName}</span>
                                                       )}
-                                                      {item.selectedVariation.type?.name && (
-                                                        <span className="font-medium text-green-600">• Type: {item.selectedVariation.type.name}</span>
+                                                      {item.variation.type?.name && (
+                                                        <span className="font-medium text-green-600">• Type: {item.variation.type.name}</span>
                                                       )}
-                                                      {item.selectedVariation.beans?.name && (
-                                                        <span className="font-medium text-orange-600">• Beans: {item.selectedVariation.beans.name}</span>
+                                                      {item.variation.beans?.name && (
+                                                        <span className="font-medium text-orange-600">• Beans: {item.variation.beans.name}</span>
                                                       )}
-                                                      {item.selectedVariation.price && (
-                                                        <span className="font-medium text-gray-600">• Price: {formatPrice(item.selectedVariation.price)} AED</span>
+                                                      {item.variation.price && (
+                                                        <span className="font-medium text-gray-600">• Price: {formatPrice(item.variation.price)} AED</span>
                                                       )}
                                                     </div>
                                                   </div>
