@@ -203,17 +203,68 @@ export async function POST(request: NextRequest) {
   try {
     console.log('POST /api/tracking/config - Starting request');
     
-    const body: TrackingConfigRequest = await request.json();
-    console.log('Received configuration update:', body);
+    const body = await request.json();
+    console.log('Received configuration update:', JSON.stringify(body, null, 2));
     
     // Get current config
     const currentConfig = await getOrCreateConfig();
     
-    // Prepare update data
+    // Map frontend structure to database fields
     const updateData: any = {
-      ...body,
       updatedAt: new Date()
     };
+
+    // Map Google Tag Manager
+    if (body.googleTagManager) {
+      updateData.gtmEnabled = body.googleTagManager.enabled;
+      updateData.gtmContainerId = body.googleTagManager.containerId || null;
+    }
+
+    // Map Google Analytics
+    if (body.googleAnalytics) {
+      updateData.ga4Enabled = body.googleAnalytics.enabled;
+      updateData.ga4MeasurementId = body.googleAnalytics.measurementId || null;
+    }
+
+    // Map Meta Ads
+    if (body.metaAds) {
+      updateData.metaEnabled = body.metaAds.enabled;
+      updateData.metaPixelId = body.metaAds.pixelId || null;
+      updateData.metaAccessToken = body.metaAds.accessToken || null;
+    }
+
+    // Map Google Ads
+    if (body.googleAds) {
+      updateData.googleAdsEnabled = body.googleAds.enabled;
+      updateData.googleAdsConversionId = body.googleAds.conversionId || null;
+      updateData.googleAdsConversionLabel = body.googleAds.conversionLabel || null;
+    }
+
+    // Map Server-side Tracking
+    if (body.serverSideTracking) {
+      updateData.serverSideEnabled = body.serverSideTracking.enabled;
+      updateData.facebookConversionsApi = body.serverSideTracking.facebookConversionsApi;
+      updateData.googleConversionsApi = body.serverSideTracking.googleConversionsApi;
+    }
+
+    // Handle direct field updates (for backward compatibility)
+    const directFields = [
+      'gtmEnabled', 'gtmContainerId',
+      'ga4Enabled', 'ga4MeasurementId', 'ga4ApiSecret',
+      'metaEnabled', 'metaPixelId', 'metaAccessToken',
+      'googleAdsEnabled', 'googleAdsConversionId', 'googleAdsConversionLabel', 
+      'googleAdsCustomerId', 'googleAdsAccessToken',
+      'serverSideEnabled', 'facebookConversionsApi', 'googleConversionsApi',
+      'dataRetentionDays', 'anonymizeIp', 'cookieConsent', 'debugMode'
+    ];
+
+    directFields.forEach(field => {
+      if (body[field] !== undefined) {
+        updateData[field] = body[field];
+      }
+    });
+
+    console.log('Mapped update data:', JSON.stringify(updateData, null, 2));
     
     // Update status based on configuration
     const dataWithStatus = updateConfigStatus(updateData);
