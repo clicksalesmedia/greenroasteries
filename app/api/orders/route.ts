@@ -266,7 +266,12 @@ export async function GET(request: NextRequest) {
               id: true,
               name: true,
               email: true,
-              phone: true
+              phone: true,
+              city: true,
+              address: true,
+              isNewCustomer: true,
+              emailVerified: true,
+              lastLoginAt: true
             }
           },
           items: {
@@ -283,6 +288,17 @@ export async function GET(request: NextRequest) {
                       name: true,
                       nameAr: true
                     }
+                  },
+                  variations: {
+                    include: {
+                      size: true,
+                      type: true,
+                      beans: true
+                    },
+                    where: {
+                      isActive: true
+                    },
+                    take: 1 // Get the first active variation as fallback
                   }
                 }
               },
@@ -306,8 +322,29 @@ export async function GET(request: NextRequest) {
       prisma.order.count({ where })
     ]);
 
+    // Enhance orders with fallback variation data
+    const enhancedOrders = orders.map(order => ({
+      ...order,
+      items: order.items.map(item => ({
+        ...item,
+        // If no variation is linked but product has variations, use the first one as fallback
+        variation: item.variation || (item.product.variations && item.product.variations.length > 0 ? {
+          id: item.product.variations[0].id,
+          size: item.product.variations[0].size,
+          type: item.product.variations[0].type,
+          beans: item.product.variations[0].beans,
+          price: item.product.variations[0].price,
+          stockQuantity: item.product.variations[0].stockQuantity
+        } : null),
+        product: {
+          ...item.product,
+          variations: undefined // Remove variations from product to avoid redundancy
+        }
+      }))
+    }));
+
     return NextResponse.json({
-      orders,
+      orders: enhancedOrders,
       pagination: {
         page,
         limit,
