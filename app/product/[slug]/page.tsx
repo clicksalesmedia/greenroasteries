@@ -46,6 +46,7 @@ interface Product {
   category: string | { id: string; name: string; nameAr?: string; slug?: string };
   variations?: ProductVariation[];
   stockQuantity?: number;
+  inStock?: boolean;
   viewCount?: number;
   rating?: number;
   reviews?: number;
@@ -660,14 +661,18 @@ export default function ProductPage() {
   
   const handleQuantityChange = (amount: number) => {
     const newQuantity = quantity + amount;
-    if (newQuantity < 1) return;
+    const availableStock = getAvailableStock();
     
-    // Check against selected variation's stock quantity
-    if (selectedVariation?.stockQuantity !== undefined && newQuantity > selectedVariation.stockQuantity) {
-      return;
+    if (newQuantity < 1) {
+      setQuantity(1);
+    } else if (newQuantity > availableStock) {
+      setQuantity(availableStock);
+      if (availableStock > 0) {
+        showToast(t('max_stock_reached', `Maximum available quantity is ${availableStock}`), 'error');
+      }
+    } else {
+      setQuantity(newQuantity);
     }
-    
-    setQuantity(newQuantity);
   };
   
   const handleVariationChange = (type: 'weight' | 'beans' | 'additions', value: string) => {
@@ -947,6 +952,7 @@ export default function ProductPage() {
   };
   
   const getDiscountPercentage = () => {
+    // Check for variation-specific discount
     if (selectedVariation && selectedVariation.discount && selectedVariation.discount > 0) {
       if (selectedVariation.discountType === 'PERCENTAGE') {
         return Math.round(selectedVariation.discount * 100);
@@ -963,9 +969,44 @@ export default function ProductPage() {
     return 0;
   };
   
+  // Check if product or variation is out of stock
+  const isOutOfStock = () => {
+    if (selectedVariation) {
+      // Check variation stock
+      return selectedVariation.stockQuantity === 0 || selectedVariation.stockQuantity === undefined;
+    } else if (product) {
+      // Check main product stock
+      return product.stockQuantity === 0 || !product.inStock;
+    }
+    return true; // Default to out of stock if no product
+  };
+
+  // Get available stock quantity
+  const getAvailableStock = () => {
+    if (selectedVariation && selectedVariation.stockQuantity !== undefined) {
+      return selectedVariation.stockQuantity;
+    } else if (product && product.stockQuantity !== undefined) {
+      return product.stockQuantity;
+    }
+    return 0;
+  };
+  
   const handleAddToCart = () => {
     if (!selectedVariation || !product) {
-      showToast('Please select a variation', 'error');
+      showToast(t('select_variation', 'Please select a variation'), 'error');
+      return;
+    }
+
+    // Check if out of stock
+    if (isOutOfStock()) {
+      showToast(t('out_of_stock', 'This item is currently out of stock'), 'error');
+      return;
+    }
+
+    // Check if requested quantity exceeds available stock
+    const availableStock = getAvailableStock();
+    if (quantity > availableStock) {
+      showToast(t('insufficient_stock', `Only ${availableStock} items available`), 'error');
       return;
     }
     
@@ -992,12 +1033,25 @@ export default function ProductPage() {
     });
     
     // Show success message with toast
-    showToast(`${quantity} × ${product.name} added to cart`, 'success');
+    showToast(`${quantity} × ${product.name} ${t('added_to_cart', 'added to cart')}`, 'success');
   };
   
   const handleBuyNow = () => {
     if (!selectedVariation || !product) {
-      showToast('Please select a variation', 'error');
+      showToast(t('select_variation', 'Please select a variation'), 'error');
+      return;
+    }
+
+    // Check if out of stock
+    if (isOutOfStock()) {
+      showToast(t('out_of_stock', 'This item is currently out of stock'), 'error');
+      return;
+    }
+
+    // Check if requested quantity exceeds available stock
+    const availableStock = getAvailableStock();
+    if (quantity > availableStock) {
+      showToast(t('insufficient_stock', `Only ${availableStock} items available`), 'error');
       return;
     }
     
@@ -1017,7 +1071,7 @@ export default function ProductPage() {
     });
     
     // Show success message with toast
-    showToast(`${quantity} × ${product.name} added to cart`, 'success');
+    showToast(`${quantity} × ${product.name} ${t('added_to_cart', 'added to cart')}`, 'success');
     
     // Redirect to checkout
     router.push('/checkout');
@@ -1418,48 +1472,80 @@ export default function ProductPage() {
             {/* Quantity */}
             <div className="mb-6">
               <h2 className="text-lg font-medium mb-2">{t('quantity', 'Quantity')}</h2>
-              <div className="flex items-center">
-                <button 
-                  onClick={() => handleQuantityChange(-1)}
-                  className="w-10 h-10 bg-gray-100 flex items-center justify-center rounded-l-md"
-                  disabled={quantity <= 1}
-                >
-                  -
-                </button>
-                <div className="w-16 h-10 flex items-center justify-center border-t border-b border-gray-200">
-                  {quantity}
-                </div>
-                <button 
-                  onClick={() => handleQuantityChange(1)}
-                  className="w-10 h-10 bg-gray-100 flex items-center justify-center rounded-r-md"
-                  disabled={selectedVariation?.stockQuantity !== undefined && quantity >= selectedVariation.stockQuantity}
-                >
-                  +
-                </button>
-                
-                {selectedVariation?.stockQuantity !== undefined && selectedVariation.stockQuantity < 10 && (
-                  <span className="ml-4 text-sm text-orange-500">
-                    {t('only_left', 'Only')} {selectedVariation.stockQuantity} {t('left', 'left')}
+              
+              {/* Stock Status */}
+              {isOutOfStock() ? (
+                <div className="mb-4">
+                  <span className="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {t('out_of_stock', 'Out of Stock')}
                   </span>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  <button 
+                    onClick={() => handleQuantityChange(-1)}
+                    className="w-10 h-10 bg-gray-100 flex items-center justify-center rounded-l-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={quantity <= 1}
+                  >
+                    -
+                  </button>
+                  <div className="w-16 h-10 flex items-center justify-center border-t border-b border-gray-200">
+                    {quantity}
+                  </div>
+                  <button 
+                    onClick={() => handleQuantityChange(1)}
+                    className="w-10 h-10 bg-gray-100 flex items-center justify-center rounded-r-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={quantity >= getAvailableStock()}
+                  >
+                    +
+                  </button>
+                  
+                  {getAvailableStock() < 10 && getAvailableStock() > 0 && (
+                    <span className="ml-4 text-sm text-orange-500">
+                      {t('only_left', 'Only')} {getAvailableStock()} {t('left', 'left')}
+                    </span>
+                  )}
+                  
+                  {getAvailableStock() > 0 && (
+                    <span className="ml-4 text-sm text-green-600">
+                      {getAvailableStock()} {t('in_stock', 'in stock')}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
             
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mt-auto">
-              <button 
-                onClick={handleAddToCart}
-                className="flex-1 bg-white border-2 border-black text-black py-3 rounded-md flex items-center justify-center hover:bg-gray-100 transition"
-              >
-                <ShoppingCartIcon className="h-5 w-5 mr-2" />
-                {t('add_to_cart', 'Add to Cart')}
-              </button>
-              <button 
-                onClick={handleBuyNow}
-                className="flex-1 bg-black text-white py-3 rounded-md hover:bg-gray-800 transition"
-              >
-                {t('buy_now', 'Buy Now')}
-              </button>
+              {isOutOfStock() ? (
+                <div className="flex-1">
+                  <button 
+                    disabled
+                    className="w-full bg-gray-300 text-gray-500 py-3 rounded-md cursor-not-allowed flex items-center justify-center"
+                  >
+                    <ShoppingCartIcon className="h-5 w-5 mr-2" />
+                    {t('out_of_stock', 'Out of Stock')}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button 
+                    onClick={handleAddToCart}
+                    disabled={!selectedVariation}
+                    className="flex-1 bg-white border-2 border-black text-black py-3 rounded-md flex items-center justify-center hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ShoppingCartIcon className="h-5 w-5 mr-2" />
+                    {t('add_to_cart', 'Add to Cart')}
+                  </button>
+                  <button 
+                    onClick={handleBuyNow}
+                    disabled={!selectedVariation}
+                    className="flex-1 bg-black text-white py-3 rounded-md hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {t('buy_now', 'Buy Now')}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
