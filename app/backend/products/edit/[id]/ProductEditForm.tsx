@@ -128,7 +128,7 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
 
   // Add variations state
   const [productVariations, setProductVariations] = useState<ProductVariation[]>([]);
-  const [showVariations, setShowVariations] = useState(false);
+  const [showVariations, setShowVariations] = useState(true);
   
   // Fetch product data
   useEffect(() => {
@@ -142,6 +142,8 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
         }
         
         const data = await response.json();
+        console.log('ProductEditForm - Loaded product data:', data);
+        console.log('ProductEditForm - Product variations:', data.variations);
         setProduct(data);
         
         // Initialize form data from product
@@ -174,11 +176,11 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
           setGalleryPreviews(nonMainImages);
         }
         
-        // Initialize variations if they exist
-        if (data.variations && data.variations.length > 0) {
-          setProductVariations(data.variations);
-          setShowVariations(true);
-        }
+        // Always initialize variations array, whether empty or not
+        // This ensures the ProductVariations component always loads
+        setProductVariations(data.variations || []);
+        console.log('ProductEditForm - Set product variations:', data.variations || []);
+        
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load product');
         console.error('Error fetching product:', err);
@@ -1069,26 +1071,49 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
           <div className="border rounded-lg p-6 mt-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">{t('product_variations', 'Product Variations')}</h2>
-              <button
-                type="button"
-                onClick={() => setShowVariations(!showVariations)}
-                className="text-green-700 hover:text-green-900"
-              >
-                {showVariations ? t('hide_variations', 'Hide Variations') : t('show_variations', 'Show Variations')}
-              </button>
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-600">
+                  {productVariations.length} {productVariations.length === 1 ? 'variation' : 'variations'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowVariations(!showVariations)}
+                  className="text-green-700 hover:text-green-900 px-3 py-1 border border-green-700 rounded-md"
+                >
+                  {showVariations ? t('hide_variations', 'Hide Variations') : t('show_variations', 'Show Variations')}
+                </button>
+              </div>
             </div>
             
+            {/* Debug info - remove in production */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="bg-blue-50 p-3 rounded-md mb-4 text-sm">
+                <strong>Debug Info:</strong>
+                <br />Product ID: {productId}
+                <br />Variations loaded: {productVariations.length}
+                <br />Show variations: {showVariations.toString()}
+                <br />Category: {product?.category?.name || 'N/A'}
+              </div>
+            )}
+            
             {showVariations ? (
-              <ProductVariations
-                productId={productId}
-                onChange={handleVariationsChange}
-                variations={productVariations}
-              />
+              <div>
+                <ProductVariations
+                  productId={productId}
+                  onChange={handleVariationsChange}
+                  variations={productVariations}
+                />
+              </div>
             ) : (
               <div className="bg-gray-50 p-4 rounded-md">
                 <p className="text-gray-700 text-sm">
                   {t('variations_help', 'You can add variations to this product (different sizes, types, etc.). Click "Show Variations" to manage them.')}
                 </p>
+                {productVariations.length > 0 && (
+                  <p className="text-green-600 text-sm mt-2">
+                    This product currently has {productVariations.length} variation{productVariations.length !== 1 ? 's' : ''}.
+                  </p>
+                )}
               </div>
             )}
           </div>

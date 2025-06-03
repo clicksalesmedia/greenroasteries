@@ -60,6 +60,13 @@ export default function ProductVariations({
   const [beans, setBeans] = useState<VariationBeans[]>([]);
   const [variations, setVariations] = useState<ProductVariation[]>(initialVariations);
   
+  // Log for debugging
+  console.log('ProductVariations - Component mounted with:', {
+    productId,
+    initialVariations: initialVariations.length,
+    currentVariations: variations.length
+  });
+  
   // Form state for new variation
   const [selectedSizeId, setSelectedSizeId] = useState('');
   const [selectedTypeId, setSelectedTypeId] = useState('');
@@ -103,9 +110,16 @@ export default function ProductVariations({
     fetchBeans();
   }, []);
 
+  // Update variations when initialVariations prop changes
+  useEffect(() => {
+    console.log('ProductVariations - initialVariations changed:', initialVariations.length);
+    setVariations(initialVariations);
+  }, [initialVariations]);
+
   // Fetch variations if productId is provided (editing an existing product)
   useEffect(() => {
     if (productId) {
+      console.log('ProductVariations - Fetching variations for productId:', productId);
       fetchVariations();
     } else {
       setIsLoading(false);
@@ -179,6 +193,7 @@ export default function ProductVariations({
     
     try {
       setIsLoading(true);
+      console.log('ProductVariations - Fetching variations from API for productId:', productId);
       const response = await fetch(`/api/variations/products?productId=${productId}`);
       
       if (!response.ok) {
@@ -186,10 +201,18 @@ export default function ProductVariations({
       }
       
       const data = await response.json();
+      console.log('ProductVariations - API returned variations:', data.length);
       setVariations(data);
     } catch (err) {
       console.error('Error fetching variations:', err);
-      setError('Failed to load product variations');
+      console.log('ProductVariations - API failed, using initial variations:', initialVariations.length);
+      // If API fails but we have initial variations, use them
+      if (initialVariations.length > 0) {
+        setVariations(initialVariations);
+        setError(null); // Clear error since we have fallback data
+      } else {
+        setError('Failed to load product variations');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -856,45 +879,51 @@ export default function ProductVariations({
       </div>
       
       {/* List of variations */}
-      {variations.length > 0 ? (
-        <div className="overflow-x-auto border rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Weight</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Additions</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Beans</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Price</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Discount</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">SKU</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Stock</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Image</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Status</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {/* Group variations by size */}
-              {['250 g', '500 g', '1 kg'].map(sizeGroup => {
-                const sizeVariations = variations.filter(v => 
-                  v.size.displayName.toLowerCase().includes(sizeGroup.toLowerCase())
-                ).sort((a, b) => {
-                  // Sort by type first, then by beans
-                  const typeA = a.type?.name || '';
-                  const typeB = b.type?.name || '';
-                  const beansA = a.beans?.name || '';
-                  const beansB = b.beans?.name || '';
-                  
-                  if (typeA !== typeB) return typeA.localeCompare(typeB);
-                  return beansA.localeCompare(beansB);
-                });
-                
-                if (sizeVariations.length === 0) return null;
-                
-                return sizeVariations.map((variation, index) => (
+      <div className="mt-6">
+        {process.env.NODE_ENV === 'development' && (
+          <div className="bg-yellow-50 p-3 rounded-md mb-4 text-sm">
+            <strong>ProductVariations Debug:</strong>
+            <br />Variations count: {variations.length}
+            <br />Initial variations: {initialVariations.length}
+            <br />Product ID: {productId || 'none'}
+            <br />Is loading: {isLoading.toString()}
+            <br />Error: {error || 'none'}
+            {variations.length > 0 && (
+              <>
+                <br />First variation: {JSON.stringify({
+                  id: variations[0].id,
+                  size: variations[0].size?.displayName,
+                  price: variations[0].price,
+                  stockQuantity: variations[0].stockQuantity
+                })}
+              </>
+            )}
+          </div>
+        )}
+        
+        {variations.length > 0 ? (
+          <div className="overflow-x-auto border rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Weight</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Additions</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Beans</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Price</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Discount</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">SKU</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Stock</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Image</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Status</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {/* Show all variations, not just specific size groups */}
+                {variations.map((variation, index) => (
                   <tr 
                     key={variation.id} 
-                    className={`hover:bg-gray-50 ${index === 0 ? 'border-t-2 border-gray-300' : ''}`}
+                    className="hover:bg-gray-50"
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                       {editingVariationId === variation.id ? (
@@ -1148,16 +1177,16 @@ export default function ProductVariations({
                       )}
                     </td>
                   </tr>
-                ));
-              })}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="bg-yellow-50 text-yellow-700 p-4 rounded-md">
-          No variations added yet. Add at least one variation above.
-        </div>
-      )}
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="bg-yellow-50 text-yellow-700 p-4 rounded-md">
+            No variations added yet. Add at least one variation above.
+          </div>
+        )}
+      </div>
     </div>
   );
 } 
