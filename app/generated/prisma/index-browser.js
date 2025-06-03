@@ -425,6 +425,165 @@ exports.Prisma.EmailSubscriberScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.TrackingConfigurationScalarFieldEnum = {
+  id: 'id',
+  gtmEnabled: 'gtmEnabled',
+  gtmContainerId: 'gtmContainerId',
+  gtmStatus: 'gtmStatus',
+  ga4Enabled: 'ga4Enabled',
+  ga4MeasurementId: 'ga4MeasurementId',
+  ga4ApiSecret: 'ga4ApiSecret',
+  ga4Status: 'ga4Status',
+  metaEnabled: 'metaEnabled',
+  metaPixelId: 'metaPixelId',
+  metaAccessToken: 'metaAccessToken',
+  metaStatus: 'metaStatus',
+  googleAdsEnabled: 'googleAdsEnabled',
+  googleAdsConversionId: 'googleAdsConversionId',
+  googleAdsConversionLabel: 'googleAdsConversionLabel',
+  googleAdsCustomerId: 'googleAdsCustomerId',
+  googleAdsAccessToken: 'googleAdsAccessToken',
+  googleAdsStatus: 'googleAdsStatus',
+  serverSideEnabled: 'serverSideEnabled',
+  facebookConversionsApi: 'facebookConversionsApi',
+  googleConversionsApi: 'googleConversionsApi',
+  serverSideStatus: 'serverSideStatus',
+  dataRetentionDays: 'dataRetentionDays',
+  anonymizeIp: 'anonymizeIp',
+  cookieConsent: 'cookieConsent',
+  debugMode: 'debugMode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TrackingEventScalarFieldEnum = {
+  id: 'id',
+  configId: 'configId',
+  sessionId: 'sessionId',
+  userId: 'userId',
+  eventName: 'eventName',
+  eventType: 'eventType',
+  platform: 'platform',
+  eventData: 'eventData',
+  userAgent: 'userAgent',
+  ipAddress: 'ipAddress',
+  referrer: 'referrer',
+  pageUrl: 'pageUrl',
+  pageTitle: 'pageTitle',
+  transactionId: 'transactionId',
+  value: 'value',
+  currency: 'currency',
+  items: 'items',
+  conversionValue: 'conversionValue',
+  conversionType: 'conversionType',
+  timestamp: 'timestamp',
+  clientTimestamp: 'clientTimestamp',
+  processed: 'processed',
+  processingError: 'processingError'
+};
+
+exports.Prisma.CustomEventScalarFieldEnum = {
+  id: 'id',
+  configId: 'configId',
+  name: 'name',
+  displayName: 'displayName',
+  description: 'description',
+  category: 'category',
+  isActive: 'isActive',
+  triggers: 'triggers',
+  parameters: 'parameters',
+  conversionValue: 'conversionValue',
+  trackGA4: 'trackGA4',
+  trackFacebook: 'trackFacebook',
+  trackGoogleAds: 'trackGoogleAds',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CustomEventInstanceScalarFieldEnum = {
+  id: 'id',
+  customEventId: 'customEventId',
+  sessionId: 'sessionId',
+  userId: 'userId',
+  parameters: 'parameters',
+  value: 'value',
+  currency: 'currency',
+  pageUrl: 'pageUrl',
+  timestamp: 'timestamp'
+};
+
+exports.Prisma.AnalyticsScalarFieldEnum = {
+  id: 'id',
+  configId: 'configId',
+  date: 'date',
+  pageViews: 'pageViews',
+  uniqueVisitors: 'uniqueVisitors',
+  sessions: 'sessions',
+  bounceRate: 'bounceRate',
+  avgSessionDuration: 'avgSessionDuration',
+  transactions: 'transactions',
+  revenue: 'revenue',
+  averageOrderValue: 'averageOrderValue',
+  conversionRate: 'conversionRate',
+  customEvents: 'customEvents',
+  addToCarts: 'addToCarts',
+  checkouts: 'checkouts',
+  organicTraffic: 'organicTraffic',
+  paidTraffic: 'paidTraffic',
+  socialTraffic: 'socialTraffic',
+  directTraffic: 'directTraffic',
+  referralTraffic: 'referralTraffic',
+  desktopUsers: 'desktopUsers',
+  mobileUsers: 'mobileUsers',
+  tabletUsers: 'tabletUsers',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ConversionFunnelScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  steps: 'steps',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FunnelSessionScalarFieldEnum = {
+  id: 'id',
+  funnelId: 'funnelId',
+  sessionId: 'sessionId',
+  userId: 'userId',
+  currentStep: 'currentStep',
+  completed: 'completed',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  duration: 'duration',
+  stepData: 'stepData'
+};
+
+exports.Prisma.UserSessionScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  userId: 'userId',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  country: 'country',
+  city: 'city',
+  device: 'device',
+  browser: 'browser',
+  os: 'os',
+  landingPage: 'landingPage',
+  exitPage: 'exitPage',
+  pageViews: 'pageViews',
+  duration: 'duration',
+  cartValue: 'cartValue',
+  purchased: 'purchased',
+  firstSeen: 'firstSeen',
+  lastSeen: 'lastSeen'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -432,6 +591,10 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -513,6 +676,44 @@ exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
   COMPLAINED: 'COMPLAINED'
 };
 
+exports.TrackingStatus = exports.$Enums.TrackingStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  ERROR: 'ERROR',
+  TESTING: 'TESTING'
+};
+
+exports.TrackingEventType = exports.$Enums.TrackingEventType = {
+  PAGE_VIEW: 'PAGE_VIEW',
+  CLICK: 'CLICK',
+  FORM_SUBMIT: 'FORM_SUBMIT',
+  PURCHASE: 'PURCHASE',
+  ADD_TO_CART: 'ADD_TO_CART',
+  REMOVE_FROM_CART: 'REMOVE_FROM_CART',
+  BEGIN_CHECKOUT: 'BEGIN_CHECKOUT',
+  ADD_PAYMENT_INFO: 'ADD_PAYMENT_INFO',
+  SIGN_UP: 'SIGN_UP',
+  LOGIN: 'LOGIN',
+  SEARCH: 'SEARCH',
+  VIEW_ITEM: 'VIEW_ITEM',
+  VIEW_CATEGORY: 'VIEW_CATEGORY',
+  ADD_TO_WISHLIST: 'ADD_TO_WISHLIST',
+  SHARE: 'SHARE',
+  DOWNLOAD: 'DOWNLOAD',
+  VIDEO_PLAY: 'VIDEO_PLAY',
+  VIDEO_COMPLETE: 'VIDEO_COMPLETE',
+  CUSTOM: 'CUSTOM'
+};
+
+exports.TrackingPlatform = exports.$Enums.TrackingPlatform = {
+  GA4: 'GA4',
+  FACEBOOK_PIXEL: 'FACEBOOK_PIXEL',
+  GOOGLE_ADS: 'GOOGLE_ADS',
+  GTM: 'GTM',
+  SERVER_SIDE: 'SERVER_SIDE',
+  CUSTOM: 'CUSTOM'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Permission: 'Permission',
@@ -534,7 +735,15 @@ exports.Prisma.ModelName = {
   OfferBanner: 'OfferBanner',
   PageContent: 'PageContent',
   Contact: 'Contact',
-  EmailSubscriber: 'EmailSubscriber'
+  EmailSubscriber: 'EmailSubscriber',
+  TrackingConfiguration: 'TrackingConfiguration',
+  TrackingEvent: 'TrackingEvent',
+  CustomEvent: 'CustomEvent',
+  CustomEventInstance: 'CustomEventInstance',
+  Analytics: 'Analytics',
+  ConversionFunnel: 'ConversionFunnel',
+  FunnelSession: 'FunnelSession',
+  UserSession: 'UserSession'
 };
 
 /**

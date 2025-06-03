@@ -118,6 +118,46 @@ export type Contact = $Result.DefaultSelection<Prisma.$ContactPayload>
  * 
  */
 export type EmailSubscriber = $Result.DefaultSelection<Prisma.$EmailSubscriberPayload>
+/**
+ * Model TrackingConfiguration
+ * 
+ */
+export type TrackingConfiguration = $Result.DefaultSelection<Prisma.$TrackingConfigurationPayload>
+/**
+ * Model TrackingEvent
+ * 
+ */
+export type TrackingEvent = $Result.DefaultSelection<Prisma.$TrackingEventPayload>
+/**
+ * Model CustomEvent
+ * 
+ */
+export type CustomEvent = $Result.DefaultSelection<Prisma.$CustomEventPayload>
+/**
+ * Model CustomEventInstance
+ * 
+ */
+export type CustomEventInstance = $Result.DefaultSelection<Prisma.$CustomEventInstancePayload>
+/**
+ * Model Analytics
+ * 
+ */
+export type Analytics = $Result.DefaultSelection<Prisma.$AnalyticsPayload>
+/**
+ * Model ConversionFunnel
+ * 
+ */
+export type ConversionFunnel = $Result.DefaultSelection<Prisma.$ConversionFunnelPayload>
+/**
+ * Model FunnelSession
+ * 
+ */
+export type FunnelSession = $Result.DefaultSelection<Prisma.$FunnelSessionPayload>
+/**
+ * Model UserSession
+ * 
+ */
+export type UserSession = $Result.DefaultSelection<Prisma.$UserSessionPayload>
 
 /**
  * Enums
@@ -209,6 +249,53 @@ export const SubscriptionStatus: {
 
 export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]
 
+
+export const TrackingStatus: {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  ERROR: 'ERROR',
+  TESTING: 'TESTING'
+};
+
+export type TrackingStatus = (typeof TrackingStatus)[keyof typeof TrackingStatus]
+
+
+export const TrackingEventType: {
+  PAGE_VIEW: 'PAGE_VIEW',
+  CLICK: 'CLICK',
+  FORM_SUBMIT: 'FORM_SUBMIT',
+  PURCHASE: 'PURCHASE',
+  ADD_TO_CART: 'ADD_TO_CART',
+  REMOVE_FROM_CART: 'REMOVE_FROM_CART',
+  BEGIN_CHECKOUT: 'BEGIN_CHECKOUT',
+  ADD_PAYMENT_INFO: 'ADD_PAYMENT_INFO',
+  SIGN_UP: 'SIGN_UP',
+  LOGIN: 'LOGIN',
+  SEARCH: 'SEARCH',
+  VIEW_ITEM: 'VIEW_ITEM',
+  VIEW_CATEGORY: 'VIEW_CATEGORY',
+  ADD_TO_WISHLIST: 'ADD_TO_WISHLIST',
+  SHARE: 'SHARE',
+  DOWNLOAD: 'DOWNLOAD',
+  VIDEO_PLAY: 'VIDEO_PLAY',
+  VIDEO_COMPLETE: 'VIDEO_COMPLETE',
+  CUSTOM: 'CUSTOM'
+};
+
+export type TrackingEventType = (typeof TrackingEventType)[keyof typeof TrackingEventType]
+
+
+export const TrackingPlatform: {
+  GA4: 'GA4',
+  FACEBOOK_PIXEL: 'FACEBOOK_PIXEL',
+  GOOGLE_ADS: 'GOOGLE_ADS',
+  GTM: 'GTM',
+  SERVER_SIDE: 'SERVER_SIDE',
+  CUSTOM: 'CUSTOM'
+};
+
+export type TrackingPlatform = (typeof TrackingPlatform)[keyof typeof TrackingPlatform]
+
 }
 
 export type UserRole = $Enums.UserRole
@@ -242,6 +329,18 @@ export const ContactStatus: typeof $Enums.ContactStatus
 export type SubscriptionStatus = $Enums.SubscriptionStatus
 
 export const SubscriptionStatus: typeof $Enums.SubscriptionStatus
+
+export type TrackingStatus = $Enums.TrackingStatus
+
+export const TrackingStatus: typeof $Enums.TrackingStatus
+
+export type TrackingEventType = $Enums.TrackingEventType
+
+export const TrackingEventType: typeof $Enums.TrackingEventType
+
+export type TrackingPlatform = $Enums.TrackingPlatform
+
+export const TrackingPlatform: typeof $Enums.TrackingPlatform
 
 /**
  * ##  Prisma Client ʲˢ
@@ -577,6 +676,86 @@ export class PrismaClient<
     * ```
     */
   get emailSubscriber(): Prisma.EmailSubscriberDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.trackingConfiguration`: Exposes CRUD operations for the **TrackingConfiguration** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TrackingConfigurations
+    * const trackingConfigurations = await prisma.trackingConfiguration.findMany()
+    * ```
+    */
+  get trackingConfiguration(): Prisma.TrackingConfigurationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.trackingEvent`: Exposes CRUD operations for the **TrackingEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TrackingEvents
+    * const trackingEvents = await prisma.trackingEvent.findMany()
+    * ```
+    */
+  get trackingEvent(): Prisma.TrackingEventDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.customEvent`: Exposes CRUD operations for the **CustomEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CustomEvents
+    * const customEvents = await prisma.customEvent.findMany()
+    * ```
+    */
+  get customEvent(): Prisma.CustomEventDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.customEventInstance`: Exposes CRUD operations for the **CustomEventInstance** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CustomEventInstances
+    * const customEventInstances = await prisma.customEventInstance.findMany()
+    * ```
+    */
+  get customEventInstance(): Prisma.CustomEventInstanceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.analytics`: Exposes CRUD operations for the **Analytics** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Analytics
+    * const analytics = await prisma.analytics.findMany()
+    * ```
+    */
+  get analytics(): Prisma.AnalyticsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.conversionFunnel`: Exposes CRUD operations for the **ConversionFunnel** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ConversionFunnels
+    * const conversionFunnels = await prisma.conversionFunnel.findMany()
+    * ```
+    */
+  get conversionFunnel(): Prisma.ConversionFunnelDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.funnelSession`: Exposes CRUD operations for the **FunnelSession** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FunnelSessions
+    * const funnelSessions = await prisma.funnelSession.findMany()
+    * ```
+    */
+  get funnelSession(): Prisma.FunnelSessionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userSession`: Exposes CRUD operations for the **UserSession** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserSessions
+    * const userSessions = await prisma.userSession.findMany()
+    * ```
+    */
+  get userSession(): Prisma.UserSessionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1037,7 +1216,15 @@ export namespace Prisma {
     OfferBanner: 'OfferBanner',
     PageContent: 'PageContent',
     Contact: 'Contact',
-    EmailSubscriber: 'EmailSubscriber'
+    EmailSubscriber: 'EmailSubscriber',
+    TrackingConfiguration: 'TrackingConfiguration',
+    TrackingEvent: 'TrackingEvent',
+    CustomEvent: 'CustomEvent',
+    CustomEventInstance: 'CustomEventInstance',
+    Analytics: 'Analytics',
+    ConversionFunnel: 'ConversionFunnel',
+    FunnelSession: 'FunnelSession',
+    UserSession: 'UserSession'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1056,7 +1243,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "permission" | "category" | "product" | "productImage" | "variationSize" | "variationType" | "variationBeans" | "productVariation" | "order" | "orderItem" | "payment" | "shippingRule" | "promotion" | "productPromotion" | "bundleItem" | "slider" | "offerBanner" | "pageContent" | "contact" | "emailSubscriber"
+      modelProps: "user" | "permission" | "category" | "product" | "productImage" | "variationSize" | "variationType" | "variationBeans" | "productVariation" | "order" | "orderItem" | "payment" | "shippingRule" | "promotion" | "productPromotion" | "bundleItem" | "slider" | "offerBanner" | "pageContent" | "contact" | "emailSubscriber" | "trackingConfiguration" | "trackingEvent" | "customEvent" | "customEventInstance" | "analytics" | "conversionFunnel" | "funnelSession" | "userSession"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2614,6 +2801,598 @@ export namespace Prisma {
           }
         }
       }
+      TrackingConfiguration: {
+        payload: Prisma.$TrackingConfigurationPayload<ExtArgs>
+        fields: Prisma.TrackingConfigurationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TrackingConfigurationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingConfigurationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TrackingConfigurationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingConfigurationPayload>
+          }
+          findFirst: {
+            args: Prisma.TrackingConfigurationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingConfigurationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TrackingConfigurationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingConfigurationPayload>
+          }
+          findMany: {
+            args: Prisma.TrackingConfigurationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingConfigurationPayload>[]
+          }
+          create: {
+            args: Prisma.TrackingConfigurationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingConfigurationPayload>
+          }
+          createMany: {
+            args: Prisma.TrackingConfigurationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TrackingConfigurationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingConfigurationPayload>[]
+          }
+          delete: {
+            args: Prisma.TrackingConfigurationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingConfigurationPayload>
+          }
+          update: {
+            args: Prisma.TrackingConfigurationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingConfigurationPayload>
+          }
+          deleteMany: {
+            args: Prisma.TrackingConfigurationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TrackingConfigurationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TrackingConfigurationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingConfigurationPayload>[]
+          }
+          upsert: {
+            args: Prisma.TrackingConfigurationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingConfigurationPayload>
+          }
+          aggregate: {
+            args: Prisma.TrackingConfigurationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTrackingConfiguration>
+          }
+          groupBy: {
+            args: Prisma.TrackingConfigurationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TrackingConfigurationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TrackingConfigurationCountArgs<ExtArgs>
+            result: $Utils.Optional<TrackingConfigurationCountAggregateOutputType> | number
+          }
+        }
+      }
+      TrackingEvent: {
+        payload: Prisma.$TrackingEventPayload<ExtArgs>
+        fields: Prisma.TrackingEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TrackingEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TrackingEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingEventPayload>
+          }
+          findFirst: {
+            args: Prisma.TrackingEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TrackingEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingEventPayload>
+          }
+          findMany: {
+            args: Prisma.TrackingEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingEventPayload>[]
+          }
+          create: {
+            args: Prisma.TrackingEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingEventPayload>
+          }
+          createMany: {
+            args: Prisma.TrackingEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TrackingEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingEventPayload>[]
+          }
+          delete: {
+            args: Prisma.TrackingEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingEventPayload>
+          }
+          update: {
+            args: Prisma.TrackingEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.TrackingEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TrackingEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TrackingEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.TrackingEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackingEventPayload>
+          }
+          aggregate: {
+            args: Prisma.TrackingEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTrackingEvent>
+          }
+          groupBy: {
+            args: Prisma.TrackingEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TrackingEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TrackingEventCountArgs<ExtArgs>
+            result: $Utils.Optional<TrackingEventCountAggregateOutputType> | number
+          }
+        }
+      }
+      CustomEvent: {
+        payload: Prisma.$CustomEventPayload<ExtArgs>
+        fields: Prisma.CustomEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CustomEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CustomEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventPayload>
+          }
+          findFirst: {
+            args: Prisma.CustomEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CustomEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventPayload>
+          }
+          findMany: {
+            args: Prisma.CustomEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventPayload>[]
+          }
+          create: {
+            args: Prisma.CustomEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventPayload>
+          }
+          createMany: {
+            args: Prisma.CustomEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CustomEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventPayload>[]
+          }
+          delete: {
+            args: Prisma.CustomEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventPayload>
+          }
+          update: {
+            args: Prisma.CustomEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.CustomEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CustomEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CustomEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.CustomEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventPayload>
+          }
+          aggregate: {
+            args: Prisma.CustomEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCustomEvent>
+          }
+          groupBy: {
+            args: Prisma.CustomEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CustomEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CustomEventCountArgs<ExtArgs>
+            result: $Utils.Optional<CustomEventCountAggregateOutputType> | number
+          }
+        }
+      }
+      CustomEventInstance: {
+        payload: Prisma.$CustomEventInstancePayload<ExtArgs>
+        fields: Prisma.CustomEventInstanceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CustomEventInstanceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventInstancePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CustomEventInstanceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventInstancePayload>
+          }
+          findFirst: {
+            args: Prisma.CustomEventInstanceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventInstancePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CustomEventInstanceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventInstancePayload>
+          }
+          findMany: {
+            args: Prisma.CustomEventInstanceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventInstancePayload>[]
+          }
+          create: {
+            args: Prisma.CustomEventInstanceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventInstancePayload>
+          }
+          createMany: {
+            args: Prisma.CustomEventInstanceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CustomEventInstanceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventInstancePayload>[]
+          }
+          delete: {
+            args: Prisma.CustomEventInstanceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventInstancePayload>
+          }
+          update: {
+            args: Prisma.CustomEventInstanceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventInstancePayload>
+          }
+          deleteMany: {
+            args: Prisma.CustomEventInstanceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CustomEventInstanceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CustomEventInstanceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventInstancePayload>[]
+          }
+          upsert: {
+            args: Prisma.CustomEventInstanceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomEventInstancePayload>
+          }
+          aggregate: {
+            args: Prisma.CustomEventInstanceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCustomEventInstance>
+          }
+          groupBy: {
+            args: Prisma.CustomEventInstanceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CustomEventInstanceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CustomEventInstanceCountArgs<ExtArgs>
+            result: $Utils.Optional<CustomEventInstanceCountAggregateOutputType> | number
+          }
+        }
+      }
+      Analytics: {
+        payload: Prisma.$AnalyticsPayload<ExtArgs>
+        fields: Prisma.AnalyticsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AnalyticsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AnalyticsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsPayload>
+          }
+          findFirst: {
+            args: Prisma.AnalyticsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AnalyticsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsPayload>
+          }
+          findMany: {
+            args: Prisma.AnalyticsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsPayload>[]
+          }
+          create: {
+            args: Prisma.AnalyticsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsPayload>
+          }
+          createMany: {
+            args: Prisma.AnalyticsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AnalyticsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsPayload>[]
+          }
+          delete: {
+            args: Prisma.AnalyticsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsPayload>
+          }
+          update: {
+            args: Prisma.AnalyticsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsPayload>
+          }
+          deleteMany: {
+            args: Prisma.AnalyticsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AnalyticsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AnalyticsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsPayload>[]
+          }
+          upsert: {
+            args: Prisma.AnalyticsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsPayload>
+          }
+          aggregate: {
+            args: Prisma.AnalyticsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAnalytics>
+          }
+          groupBy: {
+            args: Prisma.AnalyticsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AnalyticsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AnalyticsCountArgs<ExtArgs>
+            result: $Utils.Optional<AnalyticsCountAggregateOutputType> | number
+          }
+        }
+      }
+      ConversionFunnel: {
+        payload: Prisma.$ConversionFunnelPayload<ExtArgs>
+        fields: Prisma.ConversionFunnelFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ConversionFunnelFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversionFunnelPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ConversionFunnelFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversionFunnelPayload>
+          }
+          findFirst: {
+            args: Prisma.ConversionFunnelFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversionFunnelPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ConversionFunnelFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversionFunnelPayload>
+          }
+          findMany: {
+            args: Prisma.ConversionFunnelFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversionFunnelPayload>[]
+          }
+          create: {
+            args: Prisma.ConversionFunnelCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversionFunnelPayload>
+          }
+          createMany: {
+            args: Prisma.ConversionFunnelCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ConversionFunnelCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversionFunnelPayload>[]
+          }
+          delete: {
+            args: Prisma.ConversionFunnelDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversionFunnelPayload>
+          }
+          update: {
+            args: Prisma.ConversionFunnelUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversionFunnelPayload>
+          }
+          deleteMany: {
+            args: Prisma.ConversionFunnelDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ConversionFunnelUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ConversionFunnelUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversionFunnelPayload>[]
+          }
+          upsert: {
+            args: Prisma.ConversionFunnelUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversionFunnelPayload>
+          }
+          aggregate: {
+            args: Prisma.ConversionFunnelAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateConversionFunnel>
+          }
+          groupBy: {
+            args: Prisma.ConversionFunnelGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ConversionFunnelGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ConversionFunnelCountArgs<ExtArgs>
+            result: $Utils.Optional<ConversionFunnelCountAggregateOutputType> | number
+          }
+        }
+      }
+      FunnelSession: {
+        payload: Prisma.$FunnelSessionPayload<ExtArgs>
+        fields: Prisma.FunnelSessionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FunnelSessionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FunnelSessionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FunnelSessionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FunnelSessionPayload>
+          }
+          findFirst: {
+            args: Prisma.FunnelSessionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FunnelSessionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FunnelSessionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FunnelSessionPayload>
+          }
+          findMany: {
+            args: Prisma.FunnelSessionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FunnelSessionPayload>[]
+          }
+          create: {
+            args: Prisma.FunnelSessionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FunnelSessionPayload>
+          }
+          createMany: {
+            args: Prisma.FunnelSessionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FunnelSessionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FunnelSessionPayload>[]
+          }
+          delete: {
+            args: Prisma.FunnelSessionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FunnelSessionPayload>
+          }
+          update: {
+            args: Prisma.FunnelSessionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FunnelSessionPayload>
+          }
+          deleteMany: {
+            args: Prisma.FunnelSessionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FunnelSessionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FunnelSessionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FunnelSessionPayload>[]
+          }
+          upsert: {
+            args: Prisma.FunnelSessionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FunnelSessionPayload>
+          }
+          aggregate: {
+            args: Prisma.FunnelSessionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFunnelSession>
+          }
+          groupBy: {
+            args: Prisma.FunnelSessionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FunnelSessionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FunnelSessionCountArgs<ExtArgs>
+            result: $Utils.Optional<FunnelSessionCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserSession: {
+        payload: Prisma.$UserSessionPayload<ExtArgs>
+        fields: Prisma.UserSessionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserSessionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserSessionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>
+          }
+          findFirst: {
+            args: Prisma.UserSessionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserSessionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>
+          }
+          findMany: {
+            args: Prisma.UserSessionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>[]
+          }
+          create: {
+            args: Prisma.UserSessionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>
+          }
+          createMany: {
+            args: Prisma.UserSessionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserSessionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>[]
+          }
+          delete: {
+            args: Prisma.UserSessionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>
+          }
+          update: {
+            args: Prisma.UserSessionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserSessionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserSessionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserSessionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>[]
+          }
+          upsert: {
+            args: Prisma.UserSessionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>
+          }
+          aggregate: {
+            args: Prisma.UserSessionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserSession>
+          }
+          groupBy: {
+            args: Prisma.UserSessionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserSessionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserSessionCountArgs<ExtArgs>
+            result: $Utils.Optional<UserSessionCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2719,6 +3498,14 @@ export namespace Prisma {
     pageContent?: PageContentOmit
     contact?: ContactOmit
     emailSubscriber?: EmailSubscriberOmit
+    trackingConfiguration?: TrackingConfigurationOmit
+    trackingEvent?: TrackingEventOmit
+    customEvent?: CustomEventOmit
+    customEventInstance?: CustomEventInstanceOmit
+    analytics?: AnalyticsOmit
+    conversionFunnel?: ConversionFunnelOmit
+    funnelSession?: FunnelSessionOmit
+    userSession?: UserSessionOmit
   }
 
   /* Types for Logging */
@@ -2816,12 +3603,20 @@ export namespace Prisma {
     orders: number
     permissions: number
     payments: number
+    trackingEvents: number
+    customEventInstances: number
+    funnelSessions: number
+    userSessions: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     orders?: boolean | UserCountOutputTypeCountOrdersArgs
     permissions?: boolean | UserCountOutputTypeCountPermissionsArgs
     payments?: boolean | UserCountOutputTypeCountPaymentsArgs
+    trackingEvents?: boolean | UserCountOutputTypeCountTrackingEventsArgs
+    customEventInstances?: boolean | UserCountOutputTypeCountCustomEventInstancesArgs
+    funnelSessions?: boolean | UserCountOutputTypeCountFunnelSessionsArgs
+    userSessions?: boolean | UserCountOutputTypeCountUserSessionsArgs
   }
 
   // Custom InputTypes
@@ -2854,6 +3649,34 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PaymentWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountTrackingEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TrackingEventWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCustomEventInstancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomEventInstanceWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountFunnelSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FunnelSessionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountUserSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserSessionWhereInput
   }
 
 
@@ -3138,6 +3961,148 @@ export namespace Prisma {
 
 
   /**
+   * Count Type TrackingConfigurationCountOutputType
+   */
+
+  export type TrackingConfigurationCountOutputType = {
+    events: number
+    customEvents: number
+    analytics: number
+  }
+
+  export type TrackingConfigurationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    events?: boolean | TrackingConfigurationCountOutputTypeCountEventsArgs
+    customEvents?: boolean | TrackingConfigurationCountOutputTypeCountCustomEventsArgs
+    analytics?: boolean | TrackingConfigurationCountOutputTypeCountAnalyticsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TrackingConfigurationCountOutputType without action
+   */
+  export type TrackingConfigurationCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingConfigurationCountOutputType
+     */
+    select?: TrackingConfigurationCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TrackingConfigurationCountOutputType without action
+   */
+  export type TrackingConfigurationCountOutputTypeCountEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TrackingEventWhereInput
+  }
+
+  /**
+   * TrackingConfigurationCountOutputType without action
+   */
+  export type TrackingConfigurationCountOutputTypeCountCustomEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomEventWhereInput
+  }
+
+  /**
+   * TrackingConfigurationCountOutputType without action
+   */
+  export type TrackingConfigurationCountOutputTypeCountAnalyticsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AnalyticsWhereInput
+  }
+
+
+  /**
+   * Count Type CustomEventCountOutputType
+   */
+
+  export type CustomEventCountOutputType = {
+    instances: number
+  }
+
+  export type CustomEventCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    instances?: boolean | CustomEventCountOutputTypeCountInstancesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * CustomEventCountOutputType without action
+   */
+  export type CustomEventCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventCountOutputType
+     */
+    select?: CustomEventCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * CustomEventCountOutputType without action
+   */
+  export type CustomEventCountOutputTypeCountInstancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomEventInstanceWhereInput
+  }
+
+
+  /**
+   * Count Type ConversionFunnelCountOutputType
+   */
+
+  export type ConversionFunnelCountOutputType = {
+    sessions: number
+  }
+
+  export type ConversionFunnelCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    sessions?: boolean | ConversionFunnelCountOutputTypeCountSessionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ConversionFunnelCountOutputType without action
+   */
+  export type ConversionFunnelCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversionFunnelCountOutputType
+     */
+    select?: ConversionFunnelCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ConversionFunnelCountOutputType without action
+   */
+  export type ConversionFunnelCountOutputTypeCountSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FunnelSessionWhereInput
+  }
+
+
+  /**
+   * Count Type UserSessionCountOutputType
+   */
+
+  export type UserSessionCountOutputType = {
+    events: number
+  }
+
+  export type UserSessionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    events?: boolean | UserSessionCountOutputTypeCountEventsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * UserSessionCountOutputType without action
+   */
+  export type UserSessionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSessionCountOutputType
+     */
+    select?: UserSessionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * UserSessionCountOutputType without action
+   */
+  export type UserSessionCountOutputTypeCountEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TrackingEventWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -3396,6 +4361,10 @@ export namespace Prisma {
     orders?: boolean | User$ordersArgs<ExtArgs>
     permissions?: boolean | User$permissionsArgs<ExtArgs>
     payments?: boolean | User$paymentsArgs<ExtArgs>
+    trackingEvents?: boolean | User$trackingEventsArgs<ExtArgs>
+    customEventInstances?: boolean | User$customEventInstancesArgs<ExtArgs>
+    funnelSessions?: boolean | User$funnelSessionsArgs<ExtArgs>
+    userSessions?: boolean | User$userSessionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -3461,6 +4430,10 @@ export namespace Prisma {
     orders?: boolean | User$ordersArgs<ExtArgs>
     permissions?: boolean | User$permissionsArgs<ExtArgs>
     payments?: boolean | User$paymentsArgs<ExtArgs>
+    trackingEvents?: boolean | User$trackingEventsArgs<ExtArgs>
+    customEventInstances?: boolean | User$customEventInstancesArgs<ExtArgs>
+    funnelSessions?: boolean | User$funnelSessionsArgs<ExtArgs>
+    userSessions?: boolean | User$userSessionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -3472,6 +4445,10 @@ export namespace Prisma {
       orders: Prisma.$OrderPayload<ExtArgs>[]
       permissions: Prisma.$PermissionPayload<ExtArgs>[]
       payments: Prisma.$PaymentPayload<ExtArgs>[]
+      trackingEvents: Prisma.$TrackingEventPayload<ExtArgs>[]
+      customEventInstances: Prisma.$CustomEventInstancePayload<ExtArgs>[]
+      funnelSessions: Prisma.$FunnelSessionPayload<ExtArgs>[]
+      userSessions: Prisma.$UserSessionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3887,6 +4864,10 @@ export namespace Prisma {
     orders<T extends User$ordersArgs<ExtArgs> = {}>(args?: Subset<T, User$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     permissions<T extends User$permissionsArgs<ExtArgs> = {}>(args?: Subset<T, User$permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     payments<T extends User$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, User$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    trackingEvents<T extends User$trackingEventsArgs<ExtArgs> = {}>(args?: Subset<T, User$trackingEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    customEventInstances<T extends User$customEventInstancesArgs<ExtArgs> = {}>(args?: Subset<T, User$customEventInstancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomEventInstancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    funnelSessions<T extends User$funnelSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$funnelSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FunnelSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userSessions<T extends User$userSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$userSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4389,6 +5370,102 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PaymentScalarFieldEnum | PaymentScalarFieldEnum[]
+  }
+
+  /**
+   * User.trackingEvents
+   */
+  export type User$trackingEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventInclude<ExtArgs> | null
+    where?: TrackingEventWhereInput
+    orderBy?: TrackingEventOrderByWithRelationInput | TrackingEventOrderByWithRelationInput[]
+    cursor?: TrackingEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TrackingEventScalarFieldEnum | TrackingEventScalarFieldEnum[]
+  }
+
+  /**
+   * User.customEventInstances
+   */
+  export type User$customEventInstancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceInclude<ExtArgs> | null
+    where?: CustomEventInstanceWhereInput
+    orderBy?: CustomEventInstanceOrderByWithRelationInput | CustomEventInstanceOrderByWithRelationInput[]
+    cursor?: CustomEventInstanceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CustomEventInstanceScalarFieldEnum | CustomEventInstanceScalarFieldEnum[]
+  }
+
+  /**
+   * User.funnelSessions
+   */
+  export type User$funnelSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionInclude<ExtArgs> | null
+    where?: FunnelSessionWhereInput
+    orderBy?: FunnelSessionOrderByWithRelationInput | FunnelSessionOrderByWithRelationInput[]
+    cursor?: FunnelSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FunnelSessionScalarFieldEnum | FunnelSessionScalarFieldEnum[]
+  }
+
+  /**
+   * User.userSessions
+   */
+  export type User$userSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    where?: UserSessionWhereInput
+    orderBy?: UserSessionOrderByWithRelationInput | UserSessionOrderByWithRelationInput[]
+    cursor?: UserSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserSessionScalarFieldEnum | UserSessionScalarFieldEnum[]
   }
 
   /**
@@ -27766,6 +28843,10274 @@ export namespace Prisma {
 
 
   /**
+   * Model TrackingConfiguration
+   */
+
+  export type AggregateTrackingConfiguration = {
+    _count: TrackingConfigurationCountAggregateOutputType | null
+    _avg: TrackingConfigurationAvgAggregateOutputType | null
+    _sum: TrackingConfigurationSumAggregateOutputType | null
+    _min: TrackingConfigurationMinAggregateOutputType | null
+    _max: TrackingConfigurationMaxAggregateOutputType | null
+  }
+
+  export type TrackingConfigurationAvgAggregateOutputType = {
+    dataRetentionDays: number | null
+  }
+
+  export type TrackingConfigurationSumAggregateOutputType = {
+    dataRetentionDays: number | null
+  }
+
+  export type TrackingConfigurationMinAggregateOutputType = {
+    id: string | null
+    gtmEnabled: boolean | null
+    gtmContainerId: string | null
+    gtmStatus: $Enums.TrackingStatus | null
+    ga4Enabled: boolean | null
+    ga4MeasurementId: string | null
+    ga4ApiSecret: string | null
+    ga4Status: $Enums.TrackingStatus | null
+    metaEnabled: boolean | null
+    metaPixelId: string | null
+    metaAccessToken: string | null
+    metaStatus: $Enums.TrackingStatus | null
+    googleAdsEnabled: boolean | null
+    googleAdsConversionId: string | null
+    googleAdsConversionLabel: string | null
+    googleAdsCustomerId: string | null
+    googleAdsAccessToken: string | null
+    googleAdsStatus: $Enums.TrackingStatus | null
+    serverSideEnabled: boolean | null
+    facebookConversionsApi: boolean | null
+    googleConversionsApi: boolean | null
+    serverSideStatus: $Enums.TrackingStatus | null
+    dataRetentionDays: number | null
+    anonymizeIp: boolean | null
+    cookieConsent: boolean | null
+    debugMode: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TrackingConfigurationMaxAggregateOutputType = {
+    id: string | null
+    gtmEnabled: boolean | null
+    gtmContainerId: string | null
+    gtmStatus: $Enums.TrackingStatus | null
+    ga4Enabled: boolean | null
+    ga4MeasurementId: string | null
+    ga4ApiSecret: string | null
+    ga4Status: $Enums.TrackingStatus | null
+    metaEnabled: boolean | null
+    metaPixelId: string | null
+    metaAccessToken: string | null
+    metaStatus: $Enums.TrackingStatus | null
+    googleAdsEnabled: boolean | null
+    googleAdsConversionId: string | null
+    googleAdsConversionLabel: string | null
+    googleAdsCustomerId: string | null
+    googleAdsAccessToken: string | null
+    googleAdsStatus: $Enums.TrackingStatus | null
+    serverSideEnabled: boolean | null
+    facebookConversionsApi: boolean | null
+    googleConversionsApi: boolean | null
+    serverSideStatus: $Enums.TrackingStatus | null
+    dataRetentionDays: number | null
+    anonymizeIp: boolean | null
+    cookieConsent: boolean | null
+    debugMode: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TrackingConfigurationCountAggregateOutputType = {
+    id: number
+    gtmEnabled: number
+    gtmContainerId: number
+    gtmStatus: number
+    ga4Enabled: number
+    ga4MeasurementId: number
+    ga4ApiSecret: number
+    ga4Status: number
+    metaEnabled: number
+    metaPixelId: number
+    metaAccessToken: number
+    metaStatus: number
+    googleAdsEnabled: number
+    googleAdsConversionId: number
+    googleAdsConversionLabel: number
+    googleAdsCustomerId: number
+    googleAdsAccessToken: number
+    googleAdsStatus: number
+    serverSideEnabled: number
+    facebookConversionsApi: number
+    googleConversionsApi: number
+    serverSideStatus: number
+    dataRetentionDays: number
+    anonymizeIp: number
+    cookieConsent: number
+    debugMode: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TrackingConfigurationAvgAggregateInputType = {
+    dataRetentionDays?: true
+  }
+
+  export type TrackingConfigurationSumAggregateInputType = {
+    dataRetentionDays?: true
+  }
+
+  export type TrackingConfigurationMinAggregateInputType = {
+    id?: true
+    gtmEnabled?: true
+    gtmContainerId?: true
+    gtmStatus?: true
+    ga4Enabled?: true
+    ga4MeasurementId?: true
+    ga4ApiSecret?: true
+    ga4Status?: true
+    metaEnabled?: true
+    metaPixelId?: true
+    metaAccessToken?: true
+    metaStatus?: true
+    googleAdsEnabled?: true
+    googleAdsConversionId?: true
+    googleAdsConversionLabel?: true
+    googleAdsCustomerId?: true
+    googleAdsAccessToken?: true
+    googleAdsStatus?: true
+    serverSideEnabled?: true
+    facebookConversionsApi?: true
+    googleConversionsApi?: true
+    serverSideStatus?: true
+    dataRetentionDays?: true
+    anonymizeIp?: true
+    cookieConsent?: true
+    debugMode?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TrackingConfigurationMaxAggregateInputType = {
+    id?: true
+    gtmEnabled?: true
+    gtmContainerId?: true
+    gtmStatus?: true
+    ga4Enabled?: true
+    ga4MeasurementId?: true
+    ga4ApiSecret?: true
+    ga4Status?: true
+    metaEnabled?: true
+    metaPixelId?: true
+    metaAccessToken?: true
+    metaStatus?: true
+    googleAdsEnabled?: true
+    googleAdsConversionId?: true
+    googleAdsConversionLabel?: true
+    googleAdsCustomerId?: true
+    googleAdsAccessToken?: true
+    googleAdsStatus?: true
+    serverSideEnabled?: true
+    facebookConversionsApi?: true
+    googleConversionsApi?: true
+    serverSideStatus?: true
+    dataRetentionDays?: true
+    anonymizeIp?: true
+    cookieConsent?: true
+    debugMode?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TrackingConfigurationCountAggregateInputType = {
+    id?: true
+    gtmEnabled?: true
+    gtmContainerId?: true
+    gtmStatus?: true
+    ga4Enabled?: true
+    ga4MeasurementId?: true
+    ga4ApiSecret?: true
+    ga4Status?: true
+    metaEnabled?: true
+    metaPixelId?: true
+    metaAccessToken?: true
+    metaStatus?: true
+    googleAdsEnabled?: true
+    googleAdsConversionId?: true
+    googleAdsConversionLabel?: true
+    googleAdsCustomerId?: true
+    googleAdsAccessToken?: true
+    googleAdsStatus?: true
+    serverSideEnabled?: true
+    facebookConversionsApi?: true
+    googleConversionsApi?: true
+    serverSideStatus?: true
+    dataRetentionDays?: true
+    anonymizeIp?: true
+    cookieConsent?: true
+    debugMode?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TrackingConfigurationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TrackingConfiguration to aggregate.
+     */
+    where?: TrackingConfigurationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrackingConfigurations to fetch.
+     */
+    orderBy?: TrackingConfigurationOrderByWithRelationInput | TrackingConfigurationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TrackingConfigurationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrackingConfigurations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrackingConfigurations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TrackingConfigurations
+    **/
+    _count?: true | TrackingConfigurationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TrackingConfigurationAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TrackingConfigurationSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TrackingConfigurationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TrackingConfigurationMaxAggregateInputType
+  }
+
+  export type GetTrackingConfigurationAggregateType<T extends TrackingConfigurationAggregateArgs> = {
+        [P in keyof T & keyof AggregateTrackingConfiguration]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTrackingConfiguration[P]>
+      : GetScalarType<T[P], AggregateTrackingConfiguration[P]>
+  }
+
+
+
+
+  export type TrackingConfigurationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TrackingConfigurationWhereInput
+    orderBy?: TrackingConfigurationOrderByWithAggregationInput | TrackingConfigurationOrderByWithAggregationInput[]
+    by: TrackingConfigurationScalarFieldEnum[] | TrackingConfigurationScalarFieldEnum
+    having?: TrackingConfigurationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TrackingConfigurationCountAggregateInputType | true
+    _avg?: TrackingConfigurationAvgAggregateInputType
+    _sum?: TrackingConfigurationSumAggregateInputType
+    _min?: TrackingConfigurationMinAggregateInputType
+    _max?: TrackingConfigurationMaxAggregateInputType
+  }
+
+  export type TrackingConfigurationGroupByOutputType = {
+    id: string
+    gtmEnabled: boolean
+    gtmContainerId: string | null
+    gtmStatus: $Enums.TrackingStatus
+    ga4Enabled: boolean
+    ga4MeasurementId: string | null
+    ga4ApiSecret: string | null
+    ga4Status: $Enums.TrackingStatus
+    metaEnabled: boolean
+    metaPixelId: string | null
+    metaAccessToken: string | null
+    metaStatus: $Enums.TrackingStatus
+    googleAdsEnabled: boolean
+    googleAdsConversionId: string | null
+    googleAdsConversionLabel: string | null
+    googleAdsCustomerId: string | null
+    googleAdsAccessToken: string | null
+    googleAdsStatus: $Enums.TrackingStatus
+    serverSideEnabled: boolean
+    facebookConversionsApi: boolean
+    googleConversionsApi: boolean
+    serverSideStatus: $Enums.TrackingStatus
+    dataRetentionDays: number
+    anonymizeIp: boolean
+    cookieConsent: boolean
+    debugMode: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: TrackingConfigurationCountAggregateOutputType | null
+    _avg: TrackingConfigurationAvgAggregateOutputType | null
+    _sum: TrackingConfigurationSumAggregateOutputType | null
+    _min: TrackingConfigurationMinAggregateOutputType | null
+    _max: TrackingConfigurationMaxAggregateOutputType | null
+  }
+
+  type GetTrackingConfigurationGroupByPayload<T extends TrackingConfigurationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TrackingConfigurationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TrackingConfigurationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TrackingConfigurationGroupByOutputType[P]>
+            : GetScalarType<T[P], TrackingConfigurationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TrackingConfigurationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    gtmEnabled?: boolean
+    gtmContainerId?: boolean
+    gtmStatus?: boolean
+    ga4Enabled?: boolean
+    ga4MeasurementId?: boolean
+    ga4ApiSecret?: boolean
+    ga4Status?: boolean
+    metaEnabled?: boolean
+    metaPixelId?: boolean
+    metaAccessToken?: boolean
+    metaStatus?: boolean
+    googleAdsEnabled?: boolean
+    googleAdsConversionId?: boolean
+    googleAdsConversionLabel?: boolean
+    googleAdsCustomerId?: boolean
+    googleAdsAccessToken?: boolean
+    googleAdsStatus?: boolean
+    serverSideEnabled?: boolean
+    facebookConversionsApi?: boolean
+    googleConversionsApi?: boolean
+    serverSideStatus?: boolean
+    dataRetentionDays?: boolean
+    anonymizeIp?: boolean
+    cookieConsent?: boolean
+    debugMode?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    events?: boolean | TrackingConfiguration$eventsArgs<ExtArgs>
+    customEvents?: boolean | TrackingConfiguration$customEventsArgs<ExtArgs>
+    analytics?: boolean | TrackingConfiguration$analyticsArgs<ExtArgs>
+    _count?: boolean | TrackingConfigurationCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["trackingConfiguration"]>
+
+  export type TrackingConfigurationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    gtmEnabled?: boolean
+    gtmContainerId?: boolean
+    gtmStatus?: boolean
+    ga4Enabled?: boolean
+    ga4MeasurementId?: boolean
+    ga4ApiSecret?: boolean
+    ga4Status?: boolean
+    metaEnabled?: boolean
+    metaPixelId?: boolean
+    metaAccessToken?: boolean
+    metaStatus?: boolean
+    googleAdsEnabled?: boolean
+    googleAdsConversionId?: boolean
+    googleAdsConversionLabel?: boolean
+    googleAdsCustomerId?: boolean
+    googleAdsAccessToken?: boolean
+    googleAdsStatus?: boolean
+    serverSideEnabled?: boolean
+    facebookConversionsApi?: boolean
+    googleConversionsApi?: boolean
+    serverSideStatus?: boolean
+    dataRetentionDays?: boolean
+    anonymizeIp?: boolean
+    cookieConsent?: boolean
+    debugMode?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["trackingConfiguration"]>
+
+  export type TrackingConfigurationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    gtmEnabled?: boolean
+    gtmContainerId?: boolean
+    gtmStatus?: boolean
+    ga4Enabled?: boolean
+    ga4MeasurementId?: boolean
+    ga4ApiSecret?: boolean
+    ga4Status?: boolean
+    metaEnabled?: boolean
+    metaPixelId?: boolean
+    metaAccessToken?: boolean
+    metaStatus?: boolean
+    googleAdsEnabled?: boolean
+    googleAdsConversionId?: boolean
+    googleAdsConversionLabel?: boolean
+    googleAdsCustomerId?: boolean
+    googleAdsAccessToken?: boolean
+    googleAdsStatus?: boolean
+    serverSideEnabled?: boolean
+    facebookConversionsApi?: boolean
+    googleConversionsApi?: boolean
+    serverSideStatus?: boolean
+    dataRetentionDays?: boolean
+    anonymizeIp?: boolean
+    cookieConsent?: boolean
+    debugMode?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["trackingConfiguration"]>
+
+  export type TrackingConfigurationSelectScalar = {
+    id?: boolean
+    gtmEnabled?: boolean
+    gtmContainerId?: boolean
+    gtmStatus?: boolean
+    ga4Enabled?: boolean
+    ga4MeasurementId?: boolean
+    ga4ApiSecret?: boolean
+    ga4Status?: boolean
+    metaEnabled?: boolean
+    metaPixelId?: boolean
+    metaAccessToken?: boolean
+    metaStatus?: boolean
+    googleAdsEnabled?: boolean
+    googleAdsConversionId?: boolean
+    googleAdsConversionLabel?: boolean
+    googleAdsCustomerId?: boolean
+    googleAdsAccessToken?: boolean
+    googleAdsStatus?: boolean
+    serverSideEnabled?: boolean
+    facebookConversionsApi?: boolean
+    googleConversionsApi?: boolean
+    serverSideStatus?: boolean
+    dataRetentionDays?: boolean
+    anonymizeIp?: boolean
+    cookieConsent?: boolean
+    debugMode?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TrackingConfigurationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "gtmEnabled" | "gtmContainerId" | "gtmStatus" | "ga4Enabled" | "ga4MeasurementId" | "ga4ApiSecret" | "ga4Status" | "metaEnabled" | "metaPixelId" | "metaAccessToken" | "metaStatus" | "googleAdsEnabled" | "googleAdsConversionId" | "googleAdsConversionLabel" | "googleAdsCustomerId" | "googleAdsAccessToken" | "googleAdsStatus" | "serverSideEnabled" | "facebookConversionsApi" | "googleConversionsApi" | "serverSideStatus" | "dataRetentionDays" | "anonymizeIp" | "cookieConsent" | "debugMode" | "createdAt" | "updatedAt", ExtArgs["result"]["trackingConfiguration"]>
+  export type TrackingConfigurationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    events?: boolean | TrackingConfiguration$eventsArgs<ExtArgs>
+    customEvents?: boolean | TrackingConfiguration$customEventsArgs<ExtArgs>
+    analytics?: boolean | TrackingConfiguration$analyticsArgs<ExtArgs>
+    _count?: boolean | TrackingConfigurationCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type TrackingConfigurationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type TrackingConfigurationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $TrackingConfigurationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TrackingConfiguration"
+    objects: {
+      events: Prisma.$TrackingEventPayload<ExtArgs>[]
+      customEvents: Prisma.$CustomEventPayload<ExtArgs>[]
+      analytics: Prisma.$AnalyticsPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      gtmEnabled: boolean
+      gtmContainerId: string | null
+      gtmStatus: $Enums.TrackingStatus
+      ga4Enabled: boolean
+      ga4MeasurementId: string | null
+      ga4ApiSecret: string | null
+      ga4Status: $Enums.TrackingStatus
+      metaEnabled: boolean
+      metaPixelId: string | null
+      metaAccessToken: string | null
+      metaStatus: $Enums.TrackingStatus
+      googleAdsEnabled: boolean
+      googleAdsConversionId: string | null
+      googleAdsConversionLabel: string | null
+      googleAdsCustomerId: string | null
+      googleAdsAccessToken: string | null
+      googleAdsStatus: $Enums.TrackingStatus
+      serverSideEnabled: boolean
+      facebookConversionsApi: boolean
+      googleConversionsApi: boolean
+      serverSideStatus: $Enums.TrackingStatus
+      dataRetentionDays: number
+      anonymizeIp: boolean
+      cookieConsent: boolean
+      debugMode: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["trackingConfiguration"]>
+    composites: {}
+  }
+
+  type TrackingConfigurationGetPayload<S extends boolean | null | undefined | TrackingConfigurationDefaultArgs> = $Result.GetResult<Prisma.$TrackingConfigurationPayload, S>
+
+  type TrackingConfigurationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TrackingConfigurationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TrackingConfigurationCountAggregateInputType | true
+    }
+
+  export interface TrackingConfigurationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TrackingConfiguration'], meta: { name: 'TrackingConfiguration' } }
+    /**
+     * Find zero or one TrackingConfiguration that matches the filter.
+     * @param {TrackingConfigurationFindUniqueArgs} args - Arguments to find a TrackingConfiguration
+     * @example
+     * // Get one TrackingConfiguration
+     * const trackingConfiguration = await prisma.trackingConfiguration.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TrackingConfigurationFindUniqueArgs>(args: SelectSubset<T, TrackingConfigurationFindUniqueArgs<ExtArgs>>): Prisma__TrackingConfigurationClient<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TrackingConfiguration that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TrackingConfigurationFindUniqueOrThrowArgs} args - Arguments to find a TrackingConfiguration
+     * @example
+     * // Get one TrackingConfiguration
+     * const trackingConfiguration = await prisma.trackingConfiguration.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TrackingConfigurationFindUniqueOrThrowArgs>(args: SelectSubset<T, TrackingConfigurationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TrackingConfigurationClient<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TrackingConfiguration that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingConfigurationFindFirstArgs} args - Arguments to find a TrackingConfiguration
+     * @example
+     * // Get one TrackingConfiguration
+     * const trackingConfiguration = await prisma.trackingConfiguration.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TrackingConfigurationFindFirstArgs>(args?: SelectSubset<T, TrackingConfigurationFindFirstArgs<ExtArgs>>): Prisma__TrackingConfigurationClient<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TrackingConfiguration that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingConfigurationFindFirstOrThrowArgs} args - Arguments to find a TrackingConfiguration
+     * @example
+     * // Get one TrackingConfiguration
+     * const trackingConfiguration = await prisma.trackingConfiguration.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TrackingConfigurationFindFirstOrThrowArgs>(args?: SelectSubset<T, TrackingConfigurationFindFirstOrThrowArgs<ExtArgs>>): Prisma__TrackingConfigurationClient<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TrackingConfigurations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingConfigurationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TrackingConfigurations
+     * const trackingConfigurations = await prisma.trackingConfiguration.findMany()
+     * 
+     * // Get first 10 TrackingConfigurations
+     * const trackingConfigurations = await prisma.trackingConfiguration.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const trackingConfigurationWithIdOnly = await prisma.trackingConfiguration.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TrackingConfigurationFindManyArgs>(args?: SelectSubset<T, TrackingConfigurationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TrackingConfiguration.
+     * @param {TrackingConfigurationCreateArgs} args - Arguments to create a TrackingConfiguration.
+     * @example
+     * // Create one TrackingConfiguration
+     * const TrackingConfiguration = await prisma.trackingConfiguration.create({
+     *   data: {
+     *     // ... data to create a TrackingConfiguration
+     *   }
+     * })
+     * 
+     */
+    create<T extends TrackingConfigurationCreateArgs>(args: SelectSubset<T, TrackingConfigurationCreateArgs<ExtArgs>>): Prisma__TrackingConfigurationClient<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TrackingConfigurations.
+     * @param {TrackingConfigurationCreateManyArgs} args - Arguments to create many TrackingConfigurations.
+     * @example
+     * // Create many TrackingConfigurations
+     * const trackingConfiguration = await prisma.trackingConfiguration.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TrackingConfigurationCreateManyArgs>(args?: SelectSubset<T, TrackingConfigurationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TrackingConfigurations and returns the data saved in the database.
+     * @param {TrackingConfigurationCreateManyAndReturnArgs} args - Arguments to create many TrackingConfigurations.
+     * @example
+     * // Create many TrackingConfigurations
+     * const trackingConfiguration = await prisma.trackingConfiguration.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TrackingConfigurations and only return the `id`
+     * const trackingConfigurationWithIdOnly = await prisma.trackingConfiguration.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TrackingConfigurationCreateManyAndReturnArgs>(args?: SelectSubset<T, TrackingConfigurationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TrackingConfiguration.
+     * @param {TrackingConfigurationDeleteArgs} args - Arguments to delete one TrackingConfiguration.
+     * @example
+     * // Delete one TrackingConfiguration
+     * const TrackingConfiguration = await prisma.trackingConfiguration.delete({
+     *   where: {
+     *     // ... filter to delete one TrackingConfiguration
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TrackingConfigurationDeleteArgs>(args: SelectSubset<T, TrackingConfigurationDeleteArgs<ExtArgs>>): Prisma__TrackingConfigurationClient<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TrackingConfiguration.
+     * @param {TrackingConfigurationUpdateArgs} args - Arguments to update one TrackingConfiguration.
+     * @example
+     * // Update one TrackingConfiguration
+     * const trackingConfiguration = await prisma.trackingConfiguration.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TrackingConfigurationUpdateArgs>(args: SelectSubset<T, TrackingConfigurationUpdateArgs<ExtArgs>>): Prisma__TrackingConfigurationClient<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TrackingConfigurations.
+     * @param {TrackingConfigurationDeleteManyArgs} args - Arguments to filter TrackingConfigurations to delete.
+     * @example
+     * // Delete a few TrackingConfigurations
+     * const { count } = await prisma.trackingConfiguration.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TrackingConfigurationDeleteManyArgs>(args?: SelectSubset<T, TrackingConfigurationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TrackingConfigurations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingConfigurationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TrackingConfigurations
+     * const trackingConfiguration = await prisma.trackingConfiguration.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TrackingConfigurationUpdateManyArgs>(args: SelectSubset<T, TrackingConfigurationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TrackingConfigurations and returns the data updated in the database.
+     * @param {TrackingConfigurationUpdateManyAndReturnArgs} args - Arguments to update many TrackingConfigurations.
+     * @example
+     * // Update many TrackingConfigurations
+     * const trackingConfiguration = await prisma.trackingConfiguration.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TrackingConfigurations and only return the `id`
+     * const trackingConfigurationWithIdOnly = await prisma.trackingConfiguration.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TrackingConfigurationUpdateManyAndReturnArgs>(args: SelectSubset<T, TrackingConfigurationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TrackingConfiguration.
+     * @param {TrackingConfigurationUpsertArgs} args - Arguments to update or create a TrackingConfiguration.
+     * @example
+     * // Update or create a TrackingConfiguration
+     * const trackingConfiguration = await prisma.trackingConfiguration.upsert({
+     *   create: {
+     *     // ... data to create a TrackingConfiguration
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TrackingConfiguration we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TrackingConfigurationUpsertArgs>(args: SelectSubset<T, TrackingConfigurationUpsertArgs<ExtArgs>>): Prisma__TrackingConfigurationClient<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TrackingConfigurations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingConfigurationCountArgs} args - Arguments to filter TrackingConfigurations to count.
+     * @example
+     * // Count the number of TrackingConfigurations
+     * const count = await prisma.trackingConfiguration.count({
+     *   where: {
+     *     // ... the filter for the TrackingConfigurations we want to count
+     *   }
+     * })
+    **/
+    count<T extends TrackingConfigurationCountArgs>(
+      args?: Subset<T, TrackingConfigurationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TrackingConfigurationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TrackingConfiguration.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingConfigurationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TrackingConfigurationAggregateArgs>(args: Subset<T, TrackingConfigurationAggregateArgs>): Prisma.PrismaPromise<GetTrackingConfigurationAggregateType<T>>
+
+    /**
+     * Group by TrackingConfiguration.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingConfigurationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TrackingConfigurationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TrackingConfigurationGroupByArgs['orderBy'] }
+        : { orderBy?: TrackingConfigurationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TrackingConfigurationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTrackingConfigurationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TrackingConfiguration model
+   */
+  readonly fields: TrackingConfigurationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TrackingConfiguration.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TrackingConfigurationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    events<T extends TrackingConfiguration$eventsArgs<ExtArgs> = {}>(args?: Subset<T, TrackingConfiguration$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    customEvents<T extends TrackingConfiguration$customEventsArgs<ExtArgs> = {}>(args?: Subset<T, TrackingConfiguration$customEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    analytics<T extends TrackingConfiguration$analyticsArgs<ExtArgs> = {}>(args?: Subset<T, TrackingConfiguration$analyticsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalyticsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TrackingConfiguration model
+   */
+  interface TrackingConfigurationFieldRefs {
+    readonly id: FieldRef<"TrackingConfiguration", 'String'>
+    readonly gtmEnabled: FieldRef<"TrackingConfiguration", 'Boolean'>
+    readonly gtmContainerId: FieldRef<"TrackingConfiguration", 'String'>
+    readonly gtmStatus: FieldRef<"TrackingConfiguration", 'TrackingStatus'>
+    readonly ga4Enabled: FieldRef<"TrackingConfiguration", 'Boolean'>
+    readonly ga4MeasurementId: FieldRef<"TrackingConfiguration", 'String'>
+    readonly ga4ApiSecret: FieldRef<"TrackingConfiguration", 'String'>
+    readonly ga4Status: FieldRef<"TrackingConfiguration", 'TrackingStatus'>
+    readonly metaEnabled: FieldRef<"TrackingConfiguration", 'Boolean'>
+    readonly metaPixelId: FieldRef<"TrackingConfiguration", 'String'>
+    readonly metaAccessToken: FieldRef<"TrackingConfiguration", 'String'>
+    readonly metaStatus: FieldRef<"TrackingConfiguration", 'TrackingStatus'>
+    readonly googleAdsEnabled: FieldRef<"TrackingConfiguration", 'Boolean'>
+    readonly googleAdsConversionId: FieldRef<"TrackingConfiguration", 'String'>
+    readonly googleAdsConversionLabel: FieldRef<"TrackingConfiguration", 'String'>
+    readonly googleAdsCustomerId: FieldRef<"TrackingConfiguration", 'String'>
+    readonly googleAdsAccessToken: FieldRef<"TrackingConfiguration", 'String'>
+    readonly googleAdsStatus: FieldRef<"TrackingConfiguration", 'TrackingStatus'>
+    readonly serverSideEnabled: FieldRef<"TrackingConfiguration", 'Boolean'>
+    readonly facebookConversionsApi: FieldRef<"TrackingConfiguration", 'Boolean'>
+    readonly googleConversionsApi: FieldRef<"TrackingConfiguration", 'Boolean'>
+    readonly serverSideStatus: FieldRef<"TrackingConfiguration", 'TrackingStatus'>
+    readonly dataRetentionDays: FieldRef<"TrackingConfiguration", 'Int'>
+    readonly anonymizeIp: FieldRef<"TrackingConfiguration", 'Boolean'>
+    readonly cookieConsent: FieldRef<"TrackingConfiguration", 'Boolean'>
+    readonly debugMode: FieldRef<"TrackingConfiguration", 'Boolean'>
+    readonly createdAt: FieldRef<"TrackingConfiguration", 'DateTime'>
+    readonly updatedAt: FieldRef<"TrackingConfiguration", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TrackingConfiguration findUnique
+   */
+  export type TrackingConfigurationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingConfiguration
+     */
+    select?: TrackingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingConfiguration
+     */
+    omit?: TrackingConfigurationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingConfigurationInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackingConfiguration to fetch.
+     */
+    where: TrackingConfigurationWhereUniqueInput
+  }
+
+  /**
+   * TrackingConfiguration findUniqueOrThrow
+   */
+  export type TrackingConfigurationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingConfiguration
+     */
+    select?: TrackingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingConfiguration
+     */
+    omit?: TrackingConfigurationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingConfigurationInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackingConfiguration to fetch.
+     */
+    where: TrackingConfigurationWhereUniqueInput
+  }
+
+  /**
+   * TrackingConfiguration findFirst
+   */
+  export type TrackingConfigurationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingConfiguration
+     */
+    select?: TrackingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingConfiguration
+     */
+    omit?: TrackingConfigurationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingConfigurationInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackingConfiguration to fetch.
+     */
+    where?: TrackingConfigurationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrackingConfigurations to fetch.
+     */
+    orderBy?: TrackingConfigurationOrderByWithRelationInput | TrackingConfigurationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TrackingConfigurations.
+     */
+    cursor?: TrackingConfigurationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrackingConfigurations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrackingConfigurations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrackingConfigurations.
+     */
+    distinct?: TrackingConfigurationScalarFieldEnum | TrackingConfigurationScalarFieldEnum[]
+  }
+
+  /**
+   * TrackingConfiguration findFirstOrThrow
+   */
+  export type TrackingConfigurationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingConfiguration
+     */
+    select?: TrackingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingConfiguration
+     */
+    omit?: TrackingConfigurationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingConfigurationInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackingConfiguration to fetch.
+     */
+    where?: TrackingConfigurationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrackingConfigurations to fetch.
+     */
+    orderBy?: TrackingConfigurationOrderByWithRelationInput | TrackingConfigurationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TrackingConfigurations.
+     */
+    cursor?: TrackingConfigurationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrackingConfigurations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrackingConfigurations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrackingConfigurations.
+     */
+    distinct?: TrackingConfigurationScalarFieldEnum | TrackingConfigurationScalarFieldEnum[]
+  }
+
+  /**
+   * TrackingConfiguration findMany
+   */
+  export type TrackingConfigurationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingConfiguration
+     */
+    select?: TrackingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingConfiguration
+     */
+    omit?: TrackingConfigurationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingConfigurationInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackingConfigurations to fetch.
+     */
+    where?: TrackingConfigurationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrackingConfigurations to fetch.
+     */
+    orderBy?: TrackingConfigurationOrderByWithRelationInput | TrackingConfigurationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TrackingConfigurations.
+     */
+    cursor?: TrackingConfigurationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrackingConfigurations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrackingConfigurations.
+     */
+    skip?: number
+    distinct?: TrackingConfigurationScalarFieldEnum | TrackingConfigurationScalarFieldEnum[]
+  }
+
+  /**
+   * TrackingConfiguration create
+   */
+  export type TrackingConfigurationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingConfiguration
+     */
+    select?: TrackingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingConfiguration
+     */
+    omit?: TrackingConfigurationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingConfigurationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TrackingConfiguration.
+     */
+    data: XOR<TrackingConfigurationCreateInput, TrackingConfigurationUncheckedCreateInput>
+  }
+
+  /**
+   * TrackingConfiguration createMany
+   */
+  export type TrackingConfigurationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TrackingConfigurations.
+     */
+    data: TrackingConfigurationCreateManyInput | TrackingConfigurationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TrackingConfiguration createManyAndReturn
+   */
+  export type TrackingConfigurationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingConfiguration
+     */
+    select?: TrackingConfigurationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingConfiguration
+     */
+    omit?: TrackingConfigurationOmit<ExtArgs> | null
+    /**
+     * The data used to create many TrackingConfigurations.
+     */
+    data: TrackingConfigurationCreateManyInput | TrackingConfigurationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TrackingConfiguration update
+   */
+  export type TrackingConfigurationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingConfiguration
+     */
+    select?: TrackingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingConfiguration
+     */
+    omit?: TrackingConfigurationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingConfigurationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TrackingConfiguration.
+     */
+    data: XOR<TrackingConfigurationUpdateInput, TrackingConfigurationUncheckedUpdateInput>
+    /**
+     * Choose, which TrackingConfiguration to update.
+     */
+    where: TrackingConfigurationWhereUniqueInput
+  }
+
+  /**
+   * TrackingConfiguration updateMany
+   */
+  export type TrackingConfigurationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TrackingConfigurations.
+     */
+    data: XOR<TrackingConfigurationUpdateManyMutationInput, TrackingConfigurationUncheckedUpdateManyInput>
+    /**
+     * Filter which TrackingConfigurations to update
+     */
+    where?: TrackingConfigurationWhereInput
+    /**
+     * Limit how many TrackingConfigurations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TrackingConfiguration updateManyAndReturn
+   */
+  export type TrackingConfigurationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingConfiguration
+     */
+    select?: TrackingConfigurationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingConfiguration
+     */
+    omit?: TrackingConfigurationOmit<ExtArgs> | null
+    /**
+     * The data used to update TrackingConfigurations.
+     */
+    data: XOR<TrackingConfigurationUpdateManyMutationInput, TrackingConfigurationUncheckedUpdateManyInput>
+    /**
+     * Filter which TrackingConfigurations to update
+     */
+    where?: TrackingConfigurationWhereInput
+    /**
+     * Limit how many TrackingConfigurations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TrackingConfiguration upsert
+   */
+  export type TrackingConfigurationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingConfiguration
+     */
+    select?: TrackingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingConfiguration
+     */
+    omit?: TrackingConfigurationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingConfigurationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TrackingConfiguration to update in case it exists.
+     */
+    where: TrackingConfigurationWhereUniqueInput
+    /**
+     * In case the TrackingConfiguration found by the `where` argument doesn't exist, create a new TrackingConfiguration with this data.
+     */
+    create: XOR<TrackingConfigurationCreateInput, TrackingConfigurationUncheckedCreateInput>
+    /**
+     * In case the TrackingConfiguration was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TrackingConfigurationUpdateInput, TrackingConfigurationUncheckedUpdateInput>
+  }
+
+  /**
+   * TrackingConfiguration delete
+   */
+  export type TrackingConfigurationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingConfiguration
+     */
+    select?: TrackingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingConfiguration
+     */
+    omit?: TrackingConfigurationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingConfigurationInclude<ExtArgs> | null
+    /**
+     * Filter which TrackingConfiguration to delete.
+     */
+    where: TrackingConfigurationWhereUniqueInput
+  }
+
+  /**
+   * TrackingConfiguration deleteMany
+   */
+  export type TrackingConfigurationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TrackingConfigurations to delete
+     */
+    where?: TrackingConfigurationWhereInput
+    /**
+     * Limit how many TrackingConfigurations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TrackingConfiguration.events
+   */
+  export type TrackingConfiguration$eventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventInclude<ExtArgs> | null
+    where?: TrackingEventWhereInput
+    orderBy?: TrackingEventOrderByWithRelationInput | TrackingEventOrderByWithRelationInput[]
+    cursor?: TrackingEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TrackingEventScalarFieldEnum | TrackingEventScalarFieldEnum[]
+  }
+
+  /**
+   * TrackingConfiguration.customEvents
+   */
+  export type TrackingConfiguration$customEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEvent
+     */
+    select?: CustomEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEvent
+     */
+    omit?: CustomEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInclude<ExtArgs> | null
+    where?: CustomEventWhereInput
+    orderBy?: CustomEventOrderByWithRelationInput | CustomEventOrderByWithRelationInput[]
+    cursor?: CustomEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CustomEventScalarFieldEnum | CustomEventScalarFieldEnum[]
+  }
+
+  /**
+   * TrackingConfiguration.analytics
+   */
+  export type TrackingConfiguration$analyticsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analytics
+     */
+    select?: AnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analytics
+     */
+    omit?: AnalyticsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsInclude<ExtArgs> | null
+    where?: AnalyticsWhereInput
+    orderBy?: AnalyticsOrderByWithRelationInput | AnalyticsOrderByWithRelationInput[]
+    cursor?: AnalyticsWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AnalyticsScalarFieldEnum | AnalyticsScalarFieldEnum[]
+  }
+
+  /**
+   * TrackingConfiguration without action
+   */
+  export type TrackingConfigurationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingConfiguration
+     */
+    select?: TrackingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingConfiguration
+     */
+    omit?: TrackingConfigurationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingConfigurationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TrackingEvent
+   */
+
+  export type AggregateTrackingEvent = {
+    _count: TrackingEventCountAggregateOutputType | null
+    _avg: TrackingEventAvgAggregateOutputType | null
+    _sum: TrackingEventSumAggregateOutputType | null
+    _min: TrackingEventMinAggregateOutputType | null
+    _max: TrackingEventMaxAggregateOutputType | null
+  }
+
+  export type TrackingEventAvgAggregateOutputType = {
+    value: number | null
+    conversionValue: number | null
+  }
+
+  export type TrackingEventSumAggregateOutputType = {
+    value: number | null
+    conversionValue: number | null
+  }
+
+  export type TrackingEventMinAggregateOutputType = {
+    id: string | null
+    configId: string | null
+    sessionId: string | null
+    userId: string | null
+    eventName: string | null
+    eventType: $Enums.TrackingEventType | null
+    platform: $Enums.TrackingPlatform | null
+    userAgent: string | null
+    ipAddress: string | null
+    referrer: string | null
+    pageUrl: string | null
+    pageTitle: string | null
+    transactionId: string | null
+    value: number | null
+    currency: string | null
+    conversionValue: number | null
+    conversionType: string | null
+    timestamp: Date | null
+    clientTimestamp: Date | null
+    processed: boolean | null
+    processingError: string | null
+  }
+
+  export type TrackingEventMaxAggregateOutputType = {
+    id: string | null
+    configId: string | null
+    sessionId: string | null
+    userId: string | null
+    eventName: string | null
+    eventType: $Enums.TrackingEventType | null
+    platform: $Enums.TrackingPlatform | null
+    userAgent: string | null
+    ipAddress: string | null
+    referrer: string | null
+    pageUrl: string | null
+    pageTitle: string | null
+    transactionId: string | null
+    value: number | null
+    currency: string | null
+    conversionValue: number | null
+    conversionType: string | null
+    timestamp: Date | null
+    clientTimestamp: Date | null
+    processed: boolean | null
+    processingError: string | null
+  }
+
+  export type TrackingEventCountAggregateOutputType = {
+    id: number
+    configId: number
+    sessionId: number
+    userId: number
+    eventName: number
+    eventType: number
+    platform: number
+    eventData: number
+    userAgent: number
+    ipAddress: number
+    referrer: number
+    pageUrl: number
+    pageTitle: number
+    transactionId: number
+    value: number
+    currency: number
+    items: number
+    conversionValue: number
+    conversionType: number
+    timestamp: number
+    clientTimestamp: number
+    processed: number
+    processingError: number
+    _all: number
+  }
+
+
+  export type TrackingEventAvgAggregateInputType = {
+    value?: true
+    conversionValue?: true
+  }
+
+  export type TrackingEventSumAggregateInputType = {
+    value?: true
+    conversionValue?: true
+  }
+
+  export type TrackingEventMinAggregateInputType = {
+    id?: true
+    configId?: true
+    sessionId?: true
+    userId?: true
+    eventName?: true
+    eventType?: true
+    platform?: true
+    userAgent?: true
+    ipAddress?: true
+    referrer?: true
+    pageUrl?: true
+    pageTitle?: true
+    transactionId?: true
+    value?: true
+    currency?: true
+    conversionValue?: true
+    conversionType?: true
+    timestamp?: true
+    clientTimestamp?: true
+    processed?: true
+    processingError?: true
+  }
+
+  export type TrackingEventMaxAggregateInputType = {
+    id?: true
+    configId?: true
+    sessionId?: true
+    userId?: true
+    eventName?: true
+    eventType?: true
+    platform?: true
+    userAgent?: true
+    ipAddress?: true
+    referrer?: true
+    pageUrl?: true
+    pageTitle?: true
+    transactionId?: true
+    value?: true
+    currency?: true
+    conversionValue?: true
+    conversionType?: true
+    timestamp?: true
+    clientTimestamp?: true
+    processed?: true
+    processingError?: true
+  }
+
+  export type TrackingEventCountAggregateInputType = {
+    id?: true
+    configId?: true
+    sessionId?: true
+    userId?: true
+    eventName?: true
+    eventType?: true
+    platform?: true
+    eventData?: true
+    userAgent?: true
+    ipAddress?: true
+    referrer?: true
+    pageUrl?: true
+    pageTitle?: true
+    transactionId?: true
+    value?: true
+    currency?: true
+    items?: true
+    conversionValue?: true
+    conversionType?: true
+    timestamp?: true
+    clientTimestamp?: true
+    processed?: true
+    processingError?: true
+    _all?: true
+  }
+
+  export type TrackingEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TrackingEvent to aggregate.
+     */
+    where?: TrackingEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrackingEvents to fetch.
+     */
+    orderBy?: TrackingEventOrderByWithRelationInput | TrackingEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TrackingEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrackingEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrackingEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TrackingEvents
+    **/
+    _count?: true | TrackingEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TrackingEventAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TrackingEventSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TrackingEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TrackingEventMaxAggregateInputType
+  }
+
+  export type GetTrackingEventAggregateType<T extends TrackingEventAggregateArgs> = {
+        [P in keyof T & keyof AggregateTrackingEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTrackingEvent[P]>
+      : GetScalarType<T[P], AggregateTrackingEvent[P]>
+  }
+
+
+
+
+  export type TrackingEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TrackingEventWhereInput
+    orderBy?: TrackingEventOrderByWithAggregationInput | TrackingEventOrderByWithAggregationInput[]
+    by: TrackingEventScalarFieldEnum[] | TrackingEventScalarFieldEnum
+    having?: TrackingEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TrackingEventCountAggregateInputType | true
+    _avg?: TrackingEventAvgAggregateInputType
+    _sum?: TrackingEventSumAggregateInputType
+    _min?: TrackingEventMinAggregateInputType
+    _max?: TrackingEventMaxAggregateInputType
+  }
+
+  export type TrackingEventGroupByOutputType = {
+    id: string
+    configId: string
+    sessionId: string
+    userId: string | null
+    eventName: string
+    eventType: $Enums.TrackingEventType
+    platform: $Enums.TrackingPlatform
+    eventData: JsonValue
+    userAgent: string | null
+    ipAddress: string | null
+    referrer: string | null
+    pageUrl: string | null
+    pageTitle: string | null
+    transactionId: string | null
+    value: number | null
+    currency: string | null
+    items: JsonValue | null
+    conversionValue: number | null
+    conversionType: string | null
+    timestamp: Date
+    clientTimestamp: Date | null
+    processed: boolean
+    processingError: string | null
+    _count: TrackingEventCountAggregateOutputType | null
+    _avg: TrackingEventAvgAggregateOutputType | null
+    _sum: TrackingEventSumAggregateOutputType | null
+    _min: TrackingEventMinAggregateOutputType | null
+    _max: TrackingEventMaxAggregateOutputType | null
+  }
+
+  type GetTrackingEventGroupByPayload<T extends TrackingEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TrackingEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TrackingEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TrackingEventGroupByOutputType[P]>
+            : GetScalarType<T[P], TrackingEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TrackingEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    configId?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    eventName?: boolean
+    eventType?: boolean
+    platform?: boolean
+    eventData?: boolean
+    userAgent?: boolean
+    ipAddress?: boolean
+    referrer?: boolean
+    pageUrl?: boolean
+    pageTitle?: boolean
+    transactionId?: boolean
+    value?: boolean
+    currency?: boolean
+    items?: boolean
+    conversionValue?: boolean
+    conversionType?: boolean
+    timestamp?: boolean
+    clientTimestamp?: boolean
+    processed?: boolean
+    processingError?: boolean
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+    user?: boolean | TrackingEvent$userArgs<ExtArgs>
+    session?: boolean | TrackingEvent$sessionArgs<ExtArgs>
+  }, ExtArgs["result"]["trackingEvent"]>
+
+  export type TrackingEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    configId?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    eventName?: boolean
+    eventType?: boolean
+    platform?: boolean
+    eventData?: boolean
+    userAgent?: boolean
+    ipAddress?: boolean
+    referrer?: boolean
+    pageUrl?: boolean
+    pageTitle?: boolean
+    transactionId?: boolean
+    value?: boolean
+    currency?: boolean
+    items?: boolean
+    conversionValue?: boolean
+    conversionType?: boolean
+    timestamp?: boolean
+    clientTimestamp?: boolean
+    processed?: boolean
+    processingError?: boolean
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+    user?: boolean | TrackingEvent$userArgs<ExtArgs>
+    session?: boolean | TrackingEvent$sessionArgs<ExtArgs>
+  }, ExtArgs["result"]["trackingEvent"]>
+
+  export type TrackingEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    configId?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    eventName?: boolean
+    eventType?: boolean
+    platform?: boolean
+    eventData?: boolean
+    userAgent?: boolean
+    ipAddress?: boolean
+    referrer?: boolean
+    pageUrl?: boolean
+    pageTitle?: boolean
+    transactionId?: boolean
+    value?: boolean
+    currency?: boolean
+    items?: boolean
+    conversionValue?: boolean
+    conversionType?: boolean
+    timestamp?: boolean
+    clientTimestamp?: boolean
+    processed?: boolean
+    processingError?: boolean
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+    user?: boolean | TrackingEvent$userArgs<ExtArgs>
+    session?: boolean | TrackingEvent$sessionArgs<ExtArgs>
+  }, ExtArgs["result"]["trackingEvent"]>
+
+  export type TrackingEventSelectScalar = {
+    id?: boolean
+    configId?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    eventName?: boolean
+    eventType?: boolean
+    platform?: boolean
+    eventData?: boolean
+    userAgent?: boolean
+    ipAddress?: boolean
+    referrer?: boolean
+    pageUrl?: boolean
+    pageTitle?: boolean
+    transactionId?: boolean
+    value?: boolean
+    currency?: boolean
+    items?: boolean
+    conversionValue?: boolean
+    conversionType?: boolean
+    timestamp?: boolean
+    clientTimestamp?: boolean
+    processed?: boolean
+    processingError?: boolean
+  }
+
+  export type TrackingEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "configId" | "sessionId" | "userId" | "eventName" | "eventType" | "platform" | "eventData" | "userAgent" | "ipAddress" | "referrer" | "pageUrl" | "pageTitle" | "transactionId" | "value" | "currency" | "items" | "conversionValue" | "conversionType" | "timestamp" | "clientTimestamp" | "processed" | "processingError", ExtArgs["result"]["trackingEvent"]>
+  export type TrackingEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+    user?: boolean | TrackingEvent$userArgs<ExtArgs>
+    session?: boolean | TrackingEvent$sessionArgs<ExtArgs>
+  }
+  export type TrackingEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+    user?: boolean | TrackingEvent$userArgs<ExtArgs>
+    session?: boolean | TrackingEvent$sessionArgs<ExtArgs>
+  }
+  export type TrackingEventIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+    user?: boolean | TrackingEvent$userArgs<ExtArgs>
+    session?: boolean | TrackingEvent$sessionArgs<ExtArgs>
+  }
+
+  export type $TrackingEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TrackingEvent"
+    objects: {
+      config: Prisma.$TrackingConfigurationPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs> | null
+      session: Prisma.$UserSessionPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      configId: string
+      sessionId: string
+      userId: string | null
+      eventName: string
+      eventType: $Enums.TrackingEventType
+      platform: $Enums.TrackingPlatform
+      eventData: Prisma.JsonValue
+      userAgent: string | null
+      ipAddress: string | null
+      referrer: string | null
+      pageUrl: string | null
+      pageTitle: string | null
+      transactionId: string | null
+      value: number | null
+      currency: string | null
+      items: Prisma.JsonValue | null
+      conversionValue: number | null
+      conversionType: string | null
+      timestamp: Date
+      clientTimestamp: Date | null
+      processed: boolean
+      processingError: string | null
+    }, ExtArgs["result"]["trackingEvent"]>
+    composites: {}
+  }
+
+  type TrackingEventGetPayload<S extends boolean | null | undefined | TrackingEventDefaultArgs> = $Result.GetResult<Prisma.$TrackingEventPayload, S>
+
+  type TrackingEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TrackingEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TrackingEventCountAggregateInputType | true
+    }
+
+  export interface TrackingEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TrackingEvent'], meta: { name: 'TrackingEvent' } }
+    /**
+     * Find zero or one TrackingEvent that matches the filter.
+     * @param {TrackingEventFindUniqueArgs} args - Arguments to find a TrackingEvent
+     * @example
+     * // Get one TrackingEvent
+     * const trackingEvent = await prisma.trackingEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TrackingEventFindUniqueArgs>(args: SelectSubset<T, TrackingEventFindUniqueArgs<ExtArgs>>): Prisma__TrackingEventClient<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TrackingEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TrackingEventFindUniqueOrThrowArgs} args - Arguments to find a TrackingEvent
+     * @example
+     * // Get one TrackingEvent
+     * const trackingEvent = await prisma.trackingEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TrackingEventFindUniqueOrThrowArgs>(args: SelectSubset<T, TrackingEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TrackingEventClient<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TrackingEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingEventFindFirstArgs} args - Arguments to find a TrackingEvent
+     * @example
+     * // Get one TrackingEvent
+     * const trackingEvent = await prisma.trackingEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TrackingEventFindFirstArgs>(args?: SelectSubset<T, TrackingEventFindFirstArgs<ExtArgs>>): Prisma__TrackingEventClient<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TrackingEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingEventFindFirstOrThrowArgs} args - Arguments to find a TrackingEvent
+     * @example
+     * // Get one TrackingEvent
+     * const trackingEvent = await prisma.trackingEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TrackingEventFindFirstOrThrowArgs>(args?: SelectSubset<T, TrackingEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__TrackingEventClient<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TrackingEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TrackingEvents
+     * const trackingEvents = await prisma.trackingEvent.findMany()
+     * 
+     * // Get first 10 TrackingEvents
+     * const trackingEvents = await prisma.trackingEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const trackingEventWithIdOnly = await prisma.trackingEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TrackingEventFindManyArgs>(args?: SelectSubset<T, TrackingEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TrackingEvent.
+     * @param {TrackingEventCreateArgs} args - Arguments to create a TrackingEvent.
+     * @example
+     * // Create one TrackingEvent
+     * const TrackingEvent = await prisma.trackingEvent.create({
+     *   data: {
+     *     // ... data to create a TrackingEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends TrackingEventCreateArgs>(args: SelectSubset<T, TrackingEventCreateArgs<ExtArgs>>): Prisma__TrackingEventClient<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TrackingEvents.
+     * @param {TrackingEventCreateManyArgs} args - Arguments to create many TrackingEvents.
+     * @example
+     * // Create many TrackingEvents
+     * const trackingEvent = await prisma.trackingEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TrackingEventCreateManyArgs>(args?: SelectSubset<T, TrackingEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TrackingEvents and returns the data saved in the database.
+     * @param {TrackingEventCreateManyAndReturnArgs} args - Arguments to create many TrackingEvents.
+     * @example
+     * // Create many TrackingEvents
+     * const trackingEvent = await prisma.trackingEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TrackingEvents and only return the `id`
+     * const trackingEventWithIdOnly = await prisma.trackingEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TrackingEventCreateManyAndReturnArgs>(args?: SelectSubset<T, TrackingEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TrackingEvent.
+     * @param {TrackingEventDeleteArgs} args - Arguments to delete one TrackingEvent.
+     * @example
+     * // Delete one TrackingEvent
+     * const TrackingEvent = await prisma.trackingEvent.delete({
+     *   where: {
+     *     // ... filter to delete one TrackingEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TrackingEventDeleteArgs>(args: SelectSubset<T, TrackingEventDeleteArgs<ExtArgs>>): Prisma__TrackingEventClient<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TrackingEvent.
+     * @param {TrackingEventUpdateArgs} args - Arguments to update one TrackingEvent.
+     * @example
+     * // Update one TrackingEvent
+     * const trackingEvent = await prisma.trackingEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TrackingEventUpdateArgs>(args: SelectSubset<T, TrackingEventUpdateArgs<ExtArgs>>): Prisma__TrackingEventClient<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TrackingEvents.
+     * @param {TrackingEventDeleteManyArgs} args - Arguments to filter TrackingEvents to delete.
+     * @example
+     * // Delete a few TrackingEvents
+     * const { count } = await prisma.trackingEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TrackingEventDeleteManyArgs>(args?: SelectSubset<T, TrackingEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TrackingEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TrackingEvents
+     * const trackingEvent = await prisma.trackingEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TrackingEventUpdateManyArgs>(args: SelectSubset<T, TrackingEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TrackingEvents and returns the data updated in the database.
+     * @param {TrackingEventUpdateManyAndReturnArgs} args - Arguments to update many TrackingEvents.
+     * @example
+     * // Update many TrackingEvents
+     * const trackingEvent = await prisma.trackingEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TrackingEvents and only return the `id`
+     * const trackingEventWithIdOnly = await prisma.trackingEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TrackingEventUpdateManyAndReturnArgs>(args: SelectSubset<T, TrackingEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TrackingEvent.
+     * @param {TrackingEventUpsertArgs} args - Arguments to update or create a TrackingEvent.
+     * @example
+     * // Update or create a TrackingEvent
+     * const trackingEvent = await prisma.trackingEvent.upsert({
+     *   create: {
+     *     // ... data to create a TrackingEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TrackingEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TrackingEventUpsertArgs>(args: SelectSubset<T, TrackingEventUpsertArgs<ExtArgs>>): Prisma__TrackingEventClient<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TrackingEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingEventCountArgs} args - Arguments to filter TrackingEvents to count.
+     * @example
+     * // Count the number of TrackingEvents
+     * const count = await prisma.trackingEvent.count({
+     *   where: {
+     *     // ... the filter for the TrackingEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends TrackingEventCountArgs>(
+      args?: Subset<T, TrackingEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TrackingEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TrackingEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TrackingEventAggregateArgs>(args: Subset<T, TrackingEventAggregateArgs>): Prisma.PrismaPromise<GetTrackingEventAggregateType<T>>
+
+    /**
+     * Group by TrackingEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackingEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TrackingEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TrackingEventGroupByArgs['orderBy'] }
+        : { orderBy?: TrackingEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TrackingEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTrackingEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TrackingEvent model
+   */
+  readonly fields: TrackingEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TrackingEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TrackingEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    config<T extends TrackingConfigurationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TrackingConfigurationDefaultArgs<ExtArgs>>): Prisma__TrackingConfigurationClient<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends TrackingEvent$userArgs<ExtArgs> = {}>(args?: Subset<T, TrackingEvent$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    session<T extends TrackingEvent$sessionArgs<ExtArgs> = {}>(args?: Subset<T, TrackingEvent$sessionArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TrackingEvent model
+   */
+  interface TrackingEventFieldRefs {
+    readonly id: FieldRef<"TrackingEvent", 'String'>
+    readonly configId: FieldRef<"TrackingEvent", 'String'>
+    readonly sessionId: FieldRef<"TrackingEvent", 'String'>
+    readonly userId: FieldRef<"TrackingEvent", 'String'>
+    readonly eventName: FieldRef<"TrackingEvent", 'String'>
+    readonly eventType: FieldRef<"TrackingEvent", 'TrackingEventType'>
+    readonly platform: FieldRef<"TrackingEvent", 'TrackingPlatform'>
+    readonly eventData: FieldRef<"TrackingEvent", 'Json'>
+    readonly userAgent: FieldRef<"TrackingEvent", 'String'>
+    readonly ipAddress: FieldRef<"TrackingEvent", 'String'>
+    readonly referrer: FieldRef<"TrackingEvent", 'String'>
+    readonly pageUrl: FieldRef<"TrackingEvent", 'String'>
+    readonly pageTitle: FieldRef<"TrackingEvent", 'String'>
+    readonly transactionId: FieldRef<"TrackingEvent", 'String'>
+    readonly value: FieldRef<"TrackingEvent", 'Float'>
+    readonly currency: FieldRef<"TrackingEvent", 'String'>
+    readonly items: FieldRef<"TrackingEvent", 'Json'>
+    readonly conversionValue: FieldRef<"TrackingEvent", 'Float'>
+    readonly conversionType: FieldRef<"TrackingEvent", 'String'>
+    readonly timestamp: FieldRef<"TrackingEvent", 'DateTime'>
+    readonly clientTimestamp: FieldRef<"TrackingEvent", 'DateTime'>
+    readonly processed: FieldRef<"TrackingEvent", 'Boolean'>
+    readonly processingError: FieldRef<"TrackingEvent", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TrackingEvent findUnique
+   */
+  export type TrackingEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackingEvent to fetch.
+     */
+    where: TrackingEventWhereUniqueInput
+  }
+
+  /**
+   * TrackingEvent findUniqueOrThrow
+   */
+  export type TrackingEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackingEvent to fetch.
+     */
+    where: TrackingEventWhereUniqueInput
+  }
+
+  /**
+   * TrackingEvent findFirst
+   */
+  export type TrackingEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackingEvent to fetch.
+     */
+    where?: TrackingEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrackingEvents to fetch.
+     */
+    orderBy?: TrackingEventOrderByWithRelationInput | TrackingEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TrackingEvents.
+     */
+    cursor?: TrackingEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrackingEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrackingEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrackingEvents.
+     */
+    distinct?: TrackingEventScalarFieldEnum | TrackingEventScalarFieldEnum[]
+  }
+
+  /**
+   * TrackingEvent findFirstOrThrow
+   */
+  export type TrackingEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackingEvent to fetch.
+     */
+    where?: TrackingEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrackingEvents to fetch.
+     */
+    orderBy?: TrackingEventOrderByWithRelationInput | TrackingEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TrackingEvents.
+     */
+    cursor?: TrackingEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrackingEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrackingEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrackingEvents.
+     */
+    distinct?: TrackingEventScalarFieldEnum | TrackingEventScalarFieldEnum[]
+  }
+
+  /**
+   * TrackingEvent findMany
+   */
+  export type TrackingEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackingEvents to fetch.
+     */
+    where?: TrackingEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrackingEvents to fetch.
+     */
+    orderBy?: TrackingEventOrderByWithRelationInput | TrackingEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TrackingEvents.
+     */
+    cursor?: TrackingEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrackingEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrackingEvents.
+     */
+    skip?: number
+    distinct?: TrackingEventScalarFieldEnum | TrackingEventScalarFieldEnum[]
+  }
+
+  /**
+   * TrackingEvent create
+   */
+  export type TrackingEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TrackingEvent.
+     */
+    data: XOR<TrackingEventCreateInput, TrackingEventUncheckedCreateInput>
+  }
+
+  /**
+   * TrackingEvent createMany
+   */
+  export type TrackingEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TrackingEvents.
+     */
+    data: TrackingEventCreateManyInput | TrackingEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TrackingEvent createManyAndReturn
+   */
+  export type TrackingEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many TrackingEvents.
+     */
+    data: TrackingEventCreateManyInput | TrackingEventCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TrackingEvent update
+   */
+  export type TrackingEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TrackingEvent.
+     */
+    data: XOR<TrackingEventUpdateInput, TrackingEventUncheckedUpdateInput>
+    /**
+     * Choose, which TrackingEvent to update.
+     */
+    where: TrackingEventWhereUniqueInput
+  }
+
+  /**
+   * TrackingEvent updateMany
+   */
+  export type TrackingEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TrackingEvents.
+     */
+    data: XOR<TrackingEventUpdateManyMutationInput, TrackingEventUncheckedUpdateManyInput>
+    /**
+     * Filter which TrackingEvents to update
+     */
+    where?: TrackingEventWhereInput
+    /**
+     * Limit how many TrackingEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TrackingEvent updateManyAndReturn
+   */
+  export type TrackingEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * The data used to update TrackingEvents.
+     */
+    data: XOR<TrackingEventUpdateManyMutationInput, TrackingEventUncheckedUpdateManyInput>
+    /**
+     * Filter which TrackingEvents to update
+     */
+    where?: TrackingEventWhereInput
+    /**
+     * Limit how many TrackingEvents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TrackingEvent upsert
+   */
+  export type TrackingEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TrackingEvent to update in case it exists.
+     */
+    where: TrackingEventWhereUniqueInput
+    /**
+     * In case the TrackingEvent found by the `where` argument doesn't exist, create a new TrackingEvent with this data.
+     */
+    create: XOR<TrackingEventCreateInput, TrackingEventUncheckedCreateInput>
+    /**
+     * In case the TrackingEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TrackingEventUpdateInput, TrackingEventUncheckedUpdateInput>
+  }
+
+  /**
+   * TrackingEvent delete
+   */
+  export type TrackingEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventInclude<ExtArgs> | null
+    /**
+     * Filter which TrackingEvent to delete.
+     */
+    where: TrackingEventWhereUniqueInput
+  }
+
+  /**
+   * TrackingEvent deleteMany
+   */
+  export type TrackingEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TrackingEvents to delete
+     */
+    where?: TrackingEventWhereInput
+    /**
+     * Limit how many TrackingEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TrackingEvent.user
+   */
+  export type TrackingEvent$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * TrackingEvent.session
+   */
+  export type TrackingEvent$sessionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    where?: UserSessionWhereInput
+  }
+
+  /**
+   * TrackingEvent without action
+   */
+  export type TrackingEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CustomEvent
+   */
+
+  export type AggregateCustomEvent = {
+    _count: CustomEventCountAggregateOutputType | null
+    _avg: CustomEventAvgAggregateOutputType | null
+    _sum: CustomEventSumAggregateOutputType | null
+    _min: CustomEventMinAggregateOutputType | null
+    _max: CustomEventMaxAggregateOutputType | null
+  }
+
+  export type CustomEventAvgAggregateOutputType = {
+    conversionValue: number | null
+  }
+
+  export type CustomEventSumAggregateOutputType = {
+    conversionValue: number | null
+  }
+
+  export type CustomEventMinAggregateOutputType = {
+    id: string | null
+    configId: string | null
+    name: string | null
+    displayName: string | null
+    description: string | null
+    category: string | null
+    isActive: boolean | null
+    conversionValue: number | null
+    trackGA4: boolean | null
+    trackFacebook: boolean | null
+    trackGoogleAds: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CustomEventMaxAggregateOutputType = {
+    id: string | null
+    configId: string | null
+    name: string | null
+    displayName: string | null
+    description: string | null
+    category: string | null
+    isActive: boolean | null
+    conversionValue: number | null
+    trackGA4: boolean | null
+    trackFacebook: boolean | null
+    trackGoogleAds: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CustomEventCountAggregateOutputType = {
+    id: number
+    configId: number
+    name: number
+    displayName: number
+    description: number
+    category: number
+    isActive: number
+    triggers: number
+    parameters: number
+    conversionValue: number
+    trackGA4: number
+    trackFacebook: number
+    trackGoogleAds: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type CustomEventAvgAggregateInputType = {
+    conversionValue?: true
+  }
+
+  export type CustomEventSumAggregateInputType = {
+    conversionValue?: true
+  }
+
+  export type CustomEventMinAggregateInputType = {
+    id?: true
+    configId?: true
+    name?: true
+    displayName?: true
+    description?: true
+    category?: true
+    isActive?: true
+    conversionValue?: true
+    trackGA4?: true
+    trackFacebook?: true
+    trackGoogleAds?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CustomEventMaxAggregateInputType = {
+    id?: true
+    configId?: true
+    name?: true
+    displayName?: true
+    description?: true
+    category?: true
+    isActive?: true
+    conversionValue?: true
+    trackGA4?: true
+    trackFacebook?: true
+    trackGoogleAds?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CustomEventCountAggregateInputType = {
+    id?: true
+    configId?: true
+    name?: true
+    displayName?: true
+    description?: true
+    category?: true
+    isActive?: true
+    triggers?: true
+    parameters?: true
+    conversionValue?: true
+    trackGA4?: true
+    trackFacebook?: true
+    trackGoogleAds?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type CustomEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomEvent to aggregate.
+     */
+    where?: CustomEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomEvents to fetch.
+     */
+    orderBy?: CustomEventOrderByWithRelationInput | CustomEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CustomEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CustomEvents
+    **/
+    _count?: true | CustomEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CustomEventAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CustomEventSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CustomEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CustomEventMaxAggregateInputType
+  }
+
+  export type GetCustomEventAggregateType<T extends CustomEventAggregateArgs> = {
+        [P in keyof T & keyof AggregateCustomEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCustomEvent[P]>
+      : GetScalarType<T[P], AggregateCustomEvent[P]>
+  }
+
+
+
+
+  export type CustomEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomEventWhereInput
+    orderBy?: CustomEventOrderByWithAggregationInput | CustomEventOrderByWithAggregationInput[]
+    by: CustomEventScalarFieldEnum[] | CustomEventScalarFieldEnum
+    having?: CustomEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CustomEventCountAggregateInputType | true
+    _avg?: CustomEventAvgAggregateInputType
+    _sum?: CustomEventSumAggregateInputType
+    _min?: CustomEventMinAggregateInputType
+    _max?: CustomEventMaxAggregateInputType
+  }
+
+  export type CustomEventGroupByOutputType = {
+    id: string
+    configId: string
+    name: string
+    displayName: string
+    description: string | null
+    category: string | null
+    isActive: boolean
+    triggers: JsonValue
+    parameters: JsonValue
+    conversionValue: number | null
+    trackGA4: boolean
+    trackFacebook: boolean
+    trackGoogleAds: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: CustomEventCountAggregateOutputType | null
+    _avg: CustomEventAvgAggregateOutputType | null
+    _sum: CustomEventSumAggregateOutputType | null
+    _min: CustomEventMinAggregateOutputType | null
+    _max: CustomEventMaxAggregateOutputType | null
+  }
+
+  type GetCustomEventGroupByPayload<T extends CustomEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CustomEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CustomEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CustomEventGroupByOutputType[P]>
+            : GetScalarType<T[P], CustomEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CustomEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    configId?: boolean
+    name?: boolean
+    displayName?: boolean
+    description?: boolean
+    category?: boolean
+    isActive?: boolean
+    triggers?: boolean
+    parameters?: boolean
+    conversionValue?: boolean
+    trackGA4?: boolean
+    trackFacebook?: boolean
+    trackGoogleAds?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+    instances?: boolean | CustomEvent$instancesArgs<ExtArgs>
+    _count?: boolean | CustomEventCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["customEvent"]>
+
+  export type CustomEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    configId?: boolean
+    name?: boolean
+    displayName?: boolean
+    description?: boolean
+    category?: boolean
+    isActive?: boolean
+    triggers?: boolean
+    parameters?: boolean
+    conversionValue?: boolean
+    trackGA4?: boolean
+    trackFacebook?: boolean
+    trackGoogleAds?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["customEvent"]>
+
+  export type CustomEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    configId?: boolean
+    name?: boolean
+    displayName?: boolean
+    description?: boolean
+    category?: boolean
+    isActive?: boolean
+    triggers?: boolean
+    parameters?: boolean
+    conversionValue?: boolean
+    trackGA4?: boolean
+    trackFacebook?: boolean
+    trackGoogleAds?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["customEvent"]>
+
+  export type CustomEventSelectScalar = {
+    id?: boolean
+    configId?: boolean
+    name?: boolean
+    displayName?: boolean
+    description?: boolean
+    category?: boolean
+    isActive?: boolean
+    triggers?: boolean
+    parameters?: boolean
+    conversionValue?: boolean
+    trackGA4?: boolean
+    trackFacebook?: boolean
+    trackGoogleAds?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type CustomEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "configId" | "name" | "displayName" | "description" | "category" | "isActive" | "triggers" | "parameters" | "conversionValue" | "trackGA4" | "trackFacebook" | "trackGoogleAds" | "createdAt" | "updatedAt", ExtArgs["result"]["customEvent"]>
+  export type CustomEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+    instances?: boolean | CustomEvent$instancesArgs<ExtArgs>
+    _count?: boolean | CustomEventCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type CustomEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+  }
+  export type CustomEventIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+  }
+
+  export type $CustomEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CustomEvent"
+    objects: {
+      config: Prisma.$TrackingConfigurationPayload<ExtArgs>
+      instances: Prisma.$CustomEventInstancePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      configId: string
+      name: string
+      displayName: string
+      description: string | null
+      category: string | null
+      isActive: boolean
+      triggers: Prisma.JsonValue
+      parameters: Prisma.JsonValue
+      conversionValue: number | null
+      trackGA4: boolean
+      trackFacebook: boolean
+      trackGoogleAds: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["customEvent"]>
+    composites: {}
+  }
+
+  type CustomEventGetPayload<S extends boolean | null | undefined | CustomEventDefaultArgs> = $Result.GetResult<Prisma.$CustomEventPayload, S>
+
+  type CustomEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CustomEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CustomEventCountAggregateInputType | true
+    }
+
+  export interface CustomEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CustomEvent'], meta: { name: 'CustomEvent' } }
+    /**
+     * Find zero or one CustomEvent that matches the filter.
+     * @param {CustomEventFindUniqueArgs} args - Arguments to find a CustomEvent
+     * @example
+     * // Get one CustomEvent
+     * const customEvent = await prisma.customEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CustomEventFindUniqueArgs>(args: SelectSubset<T, CustomEventFindUniqueArgs<ExtArgs>>): Prisma__CustomEventClient<$Result.GetResult<Prisma.$CustomEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CustomEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CustomEventFindUniqueOrThrowArgs} args - Arguments to find a CustomEvent
+     * @example
+     * // Get one CustomEvent
+     * const customEvent = await prisma.customEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CustomEventFindUniqueOrThrowArgs>(args: SelectSubset<T, CustomEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CustomEventClient<$Result.GetResult<Prisma.$CustomEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventFindFirstArgs} args - Arguments to find a CustomEvent
+     * @example
+     * // Get one CustomEvent
+     * const customEvent = await prisma.customEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CustomEventFindFirstArgs>(args?: SelectSubset<T, CustomEventFindFirstArgs<ExtArgs>>): Prisma__CustomEventClient<$Result.GetResult<Prisma.$CustomEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventFindFirstOrThrowArgs} args - Arguments to find a CustomEvent
+     * @example
+     * // Get one CustomEvent
+     * const customEvent = await prisma.customEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CustomEventFindFirstOrThrowArgs>(args?: SelectSubset<T, CustomEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__CustomEventClient<$Result.GetResult<Prisma.$CustomEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CustomEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CustomEvents
+     * const customEvents = await prisma.customEvent.findMany()
+     * 
+     * // Get first 10 CustomEvents
+     * const customEvents = await prisma.customEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const customEventWithIdOnly = await prisma.customEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CustomEventFindManyArgs>(args?: SelectSubset<T, CustomEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CustomEvent.
+     * @param {CustomEventCreateArgs} args - Arguments to create a CustomEvent.
+     * @example
+     * // Create one CustomEvent
+     * const CustomEvent = await prisma.customEvent.create({
+     *   data: {
+     *     // ... data to create a CustomEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends CustomEventCreateArgs>(args: SelectSubset<T, CustomEventCreateArgs<ExtArgs>>): Prisma__CustomEventClient<$Result.GetResult<Prisma.$CustomEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CustomEvents.
+     * @param {CustomEventCreateManyArgs} args - Arguments to create many CustomEvents.
+     * @example
+     * // Create many CustomEvents
+     * const customEvent = await prisma.customEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CustomEventCreateManyArgs>(args?: SelectSubset<T, CustomEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CustomEvents and returns the data saved in the database.
+     * @param {CustomEventCreateManyAndReturnArgs} args - Arguments to create many CustomEvents.
+     * @example
+     * // Create many CustomEvents
+     * const customEvent = await prisma.customEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CustomEvents and only return the `id`
+     * const customEventWithIdOnly = await prisma.customEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CustomEventCreateManyAndReturnArgs>(args?: SelectSubset<T, CustomEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CustomEvent.
+     * @param {CustomEventDeleteArgs} args - Arguments to delete one CustomEvent.
+     * @example
+     * // Delete one CustomEvent
+     * const CustomEvent = await prisma.customEvent.delete({
+     *   where: {
+     *     // ... filter to delete one CustomEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CustomEventDeleteArgs>(args: SelectSubset<T, CustomEventDeleteArgs<ExtArgs>>): Prisma__CustomEventClient<$Result.GetResult<Prisma.$CustomEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CustomEvent.
+     * @param {CustomEventUpdateArgs} args - Arguments to update one CustomEvent.
+     * @example
+     * // Update one CustomEvent
+     * const customEvent = await prisma.customEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CustomEventUpdateArgs>(args: SelectSubset<T, CustomEventUpdateArgs<ExtArgs>>): Prisma__CustomEventClient<$Result.GetResult<Prisma.$CustomEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CustomEvents.
+     * @param {CustomEventDeleteManyArgs} args - Arguments to filter CustomEvents to delete.
+     * @example
+     * // Delete a few CustomEvents
+     * const { count } = await prisma.customEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CustomEventDeleteManyArgs>(args?: SelectSubset<T, CustomEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CustomEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CustomEvents
+     * const customEvent = await prisma.customEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CustomEventUpdateManyArgs>(args: SelectSubset<T, CustomEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CustomEvents and returns the data updated in the database.
+     * @param {CustomEventUpdateManyAndReturnArgs} args - Arguments to update many CustomEvents.
+     * @example
+     * // Update many CustomEvents
+     * const customEvent = await prisma.customEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CustomEvents and only return the `id`
+     * const customEventWithIdOnly = await prisma.customEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CustomEventUpdateManyAndReturnArgs>(args: SelectSubset<T, CustomEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CustomEvent.
+     * @param {CustomEventUpsertArgs} args - Arguments to update or create a CustomEvent.
+     * @example
+     * // Update or create a CustomEvent
+     * const customEvent = await prisma.customEvent.upsert({
+     *   create: {
+     *     // ... data to create a CustomEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CustomEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CustomEventUpsertArgs>(args: SelectSubset<T, CustomEventUpsertArgs<ExtArgs>>): Prisma__CustomEventClient<$Result.GetResult<Prisma.$CustomEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CustomEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventCountArgs} args - Arguments to filter CustomEvents to count.
+     * @example
+     * // Count the number of CustomEvents
+     * const count = await prisma.customEvent.count({
+     *   where: {
+     *     // ... the filter for the CustomEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends CustomEventCountArgs>(
+      args?: Subset<T, CustomEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CustomEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CustomEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CustomEventAggregateArgs>(args: Subset<T, CustomEventAggregateArgs>): Prisma.PrismaPromise<GetCustomEventAggregateType<T>>
+
+    /**
+     * Group by CustomEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CustomEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CustomEventGroupByArgs['orderBy'] }
+        : { orderBy?: CustomEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CustomEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCustomEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CustomEvent model
+   */
+  readonly fields: CustomEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CustomEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CustomEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    config<T extends TrackingConfigurationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TrackingConfigurationDefaultArgs<ExtArgs>>): Prisma__TrackingConfigurationClient<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    instances<T extends CustomEvent$instancesArgs<ExtArgs> = {}>(args?: Subset<T, CustomEvent$instancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomEventInstancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CustomEvent model
+   */
+  interface CustomEventFieldRefs {
+    readonly id: FieldRef<"CustomEvent", 'String'>
+    readonly configId: FieldRef<"CustomEvent", 'String'>
+    readonly name: FieldRef<"CustomEvent", 'String'>
+    readonly displayName: FieldRef<"CustomEvent", 'String'>
+    readonly description: FieldRef<"CustomEvent", 'String'>
+    readonly category: FieldRef<"CustomEvent", 'String'>
+    readonly isActive: FieldRef<"CustomEvent", 'Boolean'>
+    readonly triggers: FieldRef<"CustomEvent", 'Json'>
+    readonly parameters: FieldRef<"CustomEvent", 'Json'>
+    readonly conversionValue: FieldRef<"CustomEvent", 'Float'>
+    readonly trackGA4: FieldRef<"CustomEvent", 'Boolean'>
+    readonly trackFacebook: FieldRef<"CustomEvent", 'Boolean'>
+    readonly trackGoogleAds: FieldRef<"CustomEvent", 'Boolean'>
+    readonly createdAt: FieldRef<"CustomEvent", 'DateTime'>
+    readonly updatedAt: FieldRef<"CustomEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CustomEvent findUnique
+   */
+  export type CustomEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEvent
+     */
+    select?: CustomEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEvent
+     */
+    omit?: CustomEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomEvent to fetch.
+     */
+    where: CustomEventWhereUniqueInput
+  }
+
+  /**
+   * CustomEvent findUniqueOrThrow
+   */
+  export type CustomEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEvent
+     */
+    select?: CustomEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEvent
+     */
+    omit?: CustomEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomEvent to fetch.
+     */
+    where: CustomEventWhereUniqueInput
+  }
+
+  /**
+   * CustomEvent findFirst
+   */
+  export type CustomEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEvent
+     */
+    select?: CustomEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEvent
+     */
+    omit?: CustomEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomEvent to fetch.
+     */
+    where?: CustomEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomEvents to fetch.
+     */
+    orderBy?: CustomEventOrderByWithRelationInput | CustomEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomEvents.
+     */
+    cursor?: CustomEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomEvents.
+     */
+    distinct?: CustomEventScalarFieldEnum | CustomEventScalarFieldEnum[]
+  }
+
+  /**
+   * CustomEvent findFirstOrThrow
+   */
+  export type CustomEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEvent
+     */
+    select?: CustomEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEvent
+     */
+    omit?: CustomEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomEvent to fetch.
+     */
+    where?: CustomEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomEvents to fetch.
+     */
+    orderBy?: CustomEventOrderByWithRelationInput | CustomEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomEvents.
+     */
+    cursor?: CustomEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomEvents.
+     */
+    distinct?: CustomEventScalarFieldEnum | CustomEventScalarFieldEnum[]
+  }
+
+  /**
+   * CustomEvent findMany
+   */
+  export type CustomEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEvent
+     */
+    select?: CustomEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEvent
+     */
+    omit?: CustomEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomEvents to fetch.
+     */
+    where?: CustomEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomEvents to fetch.
+     */
+    orderBy?: CustomEventOrderByWithRelationInput | CustomEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CustomEvents.
+     */
+    cursor?: CustomEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomEvents.
+     */
+    skip?: number
+    distinct?: CustomEventScalarFieldEnum | CustomEventScalarFieldEnum[]
+  }
+
+  /**
+   * CustomEvent create
+   */
+  export type CustomEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEvent
+     */
+    select?: CustomEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEvent
+     */
+    omit?: CustomEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CustomEvent.
+     */
+    data: XOR<CustomEventCreateInput, CustomEventUncheckedCreateInput>
+  }
+
+  /**
+   * CustomEvent createMany
+   */
+  export type CustomEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CustomEvents.
+     */
+    data: CustomEventCreateManyInput | CustomEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CustomEvent createManyAndReturn
+   */
+  export type CustomEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEvent
+     */
+    select?: CustomEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEvent
+     */
+    omit?: CustomEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many CustomEvents.
+     */
+    data: CustomEventCreateManyInput | CustomEventCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CustomEvent update
+   */
+  export type CustomEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEvent
+     */
+    select?: CustomEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEvent
+     */
+    omit?: CustomEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CustomEvent.
+     */
+    data: XOR<CustomEventUpdateInput, CustomEventUncheckedUpdateInput>
+    /**
+     * Choose, which CustomEvent to update.
+     */
+    where: CustomEventWhereUniqueInput
+  }
+
+  /**
+   * CustomEvent updateMany
+   */
+  export type CustomEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CustomEvents.
+     */
+    data: XOR<CustomEventUpdateManyMutationInput, CustomEventUncheckedUpdateManyInput>
+    /**
+     * Filter which CustomEvents to update
+     */
+    where?: CustomEventWhereInput
+    /**
+     * Limit how many CustomEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomEvent updateManyAndReturn
+   */
+  export type CustomEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEvent
+     */
+    select?: CustomEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEvent
+     */
+    omit?: CustomEventOmit<ExtArgs> | null
+    /**
+     * The data used to update CustomEvents.
+     */
+    data: XOR<CustomEventUpdateManyMutationInput, CustomEventUncheckedUpdateManyInput>
+    /**
+     * Filter which CustomEvents to update
+     */
+    where?: CustomEventWhereInput
+    /**
+     * Limit how many CustomEvents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CustomEvent upsert
+   */
+  export type CustomEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEvent
+     */
+    select?: CustomEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEvent
+     */
+    omit?: CustomEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CustomEvent to update in case it exists.
+     */
+    where: CustomEventWhereUniqueInput
+    /**
+     * In case the CustomEvent found by the `where` argument doesn't exist, create a new CustomEvent with this data.
+     */
+    create: XOR<CustomEventCreateInput, CustomEventUncheckedCreateInput>
+    /**
+     * In case the CustomEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CustomEventUpdateInput, CustomEventUncheckedUpdateInput>
+  }
+
+  /**
+   * CustomEvent delete
+   */
+  export type CustomEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEvent
+     */
+    select?: CustomEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEvent
+     */
+    omit?: CustomEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInclude<ExtArgs> | null
+    /**
+     * Filter which CustomEvent to delete.
+     */
+    where: CustomEventWhereUniqueInput
+  }
+
+  /**
+   * CustomEvent deleteMany
+   */
+  export type CustomEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomEvents to delete
+     */
+    where?: CustomEventWhereInput
+    /**
+     * Limit how many CustomEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomEvent.instances
+   */
+  export type CustomEvent$instancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceInclude<ExtArgs> | null
+    where?: CustomEventInstanceWhereInput
+    orderBy?: CustomEventInstanceOrderByWithRelationInput | CustomEventInstanceOrderByWithRelationInput[]
+    cursor?: CustomEventInstanceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CustomEventInstanceScalarFieldEnum | CustomEventInstanceScalarFieldEnum[]
+  }
+
+  /**
+   * CustomEvent without action
+   */
+  export type CustomEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEvent
+     */
+    select?: CustomEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEvent
+     */
+    omit?: CustomEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CustomEventInstance
+   */
+
+  export type AggregateCustomEventInstance = {
+    _count: CustomEventInstanceCountAggregateOutputType | null
+    _avg: CustomEventInstanceAvgAggregateOutputType | null
+    _sum: CustomEventInstanceSumAggregateOutputType | null
+    _min: CustomEventInstanceMinAggregateOutputType | null
+    _max: CustomEventInstanceMaxAggregateOutputType | null
+  }
+
+  export type CustomEventInstanceAvgAggregateOutputType = {
+    value: number | null
+  }
+
+  export type CustomEventInstanceSumAggregateOutputType = {
+    value: number | null
+  }
+
+  export type CustomEventInstanceMinAggregateOutputType = {
+    id: string | null
+    customEventId: string | null
+    sessionId: string | null
+    userId: string | null
+    value: number | null
+    currency: string | null
+    pageUrl: string | null
+    timestamp: Date | null
+  }
+
+  export type CustomEventInstanceMaxAggregateOutputType = {
+    id: string | null
+    customEventId: string | null
+    sessionId: string | null
+    userId: string | null
+    value: number | null
+    currency: string | null
+    pageUrl: string | null
+    timestamp: Date | null
+  }
+
+  export type CustomEventInstanceCountAggregateOutputType = {
+    id: number
+    customEventId: number
+    sessionId: number
+    userId: number
+    parameters: number
+    value: number
+    currency: number
+    pageUrl: number
+    timestamp: number
+    _all: number
+  }
+
+
+  export type CustomEventInstanceAvgAggregateInputType = {
+    value?: true
+  }
+
+  export type CustomEventInstanceSumAggregateInputType = {
+    value?: true
+  }
+
+  export type CustomEventInstanceMinAggregateInputType = {
+    id?: true
+    customEventId?: true
+    sessionId?: true
+    userId?: true
+    value?: true
+    currency?: true
+    pageUrl?: true
+    timestamp?: true
+  }
+
+  export type CustomEventInstanceMaxAggregateInputType = {
+    id?: true
+    customEventId?: true
+    sessionId?: true
+    userId?: true
+    value?: true
+    currency?: true
+    pageUrl?: true
+    timestamp?: true
+  }
+
+  export type CustomEventInstanceCountAggregateInputType = {
+    id?: true
+    customEventId?: true
+    sessionId?: true
+    userId?: true
+    parameters?: true
+    value?: true
+    currency?: true
+    pageUrl?: true
+    timestamp?: true
+    _all?: true
+  }
+
+  export type CustomEventInstanceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomEventInstance to aggregate.
+     */
+    where?: CustomEventInstanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomEventInstances to fetch.
+     */
+    orderBy?: CustomEventInstanceOrderByWithRelationInput | CustomEventInstanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CustomEventInstanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomEventInstances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomEventInstances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CustomEventInstances
+    **/
+    _count?: true | CustomEventInstanceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CustomEventInstanceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CustomEventInstanceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CustomEventInstanceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CustomEventInstanceMaxAggregateInputType
+  }
+
+  export type GetCustomEventInstanceAggregateType<T extends CustomEventInstanceAggregateArgs> = {
+        [P in keyof T & keyof AggregateCustomEventInstance]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCustomEventInstance[P]>
+      : GetScalarType<T[P], AggregateCustomEventInstance[P]>
+  }
+
+
+
+
+  export type CustomEventInstanceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomEventInstanceWhereInput
+    orderBy?: CustomEventInstanceOrderByWithAggregationInput | CustomEventInstanceOrderByWithAggregationInput[]
+    by: CustomEventInstanceScalarFieldEnum[] | CustomEventInstanceScalarFieldEnum
+    having?: CustomEventInstanceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CustomEventInstanceCountAggregateInputType | true
+    _avg?: CustomEventInstanceAvgAggregateInputType
+    _sum?: CustomEventInstanceSumAggregateInputType
+    _min?: CustomEventInstanceMinAggregateInputType
+    _max?: CustomEventInstanceMaxAggregateInputType
+  }
+
+  export type CustomEventInstanceGroupByOutputType = {
+    id: string
+    customEventId: string
+    sessionId: string
+    userId: string | null
+    parameters: JsonValue
+    value: number | null
+    currency: string | null
+    pageUrl: string | null
+    timestamp: Date
+    _count: CustomEventInstanceCountAggregateOutputType | null
+    _avg: CustomEventInstanceAvgAggregateOutputType | null
+    _sum: CustomEventInstanceSumAggregateOutputType | null
+    _min: CustomEventInstanceMinAggregateOutputType | null
+    _max: CustomEventInstanceMaxAggregateOutputType | null
+  }
+
+  type GetCustomEventInstanceGroupByPayload<T extends CustomEventInstanceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CustomEventInstanceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CustomEventInstanceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CustomEventInstanceGroupByOutputType[P]>
+            : GetScalarType<T[P], CustomEventInstanceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CustomEventInstanceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    customEventId?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    parameters?: boolean
+    value?: boolean
+    currency?: boolean
+    pageUrl?: boolean
+    timestamp?: boolean
+    customEvent?: boolean | CustomEventDefaultArgs<ExtArgs>
+    user?: boolean | CustomEventInstance$userArgs<ExtArgs>
+  }, ExtArgs["result"]["customEventInstance"]>
+
+  export type CustomEventInstanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    customEventId?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    parameters?: boolean
+    value?: boolean
+    currency?: boolean
+    pageUrl?: boolean
+    timestamp?: boolean
+    customEvent?: boolean | CustomEventDefaultArgs<ExtArgs>
+    user?: boolean | CustomEventInstance$userArgs<ExtArgs>
+  }, ExtArgs["result"]["customEventInstance"]>
+
+  export type CustomEventInstanceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    customEventId?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    parameters?: boolean
+    value?: boolean
+    currency?: boolean
+    pageUrl?: boolean
+    timestamp?: boolean
+    customEvent?: boolean | CustomEventDefaultArgs<ExtArgs>
+    user?: boolean | CustomEventInstance$userArgs<ExtArgs>
+  }, ExtArgs["result"]["customEventInstance"]>
+
+  export type CustomEventInstanceSelectScalar = {
+    id?: boolean
+    customEventId?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    parameters?: boolean
+    value?: boolean
+    currency?: boolean
+    pageUrl?: boolean
+    timestamp?: boolean
+  }
+
+  export type CustomEventInstanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "customEventId" | "sessionId" | "userId" | "parameters" | "value" | "currency" | "pageUrl" | "timestamp", ExtArgs["result"]["customEventInstance"]>
+  export type CustomEventInstanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    customEvent?: boolean | CustomEventDefaultArgs<ExtArgs>
+    user?: boolean | CustomEventInstance$userArgs<ExtArgs>
+  }
+  export type CustomEventInstanceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    customEvent?: boolean | CustomEventDefaultArgs<ExtArgs>
+    user?: boolean | CustomEventInstance$userArgs<ExtArgs>
+  }
+  export type CustomEventInstanceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    customEvent?: boolean | CustomEventDefaultArgs<ExtArgs>
+    user?: boolean | CustomEventInstance$userArgs<ExtArgs>
+  }
+
+  export type $CustomEventInstancePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CustomEventInstance"
+    objects: {
+      customEvent: Prisma.$CustomEventPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      customEventId: string
+      sessionId: string
+      userId: string | null
+      parameters: Prisma.JsonValue
+      value: number | null
+      currency: string | null
+      pageUrl: string | null
+      timestamp: Date
+    }, ExtArgs["result"]["customEventInstance"]>
+    composites: {}
+  }
+
+  type CustomEventInstanceGetPayload<S extends boolean | null | undefined | CustomEventInstanceDefaultArgs> = $Result.GetResult<Prisma.$CustomEventInstancePayload, S>
+
+  type CustomEventInstanceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CustomEventInstanceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CustomEventInstanceCountAggregateInputType | true
+    }
+
+  export interface CustomEventInstanceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CustomEventInstance'], meta: { name: 'CustomEventInstance' } }
+    /**
+     * Find zero or one CustomEventInstance that matches the filter.
+     * @param {CustomEventInstanceFindUniqueArgs} args - Arguments to find a CustomEventInstance
+     * @example
+     * // Get one CustomEventInstance
+     * const customEventInstance = await prisma.customEventInstance.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CustomEventInstanceFindUniqueArgs>(args: SelectSubset<T, CustomEventInstanceFindUniqueArgs<ExtArgs>>): Prisma__CustomEventInstanceClient<$Result.GetResult<Prisma.$CustomEventInstancePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CustomEventInstance that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CustomEventInstanceFindUniqueOrThrowArgs} args - Arguments to find a CustomEventInstance
+     * @example
+     * // Get one CustomEventInstance
+     * const customEventInstance = await prisma.customEventInstance.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CustomEventInstanceFindUniqueOrThrowArgs>(args: SelectSubset<T, CustomEventInstanceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CustomEventInstanceClient<$Result.GetResult<Prisma.$CustomEventInstancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomEventInstance that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventInstanceFindFirstArgs} args - Arguments to find a CustomEventInstance
+     * @example
+     * // Get one CustomEventInstance
+     * const customEventInstance = await prisma.customEventInstance.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CustomEventInstanceFindFirstArgs>(args?: SelectSubset<T, CustomEventInstanceFindFirstArgs<ExtArgs>>): Prisma__CustomEventInstanceClient<$Result.GetResult<Prisma.$CustomEventInstancePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomEventInstance that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventInstanceFindFirstOrThrowArgs} args - Arguments to find a CustomEventInstance
+     * @example
+     * // Get one CustomEventInstance
+     * const customEventInstance = await prisma.customEventInstance.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CustomEventInstanceFindFirstOrThrowArgs>(args?: SelectSubset<T, CustomEventInstanceFindFirstOrThrowArgs<ExtArgs>>): Prisma__CustomEventInstanceClient<$Result.GetResult<Prisma.$CustomEventInstancePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CustomEventInstances that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventInstanceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CustomEventInstances
+     * const customEventInstances = await prisma.customEventInstance.findMany()
+     * 
+     * // Get first 10 CustomEventInstances
+     * const customEventInstances = await prisma.customEventInstance.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const customEventInstanceWithIdOnly = await prisma.customEventInstance.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CustomEventInstanceFindManyArgs>(args?: SelectSubset<T, CustomEventInstanceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomEventInstancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CustomEventInstance.
+     * @param {CustomEventInstanceCreateArgs} args - Arguments to create a CustomEventInstance.
+     * @example
+     * // Create one CustomEventInstance
+     * const CustomEventInstance = await prisma.customEventInstance.create({
+     *   data: {
+     *     // ... data to create a CustomEventInstance
+     *   }
+     * })
+     * 
+     */
+    create<T extends CustomEventInstanceCreateArgs>(args: SelectSubset<T, CustomEventInstanceCreateArgs<ExtArgs>>): Prisma__CustomEventInstanceClient<$Result.GetResult<Prisma.$CustomEventInstancePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CustomEventInstances.
+     * @param {CustomEventInstanceCreateManyArgs} args - Arguments to create many CustomEventInstances.
+     * @example
+     * // Create many CustomEventInstances
+     * const customEventInstance = await prisma.customEventInstance.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CustomEventInstanceCreateManyArgs>(args?: SelectSubset<T, CustomEventInstanceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CustomEventInstances and returns the data saved in the database.
+     * @param {CustomEventInstanceCreateManyAndReturnArgs} args - Arguments to create many CustomEventInstances.
+     * @example
+     * // Create many CustomEventInstances
+     * const customEventInstance = await prisma.customEventInstance.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CustomEventInstances and only return the `id`
+     * const customEventInstanceWithIdOnly = await prisma.customEventInstance.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CustomEventInstanceCreateManyAndReturnArgs>(args?: SelectSubset<T, CustomEventInstanceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomEventInstancePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CustomEventInstance.
+     * @param {CustomEventInstanceDeleteArgs} args - Arguments to delete one CustomEventInstance.
+     * @example
+     * // Delete one CustomEventInstance
+     * const CustomEventInstance = await prisma.customEventInstance.delete({
+     *   where: {
+     *     // ... filter to delete one CustomEventInstance
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CustomEventInstanceDeleteArgs>(args: SelectSubset<T, CustomEventInstanceDeleteArgs<ExtArgs>>): Prisma__CustomEventInstanceClient<$Result.GetResult<Prisma.$CustomEventInstancePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CustomEventInstance.
+     * @param {CustomEventInstanceUpdateArgs} args - Arguments to update one CustomEventInstance.
+     * @example
+     * // Update one CustomEventInstance
+     * const customEventInstance = await prisma.customEventInstance.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CustomEventInstanceUpdateArgs>(args: SelectSubset<T, CustomEventInstanceUpdateArgs<ExtArgs>>): Prisma__CustomEventInstanceClient<$Result.GetResult<Prisma.$CustomEventInstancePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CustomEventInstances.
+     * @param {CustomEventInstanceDeleteManyArgs} args - Arguments to filter CustomEventInstances to delete.
+     * @example
+     * // Delete a few CustomEventInstances
+     * const { count } = await prisma.customEventInstance.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CustomEventInstanceDeleteManyArgs>(args?: SelectSubset<T, CustomEventInstanceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CustomEventInstances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventInstanceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CustomEventInstances
+     * const customEventInstance = await prisma.customEventInstance.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CustomEventInstanceUpdateManyArgs>(args: SelectSubset<T, CustomEventInstanceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CustomEventInstances and returns the data updated in the database.
+     * @param {CustomEventInstanceUpdateManyAndReturnArgs} args - Arguments to update many CustomEventInstances.
+     * @example
+     * // Update many CustomEventInstances
+     * const customEventInstance = await prisma.customEventInstance.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CustomEventInstances and only return the `id`
+     * const customEventInstanceWithIdOnly = await prisma.customEventInstance.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CustomEventInstanceUpdateManyAndReturnArgs>(args: SelectSubset<T, CustomEventInstanceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomEventInstancePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CustomEventInstance.
+     * @param {CustomEventInstanceUpsertArgs} args - Arguments to update or create a CustomEventInstance.
+     * @example
+     * // Update or create a CustomEventInstance
+     * const customEventInstance = await prisma.customEventInstance.upsert({
+     *   create: {
+     *     // ... data to create a CustomEventInstance
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CustomEventInstance we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CustomEventInstanceUpsertArgs>(args: SelectSubset<T, CustomEventInstanceUpsertArgs<ExtArgs>>): Prisma__CustomEventInstanceClient<$Result.GetResult<Prisma.$CustomEventInstancePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CustomEventInstances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventInstanceCountArgs} args - Arguments to filter CustomEventInstances to count.
+     * @example
+     * // Count the number of CustomEventInstances
+     * const count = await prisma.customEventInstance.count({
+     *   where: {
+     *     // ... the filter for the CustomEventInstances we want to count
+     *   }
+     * })
+    **/
+    count<T extends CustomEventInstanceCountArgs>(
+      args?: Subset<T, CustomEventInstanceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CustomEventInstanceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CustomEventInstance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventInstanceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CustomEventInstanceAggregateArgs>(args: Subset<T, CustomEventInstanceAggregateArgs>): Prisma.PrismaPromise<GetCustomEventInstanceAggregateType<T>>
+
+    /**
+     * Group by CustomEventInstance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomEventInstanceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CustomEventInstanceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CustomEventInstanceGroupByArgs['orderBy'] }
+        : { orderBy?: CustomEventInstanceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CustomEventInstanceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCustomEventInstanceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CustomEventInstance model
+   */
+  readonly fields: CustomEventInstanceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CustomEventInstance.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CustomEventInstanceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    customEvent<T extends CustomEventDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CustomEventDefaultArgs<ExtArgs>>): Prisma__CustomEventClient<$Result.GetResult<Prisma.$CustomEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends CustomEventInstance$userArgs<ExtArgs> = {}>(args?: Subset<T, CustomEventInstance$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CustomEventInstance model
+   */
+  interface CustomEventInstanceFieldRefs {
+    readonly id: FieldRef<"CustomEventInstance", 'String'>
+    readonly customEventId: FieldRef<"CustomEventInstance", 'String'>
+    readonly sessionId: FieldRef<"CustomEventInstance", 'String'>
+    readonly userId: FieldRef<"CustomEventInstance", 'String'>
+    readonly parameters: FieldRef<"CustomEventInstance", 'Json'>
+    readonly value: FieldRef<"CustomEventInstance", 'Float'>
+    readonly currency: FieldRef<"CustomEventInstance", 'String'>
+    readonly pageUrl: FieldRef<"CustomEventInstance", 'String'>
+    readonly timestamp: FieldRef<"CustomEventInstance", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CustomEventInstance findUnique
+   */
+  export type CustomEventInstanceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomEventInstance to fetch.
+     */
+    where: CustomEventInstanceWhereUniqueInput
+  }
+
+  /**
+   * CustomEventInstance findUniqueOrThrow
+   */
+  export type CustomEventInstanceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomEventInstance to fetch.
+     */
+    where: CustomEventInstanceWhereUniqueInput
+  }
+
+  /**
+   * CustomEventInstance findFirst
+   */
+  export type CustomEventInstanceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomEventInstance to fetch.
+     */
+    where?: CustomEventInstanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomEventInstances to fetch.
+     */
+    orderBy?: CustomEventInstanceOrderByWithRelationInput | CustomEventInstanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomEventInstances.
+     */
+    cursor?: CustomEventInstanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomEventInstances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomEventInstances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomEventInstances.
+     */
+    distinct?: CustomEventInstanceScalarFieldEnum | CustomEventInstanceScalarFieldEnum[]
+  }
+
+  /**
+   * CustomEventInstance findFirstOrThrow
+   */
+  export type CustomEventInstanceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomEventInstance to fetch.
+     */
+    where?: CustomEventInstanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomEventInstances to fetch.
+     */
+    orderBy?: CustomEventInstanceOrderByWithRelationInput | CustomEventInstanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomEventInstances.
+     */
+    cursor?: CustomEventInstanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomEventInstances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomEventInstances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomEventInstances.
+     */
+    distinct?: CustomEventInstanceScalarFieldEnum | CustomEventInstanceScalarFieldEnum[]
+  }
+
+  /**
+   * CustomEventInstance findMany
+   */
+  export type CustomEventInstanceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomEventInstances to fetch.
+     */
+    where?: CustomEventInstanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomEventInstances to fetch.
+     */
+    orderBy?: CustomEventInstanceOrderByWithRelationInput | CustomEventInstanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CustomEventInstances.
+     */
+    cursor?: CustomEventInstanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomEventInstances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomEventInstances.
+     */
+    skip?: number
+    distinct?: CustomEventInstanceScalarFieldEnum | CustomEventInstanceScalarFieldEnum[]
+  }
+
+  /**
+   * CustomEventInstance create
+   */
+  export type CustomEventInstanceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CustomEventInstance.
+     */
+    data: XOR<CustomEventInstanceCreateInput, CustomEventInstanceUncheckedCreateInput>
+  }
+
+  /**
+   * CustomEventInstance createMany
+   */
+  export type CustomEventInstanceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CustomEventInstances.
+     */
+    data: CustomEventInstanceCreateManyInput | CustomEventInstanceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CustomEventInstance createManyAndReturn
+   */
+  export type CustomEventInstanceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * The data used to create many CustomEventInstances.
+     */
+    data: CustomEventInstanceCreateManyInput | CustomEventInstanceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CustomEventInstance update
+   */
+  export type CustomEventInstanceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CustomEventInstance.
+     */
+    data: XOR<CustomEventInstanceUpdateInput, CustomEventInstanceUncheckedUpdateInput>
+    /**
+     * Choose, which CustomEventInstance to update.
+     */
+    where: CustomEventInstanceWhereUniqueInput
+  }
+
+  /**
+   * CustomEventInstance updateMany
+   */
+  export type CustomEventInstanceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CustomEventInstances.
+     */
+    data: XOR<CustomEventInstanceUpdateManyMutationInput, CustomEventInstanceUncheckedUpdateManyInput>
+    /**
+     * Filter which CustomEventInstances to update
+     */
+    where?: CustomEventInstanceWhereInput
+    /**
+     * Limit how many CustomEventInstances to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomEventInstance updateManyAndReturn
+   */
+  export type CustomEventInstanceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * The data used to update CustomEventInstances.
+     */
+    data: XOR<CustomEventInstanceUpdateManyMutationInput, CustomEventInstanceUncheckedUpdateManyInput>
+    /**
+     * Filter which CustomEventInstances to update
+     */
+    where?: CustomEventInstanceWhereInput
+    /**
+     * Limit how many CustomEventInstances to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CustomEventInstance upsert
+   */
+  export type CustomEventInstanceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CustomEventInstance to update in case it exists.
+     */
+    where: CustomEventInstanceWhereUniqueInput
+    /**
+     * In case the CustomEventInstance found by the `where` argument doesn't exist, create a new CustomEventInstance with this data.
+     */
+    create: XOR<CustomEventInstanceCreateInput, CustomEventInstanceUncheckedCreateInput>
+    /**
+     * In case the CustomEventInstance was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CustomEventInstanceUpdateInput, CustomEventInstanceUncheckedUpdateInput>
+  }
+
+  /**
+   * CustomEventInstance delete
+   */
+  export type CustomEventInstanceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceInclude<ExtArgs> | null
+    /**
+     * Filter which CustomEventInstance to delete.
+     */
+    where: CustomEventInstanceWhereUniqueInput
+  }
+
+  /**
+   * CustomEventInstance deleteMany
+   */
+  export type CustomEventInstanceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomEventInstances to delete
+     */
+    where?: CustomEventInstanceWhereInput
+    /**
+     * Limit how many CustomEventInstances to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomEventInstance.user
+   */
+  export type CustomEventInstance$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * CustomEventInstance without action
+   */
+  export type CustomEventInstanceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomEventInstance
+     */
+    select?: CustomEventInstanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomEventInstance
+     */
+    omit?: CustomEventInstanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomEventInstanceInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Analytics
+   */
+
+  export type AggregateAnalytics = {
+    _count: AnalyticsCountAggregateOutputType | null
+    _avg: AnalyticsAvgAggregateOutputType | null
+    _sum: AnalyticsSumAggregateOutputType | null
+    _min: AnalyticsMinAggregateOutputType | null
+    _max: AnalyticsMaxAggregateOutputType | null
+  }
+
+  export type AnalyticsAvgAggregateOutputType = {
+    pageViews: number | null
+    uniqueVisitors: number | null
+    sessions: number | null
+    bounceRate: number | null
+    avgSessionDuration: number | null
+    transactions: number | null
+    revenue: number | null
+    averageOrderValue: number | null
+    conversionRate: number | null
+    customEvents: number | null
+    addToCarts: number | null
+    checkouts: number | null
+    organicTraffic: number | null
+    paidTraffic: number | null
+    socialTraffic: number | null
+    directTraffic: number | null
+    referralTraffic: number | null
+    desktopUsers: number | null
+    mobileUsers: number | null
+    tabletUsers: number | null
+  }
+
+  export type AnalyticsSumAggregateOutputType = {
+    pageViews: number | null
+    uniqueVisitors: number | null
+    sessions: number | null
+    bounceRate: number | null
+    avgSessionDuration: number | null
+    transactions: number | null
+    revenue: number | null
+    averageOrderValue: number | null
+    conversionRate: number | null
+    customEvents: number | null
+    addToCarts: number | null
+    checkouts: number | null
+    organicTraffic: number | null
+    paidTraffic: number | null
+    socialTraffic: number | null
+    directTraffic: number | null
+    referralTraffic: number | null
+    desktopUsers: number | null
+    mobileUsers: number | null
+    tabletUsers: number | null
+  }
+
+  export type AnalyticsMinAggregateOutputType = {
+    id: string | null
+    configId: string | null
+    date: Date | null
+    pageViews: number | null
+    uniqueVisitors: number | null
+    sessions: number | null
+    bounceRate: number | null
+    avgSessionDuration: number | null
+    transactions: number | null
+    revenue: number | null
+    averageOrderValue: number | null
+    conversionRate: number | null
+    customEvents: number | null
+    addToCarts: number | null
+    checkouts: number | null
+    organicTraffic: number | null
+    paidTraffic: number | null
+    socialTraffic: number | null
+    directTraffic: number | null
+    referralTraffic: number | null
+    desktopUsers: number | null
+    mobileUsers: number | null
+    tabletUsers: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AnalyticsMaxAggregateOutputType = {
+    id: string | null
+    configId: string | null
+    date: Date | null
+    pageViews: number | null
+    uniqueVisitors: number | null
+    sessions: number | null
+    bounceRate: number | null
+    avgSessionDuration: number | null
+    transactions: number | null
+    revenue: number | null
+    averageOrderValue: number | null
+    conversionRate: number | null
+    customEvents: number | null
+    addToCarts: number | null
+    checkouts: number | null
+    organicTraffic: number | null
+    paidTraffic: number | null
+    socialTraffic: number | null
+    directTraffic: number | null
+    referralTraffic: number | null
+    desktopUsers: number | null
+    mobileUsers: number | null
+    tabletUsers: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AnalyticsCountAggregateOutputType = {
+    id: number
+    configId: number
+    date: number
+    pageViews: number
+    uniqueVisitors: number
+    sessions: number
+    bounceRate: number
+    avgSessionDuration: number
+    transactions: number
+    revenue: number
+    averageOrderValue: number
+    conversionRate: number
+    customEvents: number
+    addToCarts: number
+    checkouts: number
+    organicTraffic: number
+    paidTraffic: number
+    socialTraffic: number
+    directTraffic: number
+    referralTraffic: number
+    desktopUsers: number
+    mobileUsers: number
+    tabletUsers: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AnalyticsAvgAggregateInputType = {
+    pageViews?: true
+    uniqueVisitors?: true
+    sessions?: true
+    bounceRate?: true
+    avgSessionDuration?: true
+    transactions?: true
+    revenue?: true
+    averageOrderValue?: true
+    conversionRate?: true
+    customEvents?: true
+    addToCarts?: true
+    checkouts?: true
+    organicTraffic?: true
+    paidTraffic?: true
+    socialTraffic?: true
+    directTraffic?: true
+    referralTraffic?: true
+    desktopUsers?: true
+    mobileUsers?: true
+    tabletUsers?: true
+  }
+
+  export type AnalyticsSumAggregateInputType = {
+    pageViews?: true
+    uniqueVisitors?: true
+    sessions?: true
+    bounceRate?: true
+    avgSessionDuration?: true
+    transactions?: true
+    revenue?: true
+    averageOrderValue?: true
+    conversionRate?: true
+    customEvents?: true
+    addToCarts?: true
+    checkouts?: true
+    organicTraffic?: true
+    paidTraffic?: true
+    socialTraffic?: true
+    directTraffic?: true
+    referralTraffic?: true
+    desktopUsers?: true
+    mobileUsers?: true
+    tabletUsers?: true
+  }
+
+  export type AnalyticsMinAggregateInputType = {
+    id?: true
+    configId?: true
+    date?: true
+    pageViews?: true
+    uniqueVisitors?: true
+    sessions?: true
+    bounceRate?: true
+    avgSessionDuration?: true
+    transactions?: true
+    revenue?: true
+    averageOrderValue?: true
+    conversionRate?: true
+    customEvents?: true
+    addToCarts?: true
+    checkouts?: true
+    organicTraffic?: true
+    paidTraffic?: true
+    socialTraffic?: true
+    directTraffic?: true
+    referralTraffic?: true
+    desktopUsers?: true
+    mobileUsers?: true
+    tabletUsers?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AnalyticsMaxAggregateInputType = {
+    id?: true
+    configId?: true
+    date?: true
+    pageViews?: true
+    uniqueVisitors?: true
+    sessions?: true
+    bounceRate?: true
+    avgSessionDuration?: true
+    transactions?: true
+    revenue?: true
+    averageOrderValue?: true
+    conversionRate?: true
+    customEvents?: true
+    addToCarts?: true
+    checkouts?: true
+    organicTraffic?: true
+    paidTraffic?: true
+    socialTraffic?: true
+    directTraffic?: true
+    referralTraffic?: true
+    desktopUsers?: true
+    mobileUsers?: true
+    tabletUsers?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AnalyticsCountAggregateInputType = {
+    id?: true
+    configId?: true
+    date?: true
+    pageViews?: true
+    uniqueVisitors?: true
+    sessions?: true
+    bounceRate?: true
+    avgSessionDuration?: true
+    transactions?: true
+    revenue?: true
+    averageOrderValue?: true
+    conversionRate?: true
+    customEvents?: true
+    addToCarts?: true
+    checkouts?: true
+    organicTraffic?: true
+    paidTraffic?: true
+    socialTraffic?: true
+    directTraffic?: true
+    referralTraffic?: true
+    desktopUsers?: true
+    mobileUsers?: true
+    tabletUsers?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AnalyticsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Analytics to aggregate.
+     */
+    where?: AnalyticsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Analytics to fetch.
+     */
+    orderBy?: AnalyticsOrderByWithRelationInput | AnalyticsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AnalyticsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Analytics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Analytics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Analytics
+    **/
+    _count?: true | AnalyticsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AnalyticsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AnalyticsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AnalyticsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AnalyticsMaxAggregateInputType
+  }
+
+  export type GetAnalyticsAggregateType<T extends AnalyticsAggregateArgs> = {
+        [P in keyof T & keyof AggregateAnalytics]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAnalytics[P]>
+      : GetScalarType<T[P], AggregateAnalytics[P]>
+  }
+
+
+
+
+  export type AnalyticsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AnalyticsWhereInput
+    orderBy?: AnalyticsOrderByWithAggregationInput | AnalyticsOrderByWithAggregationInput[]
+    by: AnalyticsScalarFieldEnum[] | AnalyticsScalarFieldEnum
+    having?: AnalyticsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AnalyticsCountAggregateInputType | true
+    _avg?: AnalyticsAvgAggregateInputType
+    _sum?: AnalyticsSumAggregateInputType
+    _min?: AnalyticsMinAggregateInputType
+    _max?: AnalyticsMaxAggregateInputType
+  }
+
+  export type AnalyticsGroupByOutputType = {
+    id: string
+    configId: string
+    date: Date
+    pageViews: number
+    uniqueVisitors: number
+    sessions: number
+    bounceRate: number | null
+    avgSessionDuration: number | null
+    transactions: number
+    revenue: number
+    averageOrderValue: number | null
+    conversionRate: number | null
+    customEvents: number
+    addToCarts: number
+    checkouts: number
+    organicTraffic: number
+    paidTraffic: number
+    socialTraffic: number
+    directTraffic: number
+    referralTraffic: number
+    desktopUsers: number
+    mobileUsers: number
+    tabletUsers: number
+    createdAt: Date
+    updatedAt: Date
+    _count: AnalyticsCountAggregateOutputType | null
+    _avg: AnalyticsAvgAggregateOutputType | null
+    _sum: AnalyticsSumAggregateOutputType | null
+    _min: AnalyticsMinAggregateOutputType | null
+    _max: AnalyticsMaxAggregateOutputType | null
+  }
+
+  type GetAnalyticsGroupByPayload<T extends AnalyticsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AnalyticsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AnalyticsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AnalyticsGroupByOutputType[P]>
+            : GetScalarType<T[P], AnalyticsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AnalyticsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    configId?: boolean
+    date?: boolean
+    pageViews?: boolean
+    uniqueVisitors?: boolean
+    sessions?: boolean
+    bounceRate?: boolean
+    avgSessionDuration?: boolean
+    transactions?: boolean
+    revenue?: boolean
+    averageOrderValue?: boolean
+    conversionRate?: boolean
+    customEvents?: boolean
+    addToCarts?: boolean
+    checkouts?: boolean
+    organicTraffic?: boolean
+    paidTraffic?: boolean
+    socialTraffic?: boolean
+    directTraffic?: boolean
+    referralTraffic?: boolean
+    desktopUsers?: boolean
+    mobileUsers?: boolean
+    tabletUsers?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["analytics"]>
+
+  export type AnalyticsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    configId?: boolean
+    date?: boolean
+    pageViews?: boolean
+    uniqueVisitors?: boolean
+    sessions?: boolean
+    bounceRate?: boolean
+    avgSessionDuration?: boolean
+    transactions?: boolean
+    revenue?: boolean
+    averageOrderValue?: boolean
+    conversionRate?: boolean
+    customEvents?: boolean
+    addToCarts?: boolean
+    checkouts?: boolean
+    organicTraffic?: boolean
+    paidTraffic?: boolean
+    socialTraffic?: boolean
+    directTraffic?: boolean
+    referralTraffic?: boolean
+    desktopUsers?: boolean
+    mobileUsers?: boolean
+    tabletUsers?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["analytics"]>
+
+  export type AnalyticsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    configId?: boolean
+    date?: boolean
+    pageViews?: boolean
+    uniqueVisitors?: boolean
+    sessions?: boolean
+    bounceRate?: boolean
+    avgSessionDuration?: boolean
+    transactions?: boolean
+    revenue?: boolean
+    averageOrderValue?: boolean
+    conversionRate?: boolean
+    customEvents?: boolean
+    addToCarts?: boolean
+    checkouts?: boolean
+    organicTraffic?: boolean
+    paidTraffic?: boolean
+    socialTraffic?: boolean
+    directTraffic?: boolean
+    referralTraffic?: boolean
+    desktopUsers?: boolean
+    mobileUsers?: boolean
+    tabletUsers?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["analytics"]>
+
+  export type AnalyticsSelectScalar = {
+    id?: boolean
+    configId?: boolean
+    date?: boolean
+    pageViews?: boolean
+    uniqueVisitors?: boolean
+    sessions?: boolean
+    bounceRate?: boolean
+    avgSessionDuration?: boolean
+    transactions?: boolean
+    revenue?: boolean
+    averageOrderValue?: boolean
+    conversionRate?: boolean
+    customEvents?: boolean
+    addToCarts?: boolean
+    checkouts?: boolean
+    organicTraffic?: boolean
+    paidTraffic?: boolean
+    socialTraffic?: boolean
+    directTraffic?: boolean
+    referralTraffic?: boolean
+    desktopUsers?: boolean
+    mobileUsers?: boolean
+    tabletUsers?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AnalyticsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "configId" | "date" | "pageViews" | "uniqueVisitors" | "sessions" | "bounceRate" | "avgSessionDuration" | "transactions" | "revenue" | "averageOrderValue" | "conversionRate" | "customEvents" | "addToCarts" | "checkouts" | "organicTraffic" | "paidTraffic" | "socialTraffic" | "directTraffic" | "referralTraffic" | "desktopUsers" | "mobileUsers" | "tabletUsers" | "createdAt" | "updatedAt", ExtArgs["result"]["analytics"]>
+  export type AnalyticsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+  }
+  export type AnalyticsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+  }
+  export type AnalyticsIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    config?: boolean | TrackingConfigurationDefaultArgs<ExtArgs>
+  }
+
+  export type $AnalyticsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Analytics"
+    objects: {
+      config: Prisma.$TrackingConfigurationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      configId: string
+      date: Date
+      pageViews: number
+      uniqueVisitors: number
+      sessions: number
+      bounceRate: number | null
+      avgSessionDuration: number | null
+      transactions: number
+      revenue: number
+      averageOrderValue: number | null
+      conversionRate: number | null
+      customEvents: number
+      addToCarts: number
+      checkouts: number
+      organicTraffic: number
+      paidTraffic: number
+      socialTraffic: number
+      directTraffic: number
+      referralTraffic: number
+      desktopUsers: number
+      mobileUsers: number
+      tabletUsers: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["analytics"]>
+    composites: {}
+  }
+
+  type AnalyticsGetPayload<S extends boolean | null | undefined | AnalyticsDefaultArgs> = $Result.GetResult<Prisma.$AnalyticsPayload, S>
+
+  type AnalyticsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AnalyticsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AnalyticsCountAggregateInputType | true
+    }
+
+  export interface AnalyticsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Analytics'], meta: { name: 'Analytics' } }
+    /**
+     * Find zero or one Analytics that matches the filter.
+     * @param {AnalyticsFindUniqueArgs} args - Arguments to find a Analytics
+     * @example
+     * // Get one Analytics
+     * const analytics = await prisma.analytics.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AnalyticsFindUniqueArgs>(args: SelectSubset<T, AnalyticsFindUniqueArgs<ExtArgs>>): Prisma__AnalyticsClient<$Result.GetResult<Prisma.$AnalyticsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Analytics that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AnalyticsFindUniqueOrThrowArgs} args - Arguments to find a Analytics
+     * @example
+     * // Get one Analytics
+     * const analytics = await prisma.analytics.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AnalyticsFindUniqueOrThrowArgs>(args: SelectSubset<T, AnalyticsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AnalyticsClient<$Result.GetResult<Prisma.$AnalyticsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Analytics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsFindFirstArgs} args - Arguments to find a Analytics
+     * @example
+     * // Get one Analytics
+     * const analytics = await prisma.analytics.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AnalyticsFindFirstArgs>(args?: SelectSubset<T, AnalyticsFindFirstArgs<ExtArgs>>): Prisma__AnalyticsClient<$Result.GetResult<Prisma.$AnalyticsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Analytics that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsFindFirstOrThrowArgs} args - Arguments to find a Analytics
+     * @example
+     * // Get one Analytics
+     * const analytics = await prisma.analytics.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AnalyticsFindFirstOrThrowArgs>(args?: SelectSubset<T, AnalyticsFindFirstOrThrowArgs<ExtArgs>>): Prisma__AnalyticsClient<$Result.GetResult<Prisma.$AnalyticsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Analytics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Analytics
+     * const analytics = await prisma.analytics.findMany()
+     * 
+     * // Get first 10 Analytics
+     * const analytics = await prisma.analytics.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const analyticsWithIdOnly = await prisma.analytics.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AnalyticsFindManyArgs>(args?: SelectSubset<T, AnalyticsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalyticsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Analytics.
+     * @param {AnalyticsCreateArgs} args - Arguments to create a Analytics.
+     * @example
+     * // Create one Analytics
+     * const Analytics = await prisma.analytics.create({
+     *   data: {
+     *     // ... data to create a Analytics
+     *   }
+     * })
+     * 
+     */
+    create<T extends AnalyticsCreateArgs>(args: SelectSubset<T, AnalyticsCreateArgs<ExtArgs>>): Prisma__AnalyticsClient<$Result.GetResult<Prisma.$AnalyticsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Analytics.
+     * @param {AnalyticsCreateManyArgs} args - Arguments to create many Analytics.
+     * @example
+     * // Create many Analytics
+     * const analytics = await prisma.analytics.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AnalyticsCreateManyArgs>(args?: SelectSubset<T, AnalyticsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Analytics and returns the data saved in the database.
+     * @param {AnalyticsCreateManyAndReturnArgs} args - Arguments to create many Analytics.
+     * @example
+     * // Create many Analytics
+     * const analytics = await prisma.analytics.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Analytics and only return the `id`
+     * const analyticsWithIdOnly = await prisma.analytics.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AnalyticsCreateManyAndReturnArgs>(args?: SelectSubset<T, AnalyticsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalyticsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Analytics.
+     * @param {AnalyticsDeleteArgs} args - Arguments to delete one Analytics.
+     * @example
+     * // Delete one Analytics
+     * const Analytics = await prisma.analytics.delete({
+     *   where: {
+     *     // ... filter to delete one Analytics
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AnalyticsDeleteArgs>(args: SelectSubset<T, AnalyticsDeleteArgs<ExtArgs>>): Prisma__AnalyticsClient<$Result.GetResult<Prisma.$AnalyticsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Analytics.
+     * @param {AnalyticsUpdateArgs} args - Arguments to update one Analytics.
+     * @example
+     * // Update one Analytics
+     * const analytics = await prisma.analytics.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AnalyticsUpdateArgs>(args: SelectSubset<T, AnalyticsUpdateArgs<ExtArgs>>): Prisma__AnalyticsClient<$Result.GetResult<Prisma.$AnalyticsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Analytics.
+     * @param {AnalyticsDeleteManyArgs} args - Arguments to filter Analytics to delete.
+     * @example
+     * // Delete a few Analytics
+     * const { count } = await prisma.analytics.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AnalyticsDeleteManyArgs>(args?: SelectSubset<T, AnalyticsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Analytics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Analytics
+     * const analytics = await prisma.analytics.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AnalyticsUpdateManyArgs>(args: SelectSubset<T, AnalyticsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Analytics and returns the data updated in the database.
+     * @param {AnalyticsUpdateManyAndReturnArgs} args - Arguments to update many Analytics.
+     * @example
+     * // Update many Analytics
+     * const analytics = await prisma.analytics.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Analytics and only return the `id`
+     * const analyticsWithIdOnly = await prisma.analytics.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AnalyticsUpdateManyAndReturnArgs>(args: SelectSubset<T, AnalyticsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalyticsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Analytics.
+     * @param {AnalyticsUpsertArgs} args - Arguments to update or create a Analytics.
+     * @example
+     * // Update or create a Analytics
+     * const analytics = await prisma.analytics.upsert({
+     *   create: {
+     *     // ... data to create a Analytics
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Analytics we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AnalyticsUpsertArgs>(args: SelectSubset<T, AnalyticsUpsertArgs<ExtArgs>>): Prisma__AnalyticsClient<$Result.GetResult<Prisma.$AnalyticsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Analytics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsCountArgs} args - Arguments to filter Analytics to count.
+     * @example
+     * // Count the number of Analytics
+     * const count = await prisma.analytics.count({
+     *   where: {
+     *     // ... the filter for the Analytics we want to count
+     *   }
+     * })
+    **/
+    count<T extends AnalyticsCountArgs>(
+      args?: Subset<T, AnalyticsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AnalyticsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Analytics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AnalyticsAggregateArgs>(args: Subset<T, AnalyticsAggregateArgs>): Prisma.PrismaPromise<GetAnalyticsAggregateType<T>>
+
+    /**
+     * Group by Analytics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AnalyticsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AnalyticsGroupByArgs['orderBy'] }
+        : { orderBy?: AnalyticsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AnalyticsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAnalyticsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Analytics model
+   */
+  readonly fields: AnalyticsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Analytics.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AnalyticsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    config<T extends TrackingConfigurationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TrackingConfigurationDefaultArgs<ExtArgs>>): Prisma__TrackingConfigurationClient<$Result.GetResult<Prisma.$TrackingConfigurationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Analytics model
+   */
+  interface AnalyticsFieldRefs {
+    readonly id: FieldRef<"Analytics", 'String'>
+    readonly configId: FieldRef<"Analytics", 'String'>
+    readonly date: FieldRef<"Analytics", 'DateTime'>
+    readonly pageViews: FieldRef<"Analytics", 'Int'>
+    readonly uniqueVisitors: FieldRef<"Analytics", 'Int'>
+    readonly sessions: FieldRef<"Analytics", 'Int'>
+    readonly bounceRate: FieldRef<"Analytics", 'Float'>
+    readonly avgSessionDuration: FieldRef<"Analytics", 'Float'>
+    readonly transactions: FieldRef<"Analytics", 'Int'>
+    readonly revenue: FieldRef<"Analytics", 'Float'>
+    readonly averageOrderValue: FieldRef<"Analytics", 'Float'>
+    readonly conversionRate: FieldRef<"Analytics", 'Float'>
+    readonly customEvents: FieldRef<"Analytics", 'Int'>
+    readonly addToCarts: FieldRef<"Analytics", 'Int'>
+    readonly checkouts: FieldRef<"Analytics", 'Int'>
+    readonly organicTraffic: FieldRef<"Analytics", 'Int'>
+    readonly paidTraffic: FieldRef<"Analytics", 'Int'>
+    readonly socialTraffic: FieldRef<"Analytics", 'Int'>
+    readonly directTraffic: FieldRef<"Analytics", 'Int'>
+    readonly referralTraffic: FieldRef<"Analytics", 'Int'>
+    readonly desktopUsers: FieldRef<"Analytics", 'Int'>
+    readonly mobileUsers: FieldRef<"Analytics", 'Int'>
+    readonly tabletUsers: FieldRef<"Analytics", 'Int'>
+    readonly createdAt: FieldRef<"Analytics", 'DateTime'>
+    readonly updatedAt: FieldRef<"Analytics", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Analytics findUnique
+   */
+  export type AnalyticsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analytics
+     */
+    select?: AnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analytics
+     */
+    omit?: AnalyticsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsInclude<ExtArgs> | null
+    /**
+     * Filter, which Analytics to fetch.
+     */
+    where: AnalyticsWhereUniqueInput
+  }
+
+  /**
+   * Analytics findUniqueOrThrow
+   */
+  export type AnalyticsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analytics
+     */
+    select?: AnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analytics
+     */
+    omit?: AnalyticsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsInclude<ExtArgs> | null
+    /**
+     * Filter, which Analytics to fetch.
+     */
+    where: AnalyticsWhereUniqueInput
+  }
+
+  /**
+   * Analytics findFirst
+   */
+  export type AnalyticsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analytics
+     */
+    select?: AnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analytics
+     */
+    omit?: AnalyticsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsInclude<ExtArgs> | null
+    /**
+     * Filter, which Analytics to fetch.
+     */
+    where?: AnalyticsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Analytics to fetch.
+     */
+    orderBy?: AnalyticsOrderByWithRelationInput | AnalyticsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Analytics.
+     */
+    cursor?: AnalyticsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Analytics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Analytics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Analytics.
+     */
+    distinct?: AnalyticsScalarFieldEnum | AnalyticsScalarFieldEnum[]
+  }
+
+  /**
+   * Analytics findFirstOrThrow
+   */
+  export type AnalyticsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analytics
+     */
+    select?: AnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analytics
+     */
+    omit?: AnalyticsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsInclude<ExtArgs> | null
+    /**
+     * Filter, which Analytics to fetch.
+     */
+    where?: AnalyticsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Analytics to fetch.
+     */
+    orderBy?: AnalyticsOrderByWithRelationInput | AnalyticsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Analytics.
+     */
+    cursor?: AnalyticsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Analytics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Analytics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Analytics.
+     */
+    distinct?: AnalyticsScalarFieldEnum | AnalyticsScalarFieldEnum[]
+  }
+
+  /**
+   * Analytics findMany
+   */
+  export type AnalyticsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analytics
+     */
+    select?: AnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analytics
+     */
+    omit?: AnalyticsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsInclude<ExtArgs> | null
+    /**
+     * Filter, which Analytics to fetch.
+     */
+    where?: AnalyticsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Analytics to fetch.
+     */
+    orderBy?: AnalyticsOrderByWithRelationInput | AnalyticsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Analytics.
+     */
+    cursor?: AnalyticsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Analytics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Analytics.
+     */
+    skip?: number
+    distinct?: AnalyticsScalarFieldEnum | AnalyticsScalarFieldEnum[]
+  }
+
+  /**
+   * Analytics create
+   */
+  export type AnalyticsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analytics
+     */
+    select?: AnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analytics
+     */
+    omit?: AnalyticsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Analytics.
+     */
+    data: XOR<AnalyticsCreateInput, AnalyticsUncheckedCreateInput>
+  }
+
+  /**
+   * Analytics createMany
+   */
+  export type AnalyticsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Analytics.
+     */
+    data: AnalyticsCreateManyInput | AnalyticsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Analytics createManyAndReturn
+   */
+  export type AnalyticsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analytics
+     */
+    select?: AnalyticsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analytics
+     */
+    omit?: AnalyticsOmit<ExtArgs> | null
+    /**
+     * The data used to create many Analytics.
+     */
+    data: AnalyticsCreateManyInput | AnalyticsCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Analytics update
+   */
+  export type AnalyticsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analytics
+     */
+    select?: AnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analytics
+     */
+    omit?: AnalyticsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Analytics.
+     */
+    data: XOR<AnalyticsUpdateInput, AnalyticsUncheckedUpdateInput>
+    /**
+     * Choose, which Analytics to update.
+     */
+    where: AnalyticsWhereUniqueInput
+  }
+
+  /**
+   * Analytics updateMany
+   */
+  export type AnalyticsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Analytics.
+     */
+    data: XOR<AnalyticsUpdateManyMutationInput, AnalyticsUncheckedUpdateManyInput>
+    /**
+     * Filter which Analytics to update
+     */
+    where?: AnalyticsWhereInput
+    /**
+     * Limit how many Analytics to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Analytics updateManyAndReturn
+   */
+  export type AnalyticsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analytics
+     */
+    select?: AnalyticsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analytics
+     */
+    omit?: AnalyticsOmit<ExtArgs> | null
+    /**
+     * The data used to update Analytics.
+     */
+    data: XOR<AnalyticsUpdateManyMutationInput, AnalyticsUncheckedUpdateManyInput>
+    /**
+     * Filter which Analytics to update
+     */
+    where?: AnalyticsWhereInput
+    /**
+     * Limit how many Analytics to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Analytics upsert
+   */
+  export type AnalyticsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analytics
+     */
+    select?: AnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analytics
+     */
+    omit?: AnalyticsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Analytics to update in case it exists.
+     */
+    where: AnalyticsWhereUniqueInput
+    /**
+     * In case the Analytics found by the `where` argument doesn't exist, create a new Analytics with this data.
+     */
+    create: XOR<AnalyticsCreateInput, AnalyticsUncheckedCreateInput>
+    /**
+     * In case the Analytics was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AnalyticsUpdateInput, AnalyticsUncheckedUpdateInput>
+  }
+
+  /**
+   * Analytics delete
+   */
+  export type AnalyticsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analytics
+     */
+    select?: AnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analytics
+     */
+    omit?: AnalyticsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsInclude<ExtArgs> | null
+    /**
+     * Filter which Analytics to delete.
+     */
+    where: AnalyticsWhereUniqueInput
+  }
+
+  /**
+   * Analytics deleteMany
+   */
+  export type AnalyticsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Analytics to delete
+     */
+    where?: AnalyticsWhereInput
+    /**
+     * Limit how many Analytics to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Analytics without action
+   */
+  export type AnalyticsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analytics
+     */
+    select?: AnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analytics
+     */
+    omit?: AnalyticsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ConversionFunnel
+   */
+
+  export type AggregateConversionFunnel = {
+    _count: ConversionFunnelCountAggregateOutputType | null
+    _min: ConversionFunnelMinAggregateOutputType | null
+    _max: ConversionFunnelMaxAggregateOutputType | null
+  }
+
+  export type ConversionFunnelMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ConversionFunnelMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ConversionFunnelCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    steps: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ConversionFunnelMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ConversionFunnelMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ConversionFunnelCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    steps?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ConversionFunnelAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConversionFunnel to aggregate.
+     */
+    where?: ConversionFunnelWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversionFunnels to fetch.
+     */
+    orderBy?: ConversionFunnelOrderByWithRelationInput | ConversionFunnelOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ConversionFunnelWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversionFunnels from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversionFunnels.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ConversionFunnels
+    **/
+    _count?: true | ConversionFunnelCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ConversionFunnelMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ConversionFunnelMaxAggregateInputType
+  }
+
+  export type GetConversionFunnelAggregateType<T extends ConversionFunnelAggregateArgs> = {
+        [P in keyof T & keyof AggregateConversionFunnel]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateConversionFunnel[P]>
+      : GetScalarType<T[P], AggregateConversionFunnel[P]>
+  }
+
+
+
+
+  export type ConversionFunnelGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConversionFunnelWhereInput
+    orderBy?: ConversionFunnelOrderByWithAggregationInput | ConversionFunnelOrderByWithAggregationInput[]
+    by: ConversionFunnelScalarFieldEnum[] | ConversionFunnelScalarFieldEnum
+    having?: ConversionFunnelScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ConversionFunnelCountAggregateInputType | true
+    _min?: ConversionFunnelMinAggregateInputType
+    _max?: ConversionFunnelMaxAggregateInputType
+  }
+
+  export type ConversionFunnelGroupByOutputType = {
+    id: string
+    name: string
+    description: string | null
+    steps: JsonValue
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: ConversionFunnelCountAggregateOutputType | null
+    _min: ConversionFunnelMinAggregateOutputType | null
+    _max: ConversionFunnelMaxAggregateOutputType | null
+  }
+
+  type GetConversionFunnelGroupByPayload<T extends ConversionFunnelGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ConversionFunnelGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ConversionFunnelGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ConversionFunnelGroupByOutputType[P]>
+            : GetScalarType<T[P], ConversionFunnelGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ConversionFunnelSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    steps?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    sessions?: boolean | ConversionFunnel$sessionsArgs<ExtArgs>
+    _count?: boolean | ConversionFunnelCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversionFunnel"]>
+
+  export type ConversionFunnelSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    steps?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["conversionFunnel"]>
+
+  export type ConversionFunnelSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    steps?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["conversionFunnel"]>
+
+  export type ConversionFunnelSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    steps?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ConversionFunnelOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "steps" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["conversionFunnel"]>
+  export type ConversionFunnelInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    sessions?: boolean | ConversionFunnel$sessionsArgs<ExtArgs>
+    _count?: boolean | ConversionFunnelCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ConversionFunnelIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type ConversionFunnelIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $ConversionFunnelPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ConversionFunnel"
+    objects: {
+      sessions: Prisma.$FunnelSessionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      description: string | null
+      steps: Prisma.JsonValue
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["conversionFunnel"]>
+    composites: {}
+  }
+
+  type ConversionFunnelGetPayload<S extends boolean | null | undefined | ConversionFunnelDefaultArgs> = $Result.GetResult<Prisma.$ConversionFunnelPayload, S>
+
+  type ConversionFunnelCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ConversionFunnelFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ConversionFunnelCountAggregateInputType | true
+    }
+
+  export interface ConversionFunnelDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConversionFunnel'], meta: { name: 'ConversionFunnel' } }
+    /**
+     * Find zero or one ConversionFunnel that matches the filter.
+     * @param {ConversionFunnelFindUniqueArgs} args - Arguments to find a ConversionFunnel
+     * @example
+     * // Get one ConversionFunnel
+     * const conversionFunnel = await prisma.conversionFunnel.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ConversionFunnelFindUniqueArgs>(args: SelectSubset<T, ConversionFunnelFindUniqueArgs<ExtArgs>>): Prisma__ConversionFunnelClient<$Result.GetResult<Prisma.$ConversionFunnelPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ConversionFunnel that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ConversionFunnelFindUniqueOrThrowArgs} args - Arguments to find a ConversionFunnel
+     * @example
+     * // Get one ConversionFunnel
+     * const conversionFunnel = await prisma.conversionFunnel.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ConversionFunnelFindUniqueOrThrowArgs>(args: SelectSubset<T, ConversionFunnelFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConversionFunnelClient<$Result.GetResult<Prisma.$ConversionFunnelPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConversionFunnel that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversionFunnelFindFirstArgs} args - Arguments to find a ConversionFunnel
+     * @example
+     * // Get one ConversionFunnel
+     * const conversionFunnel = await prisma.conversionFunnel.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ConversionFunnelFindFirstArgs>(args?: SelectSubset<T, ConversionFunnelFindFirstArgs<ExtArgs>>): Prisma__ConversionFunnelClient<$Result.GetResult<Prisma.$ConversionFunnelPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConversionFunnel that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversionFunnelFindFirstOrThrowArgs} args - Arguments to find a ConversionFunnel
+     * @example
+     * // Get one ConversionFunnel
+     * const conversionFunnel = await prisma.conversionFunnel.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ConversionFunnelFindFirstOrThrowArgs>(args?: SelectSubset<T, ConversionFunnelFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConversionFunnelClient<$Result.GetResult<Prisma.$ConversionFunnelPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ConversionFunnels that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversionFunnelFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ConversionFunnels
+     * const conversionFunnels = await prisma.conversionFunnel.findMany()
+     * 
+     * // Get first 10 ConversionFunnels
+     * const conversionFunnels = await prisma.conversionFunnel.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const conversionFunnelWithIdOnly = await prisma.conversionFunnel.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ConversionFunnelFindManyArgs>(args?: SelectSubset<T, ConversionFunnelFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversionFunnelPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ConversionFunnel.
+     * @param {ConversionFunnelCreateArgs} args - Arguments to create a ConversionFunnel.
+     * @example
+     * // Create one ConversionFunnel
+     * const ConversionFunnel = await prisma.conversionFunnel.create({
+     *   data: {
+     *     // ... data to create a ConversionFunnel
+     *   }
+     * })
+     * 
+     */
+    create<T extends ConversionFunnelCreateArgs>(args: SelectSubset<T, ConversionFunnelCreateArgs<ExtArgs>>): Prisma__ConversionFunnelClient<$Result.GetResult<Prisma.$ConversionFunnelPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ConversionFunnels.
+     * @param {ConversionFunnelCreateManyArgs} args - Arguments to create many ConversionFunnels.
+     * @example
+     * // Create many ConversionFunnels
+     * const conversionFunnel = await prisma.conversionFunnel.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ConversionFunnelCreateManyArgs>(args?: SelectSubset<T, ConversionFunnelCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ConversionFunnels and returns the data saved in the database.
+     * @param {ConversionFunnelCreateManyAndReturnArgs} args - Arguments to create many ConversionFunnels.
+     * @example
+     * // Create many ConversionFunnels
+     * const conversionFunnel = await prisma.conversionFunnel.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ConversionFunnels and only return the `id`
+     * const conversionFunnelWithIdOnly = await prisma.conversionFunnel.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ConversionFunnelCreateManyAndReturnArgs>(args?: SelectSubset<T, ConversionFunnelCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversionFunnelPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ConversionFunnel.
+     * @param {ConversionFunnelDeleteArgs} args - Arguments to delete one ConversionFunnel.
+     * @example
+     * // Delete one ConversionFunnel
+     * const ConversionFunnel = await prisma.conversionFunnel.delete({
+     *   where: {
+     *     // ... filter to delete one ConversionFunnel
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ConversionFunnelDeleteArgs>(args: SelectSubset<T, ConversionFunnelDeleteArgs<ExtArgs>>): Prisma__ConversionFunnelClient<$Result.GetResult<Prisma.$ConversionFunnelPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ConversionFunnel.
+     * @param {ConversionFunnelUpdateArgs} args - Arguments to update one ConversionFunnel.
+     * @example
+     * // Update one ConversionFunnel
+     * const conversionFunnel = await prisma.conversionFunnel.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ConversionFunnelUpdateArgs>(args: SelectSubset<T, ConversionFunnelUpdateArgs<ExtArgs>>): Prisma__ConversionFunnelClient<$Result.GetResult<Prisma.$ConversionFunnelPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ConversionFunnels.
+     * @param {ConversionFunnelDeleteManyArgs} args - Arguments to filter ConversionFunnels to delete.
+     * @example
+     * // Delete a few ConversionFunnels
+     * const { count } = await prisma.conversionFunnel.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ConversionFunnelDeleteManyArgs>(args?: SelectSubset<T, ConversionFunnelDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConversionFunnels.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversionFunnelUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ConversionFunnels
+     * const conversionFunnel = await prisma.conversionFunnel.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ConversionFunnelUpdateManyArgs>(args: SelectSubset<T, ConversionFunnelUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConversionFunnels and returns the data updated in the database.
+     * @param {ConversionFunnelUpdateManyAndReturnArgs} args - Arguments to update many ConversionFunnels.
+     * @example
+     * // Update many ConversionFunnels
+     * const conversionFunnel = await prisma.conversionFunnel.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ConversionFunnels and only return the `id`
+     * const conversionFunnelWithIdOnly = await prisma.conversionFunnel.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ConversionFunnelUpdateManyAndReturnArgs>(args: SelectSubset<T, ConversionFunnelUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversionFunnelPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ConversionFunnel.
+     * @param {ConversionFunnelUpsertArgs} args - Arguments to update or create a ConversionFunnel.
+     * @example
+     * // Update or create a ConversionFunnel
+     * const conversionFunnel = await prisma.conversionFunnel.upsert({
+     *   create: {
+     *     // ... data to create a ConversionFunnel
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ConversionFunnel we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ConversionFunnelUpsertArgs>(args: SelectSubset<T, ConversionFunnelUpsertArgs<ExtArgs>>): Prisma__ConversionFunnelClient<$Result.GetResult<Prisma.$ConversionFunnelPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ConversionFunnels.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversionFunnelCountArgs} args - Arguments to filter ConversionFunnels to count.
+     * @example
+     * // Count the number of ConversionFunnels
+     * const count = await prisma.conversionFunnel.count({
+     *   where: {
+     *     // ... the filter for the ConversionFunnels we want to count
+     *   }
+     * })
+    **/
+    count<T extends ConversionFunnelCountArgs>(
+      args?: Subset<T, ConversionFunnelCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ConversionFunnelCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ConversionFunnel.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversionFunnelAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ConversionFunnelAggregateArgs>(args: Subset<T, ConversionFunnelAggregateArgs>): Prisma.PrismaPromise<GetConversionFunnelAggregateType<T>>
+
+    /**
+     * Group by ConversionFunnel.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversionFunnelGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ConversionFunnelGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ConversionFunnelGroupByArgs['orderBy'] }
+        : { orderBy?: ConversionFunnelGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ConversionFunnelGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConversionFunnelGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ConversionFunnel model
+   */
+  readonly fields: ConversionFunnelFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ConversionFunnel.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ConversionFunnelClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    sessions<T extends ConversionFunnel$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, ConversionFunnel$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FunnelSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ConversionFunnel model
+   */
+  interface ConversionFunnelFieldRefs {
+    readonly id: FieldRef<"ConversionFunnel", 'String'>
+    readonly name: FieldRef<"ConversionFunnel", 'String'>
+    readonly description: FieldRef<"ConversionFunnel", 'String'>
+    readonly steps: FieldRef<"ConversionFunnel", 'Json'>
+    readonly isActive: FieldRef<"ConversionFunnel", 'Boolean'>
+    readonly createdAt: FieldRef<"ConversionFunnel", 'DateTime'>
+    readonly updatedAt: FieldRef<"ConversionFunnel", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ConversionFunnel findUnique
+   */
+  export type ConversionFunnelFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversionFunnel
+     */
+    select?: ConversionFunnelSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversionFunnel
+     */
+    omit?: ConversionFunnelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversionFunnelInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversionFunnel to fetch.
+     */
+    where: ConversionFunnelWhereUniqueInput
+  }
+
+  /**
+   * ConversionFunnel findUniqueOrThrow
+   */
+  export type ConversionFunnelFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversionFunnel
+     */
+    select?: ConversionFunnelSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversionFunnel
+     */
+    omit?: ConversionFunnelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversionFunnelInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversionFunnel to fetch.
+     */
+    where: ConversionFunnelWhereUniqueInput
+  }
+
+  /**
+   * ConversionFunnel findFirst
+   */
+  export type ConversionFunnelFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversionFunnel
+     */
+    select?: ConversionFunnelSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversionFunnel
+     */
+    omit?: ConversionFunnelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversionFunnelInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversionFunnel to fetch.
+     */
+    where?: ConversionFunnelWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversionFunnels to fetch.
+     */
+    orderBy?: ConversionFunnelOrderByWithRelationInput | ConversionFunnelOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConversionFunnels.
+     */
+    cursor?: ConversionFunnelWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversionFunnels from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversionFunnels.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConversionFunnels.
+     */
+    distinct?: ConversionFunnelScalarFieldEnum | ConversionFunnelScalarFieldEnum[]
+  }
+
+  /**
+   * ConversionFunnel findFirstOrThrow
+   */
+  export type ConversionFunnelFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversionFunnel
+     */
+    select?: ConversionFunnelSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversionFunnel
+     */
+    omit?: ConversionFunnelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversionFunnelInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversionFunnel to fetch.
+     */
+    where?: ConversionFunnelWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversionFunnels to fetch.
+     */
+    orderBy?: ConversionFunnelOrderByWithRelationInput | ConversionFunnelOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConversionFunnels.
+     */
+    cursor?: ConversionFunnelWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversionFunnels from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversionFunnels.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConversionFunnels.
+     */
+    distinct?: ConversionFunnelScalarFieldEnum | ConversionFunnelScalarFieldEnum[]
+  }
+
+  /**
+   * ConversionFunnel findMany
+   */
+  export type ConversionFunnelFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversionFunnel
+     */
+    select?: ConversionFunnelSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversionFunnel
+     */
+    omit?: ConversionFunnelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversionFunnelInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversionFunnels to fetch.
+     */
+    where?: ConversionFunnelWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversionFunnels to fetch.
+     */
+    orderBy?: ConversionFunnelOrderByWithRelationInput | ConversionFunnelOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ConversionFunnels.
+     */
+    cursor?: ConversionFunnelWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversionFunnels from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversionFunnels.
+     */
+    skip?: number
+    distinct?: ConversionFunnelScalarFieldEnum | ConversionFunnelScalarFieldEnum[]
+  }
+
+  /**
+   * ConversionFunnel create
+   */
+  export type ConversionFunnelCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversionFunnel
+     */
+    select?: ConversionFunnelSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversionFunnel
+     */
+    omit?: ConversionFunnelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversionFunnelInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ConversionFunnel.
+     */
+    data: XOR<ConversionFunnelCreateInput, ConversionFunnelUncheckedCreateInput>
+  }
+
+  /**
+   * ConversionFunnel createMany
+   */
+  export type ConversionFunnelCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ConversionFunnels.
+     */
+    data: ConversionFunnelCreateManyInput | ConversionFunnelCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ConversionFunnel createManyAndReturn
+   */
+  export type ConversionFunnelCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversionFunnel
+     */
+    select?: ConversionFunnelSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversionFunnel
+     */
+    omit?: ConversionFunnelOmit<ExtArgs> | null
+    /**
+     * The data used to create many ConversionFunnels.
+     */
+    data: ConversionFunnelCreateManyInput | ConversionFunnelCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ConversionFunnel update
+   */
+  export type ConversionFunnelUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversionFunnel
+     */
+    select?: ConversionFunnelSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversionFunnel
+     */
+    omit?: ConversionFunnelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversionFunnelInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ConversionFunnel.
+     */
+    data: XOR<ConversionFunnelUpdateInput, ConversionFunnelUncheckedUpdateInput>
+    /**
+     * Choose, which ConversionFunnel to update.
+     */
+    where: ConversionFunnelWhereUniqueInput
+  }
+
+  /**
+   * ConversionFunnel updateMany
+   */
+  export type ConversionFunnelUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ConversionFunnels.
+     */
+    data: XOR<ConversionFunnelUpdateManyMutationInput, ConversionFunnelUncheckedUpdateManyInput>
+    /**
+     * Filter which ConversionFunnels to update
+     */
+    where?: ConversionFunnelWhereInput
+    /**
+     * Limit how many ConversionFunnels to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversionFunnel updateManyAndReturn
+   */
+  export type ConversionFunnelUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversionFunnel
+     */
+    select?: ConversionFunnelSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversionFunnel
+     */
+    omit?: ConversionFunnelOmit<ExtArgs> | null
+    /**
+     * The data used to update ConversionFunnels.
+     */
+    data: XOR<ConversionFunnelUpdateManyMutationInput, ConversionFunnelUncheckedUpdateManyInput>
+    /**
+     * Filter which ConversionFunnels to update
+     */
+    where?: ConversionFunnelWhereInput
+    /**
+     * Limit how many ConversionFunnels to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversionFunnel upsert
+   */
+  export type ConversionFunnelUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversionFunnel
+     */
+    select?: ConversionFunnelSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversionFunnel
+     */
+    omit?: ConversionFunnelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversionFunnelInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ConversionFunnel to update in case it exists.
+     */
+    where: ConversionFunnelWhereUniqueInput
+    /**
+     * In case the ConversionFunnel found by the `where` argument doesn't exist, create a new ConversionFunnel with this data.
+     */
+    create: XOR<ConversionFunnelCreateInput, ConversionFunnelUncheckedCreateInput>
+    /**
+     * In case the ConversionFunnel was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ConversionFunnelUpdateInput, ConversionFunnelUncheckedUpdateInput>
+  }
+
+  /**
+   * ConversionFunnel delete
+   */
+  export type ConversionFunnelDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversionFunnel
+     */
+    select?: ConversionFunnelSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversionFunnel
+     */
+    omit?: ConversionFunnelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversionFunnelInclude<ExtArgs> | null
+    /**
+     * Filter which ConversionFunnel to delete.
+     */
+    where: ConversionFunnelWhereUniqueInput
+  }
+
+  /**
+   * ConversionFunnel deleteMany
+   */
+  export type ConversionFunnelDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConversionFunnels to delete
+     */
+    where?: ConversionFunnelWhereInput
+    /**
+     * Limit how many ConversionFunnels to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversionFunnel.sessions
+   */
+  export type ConversionFunnel$sessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionInclude<ExtArgs> | null
+    where?: FunnelSessionWhereInput
+    orderBy?: FunnelSessionOrderByWithRelationInput | FunnelSessionOrderByWithRelationInput[]
+    cursor?: FunnelSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FunnelSessionScalarFieldEnum | FunnelSessionScalarFieldEnum[]
+  }
+
+  /**
+   * ConversionFunnel without action
+   */
+  export type ConversionFunnelDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversionFunnel
+     */
+    select?: ConversionFunnelSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversionFunnel
+     */
+    omit?: ConversionFunnelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversionFunnelInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model FunnelSession
+   */
+
+  export type AggregateFunnelSession = {
+    _count: FunnelSessionCountAggregateOutputType | null
+    _avg: FunnelSessionAvgAggregateOutputType | null
+    _sum: FunnelSessionSumAggregateOutputType | null
+    _min: FunnelSessionMinAggregateOutputType | null
+    _max: FunnelSessionMaxAggregateOutputType | null
+  }
+
+  export type FunnelSessionAvgAggregateOutputType = {
+    currentStep: number | null
+    duration: number | null
+  }
+
+  export type FunnelSessionSumAggregateOutputType = {
+    currentStep: number | null
+    duration: number | null
+  }
+
+  export type FunnelSessionMinAggregateOutputType = {
+    id: string | null
+    funnelId: string | null
+    sessionId: string | null
+    userId: string | null
+    currentStep: number | null
+    completed: boolean | null
+    startedAt: Date | null
+    completedAt: Date | null
+    duration: number | null
+  }
+
+  export type FunnelSessionMaxAggregateOutputType = {
+    id: string | null
+    funnelId: string | null
+    sessionId: string | null
+    userId: string | null
+    currentStep: number | null
+    completed: boolean | null
+    startedAt: Date | null
+    completedAt: Date | null
+    duration: number | null
+  }
+
+  export type FunnelSessionCountAggregateOutputType = {
+    id: number
+    funnelId: number
+    sessionId: number
+    userId: number
+    currentStep: number
+    completed: number
+    startedAt: number
+    completedAt: number
+    duration: number
+    stepData: number
+    _all: number
+  }
+
+
+  export type FunnelSessionAvgAggregateInputType = {
+    currentStep?: true
+    duration?: true
+  }
+
+  export type FunnelSessionSumAggregateInputType = {
+    currentStep?: true
+    duration?: true
+  }
+
+  export type FunnelSessionMinAggregateInputType = {
+    id?: true
+    funnelId?: true
+    sessionId?: true
+    userId?: true
+    currentStep?: true
+    completed?: true
+    startedAt?: true
+    completedAt?: true
+    duration?: true
+  }
+
+  export type FunnelSessionMaxAggregateInputType = {
+    id?: true
+    funnelId?: true
+    sessionId?: true
+    userId?: true
+    currentStep?: true
+    completed?: true
+    startedAt?: true
+    completedAt?: true
+    duration?: true
+  }
+
+  export type FunnelSessionCountAggregateInputType = {
+    id?: true
+    funnelId?: true
+    sessionId?: true
+    userId?: true
+    currentStep?: true
+    completed?: true
+    startedAt?: true
+    completedAt?: true
+    duration?: true
+    stepData?: true
+    _all?: true
+  }
+
+  export type FunnelSessionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FunnelSession to aggregate.
+     */
+    where?: FunnelSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FunnelSessions to fetch.
+     */
+    orderBy?: FunnelSessionOrderByWithRelationInput | FunnelSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FunnelSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FunnelSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FunnelSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FunnelSessions
+    **/
+    _count?: true | FunnelSessionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FunnelSessionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FunnelSessionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FunnelSessionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FunnelSessionMaxAggregateInputType
+  }
+
+  export type GetFunnelSessionAggregateType<T extends FunnelSessionAggregateArgs> = {
+        [P in keyof T & keyof AggregateFunnelSession]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFunnelSession[P]>
+      : GetScalarType<T[P], AggregateFunnelSession[P]>
+  }
+
+
+
+
+  export type FunnelSessionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FunnelSessionWhereInput
+    orderBy?: FunnelSessionOrderByWithAggregationInput | FunnelSessionOrderByWithAggregationInput[]
+    by: FunnelSessionScalarFieldEnum[] | FunnelSessionScalarFieldEnum
+    having?: FunnelSessionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FunnelSessionCountAggregateInputType | true
+    _avg?: FunnelSessionAvgAggregateInputType
+    _sum?: FunnelSessionSumAggregateInputType
+    _min?: FunnelSessionMinAggregateInputType
+    _max?: FunnelSessionMaxAggregateInputType
+  }
+
+  export type FunnelSessionGroupByOutputType = {
+    id: string
+    funnelId: string
+    sessionId: string
+    userId: string | null
+    currentStep: number
+    completed: boolean
+    startedAt: Date
+    completedAt: Date | null
+    duration: number | null
+    stepData: JsonValue
+    _count: FunnelSessionCountAggregateOutputType | null
+    _avg: FunnelSessionAvgAggregateOutputType | null
+    _sum: FunnelSessionSumAggregateOutputType | null
+    _min: FunnelSessionMinAggregateOutputType | null
+    _max: FunnelSessionMaxAggregateOutputType | null
+  }
+
+  type GetFunnelSessionGroupByPayload<T extends FunnelSessionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FunnelSessionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FunnelSessionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FunnelSessionGroupByOutputType[P]>
+            : GetScalarType<T[P], FunnelSessionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FunnelSessionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    funnelId?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    currentStep?: boolean
+    completed?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    duration?: boolean
+    stepData?: boolean
+    funnel?: boolean | ConversionFunnelDefaultArgs<ExtArgs>
+    user?: boolean | FunnelSession$userArgs<ExtArgs>
+  }, ExtArgs["result"]["funnelSession"]>
+
+  export type FunnelSessionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    funnelId?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    currentStep?: boolean
+    completed?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    duration?: boolean
+    stepData?: boolean
+    funnel?: boolean | ConversionFunnelDefaultArgs<ExtArgs>
+    user?: boolean | FunnelSession$userArgs<ExtArgs>
+  }, ExtArgs["result"]["funnelSession"]>
+
+  export type FunnelSessionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    funnelId?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    currentStep?: boolean
+    completed?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    duration?: boolean
+    stepData?: boolean
+    funnel?: boolean | ConversionFunnelDefaultArgs<ExtArgs>
+    user?: boolean | FunnelSession$userArgs<ExtArgs>
+  }, ExtArgs["result"]["funnelSession"]>
+
+  export type FunnelSessionSelectScalar = {
+    id?: boolean
+    funnelId?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    currentStep?: boolean
+    completed?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    duration?: boolean
+    stepData?: boolean
+  }
+
+  export type FunnelSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "funnelId" | "sessionId" | "userId" | "currentStep" | "completed" | "startedAt" | "completedAt" | "duration" | "stepData", ExtArgs["result"]["funnelSession"]>
+  export type FunnelSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    funnel?: boolean | ConversionFunnelDefaultArgs<ExtArgs>
+    user?: boolean | FunnelSession$userArgs<ExtArgs>
+  }
+  export type FunnelSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    funnel?: boolean | ConversionFunnelDefaultArgs<ExtArgs>
+    user?: boolean | FunnelSession$userArgs<ExtArgs>
+  }
+  export type FunnelSessionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    funnel?: boolean | ConversionFunnelDefaultArgs<ExtArgs>
+    user?: boolean | FunnelSession$userArgs<ExtArgs>
+  }
+
+  export type $FunnelSessionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FunnelSession"
+    objects: {
+      funnel: Prisma.$ConversionFunnelPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      funnelId: string
+      sessionId: string
+      userId: string | null
+      currentStep: number
+      completed: boolean
+      startedAt: Date
+      completedAt: Date | null
+      duration: number | null
+      stepData: Prisma.JsonValue
+    }, ExtArgs["result"]["funnelSession"]>
+    composites: {}
+  }
+
+  type FunnelSessionGetPayload<S extends boolean | null | undefined | FunnelSessionDefaultArgs> = $Result.GetResult<Prisma.$FunnelSessionPayload, S>
+
+  type FunnelSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FunnelSessionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FunnelSessionCountAggregateInputType | true
+    }
+
+  export interface FunnelSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FunnelSession'], meta: { name: 'FunnelSession' } }
+    /**
+     * Find zero or one FunnelSession that matches the filter.
+     * @param {FunnelSessionFindUniqueArgs} args - Arguments to find a FunnelSession
+     * @example
+     * // Get one FunnelSession
+     * const funnelSession = await prisma.funnelSession.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FunnelSessionFindUniqueArgs>(args: SelectSubset<T, FunnelSessionFindUniqueArgs<ExtArgs>>): Prisma__FunnelSessionClient<$Result.GetResult<Prisma.$FunnelSessionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one FunnelSession that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FunnelSessionFindUniqueOrThrowArgs} args - Arguments to find a FunnelSession
+     * @example
+     * // Get one FunnelSession
+     * const funnelSession = await prisma.funnelSession.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FunnelSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, FunnelSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FunnelSessionClient<$Result.GetResult<Prisma.$FunnelSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FunnelSession that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FunnelSessionFindFirstArgs} args - Arguments to find a FunnelSession
+     * @example
+     * // Get one FunnelSession
+     * const funnelSession = await prisma.funnelSession.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FunnelSessionFindFirstArgs>(args?: SelectSubset<T, FunnelSessionFindFirstArgs<ExtArgs>>): Prisma__FunnelSessionClient<$Result.GetResult<Prisma.$FunnelSessionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FunnelSession that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FunnelSessionFindFirstOrThrowArgs} args - Arguments to find a FunnelSession
+     * @example
+     * // Get one FunnelSession
+     * const funnelSession = await prisma.funnelSession.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FunnelSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, FunnelSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__FunnelSessionClient<$Result.GetResult<Prisma.$FunnelSessionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more FunnelSessions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FunnelSessionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FunnelSessions
+     * const funnelSessions = await prisma.funnelSession.findMany()
+     * 
+     * // Get first 10 FunnelSessions
+     * const funnelSessions = await prisma.funnelSession.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const funnelSessionWithIdOnly = await prisma.funnelSession.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FunnelSessionFindManyArgs>(args?: SelectSubset<T, FunnelSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FunnelSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a FunnelSession.
+     * @param {FunnelSessionCreateArgs} args - Arguments to create a FunnelSession.
+     * @example
+     * // Create one FunnelSession
+     * const FunnelSession = await prisma.funnelSession.create({
+     *   data: {
+     *     // ... data to create a FunnelSession
+     *   }
+     * })
+     * 
+     */
+    create<T extends FunnelSessionCreateArgs>(args: SelectSubset<T, FunnelSessionCreateArgs<ExtArgs>>): Prisma__FunnelSessionClient<$Result.GetResult<Prisma.$FunnelSessionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many FunnelSessions.
+     * @param {FunnelSessionCreateManyArgs} args - Arguments to create many FunnelSessions.
+     * @example
+     * // Create many FunnelSessions
+     * const funnelSession = await prisma.funnelSession.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FunnelSessionCreateManyArgs>(args?: SelectSubset<T, FunnelSessionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FunnelSessions and returns the data saved in the database.
+     * @param {FunnelSessionCreateManyAndReturnArgs} args - Arguments to create many FunnelSessions.
+     * @example
+     * // Create many FunnelSessions
+     * const funnelSession = await prisma.funnelSession.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FunnelSessions and only return the `id`
+     * const funnelSessionWithIdOnly = await prisma.funnelSession.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FunnelSessionCreateManyAndReturnArgs>(args?: SelectSubset<T, FunnelSessionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FunnelSessionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a FunnelSession.
+     * @param {FunnelSessionDeleteArgs} args - Arguments to delete one FunnelSession.
+     * @example
+     * // Delete one FunnelSession
+     * const FunnelSession = await prisma.funnelSession.delete({
+     *   where: {
+     *     // ... filter to delete one FunnelSession
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FunnelSessionDeleteArgs>(args: SelectSubset<T, FunnelSessionDeleteArgs<ExtArgs>>): Prisma__FunnelSessionClient<$Result.GetResult<Prisma.$FunnelSessionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one FunnelSession.
+     * @param {FunnelSessionUpdateArgs} args - Arguments to update one FunnelSession.
+     * @example
+     * // Update one FunnelSession
+     * const funnelSession = await prisma.funnelSession.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FunnelSessionUpdateArgs>(args: SelectSubset<T, FunnelSessionUpdateArgs<ExtArgs>>): Prisma__FunnelSessionClient<$Result.GetResult<Prisma.$FunnelSessionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more FunnelSessions.
+     * @param {FunnelSessionDeleteManyArgs} args - Arguments to filter FunnelSessions to delete.
+     * @example
+     * // Delete a few FunnelSessions
+     * const { count } = await prisma.funnelSession.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FunnelSessionDeleteManyArgs>(args?: SelectSubset<T, FunnelSessionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FunnelSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FunnelSessionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FunnelSessions
+     * const funnelSession = await prisma.funnelSession.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FunnelSessionUpdateManyArgs>(args: SelectSubset<T, FunnelSessionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FunnelSessions and returns the data updated in the database.
+     * @param {FunnelSessionUpdateManyAndReturnArgs} args - Arguments to update many FunnelSessions.
+     * @example
+     * // Update many FunnelSessions
+     * const funnelSession = await prisma.funnelSession.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more FunnelSessions and only return the `id`
+     * const funnelSessionWithIdOnly = await prisma.funnelSession.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FunnelSessionUpdateManyAndReturnArgs>(args: SelectSubset<T, FunnelSessionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FunnelSessionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one FunnelSession.
+     * @param {FunnelSessionUpsertArgs} args - Arguments to update or create a FunnelSession.
+     * @example
+     * // Update or create a FunnelSession
+     * const funnelSession = await prisma.funnelSession.upsert({
+     *   create: {
+     *     // ... data to create a FunnelSession
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FunnelSession we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FunnelSessionUpsertArgs>(args: SelectSubset<T, FunnelSessionUpsertArgs<ExtArgs>>): Prisma__FunnelSessionClient<$Result.GetResult<Prisma.$FunnelSessionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of FunnelSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FunnelSessionCountArgs} args - Arguments to filter FunnelSessions to count.
+     * @example
+     * // Count the number of FunnelSessions
+     * const count = await prisma.funnelSession.count({
+     *   where: {
+     *     // ... the filter for the FunnelSessions we want to count
+     *   }
+     * })
+    **/
+    count<T extends FunnelSessionCountArgs>(
+      args?: Subset<T, FunnelSessionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FunnelSessionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FunnelSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FunnelSessionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FunnelSessionAggregateArgs>(args: Subset<T, FunnelSessionAggregateArgs>): Prisma.PrismaPromise<GetFunnelSessionAggregateType<T>>
+
+    /**
+     * Group by FunnelSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FunnelSessionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FunnelSessionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FunnelSessionGroupByArgs['orderBy'] }
+        : { orderBy?: FunnelSessionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FunnelSessionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFunnelSessionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FunnelSession model
+   */
+  readonly fields: FunnelSessionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FunnelSession.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FunnelSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    funnel<T extends ConversionFunnelDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ConversionFunnelDefaultArgs<ExtArgs>>): Prisma__ConversionFunnelClient<$Result.GetResult<Prisma.$ConversionFunnelPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends FunnelSession$userArgs<ExtArgs> = {}>(args?: Subset<T, FunnelSession$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FunnelSession model
+   */
+  interface FunnelSessionFieldRefs {
+    readonly id: FieldRef<"FunnelSession", 'String'>
+    readonly funnelId: FieldRef<"FunnelSession", 'String'>
+    readonly sessionId: FieldRef<"FunnelSession", 'String'>
+    readonly userId: FieldRef<"FunnelSession", 'String'>
+    readonly currentStep: FieldRef<"FunnelSession", 'Int'>
+    readonly completed: FieldRef<"FunnelSession", 'Boolean'>
+    readonly startedAt: FieldRef<"FunnelSession", 'DateTime'>
+    readonly completedAt: FieldRef<"FunnelSession", 'DateTime'>
+    readonly duration: FieldRef<"FunnelSession", 'Int'>
+    readonly stepData: FieldRef<"FunnelSession", 'Json'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FunnelSession findUnique
+   */
+  export type FunnelSessionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which FunnelSession to fetch.
+     */
+    where: FunnelSessionWhereUniqueInput
+  }
+
+  /**
+   * FunnelSession findUniqueOrThrow
+   */
+  export type FunnelSessionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which FunnelSession to fetch.
+     */
+    where: FunnelSessionWhereUniqueInput
+  }
+
+  /**
+   * FunnelSession findFirst
+   */
+  export type FunnelSessionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which FunnelSession to fetch.
+     */
+    where?: FunnelSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FunnelSessions to fetch.
+     */
+    orderBy?: FunnelSessionOrderByWithRelationInput | FunnelSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FunnelSessions.
+     */
+    cursor?: FunnelSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FunnelSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FunnelSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FunnelSessions.
+     */
+    distinct?: FunnelSessionScalarFieldEnum | FunnelSessionScalarFieldEnum[]
+  }
+
+  /**
+   * FunnelSession findFirstOrThrow
+   */
+  export type FunnelSessionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which FunnelSession to fetch.
+     */
+    where?: FunnelSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FunnelSessions to fetch.
+     */
+    orderBy?: FunnelSessionOrderByWithRelationInput | FunnelSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FunnelSessions.
+     */
+    cursor?: FunnelSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FunnelSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FunnelSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FunnelSessions.
+     */
+    distinct?: FunnelSessionScalarFieldEnum | FunnelSessionScalarFieldEnum[]
+  }
+
+  /**
+   * FunnelSession findMany
+   */
+  export type FunnelSessionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which FunnelSessions to fetch.
+     */
+    where?: FunnelSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FunnelSessions to fetch.
+     */
+    orderBy?: FunnelSessionOrderByWithRelationInput | FunnelSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FunnelSessions.
+     */
+    cursor?: FunnelSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FunnelSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FunnelSessions.
+     */
+    skip?: number
+    distinct?: FunnelSessionScalarFieldEnum | FunnelSessionScalarFieldEnum[]
+  }
+
+  /**
+   * FunnelSession create
+   */
+  export type FunnelSessionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FunnelSession.
+     */
+    data: XOR<FunnelSessionCreateInput, FunnelSessionUncheckedCreateInput>
+  }
+
+  /**
+   * FunnelSession createMany
+   */
+  export type FunnelSessionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FunnelSessions.
+     */
+    data: FunnelSessionCreateManyInput | FunnelSessionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * FunnelSession createManyAndReturn
+   */
+  export type FunnelSessionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * The data used to create many FunnelSessions.
+     */
+    data: FunnelSessionCreateManyInput | FunnelSessionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FunnelSession update
+   */
+  export type FunnelSessionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FunnelSession.
+     */
+    data: XOR<FunnelSessionUpdateInput, FunnelSessionUncheckedUpdateInput>
+    /**
+     * Choose, which FunnelSession to update.
+     */
+    where: FunnelSessionWhereUniqueInput
+  }
+
+  /**
+   * FunnelSession updateMany
+   */
+  export type FunnelSessionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FunnelSessions.
+     */
+    data: XOR<FunnelSessionUpdateManyMutationInput, FunnelSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which FunnelSessions to update
+     */
+    where?: FunnelSessionWhereInput
+    /**
+     * Limit how many FunnelSessions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FunnelSession updateManyAndReturn
+   */
+  export type FunnelSessionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * The data used to update FunnelSessions.
+     */
+    data: XOR<FunnelSessionUpdateManyMutationInput, FunnelSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which FunnelSessions to update
+     */
+    where?: FunnelSessionWhereInput
+    /**
+     * Limit how many FunnelSessions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FunnelSession upsert
+   */
+  export type FunnelSessionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FunnelSession to update in case it exists.
+     */
+    where: FunnelSessionWhereUniqueInput
+    /**
+     * In case the FunnelSession found by the `where` argument doesn't exist, create a new FunnelSession with this data.
+     */
+    create: XOR<FunnelSessionCreateInput, FunnelSessionUncheckedCreateInput>
+    /**
+     * In case the FunnelSession was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FunnelSessionUpdateInput, FunnelSessionUncheckedUpdateInput>
+  }
+
+  /**
+   * FunnelSession delete
+   */
+  export type FunnelSessionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionInclude<ExtArgs> | null
+    /**
+     * Filter which FunnelSession to delete.
+     */
+    where: FunnelSessionWhereUniqueInput
+  }
+
+  /**
+   * FunnelSession deleteMany
+   */
+  export type FunnelSessionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FunnelSessions to delete
+     */
+    where?: FunnelSessionWhereInput
+    /**
+     * Limit how many FunnelSessions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * FunnelSession.user
+   */
+  export type FunnelSession$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * FunnelSession without action
+   */
+  export type FunnelSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FunnelSession
+     */
+    select?: FunnelSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FunnelSession
+     */
+    omit?: FunnelSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FunnelSessionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserSession
+   */
+
+  export type AggregateUserSession = {
+    _count: UserSessionCountAggregateOutputType | null
+    _avg: UserSessionAvgAggregateOutputType | null
+    _sum: UserSessionSumAggregateOutputType | null
+    _min: UserSessionMinAggregateOutputType | null
+    _max: UserSessionMaxAggregateOutputType | null
+  }
+
+  export type UserSessionAvgAggregateOutputType = {
+    pageViews: number | null
+    duration: number | null
+    cartValue: number | null
+  }
+
+  export type UserSessionSumAggregateOutputType = {
+    pageViews: number | null
+    duration: number | null
+    cartValue: number | null
+  }
+
+  export type UserSessionMinAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    userId: string | null
+    ipAddress: string | null
+    userAgent: string | null
+    country: string | null
+    city: string | null
+    device: string | null
+    browser: string | null
+    os: string | null
+    landingPage: string | null
+    exitPage: string | null
+    pageViews: number | null
+    duration: number | null
+    cartValue: number | null
+    purchased: boolean | null
+    firstSeen: Date | null
+    lastSeen: Date | null
+  }
+
+  export type UserSessionMaxAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    userId: string | null
+    ipAddress: string | null
+    userAgent: string | null
+    country: string | null
+    city: string | null
+    device: string | null
+    browser: string | null
+    os: string | null
+    landingPage: string | null
+    exitPage: string | null
+    pageViews: number | null
+    duration: number | null
+    cartValue: number | null
+    purchased: boolean | null
+    firstSeen: Date | null
+    lastSeen: Date | null
+  }
+
+  export type UserSessionCountAggregateOutputType = {
+    id: number
+    sessionId: number
+    userId: number
+    ipAddress: number
+    userAgent: number
+    country: number
+    city: number
+    device: number
+    browser: number
+    os: number
+    landingPage: number
+    exitPage: number
+    pageViews: number
+    duration: number
+    cartValue: number
+    purchased: number
+    firstSeen: number
+    lastSeen: number
+    _all: number
+  }
+
+
+  export type UserSessionAvgAggregateInputType = {
+    pageViews?: true
+    duration?: true
+    cartValue?: true
+  }
+
+  export type UserSessionSumAggregateInputType = {
+    pageViews?: true
+    duration?: true
+    cartValue?: true
+  }
+
+  export type UserSessionMinAggregateInputType = {
+    id?: true
+    sessionId?: true
+    userId?: true
+    ipAddress?: true
+    userAgent?: true
+    country?: true
+    city?: true
+    device?: true
+    browser?: true
+    os?: true
+    landingPage?: true
+    exitPage?: true
+    pageViews?: true
+    duration?: true
+    cartValue?: true
+    purchased?: true
+    firstSeen?: true
+    lastSeen?: true
+  }
+
+  export type UserSessionMaxAggregateInputType = {
+    id?: true
+    sessionId?: true
+    userId?: true
+    ipAddress?: true
+    userAgent?: true
+    country?: true
+    city?: true
+    device?: true
+    browser?: true
+    os?: true
+    landingPage?: true
+    exitPage?: true
+    pageViews?: true
+    duration?: true
+    cartValue?: true
+    purchased?: true
+    firstSeen?: true
+    lastSeen?: true
+  }
+
+  export type UserSessionCountAggregateInputType = {
+    id?: true
+    sessionId?: true
+    userId?: true
+    ipAddress?: true
+    userAgent?: true
+    country?: true
+    city?: true
+    device?: true
+    browser?: true
+    os?: true
+    landingPage?: true
+    exitPage?: true
+    pageViews?: true
+    duration?: true
+    cartValue?: true
+    purchased?: true
+    firstSeen?: true
+    lastSeen?: true
+    _all?: true
+  }
+
+  export type UserSessionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserSession to aggregate.
+     */
+    where?: UserSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSessions to fetch.
+     */
+    orderBy?: UserSessionOrderByWithRelationInput | UserSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserSessions
+    **/
+    _count?: true | UserSessionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserSessionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserSessionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserSessionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserSessionMaxAggregateInputType
+  }
+
+  export type GetUserSessionAggregateType<T extends UserSessionAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserSession]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserSession[P]>
+      : GetScalarType<T[P], AggregateUserSession[P]>
+  }
+
+
+
+
+  export type UserSessionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserSessionWhereInput
+    orderBy?: UserSessionOrderByWithAggregationInput | UserSessionOrderByWithAggregationInput[]
+    by: UserSessionScalarFieldEnum[] | UserSessionScalarFieldEnum
+    having?: UserSessionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserSessionCountAggregateInputType | true
+    _avg?: UserSessionAvgAggregateInputType
+    _sum?: UserSessionSumAggregateInputType
+    _min?: UserSessionMinAggregateInputType
+    _max?: UserSessionMaxAggregateInputType
+  }
+
+  export type UserSessionGroupByOutputType = {
+    id: string
+    sessionId: string
+    userId: string | null
+    ipAddress: string | null
+    userAgent: string | null
+    country: string | null
+    city: string | null
+    device: string | null
+    browser: string | null
+    os: string | null
+    landingPage: string | null
+    exitPage: string | null
+    pageViews: number
+    duration: number | null
+    cartValue: number | null
+    purchased: boolean
+    firstSeen: Date
+    lastSeen: Date
+    _count: UserSessionCountAggregateOutputType | null
+    _avg: UserSessionAvgAggregateOutputType | null
+    _sum: UserSessionSumAggregateOutputType | null
+    _min: UserSessionMinAggregateOutputType | null
+    _max: UserSessionMaxAggregateOutputType | null
+  }
+
+  type GetUserSessionGroupByPayload<T extends UserSessionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserSessionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserSessionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserSessionGroupByOutputType[P]>
+            : GetScalarType<T[P], UserSessionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserSessionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    country?: boolean
+    city?: boolean
+    device?: boolean
+    browser?: boolean
+    os?: boolean
+    landingPage?: boolean
+    exitPage?: boolean
+    pageViews?: boolean
+    duration?: boolean
+    cartValue?: boolean
+    purchased?: boolean
+    firstSeen?: boolean
+    lastSeen?: boolean
+    user?: boolean | UserSession$userArgs<ExtArgs>
+    events?: boolean | UserSession$eventsArgs<ExtArgs>
+    _count?: boolean | UserSessionCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userSession"]>
+
+  export type UserSessionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    country?: boolean
+    city?: boolean
+    device?: boolean
+    browser?: boolean
+    os?: boolean
+    landingPage?: boolean
+    exitPage?: boolean
+    pageViews?: boolean
+    duration?: boolean
+    cartValue?: boolean
+    purchased?: boolean
+    firstSeen?: boolean
+    lastSeen?: boolean
+    user?: boolean | UserSession$userArgs<ExtArgs>
+  }, ExtArgs["result"]["userSession"]>
+
+  export type UserSessionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    country?: boolean
+    city?: boolean
+    device?: boolean
+    browser?: boolean
+    os?: boolean
+    landingPage?: boolean
+    exitPage?: boolean
+    pageViews?: boolean
+    duration?: boolean
+    cartValue?: boolean
+    purchased?: boolean
+    firstSeen?: boolean
+    lastSeen?: boolean
+    user?: boolean | UserSession$userArgs<ExtArgs>
+  }, ExtArgs["result"]["userSession"]>
+
+  export type UserSessionSelectScalar = {
+    id?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    country?: boolean
+    city?: boolean
+    device?: boolean
+    browser?: boolean
+    os?: boolean
+    landingPage?: boolean
+    exitPage?: boolean
+    pageViews?: boolean
+    duration?: boolean
+    cartValue?: boolean
+    purchased?: boolean
+    firstSeen?: boolean
+    lastSeen?: boolean
+  }
+
+  export type UserSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sessionId" | "userId" | "ipAddress" | "userAgent" | "country" | "city" | "device" | "browser" | "os" | "landingPage" | "exitPage" | "pageViews" | "duration" | "cartValue" | "purchased" | "firstSeen" | "lastSeen", ExtArgs["result"]["userSession"]>
+  export type UserSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserSession$userArgs<ExtArgs>
+    events?: boolean | UserSession$eventsArgs<ExtArgs>
+    _count?: boolean | UserSessionCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type UserSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserSession$userArgs<ExtArgs>
+  }
+  export type UserSessionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserSession$userArgs<ExtArgs>
+  }
+
+  export type $UserSessionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserSession"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
+      events: Prisma.$TrackingEventPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sessionId: string
+      userId: string | null
+      ipAddress: string | null
+      userAgent: string | null
+      country: string | null
+      city: string | null
+      device: string | null
+      browser: string | null
+      os: string | null
+      landingPage: string | null
+      exitPage: string | null
+      pageViews: number
+      duration: number | null
+      cartValue: number | null
+      purchased: boolean
+      firstSeen: Date
+      lastSeen: Date
+    }, ExtArgs["result"]["userSession"]>
+    composites: {}
+  }
+
+  type UserSessionGetPayload<S extends boolean | null | undefined | UserSessionDefaultArgs> = $Result.GetResult<Prisma.$UserSessionPayload, S>
+
+  type UserSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserSessionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserSessionCountAggregateInputType | true
+    }
+
+  export interface UserSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserSession'], meta: { name: 'UserSession' } }
+    /**
+     * Find zero or one UserSession that matches the filter.
+     * @param {UserSessionFindUniqueArgs} args - Arguments to find a UserSession
+     * @example
+     * // Get one UserSession
+     * const userSession = await prisma.userSession.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserSessionFindUniqueArgs>(args: SelectSubset<T, UserSessionFindUniqueArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserSession that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserSessionFindUniqueOrThrowArgs} args - Arguments to find a UserSession
+     * @example
+     * // Get one UserSession
+     * const userSession = await prisma.userSession.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, UserSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserSession that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionFindFirstArgs} args - Arguments to find a UserSession
+     * @example
+     * // Get one UserSession
+     * const userSession = await prisma.userSession.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserSessionFindFirstArgs>(args?: SelectSubset<T, UserSessionFindFirstArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserSession that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionFindFirstOrThrowArgs} args - Arguments to find a UserSession
+     * @example
+     * // Get one UserSession
+     * const userSession = await prisma.userSession.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, UserSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserSessions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserSessions
+     * const userSessions = await prisma.userSession.findMany()
+     * 
+     * // Get first 10 UserSessions
+     * const userSessions = await prisma.userSession.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userSessionWithIdOnly = await prisma.userSession.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserSessionFindManyArgs>(args?: SelectSubset<T, UserSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserSession.
+     * @param {UserSessionCreateArgs} args - Arguments to create a UserSession.
+     * @example
+     * // Create one UserSession
+     * const UserSession = await prisma.userSession.create({
+     *   data: {
+     *     // ... data to create a UserSession
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserSessionCreateArgs>(args: SelectSubset<T, UserSessionCreateArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserSessions.
+     * @param {UserSessionCreateManyArgs} args - Arguments to create many UserSessions.
+     * @example
+     * // Create many UserSessions
+     * const userSession = await prisma.userSession.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserSessionCreateManyArgs>(args?: SelectSubset<T, UserSessionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserSessions and returns the data saved in the database.
+     * @param {UserSessionCreateManyAndReturnArgs} args - Arguments to create many UserSessions.
+     * @example
+     * // Create many UserSessions
+     * const userSession = await prisma.userSession.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserSessions and only return the `id`
+     * const userSessionWithIdOnly = await prisma.userSession.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserSessionCreateManyAndReturnArgs>(args?: SelectSubset<T, UserSessionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserSession.
+     * @param {UserSessionDeleteArgs} args - Arguments to delete one UserSession.
+     * @example
+     * // Delete one UserSession
+     * const UserSession = await prisma.userSession.delete({
+     *   where: {
+     *     // ... filter to delete one UserSession
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserSessionDeleteArgs>(args: SelectSubset<T, UserSessionDeleteArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserSession.
+     * @param {UserSessionUpdateArgs} args - Arguments to update one UserSession.
+     * @example
+     * // Update one UserSession
+     * const userSession = await prisma.userSession.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserSessionUpdateArgs>(args: SelectSubset<T, UserSessionUpdateArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserSessions.
+     * @param {UserSessionDeleteManyArgs} args - Arguments to filter UserSessions to delete.
+     * @example
+     * // Delete a few UserSessions
+     * const { count } = await prisma.userSession.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserSessionDeleteManyArgs>(args?: SelectSubset<T, UserSessionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserSessions
+     * const userSession = await prisma.userSession.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserSessionUpdateManyArgs>(args: SelectSubset<T, UserSessionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserSessions and returns the data updated in the database.
+     * @param {UserSessionUpdateManyAndReturnArgs} args - Arguments to update many UserSessions.
+     * @example
+     * // Update many UserSessions
+     * const userSession = await prisma.userSession.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserSessions and only return the `id`
+     * const userSessionWithIdOnly = await prisma.userSession.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserSessionUpdateManyAndReturnArgs>(args: SelectSubset<T, UserSessionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserSession.
+     * @param {UserSessionUpsertArgs} args - Arguments to update or create a UserSession.
+     * @example
+     * // Update or create a UserSession
+     * const userSession = await prisma.userSession.upsert({
+     *   create: {
+     *     // ... data to create a UserSession
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserSession we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserSessionUpsertArgs>(args: SelectSubset<T, UserSessionUpsertArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionCountArgs} args - Arguments to filter UserSessions to count.
+     * @example
+     * // Count the number of UserSessions
+     * const count = await prisma.userSession.count({
+     *   where: {
+     *     // ... the filter for the UserSessions we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserSessionCountArgs>(
+      args?: Subset<T, UserSessionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserSessionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserSessionAggregateArgs>(args: Subset<T, UserSessionAggregateArgs>): Prisma.PrismaPromise<GetUserSessionAggregateType<T>>
+
+    /**
+     * Group by UserSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserSessionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserSessionGroupByArgs['orderBy'] }
+        : { orderBy?: UserSessionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserSessionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserSessionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserSession model
+   */
+  readonly fields: UserSessionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserSession.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserSession$userArgs<ExtArgs> = {}>(args?: Subset<T, UserSession$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    events<T extends UserSession$eventsArgs<ExtArgs> = {}>(args?: Subset<T, UserSession$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackingEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserSession model
+   */
+  interface UserSessionFieldRefs {
+    readonly id: FieldRef<"UserSession", 'String'>
+    readonly sessionId: FieldRef<"UserSession", 'String'>
+    readonly userId: FieldRef<"UserSession", 'String'>
+    readonly ipAddress: FieldRef<"UserSession", 'String'>
+    readonly userAgent: FieldRef<"UserSession", 'String'>
+    readonly country: FieldRef<"UserSession", 'String'>
+    readonly city: FieldRef<"UserSession", 'String'>
+    readonly device: FieldRef<"UserSession", 'String'>
+    readonly browser: FieldRef<"UserSession", 'String'>
+    readonly os: FieldRef<"UserSession", 'String'>
+    readonly landingPage: FieldRef<"UserSession", 'String'>
+    readonly exitPage: FieldRef<"UserSession", 'String'>
+    readonly pageViews: FieldRef<"UserSession", 'Int'>
+    readonly duration: FieldRef<"UserSession", 'Int'>
+    readonly cartValue: FieldRef<"UserSession", 'Float'>
+    readonly purchased: FieldRef<"UserSession", 'Boolean'>
+    readonly firstSeen: FieldRef<"UserSession", 'DateTime'>
+    readonly lastSeen: FieldRef<"UserSession", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserSession findUnique
+   */
+  export type UserSessionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSession to fetch.
+     */
+    where: UserSessionWhereUniqueInput
+  }
+
+  /**
+   * UserSession findUniqueOrThrow
+   */
+  export type UserSessionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSession to fetch.
+     */
+    where: UserSessionWhereUniqueInput
+  }
+
+  /**
+   * UserSession findFirst
+   */
+  export type UserSessionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSession to fetch.
+     */
+    where?: UserSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSessions to fetch.
+     */
+    orderBy?: UserSessionOrderByWithRelationInput | UserSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserSessions.
+     */
+    cursor?: UserSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserSessions.
+     */
+    distinct?: UserSessionScalarFieldEnum | UserSessionScalarFieldEnum[]
+  }
+
+  /**
+   * UserSession findFirstOrThrow
+   */
+  export type UserSessionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSession to fetch.
+     */
+    where?: UserSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSessions to fetch.
+     */
+    orderBy?: UserSessionOrderByWithRelationInput | UserSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserSessions.
+     */
+    cursor?: UserSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserSessions.
+     */
+    distinct?: UserSessionScalarFieldEnum | UserSessionScalarFieldEnum[]
+  }
+
+  /**
+   * UserSession findMany
+   */
+  export type UserSessionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSessions to fetch.
+     */
+    where?: UserSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSessions to fetch.
+     */
+    orderBy?: UserSessionOrderByWithRelationInput | UserSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserSessions.
+     */
+    cursor?: UserSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSessions.
+     */
+    skip?: number
+    distinct?: UserSessionScalarFieldEnum | UserSessionScalarFieldEnum[]
+  }
+
+  /**
+   * UserSession create
+   */
+  export type UserSessionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserSession.
+     */
+    data: XOR<UserSessionCreateInput, UserSessionUncheckedCreateInput>
+  }
+
+  /**
+   * UserSession createMany
+   */
+  export type UserSessionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserSessions.
+     */
+    data: UserSessionCreateManyInput | UserSessionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UserSession createManyAndReturn
+   */
+  export type UserSessionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserSessions.
+     */
+    data: UserSessionCreateManyInput | UserSessionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserSession update
+   */
+  export type UserSessionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserSession.
+     */
+    data: XOR<UserSessionUpdateInput, UserSessionUncheckedUpdateInput>
+    /**
+     * Choose, which UserSession to update.
+     */
+    where: UserSessionWhereUniqueInput
+  }
+
+  /**
+   * UserSession updateMany
+   */
+  export type UserSessionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserSessions.
+     */
+    data: XOR<UserSessionUpdateManyMutationInput, UserSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which UserSessions to update
+     */
+    where?: UserSessionWhereInput
+    /**
+     * Limit how many UserSessions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserSession updateManyAndReturn
+   */
+  export type UserSessionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * The data used to update UserSessions.
+     */
+    data: XOR<UserSessionUpdateManyMutationInput, UserSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which UserSessions to update
+     */
+    where?: UserSessionWhereInput
+    /**
+     * Limit how many UserSessions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserSession upsert
+   */
+  export type UserSessionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserSession to update in case it exists.
+     */
+    where: UserSessionWhereUniqueInput
+    /**
+     * In case the UserSession found by the `where` argument doesn't exist, create a new UserSession with this data.
+     */
+    create: XOR<UserSessionCreateInput, UserSessionUncheckedCreateInput>
+    /**
+     * In case the UserSession was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserSessionUpdateInput, UserSessionUncheckedUpdateInput>
+  }
+
+  /**
+   * UserSession delete
+   */
+  export type UserSessionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * Filter which UserSession to delete.
+     */
+    where: UserSessionWhereUniqueInput
+  }
+
+  /**
+   * UserSession deleteMany
+   */
+  export type UserSessionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserSessions to delete
+     */
+    where?: UserSessionWhereInput
+    /**
+     * Limit how many UserSessions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserSession.user
+   */
+  export type UserSession$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * UserSession.events
+   */
+  export type UserSession$eventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackingEvent
+     */
+    select?: TrackingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackingEvent
+     */
+    omit?: TrackingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackingEventInclude<ExtArgs> | null
+    where?: TrackingEventWhereInput
+    orderBy?: TrackingEventOrderByWithRelationInput | TrackingEventOrderByWithRelationInput[]
+    cursor?: TrackingEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TrackingEventScalarFieldEnum | TrackingEventScalarFieldEnum[]
+  }
+
+  /**
+   * UserSession without action
+   */
+  export type UserSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -28147,6 +39492,189 @@ export namespace Prisma {
   export type EmailSubscriberScalarFieldEnum = (typeof EmailSubscriberScalarFieldEnum)[keyof typeof EmailSubscriberScalarFieldEnum]
 
 
+  export const TrackingConfigurationScalarFieldEnum: {
+    id: 'id',
+    gtmEnabled: 'gtmEnabled',
+    gtmContainerId: 'gtmContainerId',
+    gtmStatus: 'gtmStatus',
+    ga4Enabled: 'ga4Enabled',
+    ga4MeasurementId: 'ga4MeasurementId',
+    ga4ApiSecret: 'ga4ApiSecret',
+    ga4Status: 'ga4Status',
+    metaEnabled: 'metaEnabled',
+    metaPixelId: 'metaPixelId',
+    metaAccessToken: 'metaAccessToken',
+    metaStatus: 'metaStatus',
+    googleAdsEnabled: 'googleAdsEnabled',
+    googleAdsConversionId: 'googleAdsConversionId',
+    googleAdsConversionLabel: 'googleAdsConversionLabel',
+    googleAdsCustomerId: 'googleAdsCustomerId',
+    googleAdsAccessToken: 'googleAdsAccessToken',
+    googleAdsStatus: 'googleAdsStatus',
+    serverSideEnabled: 'serverSideEnabled',
+    facebookConversionsApi: 'facebookConversionsApi',
+    googleConversionsApi: 'googleConversionsApi',
+    serverSideStatus: 'serverSideStatus',
+    dataRetentionDays: 'dataRetentionDays',
+    anonymizeIp: 'anonymizeIp',
+    cookieConsent: 'cookieConsent',
+    debugMode: 'debugMode',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TrackingConfigurationScalarFieldEnum = (typeof TrackingConfigurationScalarFieldEnum)[keyof typeof TrackingConfigurationScalarFieldEnum]
+
+
+  export const TrackingEventScalarFieldEnum: {
+    id: 'id',
+    configId: 'configId',
+    sessionId: 'sessionId',
+    userId: 'userId',
+    eventName: 'eventName',
+    eventType: 'eventType',
+    platform: 'platform',
+    eventData: 'eventData',
+    userAgent: 'userAgent',
+    ipAddress: 'ipAddress',
+    referrer: 'referrer',
+    pageUrl: 'pageUrl',
+    pageTitle: 'pageTitle',
+    transactionId: 'transactionId',
+    value: 'value',
+    currency: 'currency',
+    items: 'items',
+    conversionValue: 'conversionValue',
+    conversionType: 'conversionType',
+    timestamp: 'timestamp',
+    clientTimestamp: 'clientTimestamp',
+    processed: 'processed',
+    processingError: 'processingError'
+  };
+
+  export type TrackingEventScalarFieldEnum = (typeof TrackingEventScalarFieldEnum)[keyof typeof TrackingEventScalarFieldEnum]
+
+
+  export const CustomEventScalarFieldEnum: {
+    id: 'id',
+    configId: 'configId',
+    name: 'name',
+    displayName: 'displayName',
+    description: 'description',
+    category: 'category',
+    isActive: 'isActive',
+    triggers: 'triggers',
+    parameters: 'parameters',
+    conversionValue: 'conversionValue',
+    trackGA4: 'trackGA4',
+    trackFacebook: 'trackFacebook',
+    trackGoogleAds: 'trackGoogleAds',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type CustomEventScalarFieldEnum = (typeof CustomEventScalarFieldEnum)[keyof typeof CustomEventScalarFieldEnum]
+
+
+  export const CustomEventInstanceScalarFieldEnum: {
+    id: 'id',
+    customEventId: 'customEventId',
+    sessionId: 'sessionId',
+    userId: 'userId',
+    parameters: 'parameters',
+    value: 'value',
+    currency: 'currency',
+    pageUrl: 'pageUrl',
+    timestamp: 'timestamp'
+  };
+
+  export type CustomEventInstanceScalarFieldEnum = (typeof CustomEventInstanceScalarFieldEnum)[keyof typeof CustomEventInstanceScalarFieldEnum]
+
+
+  export const AnalyticsScalarFieldEnum: {
+    id: 'id',
+    configId: 'configId',
+    date: 'date',
+    pageViews: 'pageViews',
+    uniqueVisitors: 'uniqueVisitors',
+    sessions: 'sessions',
+    bounceRate: 'bounceRate',
+    avgSessionDuration: 'avgSessionDuration',
+    transactions: 'transactions',
+    revenue: 'revenue',
+    averageOrderValue: 'averageOrderValue',
+    conversionRate: 'conversionRate',
+    customEvents: 'customEvents',
+    addToCarts: 'addToCarts',
+    checkouts: 'checkouts',
+    organicTraffic: 'organicTraffic',
+    paidTraffic: 'paidTraffic',
+    socialTraffic: 'socialTraffic',
+    directTraffic: 'directTraffic',
+    referralTraffic: 'referralTraffic',
+    desktopUsers: 'desktopUsers',
+    mobileUsers: 'mobileUsers',
+    tabletUsers: 'tabletUsers',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AnalyticsScalarFieldEnum = (typeof AnalyticsScalarFieldEnum)[keyof typeof AnalyticsScalarFieldEnum]
+
+
+  export const ConversionFunnelScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    steps: 'steps',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ConversionFunnelScalarFieldEnum = (typeof ConversionFunnelScalarFieldEnum)[keyof typeof ConversionFunnelScalarFieldEnum]
+
+
+  export const FunnelSessionScalarFieldEnum: {
+    id: 'id',
+    funnelId: 'funnelId',
+    sessionId: 'sessionId',
+    userId: 'userId',
+    currentStep: 'currentStep',
+    completed: 'completed',
+    startedAt: 'startedAt',
+    completedAt: 'completedAt',
+    duration: 'duration',
+    stepData: 'stepData'
+  };
+
+  export type FunnelSessionScalarFieldEnum = (typeof FunnelSessionScalarFieldEnum)[keyof typeof FunnelSessionScalarFieldEnum]
+
+
+  export const UserSessionScalarFieldEnum: {
+    id: 'id',
+    sessionId: 'sessionId',
+    userId: 'userId',
+    ipAddress: 'ipAddress',
+    userAgent: 'userAgent',
+    country: 'country',
+    city: 'city',
+    device: 'device',
+    browser: 'browser',
+    os: 'os',
+    landingPage: 'landingPage',
+    exitPage: 'exitPage',
+    pageViews: 'pageViews',
+    duration: 'duration',
+    cartValue: 'cartValue',
+    purchased: 'purchased',
+    firstSeen: 'firstSeen',
+    lastSeen: 'lastSeen'
+  };
+
+  export type UserSessionScalarFieldEnum = (typeof UserSessionScalarFieldEnum)[keyof typeof UserSessionScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -28161,6 +39689,13 @@ export namespace Prisma {
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const QueryMode: {
@@ -28380,6 +39915,48 @@ export namespace Prisma {
    */
   export type ListEnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionStatus[]'>
     
+
+
+  /**
+   * Reference to a field of type 'TrackingStatus'
+   */
+  export type EnumTrackingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrackingStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'TrackingStatus[]'
+   */
+  export type ListEnumTrackingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrackingStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'TrackingEventType'
+   */
+  export type EnumTrackingEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrackingEventType'>
+    
+
+
+  /**
+   * Reference to a field of type 'TrackingEventType[]'
+   */
+  export type ListEnumTrackingEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrackingEventType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'TrackingPlatform'
+   */
+  export type EnumTrackingPlatformFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrackingPlatform'>
+    
+
+
+  /**
+   * Reference to a field of type 'TrackingPlatform[]'
+   */
+  export type ListEnumTrackingPlatformFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrackingPlatform[]'>
+    
   /**
    * Deep Input Types
    */
@@ -28408,6 +39985,10 @@ export namespace Prisma {
     orders?: OrderListRelationFilter
     permissions?: PermissionListRelationFilter
     payments?: PaymentListRelationFilter
+    trackingEvents?: TrackingEventListRelationFilter
+    customEventInstances?: CustomEventInstanceListRelationFilter
+    funnelSessions?: FunnelSessionListRelationFilter
+    userSessions?: UserSessionListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -28430,6 +40011,10 @@ export namespace Prisma {
     orders?: OrderOrderByRelationAggregateInput
     permissions?: PermissionOrderByRelationAggregateInput
     payments?: PaymentOrderByRelationAggregateInput
+    trackingEvents?: TrackingEventOrderByRelationAggregateInput
+    customEventInstances?: CustomEventInstanceOrderByRelationAggregateInput
+    funnelSessions?: FunnelSessionOrderByRelationAggregateInput
+    userSessions?: UserSessionOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -28455,6 +40040,10 @@ export namespace Prisma {
     orders?: OrderListRelationFilter
     permissions?: PermissionListRelationFilter
     payments?: PaymentListRelationFilter
+    trackingEvents?: TrackingEventListRelationFilter
+    customEventInstances?: CustomEventInstanceListRelationFilter
+    funnelSessions?: FunnelSessionListRelationFilter
+    userSessions?: UserSessionListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -30295,6 +41884,961 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"EmailSubscriber"> | Date | string
   }
 
+  export type TrackingConfigurationWhereInput = {
+    AND?: TrackingConfigurationWhereInput | TrackingConfigurationWhereInput[]
+    OR?: TrackingConfigurationWhereInput[]
+    NOT?: TrackingConfigurationWhereInput | TrackingConfigurationWhereInput[]
+    id?: StringFilter<"TrackingConfiguration"> | string
+    gtmEnabled?: BoolFilter<"TrackingConfiguration"> | boolean
+    gtmContainerId?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    gtmStatus?: EnumTrackingStatusFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    ga4Enabled?: BoolFilter<"TrackingConfiguration"> | boolean
+    ga4MeasurementId?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    ga4ApiSecret?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    ga4Status?: EnumTrackingStatusFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    metaEnabled?: BoolFilter<"TrackingConfiguration"> | boolean
+    metaPixelId?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    metaAccessToken?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    metaStatus?: EnumTrackingStatusFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    googleAdsEnabled?: BoolFilter<"TrackingConfiguration"> | boolean
+    googleAdsConversionId?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    googleAdsConversionLabel?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    googleAdsCustomerId?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    googleAdsAccessToken?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    googleAdsStatus?: EnumTrackingStatusFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    serverSideEnabled?: BoolFilter<"TrackingConfiguration"> | boolean
+    facebookConversionsApi?: BoolFilter<"TrackingConfiguration"> | boolean
+    googleConversionsApi?: BoolFilter<"TrackingConfiguration"> | boolean
+    serverSideStatus?: EnumTrackingStatusFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    dataRetentionDays?: IntFilter<"TrackingConfiguration"> | number
+    anonymizeIp?: BoolFilter<"TrackingConfiguration"> | boolean
+    cookieConsent?: BoolFilter<"TrackingConfiguration"> | boolean
+    debugMode?: BoolFilter<"TrackingConfiguration"> | boolean
+    createdAt?: DateTimeFilter<"TrackingConfiguration"> | Date | string
+    updatedAt?: DateTimeFilter<"TrackingConfiguration"> | Date | string
+    events?: TrackingEventListRelationFilter
+    customEvents?: CustomEventListRelationFilter
+    analytics?: AnalyticsListRelationFilter
+  }
+
+  export type TrackingConfigurationOrderByWithRelationInput = {
+    id?: SortOrder
+    gtmEnabled?: SortOrder
+    gtmContainerId?: SortOrderInput | SortOrder
+    gtmStatus?: SortOrder
+    ga4Enabled?: SortOrder
+    ga4MeasurementId?: SortOrderInput | SortOrder
+    ga4ApiSecret?: SortOrderInput | SortOrder
+    ga4Status?: SortOrder
+    metaEnabled?: SortOrder
+    metaPixelId?: SortOrderInput | SortOrder
+    metaAccessToken?: SortOrderInput | SortOrder
+    metaStatus?: SortOrder
+    googleAdsEnabled?: SortOrder
+    googleAdsConversionId?: SortOrderInput | SortOrder
+    googleAdsConversionLabel?: SortOrderInput | SortOrder
+    googleAdsCustomerId?: SortOrderInput | SortOrder
+    googleAdsAccessToken?: SortOrderInput | SortOrder
+    googleAdsStatus?: SortOrder
+    serverSideEnabled?: SortOrder
+    facebookConversionsApi?: SortOrder
+    googleConversionsApi?: SortOrder
+    serverSideStatus?: SortOrder
+    dataRetentionDays?: SortOrder
+    anonymizeIp?: SortOrder
+    cookieConsent?: SortOrder
+    debugMode?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    events?: TrackingEventOrderByRelationAggregateInput
+    customEvents?: CustomEventOrderByRelationAggregateInput
+    analytics?: AnalyticsOrderByRelationAggregateInput
+  }
+
+  export type TrackingConfigurationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TrackingConfigurationWhereInput | TrackingConfigurationWhereInput[]
+    OR?: TrackingConfigurationWhereInput[]
+    NOT?: TrackingConfigurationWhereInput | TrackingConfigurationWhereInput[]
+    gtmEnabled?: BoolFilter<"TrackingConfiguration"> | boolean
+    gtmContainerId?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    gtmStatus?: EnumTrackingStatusFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    ga4Enabled?: BoolFilter<"TrackingConfiguration"> | boolean
+    ga4MeasurementId?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    ga4ApiSecret?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    ga4Status?: EnumTrackingStatusFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    metaEnabled?: BoolFilter<"TrackingConfiguration"> | boolean
+    metaPixelId?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    metaAccessToken?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    metaStatus?: EnumTrackingStatusFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    googleAdsEnabled?: BoolFilter<"TrackingConfiguration"> | boolean
+    googleAdsConversionId?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    googleAdsConversionLabel?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    googleAdsCustomerId?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    googleAdsAccessToken?: StringNullableFilter<"TrackingConfiguration"> | string | null
+    googleAdsStatus?: EnumTrackingStatusFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    serverSideEnabled?: BoolFilter<"TrackingConfiguration"> | boolean
+    facebookConversionsApi?: BoolFilter<"TrackingConfiguration"> | boolean
+    googleConversionsApi?: BoolFilter<"TrackingConfiguration"> | boolean
+    serverSideStatus?: EnumTrackingStatusFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    dataRetentionDays?: IntFilter<"TrackingConfiguration"> | number
+    anonymizeIp?: BoolFilter<"TrackingConfiguration"> | boolean
+    cookieConsent?: BoolFilter<"TrackingConfiguration"> | boolean
+    debugMode?: BoolFilter<"TrackingConfiguration"> | boolean
+    createdAt?: DateTimeFilter<"TrackingConfiguration"> | Date | string
+    updatedAt?: DateTimeFilter<"TrackingConfiguration"> | Date | string
+    events?: TrackingEventListRelationFilter
+    customEvents?: CustomEventListRelationFilter
+    analytics?: AnalyticsListRelationFilter
+  }, "id" | "id">
+
+  export type TrackingConfigurationOrderByWithAggregationInput = {
+    id?: SortOrder
+    gtmEnabled?: SortOrder
+    gtmContainerId?: SortOrderInput | SortOrder
+    gtmStatus?: SortOrder
+    ga4Enabled?: SortOrder
+    ga4MeasurementId?: SortOrderInput | SortOrder
+    ga4ApiSecret?: SortOrderInput | SortOrder
+    ga4Status?: SortOrder
+    metaEnabled?: SortOrder
+    metaPixelId?: SortOrderInput | SortOrder
+    metaAccessToken?: SortOrderInput | SortOrder
+    metaStatus?: SortOrder
+    googleAdsEnabled?: SortOrder
+    googleAdsConversionId?: SortOrderInput | SortOrder
+    googleAdsConversionLabel?: SortOrderInput | SortOrder
+    googleAdsCustomerId?: SortOrderInput | SortOrder
+    googleAdsAccessToken?: SortOrderInput | SortOrder
+    googleAdsStatus?: SortOrder
+    serverSideEnabled?: SortOrder
+    facebookConversionsApi?: SortOrder
+    googleConversionsApi?: SortOrder
+    serverSideStatus?: SortOrder
+    dataRetentionDays?: SortOrder
+    anonymizeIp?: SortOrder
+    cookieConsent?: SortOrder
+    debugMode?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TrackingConfigurationCountOrderByAggregateInput
+    _avg?: TrackingConfigurationAvgOrderByAggregateInput
+    _max?: TrackingConfigurationMaxOrderByAggregateInput
+    _min?: TrackingConfigurationMinOrderByAggregateInput
+    _sum?: TrackingConfigurationSumOrderByAggregateInput
+  }
+
+  export type TrackingConfigurationScalarWhereWithAggregatesInput = {
+    AND?: TrackingConfigurationScalarWhereWithAggregatesInput | TrackingConfigurationScalarWhereWithAggregatesInput[]
+    OR?: TrackingConfigurationScalarWhereWithAggregatesInput[]
+    NOT?: TrackingConfigurationScalarWhereWithAggregatesInput | TrackingConfigurationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TrackingConfiguration"> | string
+    gtmEnabled?: BoolWithAggregatesFilter<"TrackingConfiguration"> | boolean
+    gtmContainerId?: StringNullableWithAggregatesFilter<"TrackingConfiguration"> | string | null
+    gtmStatus?: EnumTrackingStatusWithAggregatesFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    ga4Enabled?: BoolWithAggregatesFilter<"TrackingConfiguration"> | boolean
+    ga4MeasurementId?: StringNullableWithAggregatesFilter<"TrackingConfiguration"> | string | null
+    ga4ApiSecret?: StringNullableWithAggregatesFilter<"TrackingConfiguration"> | string | null
+    ga4Status?: EnumTrackingStatusWithAggregatesFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    metaEnabled?: BoolWithAggregatesFilter<"TrackingConfiguration"> | boolean
+    metaPixelId?: StringNullableWithAggregatesFilter<"TrackingConfiguration"> | string | null
+    metaAccessToken?: StringNullableWithAggregatesFilter<"TrackingConfiguration"> | string | null
+    metaStatus?: EnumTrackingStatusWithAggregatesFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    googleAdsEnabled?: BoolWithAggregatesFilter<"TrackingConfiguration"> | boolean
+    googleAdsConversionId?: StringNullableWithAggregatesFilter<"TrackingConfiguration"> | string | null
+    googleAdsConversionLabel?: StringNullableWithAggregatesFilter<"TrackingConfiguration"> | string | null
+    googleAdsCustomerId?: StringNullableWithAggregatesFilter<"TrackingConfiguration"> | string | null
+    googleAdsAccessToken?: StringNullableWithAggregatesFilter<"TrackingConfiguration"> | string | null
+    googleAdsStatus?: EnumTrackingStatusWithAggregatesFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    serverSideEnabled?: BoolWithAggregatesFilter<"TrackingConfiguration"> | boolean
+    facebookConversionsApi?: BoolWithAggregatesFilter<"TrackingConfiguration"> | boolean
+    googleConversionsApi?: BoolWithAggregatesFilter<"TrackingConfiguration"> | boolean
+    serverSideStatus?: EnumTrackingStatusWithAggregatesFilter<"TrackingConfiguration"> | $Enums.TrackingStatus
+    dataRetentionDays?: IntWithAggregatesFilter<"TrackingConfiguration"> | number
+    anonymizeIp?: BoolWithAggregatesFilter<"TrackingConfiguration"> | boolean
+    cookieConsent?: BoolWithAggregatesFilter<"TrackingConfiguration"> | boolean
+    debugMode?: BoolWithAggregatesFilter<"TrackingConfiguration"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"TrackingConfiguration"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"TrackingConfiguration"> | Date | string
+  }
+
+  export type TrackingEventWhereInput = {
+    AND?: TrackingEventWhereInput | TrackingEventWhereInput[]
+    OR?: TrackingEventWhereInput[]
+    NOT?: TrackingEventWhereInput | TrackingEventWhereInput[]
+    id?: StringFilter<"TrackingEvent"> | string
+    configId?: StringFilter<"TrackingEvent"> | string
+    sessionId?: StringFilter<"TrackingEvent"> | string
+    userId?: StringNullableFilter<"TrackingEvent"> | string | null
+    eventName?: StringFilter<"TrackingEvent"> | string
+    eventType?: EnumTrackingEventTypeFilter<"TrackingEvent"> | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFilter<"TrackingEvent"> | $Enums.TrackingPlatform
+    eventData?: JsonFilter<"TrackingEvent">
+    userAgent?: StringNullableFilter<"TrackingEvent"> | string | null
+    ipAddress?: StringNullableFilter<"TrackingEvent"> | string | null
+    referrer?: StringNullableFilter<"TrackingEvent"> | string | null
+    pageUrl?: StringNullableFilter<"TrackingEvent"> | string | null
+    pageTitle?: StringNullableFilter<"TrackingEvent"> | string | null
+    transactionId?: StringNullableFilter<"TrackingEvent"> | string | null
+    value?: FloatNullableFilter<"TrackingEvent"> | number | null
+    currency?: StringNullableFilter<"TrackingEvent"> | string | null
+    items?: JsonNullableFilter<"TrackingEvent">
+    conversionValue?: FloatNullableFilter<"TrackingEvent"> | number | null
+    conversionType?: StringNullableFilter<"TrackingEvent"> | string | null
+    timestamp?: DateTimeFilter<"TrackingEvent"> | Date | string
+    clientTimestamp?: DateTimeNullableFilter<"TrackingEvent"> | Date | string | null
+    processed?: BoolFilter<"TrackingEvent"> | boolean
+    processingError?: StringNullableFilter<"TrackingEvent"> | string | null
+    config?: XOR<TrackingConfigurationScalarRelationFilter, TrackingConfigurationWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    session?: XOR<UserSessionNullableScalarRelationFilter, UserSessionWhereInput> | null
+  }
+
+  export type TrackingEventOrderByWithRelationInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    eventName?: SortOrder
+    eventType?: SortOrder
+    platform?: SortOrder
+    eventData?: SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    referrer?: SortOrderInput | SortOrder
+    pageUrl?: SortOrderInput | SortOrder
+    pageTitle?: SortOrderInput | SortOrder
+    transactionId?: SortOrderInput | SortOrder
+    value?: SortOrderInput | SortOrder
+    currency?: SortOrderInput | SortOrder
+    items?: SortOrderInput | SortOrder
+    conversionValue?: SortOrderInput | SortOrder
+    conversionType?: SortOrderInput | SortOrder
+    timestamp?: SortOrder
+    clientTimestamp?: SortOrderInput | SortOrder
+    processed?: SortOrder
+    processingError?: SortOrderInput | SortOrder
+    config?: TrackingConfigurationOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+    session?: UserSessionOrderByWithRelationInput
+  }
+
+  export type TrackingEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TrackingEventWhereInput | TrackingEventWhereInput[]
+    OR?: TrackingEventWhereInput[]
+    NOT?: TrackingEventWhereInput | TrackingEventWhereInput[]
+    configId?: StringFilter<"TrackingEvent"> | string
+    sessionId?: StringFilter<"TrackingEvent"> | string
+    userId?: StringNullableFilter<"TrackingEvent"> | string | null
+    eventName?: StringFilter<"TrackingEvent"> | string
+    eventType?: EnumTrackingEventTypeFilter<"TrackingEvent"> | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFilter<"TrackingEvent"> | $Enums.TrackingPlatform
+    eventData?: JsonFilter<"TrackingEvent">
+    userAgent?: StringNullableFilter<"TrackingEvent"> | string | null
+    ipAddress?: StringNullableFilter<"TrackingEvent"> | string | null
+    referrer?: StringNullableFilter<"TrackingEvent"> | string | null
+    pageUrl?: StringNullableFilter<"TrackingEvent"> | string | null
+    pageTitle?: StringNullableFilter<"TrackingEvent"> | string | null
+    transactionId?: StringNullableFilter<"TrackingEvent"> | string | null
+    value?: FloatNullableFilter<"TrackingEvent"> | number | null
+    currency?: StringNullableFilter<"TrackingEvent"> | string | null
+    items?: JsonNullableFilter<"TrackingEvent">
+    conversionValue?: FloatNullableFilter<"TrackingEvent"> | number | null
+    conversionType?: StringNullableFilter<"TrackingEvent"> | string | null
+    timestamp?: DateTimeFilter<"TrackingEvent"> | Date | string
+    clientTimestamp?: DateTimeNullableFilter<"TrackingEvent"> | Date | string | null
+    processed?: BoolFilter<"TrackingEvent"> | boolean
+    processingError?: StringNullableFilter<"TrackingEvent"> | string | null
+    config?: XOR<TrackingConfigurationScalarRelationFilter, TrackingConfigurationWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    session?: XOR<UserSessionNullableScalarRelationFilter, UserSessionWhereInput> | null
+  }, "id">
+
+  export type TrackingEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    eventName?: SortOrder
+    eventType?: SortOrder
+    platform?: SortOrder
+    eventData?: SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    referrer?: SortOrderInput | SortOrder
+    pageUrl?: SortOrderInput | SortOrder
+    pageTitle?: SortOrderInput | SortOrder
+    transactionId?: SortOrderInput | SortOrder
+    value?: SortOrderInput | SortOrder
+    currency?: SortOrderInput | SortOrder
+    items?: SortOrderInput | SortOrder
+    conversionValue?: SortOrderInput | SortOrder
+    conversionType?: SortOrderInput | SortOrder
+    timestamp?: SortOrder
+    clientTimestamp?: SortOrderInput | SortOrder
+    processed?: SortOrder
+    processingError?: SortOrderInput | SortOrder
+    _count?: TrackingEventCountOrderByAggregateInput
+    _avg?: TrackingEventAvgOrderByAggregateInput
+    _max?: TrackingEventMaxOrderByAggregateInput
+    _min?: TrackingEventMinOrderByAggregateInput
+    _sum?: TrackingEventSumOrderByAggregateInput
+  }
+
+  export type TrackingEventScalarWhereWithAggregatesInput = {
+    AND?: TrackingEventScalarWhereWithAggregatesInput | TrackingEventScalarWhereWithAggregatesInput[]
+    OR?: TrackingEventScalarWhereWithAggregatesInput[]
+    NOT?: TrackingEventScalarWhereWithAggregatesInput | TrackingEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TrackingEvent"> | string
+    configId?: StringWithAggregatesFilter<"TrackingEvent"> | string
+    sessionId?: StringWithAggregatesFilter<"TrackingEvent"> | string
+    userId?: StringNullableWithAggregatesFilter<"TrackingEvent"> | string | null
+    eventName?: StringWithAggregatesFilter<"TrackingEvent"> | string
+    eventType?: EnumTrackingEventTypeWithAggregatesFilter<"TrackingEvent"> | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformWithAggregatesFilter<"TrackingEvent"> | $Enums.TrackingPlatform
+    eventData?: JsonWithAggregatesFilter<"TrackingEvent">
+    userAgent?: StringNullableWithAggregatesFilter<"TrackingEvent"> | string | null
+    ipAddress?: StringNullableWithAggregatesFilter<"TrackingEvent"> | string | null
+    referrer?: StringNullableWithAggregatesFilter<"TrackingEvent"> | string | null
+    pageUrl?: StringNullableWithAggregatesFilter<"TrackingEvent"> | string | null
+    pageTitle?: StringNullableWithAggregatesFilter<"TrackingEvent"> | string | null
+    transactionId?: StringNullableWithAggregatesFilter<"TrackingEvent"> | string | null
+    value?: FloatNullableWithAggregatesFilter<"TrackingEvent"> | number | null
+    currency?: StringNullableWithAggregatesFilter<"TrackingEvent"> | string | null
+    items?: JsonNullableWithAggregatesFilter<"TrackingEvent">
+    conversionValue?: FloatNullableWithAggregatesFilter<"TrackingEvent"> | number | null
+    conversionType?: StringNullableWithAggregatesFilter<"TrackingEvent"> | string | null
+    timestamp?: DateTimeWithAggregatesFilter<"TrackingEvent"> | Date | string
+    clientTimestamp?: DateTimeNullableWithAggregatesFilter<"TrackingEvent"> | Date | string | null
+    processed?: BoolWithAggregatesFilter<"TrackingEvent"> | boolean
+    processingError?: StringNullableWithAggregatesFilter<"TrackingEvent"> | string | null
+  }
+
+  export type CustomEventWhereInput = {
+    AND?: CustomEventWhereInput | CustomEventWhereInput[]
+    OR?: CustomEventWhereInput[]
+    NOT?: CustomEventWhereInput | CustomEventWhereInput[]
+    id?: StringFilter<"CustomEvent"> | string
+    configId?: StringFilter<"CustomEvent"> | string
+    name?: StringFilter<"CustomEvent"> | string
+    displayName?: StringFilter<"CustomEvent"> | string
+    description?: StringNullableFilter<"CustomEvent"> | string | null
+    category?: StringNullableFilter<"CustomEvent"> | string | null
+    isActive?: BoolFilter<"CustomEvent"> | boolean
+    triggers?: JsonFilter<"CustomEvent">
+    parameters?: JsonFilter<"CustomEvent">
+    conversionValue?: FloatNullableFilter<"CustomEvent"> | number | null
+    trackGA4?: BoolFilter<"CustomEvent"> | boolean
+    trackFacebook?: BoolFilter<"CustomEvent"> | boolean
+    trackGoogleAds?: BoolFilter<"CustomEvent"> | boolean
+    createdAt?: DateTimeFilter<"CustomEvent"> | Date | string
+    updatedAt?: DateTimeFilter<"CustomEvent"> | Date | string
+    config?: XOR<TrackingConfigurationScalarRelationFilter, TrackingConfigurationWhereInput>
+    instances?: CustomEventInstanceListRelationFilter
+  }
+
+  export type CustomEventOrderByWithRelationInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    name?: SortOrder
+    displayName?: SortOrder
+    description?: SortOrderInput | SortOrder
+    category?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    triggers?: SortOrder
+    parameters?: SortOrder
+    conversionValue?: SortOrderInput | SortOrder
+    trackGA4?: SortOrder
+    trackFacebook?: SortOrder
+    trackGoogleAds?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    config?: TrackingConfigurationOrderByWithRelationInput
+    instances?: CustomEventInstanceOrderByRelationAggregateInput
+  }
+
+  export type CustomEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    configId_name?: CustomEventConfigIdNameCompoundUniqueInput
+    AND?: CustomEventWhereInput | CustomEventWhereInput[]
+    OR?: CustomEventWhereInput[]
+    NOT?: CustomEventWhereInput | CustomEventWhereInput[]
+    configId?: StringFilter<"CustomEvent"> | string
+    name?: StringFilter<"CustomEvent"> | string
+    displayName?: StringFilter<"CustomEvent"> | string
+    description?: StringNullableFilter<"CustomEvent"> | string | null
+    category?: StringNullableFilter<"CustomEvent"> | string | null
+    isActive?: BoolFilter<"CustomEvent"> | boolean
+    triggers?: JsonFilter<"CustomEvent">
+    parameters?: JsonFilter<"CustomEvent">
+    conversionValue?: FloatNullableFilter<"CustomEvent"> | number | null
+    trackGA4?: BoolFilter<"CustomEvent"> | boolean
+    trackFacebook?: BoolFilter<"CustomEvent"> | boolean
+    trackGoogleAds?: BoolFilter<"CustomEvent"> | boolean
+    createdAt?: DateTimeFilter<"CustomEvent"> | Date | string
+    updatedAt?: DateTimeFilter<"CustomEvent"> | Date | string
+    config?: XOR<TrackingConfigurationScalarRelationFilter, TrackingConfigurationWhereInput>
+    instances?: CustomEventInstanceListRelationFilter
+  }, "id" | "configId_name">
+
+  export type CustomEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    name?: SortOrder
+    displayName?: SortOrder
+    description?: SortOrderInput | SortOrder
+    category?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    triggers?: SortOrder
+    parameters?: SortOrder
+    conversionValue?: SortOrderInput | SortOrder
+    trackGA4?: SortOrder
+    trackFacebook?: SortOrder
+    trackGoogleAds?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: CustomEventCountOrderByAggregateInput
+    _avg?: CustomEventAvgOrderByAggregateInput
+    _max?: CustomEventMaxOrderByAggregateInput
+    _min?: CustomEventMinOrderByAggregateInput
+    _sum?: CustomEventSumOrderByAggregateInput
+  }
+
+  export type CustomEventScalarWhereWithAggregatesInput = {
+    AND?: CustomEventScalarWhereWithAggregatesInput | CustomEventScalarWhereWithAggregatesInput[]
+    OR?: CustomEventScalarWhereWithAggregatesInput[]
+    NOT?: CustomEventScalarWhereWithAggregatesInput | CustomEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CustomEvent"> | string
+    configId?: StringWithAggregatesFilter<"CustomEvent"> | string
+    name?: StringWithAggregatesFilter<"CustomEvent"> | string
+    displayName?: StringWithAggregatesFilter<"CustomEvent"> | string
+    description?: StringNullableWithAggregatesFilter<"CustomEvent"> | string | null
+    category?: StringNullableWithAggregatesFilter<"CustomEvent"> | string | null
+    isActive?: BoolWithAggregatesFilter<"CustomEvent"> | boolean
+    triggers?: JsonWithAggregatesFilter<"CustomEvent">
+    parameters?: JsonWithAggregatesFilter<"CustomEvent">
+    conversionValue?: FloatNullableWithAggregatesFilter<"CustomEvent"> | number | null
+    trackGA4?: BoolWithAggregatesFilter<"CustomEvent"> | boolean
+    trackFacebook?: BoolWithAggregatesFilter<"CustomEvent"> | boolean
+    trackGoogleAds?: BoolWithAggregatesFilter<"CustomEvent"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"CustomEvent"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"CustomEvent"> | Date | string
+  }
+
+  export type CustomEventInstanceWhereInput = {
+    AND?: CustomEventInstanceWhereInput | CustomEventInstanceWhereInput[]
+    OR?: CustomEventInstanceWhereInput[]
+    NOT?: CustomEventInstanceWhereInput | CustomEventInstanceWhereInput[]
+    id?: StringFilter<"CustomEventInstance"> | string
+    customEventId?: StringFilter<"CustomEventInstance"> | string
+    sessionId?: StringFilter<"CustomEventInstance"> | string
+    userId?: StringNullableFilter<"CustomEventInstance"> | string | null
+    parameters?: JsonFilter<"CustomEventInstance">
+    value?: FloatNullableFilter<"CustomEventInstance"> | number | null
+    currency?: StringNullableFilter<"CustomEventInstance"> | string | null
+    pageUrl?: StringNullableFilter<"CustomEventInstance"> | string | null
+    timestamp?: DateTimeFilter<"CustomEventInstance"> | Date | string
+    customEvent?: XOR<CustomEventScalarRelationFilter, CustomEventWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type CustomEventInstanceOrderByWithRelationInput = {
+    id?: SortOrder
+    customEventId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    parameters?: SortOrder
+    value?: SortOrderInput | SortOrder
+    currency?: SortOrderInput | SortOrder
+    pageUrl?: SortOrderInput | SortOrder
+    timestamp?: SortOrder
+    customEvent?: CustomEventOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type CustomEventInstanceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CustomEventInstanceWhereInput | CustomEventInstanceWhereInput[]
+    OR?: CustomEventInstanceWhereInput[]
+    NOT?: CustomEventInstanceWhereInput | CustomEventInstanceWhereInput[]
+    customEventId?: StringFilter<"CustomEventInstance"> | string
+    sessionId?: StringFilter<"CustomEventInstance"> | string
+    userId?: StringNullableFilter<"CustomEventInstance"> | string | null
+    parameters?: JsonFilter<"CustomEventInstance">
+    value?: FloatNullableFilter<"CustomEventInstance"> | number | null
+    currency?: StringNullableFilter<"CustomEventInstance"> | string | null
+    pageUrl?: StringNullableFilter<"CustomEventInstance"> | string | null
+    timestamp?: DateTimeFilter<"CustomEventInstance"> | Date | string
+    customEvent?: XOR<CustomEventScalarRelationFilter, CustomEventWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id">
+
+  export type CustomEventInstanceOrderByWithAggregationInput = {
+    id?: SortOrder
+    customEventId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    parameters?: SortOrder
+    value?: SortOrderInput | SortOrder
+    currency?: SortOrderInput | SortOrder
+    pageUrl?: SortOrderInput | SortOrder
+    timestamp?: SortOrder
+    _count?: CustomEventInstanceCountOrderByAggregateInput
+    _avg?: CustomEventInstanceAvgOrderByAggregateInput
+    _max?: CustomEventInstanceMaxOrderByAggregateInput
+    _min?: CustomEventInstanceMinOrderByAggregateInput
+    _sum?: CustomEventInstanceSumOrderByAggregateInput
+  }
+
+  export type CustomEventInstanceScalarWhereWithAggregatesInput = {
+    AND?: CustomEventInstanceScalarWhereWithAggregatesInput | CustomEventInstanceScalarWhereWithAggregatesInput[]
+    OR?: CustomEventInstanceScalarWhereWithAggregatesInput[]
+    NOT?: CustomEventInstanceScalarWhereWithAggregatesInput | CustomEventInstanceScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CustomEventInstance"> | string
+    customEventId?: StringWithAggregatesFilter<"CustomEventInstance"> | string
+    sessionId?: StringWithAggregatesFilter<"CustomEventInstance"> | string
+    userId?: StringNullableWithAggregatesFilter<"CustomEventInstance"> | string | null
+    parameters?: JsonWithAggregatesFilter<"CustomEventInstance">
+    value?: FloatNullableWithAggregatesFilter<"CustomEventInstance"> | number | null
+    currency?: StringNullableWithAggregatesFilter<"CustomEventInstance"> | string | null
+    pageUrl?: StringNullableWithAggregatesFilter<"CustomEventInstance"> | string | null
+    timestamp?: DateTimeWithAggregatesFilter<"CustomEventInstance"> | Date | string
+  }
+
+  export type AnalyticsWhereInput = {
+    AND?: AnalyticsWhereInput | AnalyticsWhereInput[]
+    OR?: AnalyticsWhereInput[]
+    NOT?: AnalyticsWhereInput | AnalyticsWhereInput[]
+    id?: StringFilter<"Analytics"> | string
+    configId?: StringFilter<"Analytics"> | string
+    date?: DateTimeFilter<"Analytics"> | Date | string
+    pageViews?: IntFilter<"Analytics"> | number
+    uniqueVisitors?: IntFilter<"Analytics"> | number
+    sessions?: IntFilter<"Analytics"> | number
+    bounceRate?: FloatNullableFilter<"Analytics"> | number | null
+    avgSessionDuration?: FloatNullableFilter<"Analytics"> | number | null
+    transactions?: IntFilter<"Analytics"> | number
+    revenue?: FloatFilter<"Analytics"> | number
+    averageOrderValue?: FloatNullableFilter<"Analytics"> | number | null
+    conversionRate?: FloatNullableFilter<"Analytics"> | number | null
+    customEvents?: IntFilter<"Analytics"> | number
+    addToCarts?: IntFilter<"Analytics"> | number
+    checkouts?: IntFilter<"Analytics"> | number
+    organicTraffic?: IntFilter<"Analytics"> | number
+    paidTraffic?: IntFilter<"Analytics"> | number
+    socialTraffic?: IntFilter<"Analytics"> | number
+    directTraffic?: IntFilter<"Analytics"> | number
+    referralTraffic?: IntFilter<"Analytics"> | number
+    desktopUsers?: IntFilter<"Analytics"> | number
+    mobileUsers?: IntFilter<"Analytics"> | number
+    tabletUsers?: IntFilter<"Analytics"> | number
+    createdAt?: DateTimeFilter<"Analytics"> | Date | string
+    updatedAt?: DateTimeFilter<"Analytics"> | Date | string
+    config?: XOR<TrackingConfigurationScalarRelationFilter, TrackingConfigurationWhereInput>
+  }
+
+  export type AnalyticsOrderByWithRelationInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    date?: SortOrder
+    pageViews?: SortOrder
+    uniqueVisitors?: SortOrder
+    sessions?: SortOrder
+    bounceRate?: SortOrderInput | SortOrder
+    avgSessionDuration?: SortOrderInput | SortOrder
+    transactions?: SortOrder
+    revenue?: SortOrder
+    averageOrderValue?: SortOrderInput | SortOrder
+    conversionRate?: SortOrderInput | SortOrder
+    customEvents?: SortOrder
+    addToCarts?: SortOrder
+    checkouts?: SortOrder
+    organicTraffic?: SortOrder
+    paidTraffic?: SortOrder
+    socialTraffic?: SortOrder
+    directTraffic?: SortOrder
+    referralTraffic?: SortOrder
+    desktopUsers?: SortOrder
+    mobileUsers?: SortOrder
+    tabletUsers?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    config?: TrackingConfigurationOrderByWithRelationInput
+  }
+
+  export type AnalyticsWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    configId_date?: AnalyticsConfigIdDateCompoundUniqueInput
+    AND?: AnalyticsWhereInput | AnalyticsWhereInput[]
+    OR?: AnalyticsWhereInput[]
+    NOT?: AnalyticsWhereInput | AnalyticsWhereInput[]
+    configId?: StringFilter<"Analytics"> | string
+    date?: DateTimeFilter<"Analytics"> | Date | string
+    pageViews?: IntFilter<"Analytics"> | number
+    uniqueVisitors?: IntFilter<"Analytics"> | number
+    sessions?: IntFilter<"Analytics"> | number
+    bounceRate?: FloatNullableFilter<"Analytics"> | number | null
+    avgSessionDuration?: FloatNullableFilter<"Analytics"> | number | null
+    transactions?: IntFilter<"Analytics"> | number
+    revenue?: FloatFilter<"Analytics"> | number
+    averageOrderValue?: FloatNullableFilter<"Analytics"> | number | null
+    conversionRate?: FloatNullableFilter<"Analytics"> | number | null
+    customEvents?: IntFilter<"Analytics"> | number
+    addToCarts?: IntFilter<"Analytics"> | number
+    checkouts?: IntFilter<"Analytics"> | number
+    organicTraffic?: IntFilter<"Analytics"> | number
+    paidTraffic?: IntFilter<"Analytics"> | number
+    socialTraffic?: IntFilter<"Analytics"> | number
+    directTraffic?: IntFilter<"Analytics"> | number
+    referralTraffic?: IntFilter<"Analytics"> | number
+    desktopUsers?: IntFilter<"Analytics"> | number
+    mobileUsers?: IntFilter<"Analytics"> | number
+    tabletUsers?: IntFilter<"Analytics"> | number
+    createdAt?: DateTimeFilter<"Analytics"> | Date | string
+    updatedAt?: DateTimeFilter<"Analytics"> | Date | string
+    config?: XOR<TrackingConfigurationScalarRelationFilter, TrackingConfigurationWhereInput>
+  }, "id" | "configId_date">
+
+  export type AnalyticsOrderByWithAggregationInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    date?: SortOrder
+    pageViews?: SortOrder
+    uniqueVisitors?: SortOrder
+    sessions?: SortOrder
+    bounceRate?: SortOrderInput | SortOrder
+    avgSessionDuration?: SortOrderInput | SortOrder
+    transactions?: SortOrder
+    revenue?: SortOrder
+    averageOrderValue?: SortOrderInput | SortOrder
+    conversionRate?: SortOrderInput | SortOrder
+    customEvents?: SortOrder
+    addToCarts?: SortOrder
+    checkouts?: SortOrder
+    organicTraffic?: SortOrder
+    paidTraffic?: SortOrder
+    socialTraffic?: SortOrder
+    directTraffic?: SortOrder
+    referralTraffic?: SortOrder
+    desktopUsers?: SortOrder
+    mobileUsers?: SortOrder
+    tabletUsers?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AnalyticsCountOrderByAggregateInput
+    _avg?: AnalyticsAvgOrderByAggregateInput
+    _max?: AnalyticsMaxOrderByAggregateInput
+    _min?: AnalyticsMinOrderByAggregateInput
+    _sum?: AnalyticsSumOrderByAggregateInput
+  }
+
+  export type AnalyticsScalarWhereWithAggregatesInput = {
+    AND?: AnalyticsScalarWhereWithAggregatesInput | AnalyticsScalarWhereWithAggregatesInput[]
+    OR?: AnalyticsScalarWhereWithAggregatesInput[]
+    NOT?: AnalyticsScalarWhereWithAggregatesInput | AnalyticsScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Analytics"> | string
+    configId?: StringWithAggregatesFilter<"Analytics"> | string
+    date?: DateTimeWithAggregatesFilter<"Analytics"> | Date | string
+    pageViews?: IntWithAggregatesFilter<"Analytics"> | number
+    uniqueVisitors?: IntWithAggregatesFilter<"Analytics"> | number
+    sessions?: IntWithAggregatesFilter<"Analytics"> | number
+    bounceRate?: FloatNullableWithAggregatesFilter<"Analytics"> | number | null
+    avgSessionDuration?: FloatNullableWithAggregatesFilter<"Analytics"> | number | null
+    transactions?: IntWithAggregatesFilter<"Analytics"> | number
+    revenue?: FloatWithAggregatesFilter<"Analytics"> | number
+    averageOrderValue?: FloatNullableWithAggregatesFilter<"Analytics"> | number | null
+    conversionRate?: FloatNullableWithAggregatesFilter<"Analytics"> | number | null
+    customEvents?: IntWithAggregatesFilter<"Analytics"> | number
+    addToCarts?: IntWithAggregatesFilter<"Analytics"> | number
+    checkouts?: IntWithAggregatesFilter<"Analytics"> | number
+    organicTraffic?: IntWithAggregatesFilter<"Analytics"> | number
+    paidTraffic?: IntWithAggregatesFilter<"Analytics"> | number
+    socialTraffic?: IntWithAggregatesFilter<"Analytics"> | number
+    directTraffic?: IntWithAggregatesFilter<"Analytics"> | number
+    referralTraffic?: IntWithAggregatesFilter<"Analytics"> | number
+    desktopUsers?: IntWithAggregatesFilter<"Analytics"> | number
+    mobileUsers?: IntWithAggregatesFilter<"Analytics"> | number
+    tabletUsers?: IntWithAggregatesFilter<"Analytics"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"Analytics"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Analytics"> | Date | string
+  }
+
+  export type ConversionFunnelWhereInput = {
+    AND?: ConversionFunnelWhereInput | ConversionFunnelWhereInput[]
+    OR?: ConversionFunnelWhereInput[]
+    NOT?: ConversionFunnelWhereInput | ConversionFunnelWhereInput[]
+    id?: StringFilter<"ConversionFunnel"> | string
+    name?: StringFilter<"ConversionFunnel"> | string
+    description?: StringNullableFilter<"ConversionFunnel"> | string | null
+    steps?: JsonFilter<"ConversionFunnel">
+    isActive?: BoolFilter<"ConversionFunnel"> | boolean
+    createdAt?: DateTimeFilter<"ConversionFunnel"> | Date | string
+    updatedAt?: DateTimeFilter<"ConversionFunnel"> | Date | string
+    sessions?: FunnelSessionListRelationFilter
+  }
+
+  export type ConversionFunnelOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    steps?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    sessions?: FunnelSessionOrderByRelationAggregateInput
+  }
+
+  export type ConversionFunnelWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    name?: string
+    AND?: ConversionFunnelWhereInput | ConversionFunnelWhereInput[]
+    OR?: ConversionFunnelWhereInput[]
+    NOT?: ConversionFunnelWhereInput | ConversionFunnelWhereInput[]
+    description?: StringNullableFilter<"ConversionFunnel"> | string | null
+    steps?: JsonFilter<"ConversionFunnel">
+    isActive?: BoolFilter<"ConversionFunnel"> | boolean
+    createdAt?: DateTimeFilter<"ConversionFunnel"> | Date | string
+    updatedAt?: DateTimeFilter<"ConversionFunnel"> | Date | string
+    sessions?: FunnelSessionListRelationFilter
+  }, "id" | "name">
+
+  export type ConversionFunnelOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    steps?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ConversionFunnelCountOrderByAggregateInput
+    _max?: ConversionFunnelMaxOrderByAggregateInput
+    _min?: ConversionFunnelMinOrderByAggregateInput
+  }
+
+  export type ConversionFunnelScalarWhereWithAggregatesInput = {
+    AND?: ConversionFunnelScalarWhereWithAggregatesInput | ConversionFunnelScalarWhereWithAggregatesInput[]
+    OR?: ConversionFunnelScalarWhereWithAggregatesInput[]
+    NOT?: ConversionFunnelScalarWhereWithAggregatesInput | ConversionFunnelScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ConversionFunnel"> | string
+    name?: StringWithAggregatesFilter<"ConversionFunnel"> | string
+    description?: StringNullableWithAggregatesFilter<"ConversionFunnel"> | string | null
+    steps?: JsonWithAggregatesFilter<"ConversionFunnel">
+    isActive?: BoolWithAggregatesFilter<"ConversionFunnel"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"ConversionFunnel"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ConversionFunnel"> | Date | string
+  }
+
+  export type FunnelSessionWhereInput = {
+    AND?: FunnelSessionWhereInput | FunnelSessionWhereInput[]
+    OR?: FunnelSessionWhereInput[]
+    NOT?: FunnelSessionWhereInput | FunnelSessionWhereInput[]
+    id?: StringFilter<"FunnelSession"> | string
+    funnelId?: StringFilter<"FunnelSession"> | string
+    sessionId?: StringFilter<"FunnelSession"> | string
+    userId?: StringNullableFilter<"FunnelSession"> | string | null
+    currentStep?: IntFilter<"FunnelSession"> | number
+    completed?: BoolFilter<"FunnelSession"> | boolean
+    startedAt?: DateTimeFilter<"FunnelSession"> | Date | string
+    completedAt?: DateTimeNullableFilter<"FunnelSession"> | Date | string | null
+    duration?: IntNullableFilter<"FunnelSession"> | number | null
+    stepData?: JsonFilter<"FunnelSession">
+    funnel?: XOR<ConversionFunnelScalarRelationFilter, ConversionFunnelWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type FunnelSessionOrderByWithRelationInput = {
+    id?: SortOrder
+    funnelId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    currentStep?: SortOrder
+    completed?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    duration?: SortOrderInput | SortOrder
+    stepData?: SortOrder
+    funnel?: ConversionFunnelOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type FunnelSessionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: FunnelSessionWhereInput | FunnelSessionWhereInput[]
+    OR?: FunnelSessionWhereInput[]
+    NOT?: FunnelSessionWhereInput | FunnelSessionWhereInput[]
+    funnelId?: StringFilter<"FunnelSession"> | string
+    sessionId?: StringFilter<"FunnelSession"> | string
+    userId?: StringNullableFilter<"FunnelSession"> | string | null
+    currentStep?: IntFilter<"FunnelSession"> | number
+    completed?: BoolFilter<"FunnelSession"> | boolean
+    startedAt?: DateTimeFilter<"FunnelSession"> | Date | string
+    completedAt?: DateTimeNullableFilter<"FunnelSession"> | Date | string | null
+    duration?: IntNullableFilter<"FunnelSession"> | number | null
+    stepData?: JsonFilter<"FunnelSession">
+    funnel?: XOR<ConversionFunnelScalarRelationFilter, ConversionFunnelWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id">
+
+  export type FunnelSessionOrderByWithAggregationInput = {
+    id?: SortOrder
+    funnelId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    currentStep?: SortOrder
+    completed?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    duration?: SortOrderInput | SortOrder
+    stepData?: SortOrder
+    _count?: FunnelSessionCountOrderByAggregateInput
+    _avg?: FunnelSessionAvgOrderByAggregateInput
+    _max?: FunnelSessionMaxOrderByAggregateInput
+    _min?: FunnelSessionMinOrderByAggregateInput
+    _sum?: FunnelSessionSumOrderByAggregateInput
+  }
+
+  export type FunnelSessionScalarWhereWithAggregatesInput = {
+    AND?: FunnelSessionScalarWhereWithAggregatesInput | FunnelSessionScalarWhereWithAggregatesInput[]
+    OR?: FunnelSessionScalarWhereWithAggregatesInput[]
+    NOT?: FunnelSessionScalarWhereWithAggregatesInput | FunnelSessionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"FunnelSession"> | string
+    funnelId?: StringWithAggregatesFilter<"FunnelSession"> | string
+    sessionId?: StringWithAggregatesFilter<"FunnelSession"> | string
+    userId?: StringNullableWithAggregatesFilter<"FunnelSession"> | string | null
+    currentStep?: IntWithAggregatesFilter<"FunnelSession"> | number
+    completed?: BoolWithAggregatesFilter<"FunnelSession"> | boolean
+    startedAt?: DateTimeWithAggregatesFilter<"FunnelSession"> | Date | string
+    completedAt?: DateTimeNullableWithAggregatesFilter<"FunnelSession"> | Date | string | null
+    duration?: IntNullableWithAggregatesFilter<"FunnelSession"> | number | null
+    stepData?: JsonWithAggregatesFilter<"FunnelSession">
+  }
+
+  export type UserSessionWhereInput = {
+    AND?: UserSessionWhereInput | UserSessionWhereInput[]
+    OR?: UserSessionWhereInput[]
+    NOT?: UserSessionWhereInput | UserSessionWhereInput[]
+    id?: StringFilter<"UserSession"> | string
+    sessionId?: StringFilter<"UserSession"> | string
+    userId?: StringNullableFilter<"UserSession"> | string | null
+    ipAddress?: StringNullableFilter<"UserSession"> | string | null
+    userAgent?: StringNullableFilter<"UserSession"> | string | null
+    country?: StringNullableFilter<"UserSession"> | string | null
+    city?: StringNullableFilter<"UserSession"> | string | null
+    device?: StringNullableFilter<"UserSession"> | string | null
+    browser?: StringNullableFilter<"UserSession"> | string | null
+    os?: StringNullableFilter<"UserSession"> | string | null
+    landingPage?: StringNullableFilter<"UserSession"> | string | null
+    exitPage?: StringNullableFilter<"UserSession"> | string | null
+    pageViews?: IntFilter<"UserSession"> | number
+    duration?: IntNullableFilter<"UserSession"> | number | null
+    cartValue?: FloatNullableFilter<"UserSession"> | number | null
+    purchased?: BoolFilter<"UserSession"> | boolean
+    firstSeen?: DateTimeFilter<"UserSession"> | Date | string
+    lastSeen?: DateTimeFilter<"UserSession"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    events?: TrackingEventListRelationFilter
+  }
+
+  export type UserSessionOrderByWithRelationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    country?: SortOrderInput | SortOrder
+    city?: SortOrderInput | SortOrder
+    device?: SortOrderInput | SortOrder
+    browser?: SortOrderInput | SortOrder
+    os?: SortOrderInput | SortOrder
+    landingPage?: SortOrderInput | SortOrder
+    exitPage?: SortOrderInput | SortOrder
+    pageViews?: SortOrder
+    duration?: SortOrderInput | SortOrder
+    cartValue?: SortOrderInput | SortOrder
+    purchased?: SortOrder
+    firstSeen?: SortOrder
+    lastSeen?: SortOrder
+    user?: UserOrderByWithRelationInput
+    events?: TrackingEventOrderByRelationAggregateInput
+  }
+
+  export type UserSessionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    sessionId?: string
+    AND?: UserSessionWhereInput | UserSessionWhereInput[]
+    OR?: UserSessionWhereInput[]
+    NOT?: UserSessionWhereInput | UserSessionWhereInput[]
+    userId?: StringNullableFilter<"UserSession"> | string | null
+    ipAddress?: StringNullableFilter<"UserSession"> | string | null
+    userAgent?: StringNullableFilter<"UserSession"> | string | null
+    country?: StringNullableFilter<"UserSession"> | string | null
+    city?: StringNullableFilter<"UserSession"> | string | null
+    device?: StringNullableFilter<"UserSession"> | string | null
+    browser?: StringNullableFilter<"UserSession"> | string | null
+    os?: StringNullableFilter<"UserSession"> | string | null
+    landingPage?: StringNullableFilter<"UserSession"> | string | null
+    exitPage?: StringNullableFilter<"UserSession"> | string | null
+    pageViews?: IntFilter<"UserSession"> | number
+    duration?: IntNullableFilter<"UserSession"> | number | null
+    cartValue?: FloatNullableFilter<"UserSession"> | number | null
+    purchased?: BoolFilter<"UserSession"> | boolean
+    firstSeen?: DateTimeFilter<"UserSession"> | Date | string
+    lastSeen?: DateTimeFilter<"UserSession"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    events?: TrackingEventListRelationFilter
+  }, "id" | "sessionId">
+
+  export type UserSessionOrderByWithAggregationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    country?: SortOrderInput | SortOrder
+    city?: SortOrderInput | SortOrder
+    device?: SortOrderInput | SortOrder
+    browser?: SortOrderInput | SortOrder
+    os?: SortOrderInput | SortOrder
+    landingPage?: SortOrderInput | SortOrder
+    exitPage?: SortOrderInput | SortOrder
+    pageViews?: SortOrder
+    duration?: SortOrderInput | SortOrder
+    cartValue?: SortOrderInput | SortOrder
+    purchased?: SortOrder
+    firstSeen?: SortOrder
+    lastSeen?: SortOrder
+    _count?: UserSessionCountOrderByAggregateInput
+    _avg?: UserSessionAvgOrderByAggregateInput
+    _max?: UserSessionMaxOrderByAggregateInput
+    _min?: UserSessionMinOrderByAggregateInput
+    _sum?: UserSessionSumOrderByAggregateInput
+  }
+
+  export type UserSessionScalarWhereWithAggregatesInput = {
+    AND?: UserSessionScalarWhereWithAggregatesInput | UserSessionScalarWhereWithAggregatesInput[]
+    OR?: UserSessionScalarWhereWithAggregatesInput[]
+    NOT?: UserSessionScalarWhereWithAggregatesInput | UserSessionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UserSession"> | string
+    sessionId?: StringWithAggregatesFilter<"UserSession"> | string
+    userId?: StringNullableWithAggregatesFilter<"UserSession"> | string | null
+    ipAddress?: StringNullableWithAggregatesFilter<"UserSession"> | string | null
+    userAgent?: StringNullableWithAggregatesFilter<"UserSession"> | string | null
+    country?: StringNullableWithAggregatesFilter<"UserSession"> | string | null
+    city?: StringNullableWithAggregatesFilter<"UserSession"> | string | null
+    device?: StringNullableWithAggregatesFilter<"UserSession"> | string | null
+    browser?: StringNullableWithAggregatesFilter<"UserSession"> | string | null
+    os?: StringNullableWithAggregatesFilter<"UserSession"> | string | null
+    landingPage?: StringNullableWithAggregatesFilter<"UserSession"> | string | null
+    exitPage?: StringNullableWithAggregatesFilter<"UserSession"> | string | null
+    pageViews?: IntWithAggregatesFilter<"UserSession"> | number
+    duration?: IntNullableWithAggregatesFilter<"UserSession"> | number | null
+    cartValue?: FloatNullableWithAggregatesFilter<"UserSession"> | number | null
+    purchased?: BoolWithAggregatesFilter<"UserSession"> | boolean
+    firstSeen?: DateTimeWithAggregatesFilter<"UserSession"> | Date | string
+    lastSeen?: DateTimeWithAggregatesFilter<"UserSession"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     email: string
@@ -30315,6 +42859,10 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutUserInput
     permissions?: PermissionCreateNestedManyWithoutUserInput
     payments?: PaymentCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -30337,6 +42885,10 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutUserInput
     permissions?: PermissionUncheckedCreateNestedManyWithoutUserInput
     payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventUncheckedCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceUncheckedCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionUncheckedCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -30359,6 +42911,10 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutUserNestedInput
     permissions?: PermissionUpdateManyWithoutUserNestedInput
     payments?: PaymentUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -30381,6 +42937,10 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutUserNestedInput
     permissions?: PermissionUncheckedUpdateManyWithoutUserNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUncheckedUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUncheckedUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUncheckedUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -32485,6 +45045,1133 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TrackingConfigurationCreateInput = {
+    id?: string
+    gtmEnabled?: boolean
+    gtmContainerId?: string | null
+    gtmStatus?: $Enums.TrackingStatus
+    ga4Enabled?: boolean
+    ga4MeasurementId?: string | null
+    ga4ApiSecret?: string | null
+    ga4Status?: $Enums.TrackingStatus
+    metaEnabled?: boolean
+    metaPixelId?: string | null
+    metaAccessToken?: string | null
+    metaStatus?: $Enums.TrackingStatus
+    googleAdsEnabled?: boolean
+    googleAdsConversionId?: string | null
+    googleAdsConversionLabel?: string | null
+    googleAdsCustomerId?: string | null
+    googleAdsAccessToken?: string | null
+    googleAdsStatus?: $Enums.TrackingStatus
+    serverSideEnabled?: boolean
+    facebookConversionsApi?: boolean
+    googleConversionsApi?: boolean
+    serverSideStatus?: $Enums.TrackingStatus
+    dataRetentionDays?: number
+    anonymizeIp?: boolean
+    cookieConsent?: boolean
+    debugMode?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: TrackingEventCreateNestedManyWithoutConfigInput
+    customEvents?: CustomEventCreateNestedManyWithoutConfigInput
+    analytics?: AnalyticsCreateNestedManyWithoutConfigInput
+  }
+
+  export type TrackingConfigurationUncheckedCreateInput = {
+    id?: string
+    gtmEnabled?: boolean
+    gtmContainerId?: string | null
+    gtmStatus?: $Enums.TrackingStatus
+    ga4Enabled?: boolean
+    ga4MeasurementId?: string | null
+    ga4ApiSecret?: string | null
+    ga4Status?: $Enums.TrackingStatus
+    metaEnabled?: boolean
+    metaPixelId?: string | null
+    metaAccessToken?: string | null
+    metaStatus?: $Enums.TrackingStatus
+    googleAdsEnabled?: boolean
+    googleAdsConversionId?: string | null
+    googleAdsConversionLabel?: string | null
+    googleAdsCustomerId?: string | null
+    googleAdsAccessToken?: string | null
+    googleAdsStatus?: $Enums.TrackingStatus
+    serverSideEnabled?: boolean
+    facebookConversionsApi?: boolean
+    googleConversionsApi?: boolean
+    serverSideStatus?: $Enums.TrackingStatus
+    dataRetentionDays?: number
+    anonymizeIp?: boolean
+    cookieConsent?: boolean
+    debugMode?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: TrackingEventUncheckedCreateNestedManyWithoutConfigInput
+    customEvents?: CustomEventUncheckedCreateNestedManyWithoutConfigInput
+    analytics?: AnalyticsUncheckedCreateNestedManyWithoutConfigInput
+  }
+
+  export type TrackingConfigurationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gtmEnabled?: BoolFieldUpdateOperationsInput | boolean
+    gtmContainerId?: NullableStringFieldUpdateOperationsInput | string | null
+    gtmStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    ga4Enabled?: BoolFieldUpdateOperationsInput | boolean
+    ga4MeasurementId?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4ApiSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4Status?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    metaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    metaPixelId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    googleAdsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    googleAdsConversionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsConversionLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    serverSideEnabled?: BoolFieldUpdateOperationsInput | boolean
+    facebookConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    googleConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    serverSideStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    dataRetentionDays?: IntFieldUpdateOperationsInput | number
+    anonymizeIp?: BoolFieldUpdateOperationsInput | boolean
+    cookieConsent?: BoolFieldUpdateOperationsInput | boolean
+    debugMode?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: TrackingEventUpdateManyWithoutConfigNestedInput
+    customEvents?: CustomEventUpdateManyWithoutConfigNestedInput
+    analytics?: AnalyticsUpdateManyWithoutConfigNestedInput
+  }
+
+  export type TrackingConfigurationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gtmEnabled?: BoolFieldUpdateOperationsInput | boolean
+    gtmContainerId?: NullableStringFieldUpdateOperationsInput | string | null
+    gtmStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    ga4Enabled?: BoolFieldUpdateOperationsInput | boolean
+    ga4MeasurementId?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4ApiSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4Status?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    metaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    metaPixelId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    googleAdsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    googleAdsConversionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsConversionLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    serverSideEnabled?: BoolFieldUpdateOperationsInput | boolean
+    facebookConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    googleConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    serverSideStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    dataRetentionDays?: IntFieldUpdateOperationsInput | number
+    anonymizeIp?: BoolFieldUpdateOperationsInput | boolean
+    cookieConsent?: BoolFieldUpdateOperationsInput | boolean
+    debugMode?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: TrackingEventUncheckedUpdateManyWithoutConfigNestedInput
+    customEvents?: CustomEventUncheckedUpdateManyWithoutConfigNestedInput
+    analytics?: AnalyticsUncheckedUpdateManyWithoutConfigNestedInput
+  }
+
+  export type TrackingConfigurationCreateManyInput = {
+    id?: string
+    gtmEnabled?: boolean
+    gtmContainerId?: string | null
+    gtmStatus?: $Enums.TrackingStatus
+    ga4Enabled?: boolean
+    ga4MeasurementId?: string | null
+    ga4ApiSecret?: string | null
+    ga4Status?: $Enums.TrackingStatus
+    metaEnabled?: boolean
+    metaPixelId?: string | null
+    metaAccessToken?: string | null
+    metaStatus?: $Enums.TrackingStatus
+    googleAdsEnabled?: boolean
+    googleAdsConversionId?: string | null
+    googleAdsConversionLabel?: string | null
+    googleAdsCustomerId?: string | null
+    googleAdsAccessToken?: string | null
+    googleAdsStatus?: $Enums.TrackingStatus
+    serverSideEnabled?: boolean
+    facebookConversionsApi?: boolean
+    googleConversionsApi?: boolean
+    serverSideStatus?: $Enums.TrackingStatus
+    dataRetentionDays?: number
+    anonymizeIp?: boolean
+    cookieConsent?: boolean
+    debugMode?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TrackingConfigurationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gtmEnabled?: BoolFieldUpdateOperationsInput | boolean
+    gtmContainerId?: NullableStringFieldUpdateOperationsInput | string | null
+    gtmStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    ga4Enabled?: BoolFieldUpdateOperationsInput | boolean
+    ga4MeasurementId?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4ApiSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4Status?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    metaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    metaPixelId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    googleAdsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    googleAdsConversionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsConversionLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    serverSideEnabled?: BoolFieldUpdateOperationsInput | boolean
+    facebookConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    googleConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    serverSideStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    dataRetentionDays?: IntFieldUpdateOperationsInput | number
+    anonymizeIp?: BoolFieldUpdateOperationsInput | boolean
+    cookieConsent?: BoolFieldUpdateOperationsInput | boolean
+    debugMode?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrackingConfigurationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gtmEnabled?: BoolFieldUpdateOperationsInput | boolean
+    gtmContainerId?: NullableStringFieldUpdateOperationsInput | string | null
+    gtmStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    ga4Enabled?: BoolFieldUpdateOperationsInput | boolean
+    ga4MeasurementId?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4ApiSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4Status?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    metaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    metaPixelId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    googleAdsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    googleAdsConversionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsConversionLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    serverSideEnabled?: BoolFieldUpdateOperationsInput | boolean
+    facebookConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    googleConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    serverSideStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    dataRetentionDays?: IntFieldUpdateOperationsInput | number
+    anonymizeIp?: BoolFieldUpdateOperationsInput | boolean
+    cookieConsent?: BoolFieldUpdateOperationsInput | boolean
+    debugMode?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrackingEventCreateInput = {
+    id?: string
+    eventName: string
+    eventType: $Enums.TrackingEventType
+    platform: $Enums.TrackingPlatform
+    eventData: JsonNullValueInput | InputJsonValue
+    userAgent?: string | null
+    ipAddress?: string | null
+    referrer?: string | null
+    pageUrl?: string | null
+    pageTitle?: string | null
+    transactionId?: string | null
+    value?: number | null
+    currency?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    conversionType?: string | null
+    timestamp?: Date | string
+    clientTimestamp?: Date | string | null
+    processed?: boolean
+    processingError?: string | null
+    config: TrackingConfigurationCreateNestedOneWithoutEventsInput
+    user?: UserCreateNestedOneWithoutTrackingEventsInput
+    session?: UserSessionCreateNestedOneWithoutEventsInput
+  }
+
+  export type TrackingEventUncheckedCreateInput = {
+    id?: string
+    configId: string
+    sessionId: string
+    userId?: string | null
+    eventName: string
+    eventType: $Enums.TrackingEventType
+    platform: $Enums.TrackingPlatform
+    eventData: JsonNullValueInput | InputJsonValue
+    userAgent?: string | null
+    ipAddress?: string | null
+    referrer?: string | null
+    pageUrl?: string | null
+    pageTitle?: string | null
+    transactionId?: string | null
+    value?: number | null
+    currency?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    conversionType?: string | null
+    timestamp?: Date | string
+    clientTimestamp?: Date | string | null
+    processed?: boolean
+    processingError?: string | null
+  }
+
+  export type TrackingEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventName?: StringFieldUpdateOperationsInput | string
+    eventType?: EnumTrackingEventTypeFieldUpdateOperationsInput | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFieldUpdateOperationsInput | $Enums.TrackingPlatform
+    eventData?: JsonNullValueInput | InputJsonValue
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    pageTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionType?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processed?: BoolFieldUpdateOperationsInput | boolean
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    config?: TrackingConfigurationUpdateOneRequiredWithoutEventsNestedInput
+    user?: UserUpdateOneWithoutTrackingEventsNestedInput
+    session?: UserSessionUpdateOneWithoutEventsNestedInput
+  }
+
+  export type TrackingEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventName?: StringFieldUpdateOperationsInput | string
+    eventType?: EnumTrackingEventTypeFieldUpdateOperationsInput | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFieldUpdateOperationsInput | $Enums.TrackingPlatform
+    eventData?: JsonNullValueInput | InputJsonValue
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    pageTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionType?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processed?: BoolFieldUpdateOperationsInput | boolean
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TrackingEventCreateManyInput = {
+    id?: string
+    configId: string
+    sessionId: string
+    userId?: string | null
+    eventName: string
+    eventType: $Enums.TrackingEventType
+    platform: $Enums.TrackingPlatform
+    eventData: JsonNullValueInput | InputJsonValue
+    userAgent?: string | null
+    ipAddress?: string | null
+    referrer?: string | null
+    pageUrl?: string | null
+    pageTitle?: string | null
+    transactionId?: string | null
+    value?: number | null
+    currency?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    conversionType?: string | null
+    timestamp?: Date | string
+    clientTimestamp?: Date | string | null
+    processed?: boolean
+    processingError?: string | null
+  }
+
+  export type TrackingEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventName?: StringFieldUpdateOperationsInput | string
+    eventType?: EnumTrackingEventTypeFieldUpdateOperationsInput | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFieldUpdateOperationsInput | $Enums.TrackingPlatform
+    eventData?: JsonNullValueInput | InputJsonValue
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    pageTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionType?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processed?: BoolFieldUpdateOperationsInput | boolean
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TrackingEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventName?: StringFieldUpdateOperationsInput | string
+    eventType?: EnumTrackingEventTypeFieldUpdateOperationsInput | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFieldUpdateOperationsInput | $Enums.TrackingPlatform
+    eventData?: JsonNullValueInput | InputJsonValue
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    pageTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionType?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processed?: BoolFieldUpdateOperationsInput | boolean
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CustomEventCreateInput = {
+    id?: string
+    name: string
+    displayName: string
+    description?: string | null
+    category?: string | null
+    isActive?: boolean
+    triggers: JsonNullValueInput | InputJsonValue
+    parameters: JsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    trackGA4?: boolean
+    trackFacebook?: boolean
+    trackGoogleAds?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    config: TrackingConfigurationCreateNestedOneWithoutCustomEventsInput
+    instances?: CustomEventInstanceCreateNestedManyWithoutCustomEventInput
+  }
+
+  export type CustomEventUncheckedCreateInput = {
+    id?: string
+    configId: string
+    name: string
+    displayName: string
+    description?: string | null
+    category?: string | null
+    isActive?: boolean
+    triggers: JsonNullValueInput | InputJsonValue
+    parameters: JsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    trackGA4?: boolean
+    trackFacebook?: boolean
+    trackGoogleAds?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    instances?: CustomEventInstanceUncheckedCreateNestedManyWithoutCustomEventInput
+  }
+
+  export type CustomEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    triggers?: JsonNullValueInput | InputJsonValue
+    parameters?: JsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    trackGA4?: BoolFieldUpdateOperationsInput | boolean
+    trackFacebook?: BoolFieldUpdateOperationsInput | boolean
+    trackGoogleAds?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    config?: TrackingConfigurationUpdateOneRequiredWithoutCustomEventsNestedInput
+    instances?: CustomEventInstanceUpdateManyWithoutCustomEventNestedInput
+  }
+
+  export type CustomEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    triggers?: JsonNullValueInput | InputJsonValue
+    parameters?: JsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    trackGA4?: BoolFieldUpdateOperationsInput | boolean
+    trackFacebook?: BoolFieldUpdateOperationsInput | boolean
+    trackGoogleAds?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    instances?: CustomEventInstanceUncheckedUpdateManyWithoutCustomEventNestedInput
+  }
+
+  export type CustomEventCreateManyInput = {
+    id?: string
+    configId: string
+    name: string
+    displayName: string
+    description?: string | null
+    category?: string | null
+    isActive?: boolean
+    triggers: JsonNullValueInput | InputJsonValue
+    parameters: JsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    trackGA4?: boolean
+    trackFacebook?: boolean
+    trackGoogleAds?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CustomEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    triggers?: JsonNullValueInput | InputJsonValue
+    parameters?: JsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    trackGA4?: BoolFieldUpdateOperationsInput | boolean
+    trackFacebook?: BoolFieldUpdateOperationsInput | boolean
+    trackGoogleAds?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    triggers?: JsonNullValueInput | InputJsonValue
+    parameters?: JsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    trackGA4?: BoolFieldUpdateOperationsInput | boolean
+    trackFacebook?: BoolFieldUpdateOperationsInput | boolean
+    trackGoogleAds?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomEventInstanceCreateInput = {
+    id?: string
+    sessionId: string
+    parameters: JsonNullValueInput | InputJsonValue
+    value?: number | null
+    currency?: string | null
+    pageUrl?: string | null
+    timestamp?: Date | string
+    customEvent: CustomEventCreateNestedOneWithoutInstancesInput
+    user?: UserCreateNestedOneWithoutCustomEventInstancesInput
+  }
+
+  export type CustomEventInstanceUncheckedCreateInput = {
+    id?: string
+    customEventId: string
+    sessionId: string
+    userId?: string | null
+    parameters: JsonNullValueInput | InputJsonValue
+    value?: number | null
+    currency?: string | null
+    pageUrl?: string | null
+    timestamp?: Date | string
+  }
+
+  export type CustomEventInstanceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    customEvent?: CustomEventUpdateOneRequiredWithoutInstancesNestedInput
+    user?: UserUpdateOneWithoutCustomEventInstancesNestedInput
+  }
+
+  export type CustomEventInstanceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customEventId?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    parameters?: JsonNullValueInput | InputJsonValue
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomEventInstanceCreateManyInput = {
+    id?: string
+    customEventId: string
+    sessionId: string
+    userId?: string | null
+    parameters: JsonNullValueInput | InputJsonValue
+    value?: number | null
+    currency?: string | null
+    pageUrl?: string | null
+    timestamp?: Date | string
+  }
+
+  export type CustomEventInstanceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomEventInstanceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customEventId?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    parameters?: JsonNullValueInput | InputJsonValue
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsCreateInput = {
+    id?: string
+    date: Date | string
+    pageViews?: number
+    uniqueVisitors?: number
+    sessions?: number
+    bounceRate?: number | null
+    avgSessionDuration?: number | null
+    transactions?: number
+    revenue?: number
+    averageOrderValue?: number | null
+    conversionRate?: number | null
+    customEvents?: number
+    addToCarts?: number
+    checkouts?: number
+    organicTraffic?: number
+    paidTraffic?: number
+    socialTraffic?: number
+    directTraffic?: number
+    referralTraffic?: number
+    desktopUsers?: number
+    mobileUsers?: number
+    tabletUsers?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    config: TrackingConfigurationCreateNestedOneWithoutAnalyticsInput
+  }
+
+  export type AnalyticsUncheckedCreateInput = {
+    id?: string
+    configId: string
+    date: Date | string
+    pageViews?: number
+    uniqueVisitors?: number
+    sessions?: number
+    bounceRate?: number | null
+    avgSessionDuration?: number | null
+    transactions?: number
+    revenue?: number
+    averageOrderValue?: number | null
+    conversionRate?: number | null
+    customEvents?: number
+    addToCarts?: number
+    checkouts?: number
+    organicTraffic?: number
+    paidTraffic?: number
+    socialTraffic?: number
+    directTraffic?: number
+    referralTraffic?: number
+    desktopUsers?: number
+    mobileUsers?: number
+    tabletUsers?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AnalyticsUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    pageViews?: IntFieldUpdateOperationsInput | number
+    uniqueVisitors?: IntFieldUpdateOperationsInput | number
+    sessions?: IntFieldUpdateOperationsInput | number
+    bounceRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    avgSessionDuration?: NullableFloatFieldUpdateOperationsInput | number | null
+    transactions?: IntFieldUpdateOperationsInput | number
+    revenue?: FloatFieldUpdateOperationsInput | number
+    averageOrderValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    customEvents?: IntFieldUpdateOperationsInput | number
+    addToCarts?: IntFieldUpdateOperationsInput | number
+    checkouts?: IntFieldUpdateOperationsInput | number
+    organicTraffic?: IntFieldUpdateOperationsInput | number
+    paidTraffic?: IntFieldUpdateOperationsInput | number
+    socialTraffic?: IntFieldUpdateOperationsInput | number
+    directTraffic?: IntFieldUpdateOperationsInput | number
+    referralTraffic?: IntFieldUpdateOperationsInput | number
+    desktopUsers?: IntFieldUpdateOperationsInput | number
+    mobileUsers?: IntFieldUpdateOperationsInput | number
+    tabletUsers?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    config?: TrackingConfigurationUpdateOneRequiredWithoutAnalyticsNestedInput
+  }
+
+  export type AnalyticsUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    pageViews?: IntFieldUpdateOperationsInput | number
+    uniqueVisitors?: IntFieldUpdateOperationsInput | number
+    sessions?: IntFieldUpdateOperationsInput | number
+    bounceRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    avgSessionDuration?: NullableFloatFieldUpdateOperationsInput | number | null
+    transactions?: IntFieldUpdateOperationsInput | number
+    revenue?: FloatFieldUpdateOperationsInput | number
+    averageOrderValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    customEvents?: IntFieldUpdateOperationsInput | number
+    addToCarts?: IntFieldUpdateOperationsInput | number
+    checkouts?: IntFieldUpdateOperationsInput | number
+    organicTraffic?: IntFieldUpdateOperationsInput | number
+    paidTraffic?: IntFieldUpdateOperationsInput | number
+    socialTraffic?: IntFieldUpdateOperationsInput | number
+    directTraffic?: IntFieldUpdateOperationsInput | number
+    referralTraffic?: IntFieldUpdateOperationsInput | number
+    desktopUsers?: IntFieldUpdateOperationsInput | number
+    mobileUsers?: IntFieldUpdateOperationsInput | number
+    tabletUsers?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsCreateManyInput = {
+    id?: string
+    configId: string
+    date: Date | string
+    pageViews?: number
+    uniqueVisitors?: number
+    sessions?: number
+    bounceRate?: number | null
+    avgSessionDuration?: number | null
+    transactions?: number
+    revenue?: number
+    averageOrderValue?: number | null
+    conversionRate?: number | null
+    customEvents?: number
+    addToCarts?: number
+    checkouts?: number
+    organicTraffic?: number
+    paidTraffic?: number
+    socialTraffic?: number
+    directTraffic?: number
+    referralTraffic?: number
+    desktopUsers?: number
+    mobileUsers?: number
+    tabletUsers?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AnalyticsUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    pageViews?: IntFieldUpdateOperationsInput | number
+    uniqueVisitors?: IntFieldUpdateOperationsInput | number
+    sessions?: IntFieldUpdateOperationsInput | number
+    bounceRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    avgSessionDuration?: NullableFloatFieldUpdateOperationsInput | number | null
+    transactions?: IntFieldUpdateOperationsInput | number
+    revenue?: FloatFieldUpdateOperationsInput | number
+    averageOrderValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    customEvents?: IntFieldUpdateOperationsInput | number
+    addToCarts?: IntFieldUpdateOperationsInput | number
+    checkouts?: IntFieldUpdateOperationsInput | number
+    organicTraffic?: IntFieldUpdateOperationsInput | number
+    paidTraffic?: IntFieldUpdateOperationsInput | number
+    socialTraffic?: IntFieldUpdateOperationsInput | number
+    directTraffic?: IntFieldUpdateOperationsInput | number
+    referralTraffic?: IntFieldUpdateOperationsInput | number
+    desktopUsers?: IntFieldUpdateOperationsInput | number
+    mobileUsers?: IntFieldUpdateOperationsInput | number
+    tabletUsers?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    pageViews?: IntFieldUpdateOperationsInput | number
+    uniqueVisitors?: IntFieldUpdateOperationsInput | number
+    sessions?: IntFieldUpdateOperationsInput | number
+    bounceRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    avgSessionDuration?: NullableFloatFieldUpdateOperationsInput | number | null
+    transactions?: IntFieldUpdateOperationsInput | number
+    revenue?: FloatFieldUpdateOperationsInput | number
+    averageOrderValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    customEvents?: IntFieldUpdateOperationsInput | number
+    addToCarts?: IntFieldUpdateOperationsInput | number
+    checkouts?: IntFieldUpdateOperationsInput | number
+    organicTraffic?: IntFieldUpdateOperationsInput | number
+    paidTraffic?: IntFieldUpdateOperationsInput | number
+    socialTraffic?: IntFieldUpdateOperationsInput | number
+    directTraffic?: IntFieldUpdateOperationsInput | number
+    referralTraffic?: IntFieldUpdateOperationsInput | number
+    desktopUsers?: IntFieldUpdateOperationsInput | number
+    mobileUsers?: IntFieldUpdateOperationsInput | number
+    tabletUsers?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversionFunnelCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    steps: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: FunnelSessionCreateNestedManyWithoutFunnelInput
+  }
+
+  export type ConversionFunnelUncheckedCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    steps: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: FunnelSessionUncheckedCreateNestedManyWithoutFunnelInput
+  }
+
+  export type ConversionFunnelUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    steps?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: FunnelSessionUpdateManyWithoutFunnelNestedInput
+  }
+
+  export type ConversionFunnelUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    steps?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: FunnelSessionUncheckedUpdateManyWithoutFunnelNestedInput
+  }
+
+  export type ConversionFunnelCreateManyInput = {
+    id?: string
+    name: string
+    description?: string | null
+    steps: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ConversionFunnelUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    steps?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversionFunnelUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    steps?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FunnelSessionCreateInput = {
+    id?: string
+    sessionId: string
+    currentStep?: number
+    completed?: boolean
+    startedAt?: Date | string
+    completedAt?: Date | string | null
+    duration?: number | null
+    stepData: JsonNullValueInput | InputJsonValue
+    funnel: ConversionFunnelCreateNestedOneWithoutSessionsInput
+    user?: UserCreateNestedOneWithoutFunnelSessionsInput
+  }
+
+  export type FunnelSessionUncheckedCreateInput = {
+    id?: string
+    funnelId: string
+    sessionId: string
+    userId?: string | null
+    currentStep?: number
+    completed?: boolean
+    startedAt?: Date | string
+    completedAt?: Date | string | null
+    duration?: number | null
+    stepData: JsonNullValueInput | InputJsonValue
+  }
+
+  export type FunnelSessionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    currentStep?: IntFieldUpdateOperationsInput | number
+    completed?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    stepData?: JsonNullValueInput | InputJsonValue
+    funnel?: ConversionFunnelUpdateOneRequiredWithoutSessionsNestedInput
+    user?: UserUpdateOneWithoutFunnelSessionsNestedInput
+  }
+
+  export type FunnelSessionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    funnelId?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: IntFieldUpdateOperationsInput | number
+    completed?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    stepData?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type FunnelSessionCreateManyInput = {
+    id?: string
+    funnelId: string
+    sessionId: string
+    userId?: string | null
+    currentStep?: number
+    completed?: boolean
+    startedAt?: Date | string
+    completedAt?: Date | string | null
+    duration?: number | null
+    stepData: JsonNullValueInput | InputJsonValue
+  }
+
+  export type FunnelSessionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    currentStep?: IntFieldUpdateOperationsInput | number
+    completed?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    stepData?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type FunnelSessionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    funnelId?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: IntFieldUpdateOperationsInput | number
+    completed?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    stepData?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type UserSessionCreateInput = {
+    id?: string
+    sessionId: string
+    ipAddress?: string | null
+    userAgent?: string | null
+    country?: string | null
+    city?: string | null
+    device?: string | null
+    browser?: string | null
+    os?: string | null
+    landingPage?: string | null
+    exitPage?: string | null
+    pageViews?: number
+    duration?: number | null
+    cartValue?: number | null
+    purchased?: boolean
+    firstSeen?: Date | string
+    lastSeen?: Date | string
+    user?: UserCreateNestedOneWithoutUserSessionsInput
+    events?: TrackingEventCreateNestedManyWithoutSessionInput
+  }
+
+  export type UserSessionUncheckedCreateInput = {
+    id?: string
+    sessionId: string
+    userId?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    country?: string | null
+    city?: string | null
+    device?: string | null
+    browser?: string | null
+    os?: string | null
+    landingPage?: string | null
+    exitPage?: string | null
+    pageViews?: number
+    duration?: number | null
+    cartValue?: number | null
+    purchased?: boolean
+    firstSeen?: Date | string
+    lastSeen?: Date | string
+    events?: TrackingEventUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type UserSessionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: NullableStringFieldUpdateOperationsInput | string | null
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    landingPage?: NullableStringFieldUpdateOperationsInput | string | null
+    exitPage?: NullableStringFieldUpdateOperationsInput | string | null
+    pageViews?: IntFieldUpdateOperationsInput | number
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    cartValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    purchased?: BoolFieldUpdateOperationsInput | boolean
+    firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutUserSessionsNestedInput
+    events?: TrackingEventUpdateManyWithoutSessionNestedInput
+  }
+
+  export type UserSessionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: NullableStringFieldUpdateOperationsInput | string | null
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    landingPage?: NullableStringFieldUpdateOperationsInput | string | null
+    exitPage?: NullableStringFieldUpdateOperationsInput | string | null
+    pageViews?: IntFieldUpdateOperationsInput | number
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    cartValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    purchased?: BoolFieldUpdateOperationsInput | boolean
+    firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: TrackingEventUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type UserSessionCreateManyInput = {
+    id?: string
+    sessionId: string
+    userId?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    country?: string | null
+    city?: string | null
+    device?: string | null
+    browser?: string | null
+    os?: string | null
+    landingPage?: string | null
+    exitPage?: string | null
+    pageViews?: number
+    duration?: number | null
+    cartValue?: number | null
+    purchased?: boolean
+    firstSeen?: Date | string
+    lastSeen?: Date | string
+  }
+
+  export type UserSessionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: NullableStringFieldUpdateOperationsInput | string | null
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    landingPage?: NullableStringFieldUpdateOperationsInput | string | null
+    exitPage?: NullableStringFieldUpdateOperationsInput | string | null
+    pageViews?: IntFieldUpdateOperationsInput | number
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    cartValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    purchased?: BoolFieldUpdateOperationsInput | boolean
+    firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSessionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: NullableStringFieldUpdateOperationsInput | string | null
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    landingPage?: NullableStringFieldUpdateOperationsInput | string | null
+    exitPage?: NullableStringFieldUpdateOperationsInput | string | null
+    pageViews?: IntFieldUpdateOperationsInput | number
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    cartValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    purchased?: BoolFieldUpdateOperationsInput | boolean
+    firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -32567,6 +46254,30 @@ export namespace Prisma {
     none?: PaymentWhereInput
   }
 
+  export type TrackingEventListRelationFilter = {
+    every?: TrackingEventWhereInput
+    some?: TrackingEventWhereInput
+    none?: TrackingEventWhereInput
+  }
+
+  export type CustomEventInstanceListRelationFilter = {
+    every?: CustomEventInstanceWhereInput
+    some?: CustomEventInstanceWhereInput
+    none?: CustomEventInstanceWhereInput
+  }
+
+  export type FunnelSessionListRelationFilter = {
+    every?: FunnelSessionWhereInput
+    some?: FunnelSessionWhereInput
+    none?: FunnelSessionWhereInput
+  }
+
+  export type UserSessionListRelationFilter = {
+    every?: UserSessionWhereInput
+    some?: UserSessionWhereInput
+    none?: UserSessionWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -32581,6 +46292,22 @@ export namespace Prisma {
   }
 
   export type PaymentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TrackingEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CustomEventInstanceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type FunnelSessionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type UserSessionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -34125,6 +47852,726 @@ export namespace Prisma {
     _max?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
   }
 
+  export type EnumTrackingStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrackingStatus | EnumTrackingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TrackingStatus[] | ListEnumTrackingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrackingStatus[] | ListEnumTrackingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrackingStatusFilter<$PrismaModel> | $Enums.TrackingStatus
+  }
+
+  export type CustomEventListRelationFilter = {
+    every?: CustomEventWhereInput
+    some?: CustomEventWhereInput
+    none?: CustomEventWhereInput
+  }
+
+  export type AnalyticsListRelationFilter = {
+    every?: AnalyticsWhereInput
+    some?: AnalyticsWhereInput
+    none?: AnalyticsWhereInput
+  }
+
+  export type CustomEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AnalyticsOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TrackingConfigurationCountOrderByAggregateInput = {
+    id?: SortOrder
+    gtmEnabled?: SortOrder
+    gtmContainerId?: SortOrder
+    gtmStatus?: SortOrder
+    ga4Enabled?: SortOrder
+    ga4MeasurementId?: SortOrder
+    ga4ApiSecret?: SortOrder
+    ga4Status?: SortOrder
+    metaEnabled?: SortOrder
+    metaPixelId?: SortOrder
+    metaAccessToken?: SortOrder
+    metaStatus?: SortOrder
+    googleAdsEnabled?: SortOrder
+    googleAdsConversionId?: SortOrder
+    googleAdsConversionLabel?: SortOrder
+    googleAdsCustomerId?: SortOrder
+    googleAdsAccessToken?: SortOrder
+    googleAdsStatus?: SortOrder
+    serverSideEnabled?: SortOrder
+    facebookConversionsApi?: SortOrder
+    googleConversionsApi?: SortOrder
+    serverSideStatus?: SortOrder
+    dataRetentionDays?: SortOrder
+    anonymizeIp?: SortOrder
+    cookieConsent?: SortOrder
+    debugMode?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TrackingConfigurationAvgOrderByAggregateInput = {
+    dataRetentionDays?: SortOrder
+  }
+
+  export type TrackingConfigurationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    gtmEnabled?: SortOrder
+    gtmContainerId?: SortOrder
+    gtmStatus?: SortOrder
+    ga4Enabled?: SortOrder
+    ga4MeasurementId?: SortOrder
+    ga4ApiSecret?: SortOrder
+    ga4Status?: SortOrder
+    metaEnabled?: SortOrder
+    metaPixelId?: SortOrder
+    metaAccessToken?: SortOrder
+    metaStatus?: SortOrder
+    googleAdsEnabled?: SortOrder
+    googleAdsConversionId?: SortOrder
+    googleAdsConversionLabel?: SortOrder
+    googleAdsCustomerId?: SortOrder
+    googleAdsAccessToken?: SortOrder
+    googleAdsStatus?: SortOrder
+    serverSideEnabled?: SortOrder
+    facebookConversionsApi?: SortOrder
+    googleConversionsApi?: SortOrder
+    serverSideStatus?: SortOrder
+    dataRetentionDays?: SortOrder
+    anonymizeIp?: SortOrder
+    cookieConsent?: SortOrder
+    debugMode?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TrackingConfigurationMinOrderByAggregateInput = {
+    id?: SortOrder
+    gtmEnabled?: SortOrder
+    gtmContainerId?: SortOrder
+    gtmStatus?: SortOrder
+    ga4Enabled?: SortOrder
+    ga4MeasurementId?: SortOrder
+    ga4ApiSecret?: SortOrder
+    ga4Status?: SortOrder
+    metaEnabled?: SortOrder
+    metaPixelId?: SortOrder
+    metaAccessToken?: SortOrder
+    metaStatus?: SortOrder
+    googleAdsEnabled?: SortOrder
+    googleAdsConversionId?: SortOrder
+    googleAdsConversionLabel?: SortOrder
+    googleAdsCustomerId?: SortOrder
+    googleAdsAccessToken?: SortOrder
+    googleAdsStatus?: SortOrder
+    serverSideEnabled?: SortOrder
+    facebookConversionsApi?: SortOrder
+    googleConversionsApi?: SortOrder
+    serverSideStatus?: SortOrder
+    dataRetentionDays?: SortOrder
+    anonymizeIp?: SortOrder
+    cookieConsent?: SortOrder
+    debugMode?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TrackingConfigurationSumOrderByAggregateInput = {
+    dataRetentionDays?: SortOrder
+  }
+
+  export type EnumTrackingStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrackingStatus | EnumTrackingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TrackingStatus[] | ListEnumTrackingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrackingStatus[] | ListEnumTrackingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrackingStatusWithAggregatesFilter<$PrismaModel> | $Enums.TrackingStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTrackingStatusFilter<$PrismaModel>
+    _max?: NestedEnumTrackingStatusFilter<$PrismaModel>
+  }
+
+  export type EnumTrackingEventTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrackingEventType | EnumTrackingEventTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.TrackingEventType[] | ListEnumTrackingEventTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrackingEventType[] | ListEnumTrackingEventTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrackingEventTypeFilter<$PrismaModel> | $Enums.TrackingEventType
+  }
+
+  export type EnumTrackingPlatformFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrackingPlatform | EnumTrackingPlatformFieldRefInput<$PrismaModel>
+    in?: $Enums.TrackingPlatform[] | ListEnumTrackingPlatformFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrackingPlatform[] | ListEnumTrackingPlatformFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrackingPlatformFilter<$PrismaModel> | $Enums.TrackingPlatform
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type TrackingConfigurationScalarRelationFilter = {
+    is?: TrackingConfigurationWhereInput
+    isNot?: TrackingConfigurationWhereInput
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type UserSessionNullableScalarRelationFilter = {
+    is?: UserSessionWhereInput | null
+    isNot?: UserSessionWhereInput | null
+  }
+
+  export type TrackingEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    eventName?: SortOrder
+    eventType?: SortOrder
+    platform?: SortOrder
+    eventData?: SortOrder
+    userAgent?: SortOrder
+    ipAddress?: SortOrder
+    referrer?: SortOrder
+    pageUrl?: SortOrder
+    pageTitle?: SortOrder
+    transactionId?: SortOrder
+    value?: SortOrder
+    currency?: SortOrder
+    items?: SortOrder
+    conversionValue?: SortOrder
+    conversionType?: SortOrder
+    timestamp?: SortOrder
+    clientTimestamp?: SortOrder
+    processed?: SortOrder
+    processingError?: SortOrder
+  }
+
+  export type TrackingEventAvgOrderByAggregateInput = {
+    value?: SortOrder
+    conversionValue?: SortOrder
+  }
+
+  export type TrackingEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    eventName?: SortOrder
+    eventType?: SortOrder
+    platform?: SortOrder
+    userAgent?: SortOrder
+    ipAddress?: SortOrder
+    referrer?: SortOrder
+    pageUrl?: SortOrder
+    pageTitle?: SortOrder
+    transactionId?: SortOrder
+    value?: SortOrder
+    currency?: SortOrder
+    conversionValue?: SortOrder
+    conversionType?: SortOrder
+    timestamp?: SortOrder
+    clientTimestamp?: SortOrder
+    processed?: SortOrder
+    processingError?: SortOrder
+  }
+
+  export type TrackingEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    eventName?: SortOrder
+    eventType?: SortOrder
+    platform?: SortOrder
+    userAgent?: SortOrder
+    ipAddress?: SortOrder
+    referrer?: SortOrder
+    pageUrl?: SortOrder
+    pageTitle?: SortOrder
+    transactionId?: SortOrder
+    value?: SortOrder
+    currency?: SortOrder
+    conversionValue?: SortOrder
+    conversionType?: SortOrder
+    timestamp?: SortOrder
+    clientTimestamp?: SortOrder
+    processed?: SortOrder
+    processingError?: SortOrder
+  }
+
+  export type TrackingEventSumOrderByAggregateInput = {
+    value?: SortOrder
+    conversionValue?: SortOrder
+  }
+
+  export type EnumTrackingEventTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrackingEventType | EnumTrackingEventTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.TrackingEventType[] | ListEnumTrackingEventTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrackingEventType[] | ListEnumTrackingEventTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrackingEventTypeWithAggregatesFilter<$PrismaModel> | $Enums.TrackingEventType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTrackingEventTypeFilter<$PrismaModel>
+    _max?: NestedEnumTrackingEventTypeFilter<$PrismaModel>
+  }
+
+  export type EnumTrackingPlatformWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrackingPlatform | EnumTrackingPlatformFieldRefInput<$PrismaModel>
+    in?: $Enums.TrackingPlatform[] | ListEnumTrackingPlatformFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrackingPlatform[] | ListEnumTrackingPlatformFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrackingPlatformWithAggregatesFilter<$PrismaModel> | $Enums.TrackingPlatform
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTrackingPlatformFilter<$PrismaModel>
+    _max?: NestedEnumTrackingPlatformFilter<$PrismaModel>
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type CustomEventConfigIdNameCompoundUniqueInput = {
+    configId: string
+    name: string
+  }
+
+  export type CustomEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    name?: SortOrder
+    displayName?: SortOrder
+    description?: SortOrder
+    category?: SortOrder
+    isActive?: SortOrder
+    triggers?: SortOrder
+    parameters?: SortOrder
+    conversionValue?: SortOrder
+    trackGA4?: SortOrder
+    trackFacebook?: SortOrder
+    trackGoogleAds?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomEventAvgOrderByAggregateInput = {
+    conversionValue?: SortOrder
+  }
+
+  export type CustomEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    name?: SortOrder
+    displayName?: SortOrder
+    description?: SortOrder
+    category?: SortOrder
+    isActive?: SortOrder
+    conversionValue?: SortOrder
+    trackGA4?: SortOrder
+    trackFacebook?: SortOrder
+    trackGoogleAds?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    name?: SortOrder
+    displayName?: SortOrder
+    description?: SortOrder
+    category?: SortOrder
+    isActive?: SortOrder
+    conversionValue?: SortOrder
+    trackGA4?: SortOrder
+    trackFacebook?: SortOrder
+    trackGoogleAds?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomEventSumOrderByAggregateInput = {
+    conversionValue?: SortOrder
+  }
+
+  export type CustomEventScalarRelationFilter = {
+    is?: CustomEventWhereInput
+    isNot?: CustomEventWhereInput
+  }
+
+  export type CustomEventInstanceCountOrderByAggregateInput = {
+    id?: SortOrder
+    customEventId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    parameters?: SortOrder
+    value?: SortOrder
+    currency?: SortOrder
+    pageUrl?: SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type CustomEventInstanceAvgOrderByAggregateInput = {
+    value?: SortOrder
+  }
+
+  export type CustomEventInstanceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    customEventId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    value?: SortOrder
+    currency?: SortOrder
+    pageUrl?: SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type CustomEventInstanceMinOrderByAggregateInput = {
+    id?: SortOrder
+    customEventId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    value?: SortOrder
+    currency?: SortOrder
+    pageUrl?: SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type CustomEventInstanceSumOrderByAggregateInput = {
+    value?: SortOrder
+  }
+
+  export type AnalyticsConfigIdDateCompoundUniqueInput = {
+    configId: string
+    date: Date | string
+  }
+
+  export type AnalyticsCountOrderByAggregateInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    date?: SortOrder
+    pageViews?: SortOrder
+    uniqueVisitors?: SortOrder
+    sessions?: SortOrder
+    bounceRate?: SortOrder
+    avgSessionDuration?: SortOrder
+    transactions?: SortOrder
+    revenue?: SortOrder
+    averageOrderValue?: SortOrder
+    conversionRate?: SortOrder
+    customEvents?: SortOrder
+    addToCarts?: SortOrder
+    checkouts?: SortOrder
+    organicTraffic?: SortOrder
+    paidTraffic?: SortOrder
+    socialTraffic?: SortOrder
+    directTraffic?: SortOrder
+    referralTraffic?: SortOrder
+    desktopUsers?: SortOrder
+    mobileUsers?: SortOrder
+    tabletUsers?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AnalyticsAvgOrderByAggregateInput = {
+    pageViews?: SortOrder
+    uniqueVisitors?: SortOrder
+    sessions?: SortOrder
+    bounceRate?: SortOrder
+    avgSessionDuration?: SortOrder
+    transactions?: SortOrder
+    revenue?: SortOrder
+    averageOrderValue?: SortOrder
+    conversionRate?: SortOrder
+    customEvents?: SortOrder
+    addToCarts?: SortOrder
+    checkouts?: SortOrder
+    organicTraffic?: SortOrder
+    paidTraffic?: SortOrder
+    socialTraffic?: SortOrder
+    directTraffic?: SortOrder
+    referralTraffic?: SortOrder
+    desktopUsers?: SortOrder
+    mobileUsers?: SortOrder
+    tabletUsers?: SortOrder
+  }
+
+  export type AnalyticsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    date?: SortOrder
+    pageViews?: SortOrder
+    uniqueVisitors?: SortOrder
+    sessions?: SortOrder
+    bounceRate?: SortOrder
+    avgSessionDuration?: SortOrder
+    transactions?: SortOrder
+    revenue?: SortOrder
+    averageOrderValue?: SortOrder
+    conversionRate?: SortOrder
+    customEvents?: SortOrder
+    addToCarts?: SortOrder
+    checkouts?: SortOrder
+    organicTraffic?: SortOrder
+    paidTraffic?: SortOrder
+    socialTraffic?: SortOrder
+    directTraffic?: SortOrder
+    referralTraffic?: SortOrder
+    desktopUsers?: SortOrder
+    mobileUsers?: SortOrder
+    tabletUsers?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AnalyticsMinOrderByAggregateInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    date?: SortOrder
+    pageViews?: SortOrder
+    uniqueVisitors?: SortOrder
+    sessions?: SortOrder
+    bounceRate?: SortOrder
+    avgSessionDuration?: SortOrder
+    transactions?: SortOrder
+    revenue?: SortOrder
+    averageOrderValue?: SortOrder
+    conversionRate?: SortOrder
+    customEvents?: SortOrder
+    addToCarts?: SortOrder
+    checkouts?: SortOrder
+    organicTraffic?: SortOrder
+    paidTraffic?: SortOrder
+    socialTraffic?: SortOrder
+    directTraffic?: SortOrder
+    referralTraffic?: SortOrder
+    desktopUsers?: SortOrder
+    mobileUsers?: SortOrder
+    tabletUsers?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AnalyticsSumOrderByAggregateInput = {
+    pageViews?: SortOrder
+    uniqueVisitors?: SortOrder
+    sessions?: SortOrder
+    bounceRate?: SortOrder
+    avgSessionDuration?: SortOrder
+    transactions?: SortOrder
+    revenue?: SortOrder
+    averageOrderValue?: SortOrder
+    conversionRate?: SortOrder
+    customEvents?: SortOrder
+    addToCarts?: SortOrder
+    checkouts?: SortOrder
+    organicTraffic?: SortOrder
+    paidTraffic?: SortOrder
+    socialTraffic?: SortOrder
+    directTraffic?: SortOrder
+    referralTraffic?: SortOrder
+    desktopUsers?: SortOrder
+    mobileUsers?: SortOrder
+    tabletUsers?: SortOrder
+  }
+
+  export type ConversionFunnelCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    steps?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ConversionFunnelMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ConversionFunnelMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ConversionFunnelScalarRelationFilter = {
+    is?: ConversionFunnelWhereInput
+    isNot?: ConversionFunnelWhereInput
+  }
+
+  export type FunnelSessionCountOrderByAggregateInput = {
+    id?: SortOrder
+    funnelId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    currentStep?: SortOrder
+    completed?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
+    duration?: SortOrder
+    stepData?: SortOrder
+  }
+
+  export type FunnelSessionAvgOrderByAggregateInput = {
+    currentStep?: SortOrder
+    duration?: SortOrder
+  }
+
+  export type FunnelSessionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    funnelId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    currentStep?: SortOrder
+    completed?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
+    duration?: SortOrder
+  }
+
+  export type FunnelSessionMinOrderByAggregateInput = {
+    id?: SortOrder
+    funnelId?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    currentStep?: SortOrder
+    completed?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
+    duration?: SortOrder
+  }
+
+  export type FunnelSessionSumOrderByAggregateInput = {
+    currentStep?: SortOrder
+    duration?: SortOrder
+  }
+
+  export type UserSessionCountOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    country?: SortOrder
+    city?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    os?: SortOrder
+    landingPage?: SortOrder
+    exitPage?: SortOrder
+    pageViews?: SortOrder
+    duration?: SortOrder
+    cartValue?: SortOrder
+    purchased?: SortOrder
+    firstSeen?: SortOrder
+    lastSeen?: SortOrder
+  }
+
+  export type UserSessionAvgOrderByAggregateInput = {
+    pageViews?: SortOrder
+    duration?: SortOrder
+    cartValue?: SortOrder
+  }
+
+  export type UserSessionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    country?: SortOrder
+    city?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    os?: SortOrder
+    landingPage?: SortOrder
+    exitPage?: SortOrder
+    pageViews?: SortOrder
+    duration?: SortOrder
+    cartValue?: SortOrder
+    purchased?: SortOrder
+    firstSeen?: SortOrder
+    lastSeen?: SortOrder
+  }
+
+  export type UserSessionMinOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    country?: SortOrder
+    city?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    os?: SortOrder
+    landingPage?: SortOrder
+    exitPage?: SortOrder
+    pageViews?: SortOrder
+    duration?: SortOrder
+    cartValue?: SortOrder
+    purchased?: SortOrder
+    firstSeen?: SortOrder
+    lastSeen?: SortOrder
+  }
+
+  export type UserSessionSumOrderByAggregateInput = {
+    pageViews?: SortOrder
+    duration?: SortOrder
+    cartValue?: SortOrder
+  }
+
   export type OrderCreateNestedManyWithoutUserInput = {
     create?: XOR<OrderCreateWithoutUserInput, OrderUncheckedCreateWithoutUserInput> | OrderCreateWithoutUserInput[] | OrderUncheckedCreateWithoutUserInput[]
     connectOrCreate?: OrderCreateOrConnectWithoutUserInput | OrderCreateOrConnectWithoutUserInput[]
@@ -34146,6 +48593,34 @@ export namespace Prisma {
     connect?: PaymentWhereUniqueInput | PaymentWhereUniqueInput[]
   }
 
+  export type TrackingEventCreateNestedManyWithoutUserInput = {
+    create?: XOR<TrackingEventCreateWithoutUserInput, TrackingEventUncheckedCreateWithoutUserInput> | TrackingEventCreateWithoutUserInput[] | TrackingEventUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TrackingEventCreateOrConnectWithoutUserInput | TrackingEventCreateOrConnectWithoutUserInput[]
+    createMany?: TrackingEventCreateManyUserInputEnvelope
+    connect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+  }
+
+  export type CustomEventInstanceCreateNestedManyWithoutUserInput = {
+    create?: XOR<CustomEventInstanceCreateWithoutUserInput, CustomEventInstanceUncheckedCreateWithoutUserInput> | CustomEventInstanceCreateWithoutUserInput[] | CustomEventInstanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CustomEventInstanceCreateOrConnectWithoutUserInput | CustomEventInstanceCreateOrConnectWithoutUserInput[]
+    createMany?: CustomEventInstanceCreateManyUserInputEnvelope
+    connect?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+  }
+
+  export type FunnelSessionCreateNestedManyWithoutUserInput = {
+    create?: XOR<FunnelSessionCreateWithoutUserInput, FunnelSessionUncheckedCreateWithoutUserInput> | FunnelSessionCreateWithoutUserInput[] | FunnelSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FunnelSessionCreateOrConnectWithoutUserInput | FunnelSessionCreateOrConnectWithoutUserInput[]
+    createMany?: FunnelSessionCreateManyUserInputEnvelope
+    connect?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+  }
+
+  export type UserSessionCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserSessionCreateWithoutUserInput, UserSessionUncheckedCreateWithoutUserInput> | UserSessionCreateWithoutUserInput[] | UserSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSessionCreateOrConnectWithoutUserInput | UserSessionCreateOrConnectWithoutUserInput[]
+    createMany?: UserSessionCreateManyUserInputEnvelope
+    connect?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+  }
+
   export type OrderUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<OrderCreateWithoutUserInput, OrderUncheckedCreateWithoutUserInput> | OrderCreateWithoutUserInput[] | OrderUncheckedCreateWithoutUserInput[]
     connectOrCreate?: OrderCreateOrConnectWithoutUserInput | OrderCreateOrConnectWithoutUserInput[]
@@ -34165,6 +48640,34 @@ export namespace Prisma {
     connectOrCreate?: PaymentCreateOrConnectWithoutUserInput | PaymentCreateOrConnectWithoutUserInput[]
     createMany?: PaymentCreateManyUserInputEnvelope
     connect?: PaymentWhereUniqueInput | PaymentWhereUniqueInput[]
+  }
+
+  export type TrackingEventUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<TrackingEventCreateWithoutUserInput, TrackingEventUncheckedCreateWithoutUserInput> | TrackingEventCreateWithoutUserInput[] | TrackingEventUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TrackingEventCreateOrConnectWithoutUserInput | TrackingEventCreateOrConnectWithoutUserInput[]
+    createMany?: TrackingEventCreateManyUserInputEnvelope
+    connect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+  }
+
+  export type CustomEventInstanceUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<CustomEventInstanceCreateWithoutUserInput, CustomEventInstanceUncheckedCreateWithoutUserInput> | CustomEventInstanceCreateWithoutUserInput[] | CustomEventInstanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CustomEventInstanceCreateOrConnectWithoutUserInput | CustomEventInstanceCreateOrConnectWithoutUserInput[]
+    createMany?: CustomEventInstanceCreateManyUserInputEnvelope
+    connect?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+  }
+
+  export type FunnelSessionUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<FunnelSessionCreateWithoutUserInput, FunnelSessionUncheckedCreateWithoutUserInput> | FunnelSessionCreateWithoutUserInput[] | FunnelSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FunnelSessionCreateOrConnectWithoutUserInput | FunnelSessionCreateOrConnectWithoutUserInput[]
+    createMany?: FunnelSessionCreateManyUserInputEnvelope
+    connect?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+  }
+
+  export type UserSessionUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserSessionCreateWithoutUserInput, UserSessionUncheckedCreateWithoutUserInput> | UserSessionCreateWithoutUserInput[] | UserSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSessionCreateOrConnectWithoutUserInput | UserSessionCreateOrConnectWithoutUserInput[]
+    createMany?: UserSessionCreateManyUserInputEnvelope
+    connect?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -34233,6 +48736,62 @@ export namespace Prisma {
     deleteMany?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
   }
 
+  export type TrackingEventUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TrackingEventCreateWithoutUserInput, TrackingEventUncheckedCreateWithoutUserInput> | TrackingEventCreateWithoutUserInput[] | TrackingEventUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TrackingEventCreateOrConnectWithoutUserInput | TrackingEventCreateOrConnectWithoutUserInput[]
+    upsert?: TrackingEventUpsertWithWhereUniqueWithoutUserInput | TrackingEventUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TrackingEventCreateManyUserInputEnvelope
+    set?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    disconnect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    delete?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    connect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    update?: TrackingEventUpdateWithWhereUniqueWithoutUserInput | TrackingEventUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TrackingEventUpdateManyWithWhereWithoutUserInput | TrackingEventUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TrackingEventScalarWhereInput | TrackingEventScalarWhereInput[]
+  }
+
+  export type CustomEventInstanceUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CustomEventInstanceCreateWithoutUserInput, CustomEventInstanceUncheckedCreateWithoutUserInput> | CustomEventInstanceCreateWithoutUserInput[] | CustomEventInstanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CustomEventInstanceCreateOrConnectWithoutUserInput | CustomEventInstanceCreateOrConnectWithoutUserInput[]
+    upsert?: CustomEventInstanceUpsertWithWhereUniqueWithoutUserInput | CustomEventInstanceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CustomEventInstanceCreateManyUserInputEnvelope
+    set?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    disconnect?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    delete?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    connect?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    update?: CustomEventInstanceUpdateWithWhereUniqueWithoutUserInput | CustomEventInstanceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CustomEventInstanceUpdateManyWithWhereWithoutUserInput | CustomEventInstanceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CustomEventInstanceScalarWhereInput | CustomEventInstanceScalarWhereInput[]
+  }
+
+  export type FunnelSessionUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FunnelSessionCreateWithoutUserInput, FunnelSessionUncheckedCreateWithoutUserInput> | FunnelSessionCreateWithoutUserInput[] | FunnelSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FunnelSessionCreateOrConnectWithoutUserInput | FunnelSessionCreateOrConnectWithoutUserInput[]
+    upsert?: FunnelSessionUpsertWithWhereUniqueWithoutUserInput | FunnelSessionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FunnelSessionCreateManyUserInputEnvelope
+    set?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    disconnect?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    delete?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    connect?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    update?: FunnelSessionUpdateWithWhereUniqueWithoutUserInput | FunnelSessionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FunnelSessionUpdateManyWithWhereWithoutUserInput | FunnelSessionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FunnelSessionScalarWhereInput | FunnelSessionScalarWhereInput[]
+  }
+
+  export type UserSessionUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserSessionCreateWithoutUserInput, UserSessionUncheckedCreateWithoutUserInput> | UserSessionCreateWithoutUserInput[] | UserSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSessionCreateOrConnectWithoutUserInput | UserSessionCreateOrConnectWithoutUserInput[]
+    upsert?: UserSessionUpsertWithWhereUniqueWithoutUserInput | UserSessionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserSessionCreateManyUserInputEnvelope
+    set?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    disconnect?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    delete?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    connect?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    update?: UserSessionUpdateWithWhereUniqueWithoutUserInput | UserSessionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserSessionUpdateManyWithWhereWithoutUserInput | UserSessionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserSessionScalarWhereInput | UserSessionScalarWhereInput[]
+  }
+
   export type OrderUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<OrderCreateWithoutUserInput, OrderUncheckedCreateWithoutUserInput> | OrderCreateWithoutUserInput[] | OrderUncheckedCreateWithoutUserInput[]
     connectOrCreate?: OrderCreateOrConnectWithoutUserInput | OrderCreateOrConnectWithoutUserInput[]
@@ -34273,6 +48832,62 @@ export namespace Prisma {
     update?: PaymentUpdateWithWhereUniqueWithoutUserInput | PaymentUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: PaymentUpdateManyWithWhereWithoutUserInput | PaymentUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
+  }
+
+  export type TrackingEventUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TrackingEventCreateWithoutUserInput, TrackingEventUncheckedCreateWithoutUserInput> | TrackingEventCreateWithoutUserInput[] | TrackingEventUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TrackingEventCreateOrConnectWithoutUserInput | TrackingEventCreateOrConnectWithoutUserInput[]
+    upsert?: TrackingEventUpsertWithWhereUniqueWithoutUserInput | TrackingEventUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TrackingEventCreateManyUserInputEnvelope
+    set?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    disconnect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    delete?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    connect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    update?: TrackingEventUpdateWithWhereUniqueWithoutUserInput | TrackingEventUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TrackingEventUpdateManyWithWhereWithoutUserInput | TrackingEventUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TrackingEventScalarWhereInput | TrackingEventScalarWhereInput[]
+  }
+
+  export type CustomEventInstanceUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CustomEventInstanceCreateWithoutUserInput, CustomEventInstanceUncheckedCreateWithoutUserInput> | CustomEventInstanceCreateWithoutUserInput[] | CustomEventInstanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CustomEventInstanceCreateOrConnectWithoutUserInput | CustomEventInstanceCreateOrConnectWithoutUserInput[]
+    upsert?: CustomEventInstanceUpsertWithWhereUniqueWithoutUserInput | CustomEventInstanceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CustomEventInstanceCreateManyUserInputEnvelope
+    set?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    disconnect?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    delete?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    connect?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    update?: CustomEventInstanceUpdateWithWhereUniqueWithoutUserInput | CustomEventInstanceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CustomEventInstanceUpdateManyWithWhereWithoutUserInput | CustomEventInstanceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CustomEventInstanceScalarWhereInput | CustomEventInstanceScalarWhereInput[]
+  }
+
+  export type FunnelSessionUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FunnelSessionCreateWithoutUserInput, FunnelSessionUncheckedCreateWithoutUserInput> | FunnelSessionCreateWithoutUserInput[] | FunnelSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FunnelSessionCreateOrConnectWithoutUserInput | FunnelSessionCreateOrConnectWithoutUserInput[]
+    upsert?: FunnelSessionUpsertWithWhereUniqueWithoutUserInput | FunnelSessionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FunnelSessionCreateManyUserInputEnvelope
+    set?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    disconnect?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    delete?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    connect?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    update?: FunnelSessionUpdateWithWhereUniqueWithoutUserInput | FunnelSessionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FunnelSessionUpdateManyWithWhereWithoutUserInput | FunnelSessionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FunnelSessionScalarWhereInput | FunnelSessionScalarWhereInput[]
+  }
+
+  export type UserSessionUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserSessionCreateWithoutUserInput, UserSessionUncheckedCreateWithoutUserInput> | UserSessionCreateWithoutUserInput[] | UserSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSessionCreateOrConnectWithoutUserInput | UserSessionCreateOrConnectWithoutUserInput[]
+    upsert?: UserSessionUpsertWithWhereUniqueWithoutUserInput | UserSessionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserSessionCreateManyUserInputEnvelope
+    set?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    disconnect?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    delete?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    connect?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    update?: UserSessionUpdateWithWhereUniqueWithoutUserInput | UserSessionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserSessionUpdateManyWithWhereWithoutUserInput | UserSessionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserSessionScalarWhereInput | UserSessionScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutPermissionsInput = {
@@ -35224,6 +49839,420 @@ export namespace Prisma {
     set?: $Enums.SubscriptionStatus
   }
 
+  export type TrackingEventCreateNestedManyWithoutConfigInput = {
+    create?: XOR<TrackingEventCreateWithoutConfigInput, TrackingEventUncheckedCreateWithoutConfigInput> | TrackingEventCreateWithoutConfigInput[] | TrackingEventUncheckedCreateWithoutConfigInput[]
+    connectOrCreate?: TrackingEventCreateOrConnectWithoutConfigInput | TrackingEventCreateOrConnectWithoutConfigInput[]
+    createMany?: TrackingEventCreateManyConfigInputEnvelope
+    connect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+  }
+
+  export type CustomEventCreateNestedManyWithoutConfigInput = {
+    create?: XOR<CustomEventCreateWithoutConfigInput, CustomEventUncheckedCreateWithoutConfigInput> | CustomEventCreateWithoutConfigInput[] | CustomEventUncheckedCreateWithoutConfigInput[]
+    connectOrCreate?: CustomEventCreateOrConnectWithoutConfigInput | CustomEventCreateOrConnectWithoutConfigInput[]
+    createMany?: CustomEventCreateManyConfigInputEnvelope
+    connect?: CustomEventWhereUniqueInput | CustomEventWhereUniqueInput[]
+  }
+
+  export type AnalyticsCreateNestedManyWithoutConfigInput = {
+    create?: XOR<AnalyticsCreateWithoutConfigInput, AnalyticsUncheckedCreateWithoutConfigInput> | AnalyticsCreateWithoutConfigInput[] | AnalyticsUncheckedCreateWithoutConfigInput[]
+    connectOrCreate?: AnalyticsCreateOrConnectWithoutConfigInput | AnalyticsCreateOrConnectWithoutConfigInput[]
+    createMany?: AnalyticsCreateManyConfigInputEnvelope
+    connect?: AnalyticsWhereUniqueInput | AnalyticsWhereUniqueInput[]
+  }
+
+  export type TrackingEventUncheckedCreateNestedManyWithoutConfigInput = {
+    create?: XOR<TrackingEventCreateWithoutConfigInput, TrackingEventUncheckedCreateWithoutConfigInput> | TrackingEventCreateWithoutConfigInput[] | TrackingEventUncheckedCreateWithoutConfigInput[]
+    connectOrCreate?: TrackingEventCreateOrConnectWithoutConfigInput | TrackingEventCreateOrConnectWithoutConfigInput[]
+    createMany?: TrackingEventCreateManyConfigInputEnvelope
+    connect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+  }
+
+  export type CustomEventUncheckedCreateNestedManyWithoutConfigInput = {
+    create?: XOR<CustomEventCreateWithoutConfigInput, CustomEventUncheckedCreateWithoutConfigInput> | CustomEventCreateWithoutConfigInput[] | CustomEventUncheckedCreateWithoutConfigInput[]
+    connectOrCreate?: CustomEventCreateOrConnectWithoutConfigInput | CustomEventCreateOrConnectWithoutConfigInput[]
+    createMany?: CustomEventCreateManyConfigInputEnvelope
+    connect?: CustomEventWhereUniqueInput | CustomEventWhereUniqueInput[]
+  }
+
+  export type AnalyticsUncheckedCreateNestedManyWithoutConfigInput = {
+    create?: XOR<AnalyticsCreateWithoutConfigInput, AnalyticsUncheckedCreateWithoutConfigInput> | AnalyticsCreateWithoutConfigInput[] | AnalyticsUncheckedCreateWithoutConfigInput[]
+    connectOrCreate?: AnalyticsCreateOrConnectWithoutConfigInput | AnalyticsCreateOrConnectWithoutConfigInput[]
+    createMany?: AnalyticsCreateManyConfigInputEnvelope
+    connect?: AnalyticsWhereUniqueInput | AnalyticsWhereUniqueInput[]
+  }
+
+  export type EnumTrackingStatusFieldUpdateOperationsInput = {
+    set?: $Enums.TrackingStatus
+  }
+
+  export type TrackingEventUpdateManyWithoutConfigNestedInput = {
+    create?: XOR<TrackingEventCreateWithoutConfigInput, TrackingEventUncheckedCreateWithoutConfigInput> | TrackingEventCreateWithoutConfigInput[] | TrackingEventUncheckedCreateWithoutConfigInput[]
+    connectOrCreate?: TrackingEventCreateOrConnectWithoutConfigInput | TrackingEventCreateOrConnectWithoutConfigInput[]
+    upsert?: TrackingEventUpsertWithWhereUniqueWithoutConfigInput | TrackingEventUpsertWithWhereUniqueWithoutConfigInput[]
+    createMany?: TrackingEventCreateManyConfigInputEnvelope
+    set?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    disconnect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    delete?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    connect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    update?: TrackingEventUpdateWithWhereUniqueWithoutConfigInput | TrackingEventUpdateWithWhereUniqueWithoutConfigInput[]
+    updateMany?: TrackingEventUpdateManyWithWhereWithoutConfigInput | TrackingEventUpdateManyWithWhereWithoutConfigInput[]
+    deleteMany?: TrackingEventScalarWhereInput | TrackingEventScalarWhereInput[]
+  }
+
+  export type CustomEventUpdateManyWithoutConfigNestedInput = {
+    create?: XOR<CustomEventCreateWithoutConfigInput, CustomEventUncheckedCreateWithoutConfigInput> | CustomEventCreateWithoutConfigInput[] | CustomEventUncheckedCreateWithoutConfigInput[]
+    connectOrCreate?: CustomEventCreateOrConnectWithoutConfigInput | CustomEventCreateOrConnectWithoutConfigInput[]
+    upsert?: CustomEventUpsertWithWhereUniqueWithoutConfigInput | CustomEventUpsertWithWhereUniqueWithoutConfigInput[]
+    createMany?: CustomEventCreateManyConfigInputEnvelope
+    set?: CustomEventWhereUniqueInput | CustomEventWhereUniqueInput[]
+    disconnect?: CustomEventWhereUniqueInput | CustomEventWhereUniqueInput[]
+    delete?: CustomEventWhereUniqueInput | CustomEventWhereUniqueInput[]
+    connect?: CustomEventWhereUniqueInput | CustomEventWhereUniqueInput[]
+    update?: CustomEventUpdateWithWhereUniqueWithoutConfigInput | CustomEventUpdateWithWhereUniqueWithoutConfigInput[]
+    updateMany?: CustomEventUpdateManyWithWhereWithoutConfigInput | CustomEventUpdateManyWithWhereWithoutConfigInput[]
+    deleteMany?: CustomEventScalarWhereInput | CustomEventScalarWhereInput[]
+  }
+
+  export type AnalyticsUpdateManyWithoutConfigNestedInput = {
+    create?: XOR<AnalyticsCreateWithoutConfigInput, AnalyticsUncheckedCreateWithoutConfigInput> | AnalyticsCreateWithoutConfigInput[] | AnalyticsUncheckedCreateWithoutConfigInput[]
+    connectOrCreate?: AnalyticsCreateOrConnectWithoutConfigInput | AnalyticsCreateOrConnectWithoutConfigInput[]
+    upsert?: AnalyticsUpsertWithWhereUniqueWithoutConfigInput | AnalyticsUpsertWithWhereUniqueWithoutConfigInput[]
+    createMany?: AnalyticsCreateManyConfigInputEnvelope
+    set?: AnalyticsWhereUniqueInput | AnalyticsWhereUniqueInput[]
+    disconnect?: AnalyticsWhereUniqueInput | AnalyticsWhereUniqueInput[]
+    delete?: AnalyticsWhereUniqueInput | AnalyticsWhereUniqueInput[]
+    connect?: AnalyticsWhereUniqueInput | AnalyticsWhereUniqueInput[]
+    update?: AnalyticsUpdateWithWhereUniqueWithoutConfigInput | AnalyticsUpdateWithWhereUniqueWithoutConfigInput[]
+    updateMany?: AnalyticsUpdateManyWithWhereWithoutConfigInput | AnalyticsUpdateManyWithWhereWithoutConfigInput[]
+    deleteMany?: AnalyticsScalarWhereInput | AnalyticsScalarWhereInput[]
+  }
+
+  export type TrackingEventUncheckedUpdateManyWithoutConfigNestedInput = {
+    create?: XOR<TrackingEventCreateWithoutConfigInput, TrackingEventUncheckedCreateWithoutConfigInput> | TrackingEventCreateWithoutConfigInput[] | TrackingEventUncheckedCreateWithoutConfigInput[]
+    connectOrCreate?: TrackingEventCreateOrConnectWithoutConfigInput | TrackingEventCreateOrConnectWithoutConfigInput[]
+    upsert?: TrackingEventUpsertWithWhereUniqueWithoutConfigInput | TrackingEventUpsertWithWhereUniqueWithoutConfigInput[]
+    createMany?: TrackingEventCreateManyConfigInputEnvelope
+    set?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    disconnect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    delete?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    connect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    update?: TrackingEventUpdateWithWhereUniqueWithoutConfigInput | TrackingEventUpdateWithWhereUniqueWithoutConfigInput[]
+    updateMany?: TrackingEventUpdateManyWithWhereWithoutConfigInput | TrackingEventUpdateManyWithWhereWithoutConfigInput[]
+    deleteMany?: TrackingEventScalarWhereInput | TrackingEventScalarWhereInput[]
+  }
+
+  export type CustomEventUncheckedUpdateManyWithoutConfigNestedInput = {
+    create?: XOR<CustomEventCreateWithoutConfigInput, CustomEventUncheckedCreateWithoutConfigInput> | CustomEventCreateWithoutConfigInput[] | CustomEventUncheckedCreateWithoutConfigInput[]
+    connectOrCreate?: CustomEventCreateOrConnectWithoutConfigInput | CustomEventCreateOrConnectWithoutConfigInput[]
+    upsert?: CustomEventUpsertWithWhereUniqueWithoutConfigInput | CustomEventUpsertWithWhereUniqueWithoutConfigInput[]
+    createMany?: CustomEventCreateManyConfigInputEnvelope
+    set?: CustomEventWhereUniqueInput | CustomEventWhereUniqueInput[]
+    disconnect?: CustomEventWhereUniqueInput | CustomEventWhereUniqueInput[]
+    delete?: CustomEventWhereUniqueInput | CustomEventWhereUniqueInput[]
+    connect?: CustomEventWhereUniqueInput | CustomEventWhereUniqueInput[]
+    update?: CustomEventUpdateWithWhereUniqueWithoutConfigInput | CustomEventUpdateWithWhereUniqueWithoutConfigInput[]
+    updateMany?: CustomEventUpdateManyWithWhereWithoutConfigInput | CustomEventUpdateManyWithWhereWithoutConfigInput[]
+    deleteMany?: CustomEventScalarWhereInput | CustomEventScalarWhereInput[]
+  }
+
+  export type AnalyticsUncheckedUpdateManyWithoutConfigNestedInput = {
+    create?: XOR<AnalyticsCreateWithoutConfigInput, AnalyticsUncheckedCreateWithoutConfigInput> | AnalyticsCreateWithoutConfigInput[] | AnalyticsUncheckedCreateWithoutConfigInput[]
+    connectOrCreate?: AnalyticsCreateOrConnectWithoutConfigInput | AnalyticsCreateOrConnectWithoutConfigInput[]
+    upsert?: AnalyticsUpsertWithWhereUniqueWithoutConfigInput | AnalyticsUpsertWithWhereUniqueWithoutConfigInput[]
+    createMany?: AnalyticsCreateManyConfigInputEnvelope
+    set?: AnalyticsWhereUniqueInput | AnalyticsWhereUniqueInput[]
+    disconnect?: AnalyticsWhereUniqueInput | AnalyticsWhereUniqueInput[]
+    delete?: AnalyticsWhereUniqueInput | AnalyticsWhereUniqueInput[]
+    connect?: AnalyticsWhereUniqueInput | AnalyticsWhereUniqueInput[]
+    update?: AnalyticsUpdateWithWhereUniqueWithoutConfigInput | AnalyticsUpdateWithWhereUniqueWithoutConfigInput[]
+    updateMany?: AnalyticsUpdateManyWithWhereWithoutConfigInput | AnalyticsUpdateManyWithWhereWithoutConfigInput[]
+    deleteMany?: AnalyticsScalarWhereInput | AnalyticsScalarWhereInput[]
+  }
+
+  export type TrackingConfigurationCreateNestedOneWithoutEventsInput = {
+    create?: XOR<TrackingConfigurationCreateWithoutEventsInput, TrackingConfigurationUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: TrackingConfigurationCreateOrConnectWithoutEventsInput
+    connect?: TrackingConfigurationWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutTrackingEventsInput = {
+    create?: XOR<UserCreateWithoutTrackingEventsInput, UserUncheckedCreateWithoutTrackingEventsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTrackingEventsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserSessionCreateNestedOneWithoutEventsInput = {
+    create?: XOR<UserSessionCreateWithoutEventsInput, UserSessionUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: UserSessionCreateOrConnectWithoutEventsInput
+    connect?: UserSessionWhereUniqueInput
+  }
+
+  export type EnumTrackingEventTypeFieldUpdateOperationsInput = {
+    set?: $Enums.TrackingEventType
+  }
+
+  export type EnumTrackingPlatformFieldUpdateOperationsInput = {
+    set?: $Enums.TrackingPlatform
+  }
+
+  export type TrackingConfigurationUpdateOneRequiredWithoutEventsNestedInput = {
+    create?: XOR<TrackingConfigurationCreateWithoutEventsInput, TrackingConfigurationUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: TrackingConfigurationCreateOrConnectWithoutEventsInput
+    upsert?: TrackingConfigurationUpsertWithoutEventsInput
+    connect?: TrackingConfigurationWhereUniqueInput
+    update?: XOR<XOR<TrackingConfigurationUpdateToOneWithWhereWithoutEventsInput, TrackingConfigurationUpdateWithoutEventsInput>, TrackingConfigurationUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type UserUpdateOneWithoutTrackingEventsNestedInput = {
+    create?: XOR<UserCreateWithoutTrackingEventsInput, UserUncheckedCreateWithoutTrackingEventsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTrackingEventsInput
+    upsert?: UserUpsertWithoutTrackingEventsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTrackingEventsInput, UserUpdateWithoutTrackingEventsInput>, UserUncheckedUpdateWithoutTrackingEventsInput>
+  }
+
+  export type UserSessionUpdateOneWithoutEventsNestedInput = {
+    create?: XOR<UserSessionCreateWithoutEventsInput, UserSessionUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: UserSessionCreateOrConnectWithoutEventsInput
+    upsert?: UserSessionUpsertWithoutEventsInput
+    disconnect?: UserSessionWhereInput | boolean
+    delete?: UserSessionWhereInput | boolean
+    connect?: UserSessionWhereUniqueInput
+    update?: XOR<XOR<UserSessionUpdateToOneWithWhereWithoutEventsInput, UserSessionUpdateWithoutEventsInput>, UserSessionUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type TrackingConfigurationCreateNestedOneWithoutCustomEventsInput = {
+    create?: XOR<TrackingConfigurationCreateWithoutCustomEventsInput, TrackingConfigurationUncheckedCreateWithoutCustomEventsInput>
+    connectOrCreate?: TrackingConfigurationCreateOrConnectWithoutCustomEventsInput
+    connect?: TrackingConfigurationWhereUniqueInput
+  }
+
+  export type CustomEventInstanceCreateNestedManyWithoutCustomEventInput = {
+    create?: XOR<CustomEventInstanceCreateWithoutCustomEventInput, CustomEventInstanceUncheckedCreateWithoutCustomEventInput> | CustomEventInstanceCreateWithoutCustomEventInput[] | CustomEventInstanceUncheckedCreateWithoutCustomEventInput[]
+    connectOrCreate?: CustomEventInstanceCreateOrConnectWithoutCustomEventInput | CustomEventInstanceCreateOrConnectWithoutCustomEventInput[]
+    createMany?: CustomEventInstanceCreateManyCustomEventInputEnvelope
+    connect?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+  }
+
+  export type CustomEventInstanceUncheckedCreateNestedManyWithoutCustomEventInput = {
+    create?: XOR<CustomEventInstanceCreateWithoutCustomEventInput, CustomEventInstanceUncheckedCreateWithoutCustomEventInput> | CustomEventInstanceCreateWithoutCustomEventInput[] | CustomEventInstanceUncheckedCreateWithoutCustomEventInput[]
+    connectOrCreate?: CustomEventInstanceCreateOrConnectWithoutCustomEventInput | CustomEventInstanceCreateOrConnectWithoutCustomEventInput[]
+    createMany?: CustomEventInstanceCreateManyCustomEventInputEnvelope
+    connect?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+  }
+
+  export type TrackingConfigurationUpdateOneRequiredWithoutCustomEventsNestedInput = {
+    create?: XOR<TrackingConfigurationCreateWithoutCustomEventsInput, TrackingConfigurationUncheckedCreateWithoutCustomEventsInput>
+    connectOrCreate?: TrackingConfigurationCreateOrConnectWithoutCustomEventsInput
+    upsert?: TrackingConfigurationUpsertWithoutCustomEventsInput
+    connect?: TrackingConfigurationWhereUniqueInput
+    update?: XOR<XOR<TrackingConfigurationUpdateToOneWithWhereWithoutCustomEventsInput, TrackingConfigurationUpdateWithoutCustomEventsInput>, TrackingConfigurationUncheckedUpdateWithoutCustomEventsInput>
+  }
+
+  export type CustomEventInstanceUpdateManyWithoutCustomEventNestedInput = {
+    create?: XOR<CustomEventInstanceCreateWithoutCustomEventInput, CustomEventInstanceUncheckedCreateWithoutCustomEventInput> | CustomEventInstanceCreateWithoutCustomEventInput[] | CustomEventInstanceUncheckedCreateWithoutCustomEventInput[]
+    connectOrCreate?: CustomEventInstanceCreateOrConnectWithoutCustomEventInput | CustomEventInstanceCreateOrConnectWithoutCustomEventInput[]
+    upsert?: CustomEventInstanceUpsertWithWhereUniqueWithoutCustomEventInput | CustomEventInstanceUpsertWithWhereUniqueWithoutCustomEventInput[]
+    createMany?: CustomEventInstanceCreateManyCustomEventInputEnvelope
+    set?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    disconnect?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    delete?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    connect?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    update?: CustomEventInstanceUpdateWithWhereUniqueWithoutCustomEventInput | CustomEventInstanceUpdateWithWhereUniqueWithoutCustomEventInput[]
+    updateMany?: CustomEventInstanceUpdateManyWithWhereWithoutCustomEventInput | CustomEventInstanceUpdateManyWithWhereWithoutCustomEventInput[]
+    deleteMany?: CustomEventInstanceScalarWhereInput | CustomEventInstanceScalarWhereInput[]
+  }
+
+  export type CustomEventInstanceUncheckedUpdateManyWithoutCustomEventNestedInput = {
+    create?: XOR<CustomEventInstanceCreateWithoutCustomEventInput, CustomEventInstanceUncheckedCreateWithoutCustomEventInput> | CustomEventInstanceCreateWithoutCustomEventInput[] | CustomEventInstanceUncheckedCreateWithoutCustomEventInput[]
+    connectOrCreate?: CustomEventInstanceCreateOrConnectWithoutCustomEventInput | CustomEventInstanceCreateOrConnectWithoutCustomEventInput[]
+    upsert?: CustomEventInstanceUpsertWithWhereUniqueWithoutCustomEventInput | CustomEventInstanceUpsertWithWhereUniqueWithoutCustomEventInput[]
+    createMany?: CustomEventInstanceCreateManyCustomEventInputEnvelope
+    set?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    disconnect?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    delete?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    connect?: CustomEventInstanceWhereUniqueInput | CustomEventInstanceWhereUniqueInput[]
+    update?: CustomEventInstanceUpdateWithWhereUniqueWithoutCustomEventInput | CustomEventInstanceUpdateWithWhereUniqueWithoutCustomEventInput[]
+    updateMany?: CustomEventInstanceUpdateManyWithWhereWithoutCustomEventInput | CustomEventInstanceUpdateManyWithWhereWithoutCustomEventInput[]
+    deleteMany?: CustomEventInstanceScalarWhereInput | CustomEventInstanceScalarWhereInput[]
+  }
+
+  export type CustomEventCreateNestedOneWithoutInstancesInput = {
+    create?: XOR<CustomEventCreateWithoutInstancesInput, CustomEventUncheckedCreateWithoutInstancesInput>
+    connectOrCreate?: CustomEventCreateOrConnectWithoutInstancesInput
+    connect?: CustomEventWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutCustomEventInstancesInput = {
+    create?: XOR<UserCreateWithoutCustomEventInstancesInput, UserUncheckedCreateWithoutCustomEventInstancesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCustomEventInstancesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type CustomEventUpdateOneRequiredWithoutInstancesNestedInput = {
+    create?: XOR<CustomEventCreateWithoutInstancesInput, CustomEventUncheckedCreateWithoutInstancesInput>
+    connectOrCreate?: CustomEventCreateOrConnectWithoutInstancesInput
+    upsert?: CustomEventUpsertWithoutInstancesInput
+    connect?: CustomEventWhereUniqueInput
+    update?: XOR<XOR<CustomEventUpdateToOneWithWhereWithoutInstancesInput, CustomEventUpdateWithoutInstancesInput>, CustomEventUncheckedUpdateWithoutInstancesInput>
+  }
+
+  export type UserUpdateOneWithoutCustomEventInstancesNestedInput = {
+    create?: XOR<UserCreateWithoutCustomEventInstancesInput, UserUncheckedCreateWithoutCustomEventInstancesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCustomEventInstancesInput
+    upsert?: UserUpsertWithoutCustomEventInstancesInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCustomEventInstancesInput, UserUpdateWithoutCustomEventInstancesInput>, UserUncheckedUpdateWithoutCustomEventInstancesInput>
+  }
+
+  export type TrackingConfigurationCreateNestedOneWithoutAnalyticsInput = {
+    create?: XOR<TrackingConfigurationCreateWithoutAnalyticsInput, TrackingConfigurationUncheckedCreateWithoutAnalyticsInput>
+    connectOrCreate?: TrackingConfigurationCreateOrConnectWithoutAnalyticsInput
+    connect?: TrackingConfigurationWhereUniqueInput
+  }
+
+  export type TrackingConfigurationUpdateOneRequiredWithoutAnalyticsNestedInput = {
+    create?: XOR<TrackingConfigurationCreateWithoutAnalyticsInput, TrackingConfigurationUncheckedCreateWithoutAnalyticsInput>
+    connectOrCreate?: TrackingConfigurationCreateOrConnectWithoutAnalyticsInput
+    upsert?: TrackingConfigurationUpsertWithoutAnalyticsInput
+    connect?: TrackingConfigurationWhereUniqueInput
+    update?: XOR<XOR<TrackingConfigurationUpdateToOneWithWhereWithoutAnalyticsInput, TrackingConfigurationUpdateWithoutAnalyticsInput>, TrackingConfigurationUncheckedUpdateWithoutAnalyticsInput>
+  }
+
+  export type FunnelSessionCreateNestedManyWithoutFunnelInput = {
+    create?: XOR<FunnelSessionCreateWithoutFunnelInput, FunnelSessionUncheckedCreateWithoutFunnelInput> | FunnelSessionCreateWithoutFunnelInput[] | FunnelSessionUncheckedCreateWithoutFunnelInput[]
+    connectOrCreate?: FunnelSessionCreateOrConnectWithoutFunnelInput | FunnelSessionCreateOrConnectWithoutFunnelInput[]
+    createMany?: FunnelSessionCreateManyFunnelInputEnvelope
+    connect?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+  }
+
+  export type FunnelSessionUncheckedCreateNestedManyWithoutFunnelInput = {
+    create?: XOR<FunnelSessionCreateWithoutFunnelInput, FunnelSessionUncheckedCreateWithoutFunnelInput> | FunnelSessionCreateWithoutFunnelInput[] | FunnelSessionUncheckedCreateWithoutFunnelInput[]
+    connectOrCreate?: FunnelSessionCreateOrConnectWithoutFunnelInput | FunnelSessionCreateOrConnectWithoutFunnelInput[]
+    createMany?: FunnelSessionCreateManyFunnelInputEnvelope
+    connect?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+  }
+
+  export type FunnelSessionUpdateManyWithoutFunnelNestedInput = {
+    create?: XOR<FunnelSessionCreateWithoutFunnelInput, FunnelSessionUncheckedCreateWithoutFunnelInput> | FunnelSessionCreateWithoutFunnelInput[] | FunnelSessionUncheckedCreateWithoutFunnelInput[]
+    connectOrCreate?: FunnelSessionCreateOrConnectWithoutFunnelInput | FunnelSessionCreateOrConnectWithoutFunnelInput[]
+    upsert?: FunnelSessionUpsertWithWhereUniqueWithoutFunnelInput | FunnelSessionUpsertWithWhereUniqueWithoutFunnelInput[]
+    createMany?: FunnelSessionCreateManyFunnelInputEnvelope
+    set?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    disconnect?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    delete?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    connect?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    update?: FunnelSessionUpdateWithWhereUniqueWithoutFunnelInput | FunnelSessionUpdateWithWhereUniqueWithoutFunnelInput[]
+    updateMany?: FunnelSessionUpdateManyWithWhereWithoutFunnelInput | FunnelSessionUpdateManyWithWhereWithoutFunnelInput[]
+    deleteMany?: FunnelSessionScalarWhereInput | FunnelSessionScalarWhereInput[]
+  }
+
+  export type FunnelSessionUncheckedUpdateManyWithoutFunnelNestedInput = {
+    create?: XOR<FunnelSessionCreateWithoutFunnelInput, FunnelSessionUncheckedCreateWithoutFunnelInput> | FunnelSessionCreateWithoutFunnelInput[] | FunnelSessionUncheckedCreateWithoutFunnelInput[]
+    connectOrCreate?: FunnelSessionCreateOrConnectWithoutFunnelInput | FunnelSessionCreateOrConnectWithoutFunnelInput[]
+    upsert?: FunnelSessionUpsertWithWhereUniqueWithoutFunnelInput | FunnelSessionUpsertWithWhereUniqueWithoutFunnelInput[]
+    createMany?: FunnelSessionCreateManyFunnelInputEnvelope
+    set?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    disconnect?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    delete?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    connect?: FunnelSessionWhereUniqueInput | FunnelSessionWhereUniqueInput[]
+    update?: FunnelSessionUpdateWithWhereUniqueWithoutFunnelInput | FunnelSessionUpdateWithWhereUniqueWithoutFunnelInput[]
+    updateMany?: FunnelSessionUpdateManyWithWhereWithoutFunnelInput | FunnelSessionUpdateManyWithWhereWithoutFunnelInput[]
+    deleteMany?: FunnelSessionScalarWhereInput | FunnelSessionScalarWhereInput[]
+  }
+
+  export type ConversionFunnelCreateNestedOneWithoutSessionsInput = {
+    create?: XOR<ConversionFunnelCreateWithoutSessionsInput, ConversionFunnelUncheckedCreateWithoutSessionsInput>
+    connectOrCreate?: ConversionFunnelCreateOrConnectWithoutSessionsInput
+    connect?: ConversionFunnelWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutFunnelSessionsInput = {
+    create?: XOR<UserCreateWithoutFunnelSessionsInput, UserUncheckedCreateWithoutFunnelSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFunnelSessionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ConversionFunnelUpdateOneRequiredWithoutSessionsNestedInput = {
+    create?: XOR<ConversionFunnelCreateWithoutSessionsInput, ConversionFunnelUncheckedCreateWithoutSessionsInput>
+    connectOrCreate?: ConversionFunnelCreateOrConnectWithoutSessionsInput
+    upsert?: ConversionFunnelUpsertWithoutSessionsInput
+    connect?: ConversionFunnelWhereUniqueInput
+    update?: XOR<XOR<ConversionFunnelUpdateToOneWithWhereWithoutSessionsInput, ConversionFunnelUpdateWithoutSessionsInput>, ConversionFunnelUncheckedUpdateWithoutSessionsInput>
+  }
+
+  export type UserUpdateOneWithoutFunnelSessionsNestedInput = {
+    create?: XOR<UserCreateWithoutFunnelSessionsInput, UserUncheckedCreateWithoutFunnelSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFunnelSessionsInput
+    upsert?: UserUpsertWithoutFunnelSessionsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFunnelSessionsInput, UserUpdateWithoutFunnelSessionsInput>, UserUncheckedUpdateWithoutFunnelSessionsInput>
+  }
+
+  export type UserCreateNestedOneWithoutUserSessionsInput = {
+    create?: XOR<UserCreateWithoutUserSessionsInput, UserUncheckedCreateWithoutUserSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserSessionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type TrackingEventCreateNestedManyWithoutSessionInput = {
+    create?: XOR<TrackingEventCreateWithoutSessionInput, TrackingEventUncheckedCreateWithoutSessionInput> | TrackingEventCreateWithoutSessionInput[] | TrackingEventUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: TrackingEventCreateOrConnectWithoutSessionInput | TrackingEventCreateOrConnectWithoutSessionInput[]
+    createMany?: TrackingEventCreateManySessionInputEnvelope
+    connect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+  }
+
+  export type TrackingEventUncheckedCreateNestedManyWithoutSessionInput = {
+    create?: XOR<TrackingEventCreateWithoutSessionInput, TrackingEventUncheckedCreateWithoutSessionInput> | TrackingEventCreateWithoutSessionInput[] | TrackingEventUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: TrackingEventCreateOrConnectWithoutSessionInput | TrackingEventCreateOrConnectWithoutSessionInput[]
+    createMany?: TrackingEventCreateManySessionInputEnvelope
+    connect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+  }
+
+  export type UserUpdateOneWithoutUserSessionsNestedInput = {
+    create?: XOR<UserCreateWithoutUserSessionsInput, UserUncheckedCreateWithoutUserSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserSessionsInput
+    upsert?: UserUpsertWithoutUserSessionsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUserSessionsInput, UserUpdateWithoutUserSessionsInput>, UserUncheckedUpdateWithoutUserSessionsInput>
+  }
+
+  export type TrackingEventUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<TrackingEventCreateWithoutSessionInput, TrackingEventUncheckedCreateWithoutSessionInput> | TrackingEventCreateWithoutSessionInput[] | TrackingEventUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: TrackingEventCreateOrConnectWithoutSessionInput | TrackingEventCreateOrConnectWithoutSessionInput[]
+    upsert?: TrackingEventUpsertWithWhereUniqueWithoutSessionInput | TrackingEventUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: TrackingEventCreateManySessionInputEnvelope
+    set?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    disconnect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    delete?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    connect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    update?: TrackingEventUpdateWithWhereUniqueWithoutSessionInput | TrackingEventUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: TrackingEventUpdateManyWithWhereWithoutSessionInput | TrackingEventUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: TrackingEventScalarWhereInput | TrackingEventScalarWhereInput[]
+  }
+
+  export type TrackingEventUncheckedUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<TrackingEventCreateWithoutSessionInput, TrackingEventUncheckedCreateWithoutSessionInput> | TrackingEventCreateWithoutSessionInput[] | TrackingEventUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: TrackingEventCreateOrConnectWithoutSessionInput | TrackingEventCreateOrConnectWithoutSessionInput[]
+    upsert?: TrackingEventUpsertWithWhereUniqueWithoutSessionInput | TrackingEventUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: TrackingEventCreateManySessionInputEnvelope
+    set?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    disconnect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    delete?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    connect?: TrackingEventWhereUniqueInput | TrackingEventWhereUniqueInput[]
+    update?: TrackingEventUpdateWithWhereUniqueWithoutSessionInput | TrackingEventUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: TrackingEventUpdateManyWithWhereWithoutSessionInput | TrackingEventUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: TrackingEventScalarWhereInput | TrackingEventScalarWhereInput[]
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -35616,6 +50645,80 @@ export namespace Prisma {
     _max?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumTrackingStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrackingStatus | EnumTrackingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TrackingStatus[] | ListEnumTrackingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrackingStatus[] | ListEnumTrackingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrackingStatusFilter<$PrismaModel> | $Enums.TrackingStatus
+  }
+
+  export type NestedEnumTrackingStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrackingStatus | EnumTrackingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TrackingStatus[] | ListEnumTrackingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrackingStatus[] | ListEnumTrackingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrackingStatusWithAggregatesFilter<$PrismaModel> | $Enums.TrackingStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTrackingStatusFilter<$PrismaModel>
+    _max?: NestedEnumTrackingStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumTrackingEventTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrackingEventType | EnumTrackingEventTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.TrackingEventType[] | ListEnumTrackingEventTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrackingEventType[] | ListEnumTrackingEventTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrackingEventTypeFilter<$PrismaModel> | $Enums.TrackingEventType
+  }
+
+  export type NestedEnumTrackingPlatformFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrackingPlatform | EnumTrackingPlatformFieldRefInput<$PrismaModel>
+    in?: $Enums.TrackingPlatform[] | ListEnumTrackingPlatformFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrackingPlatform[] | ListEnumTrackingPlatformFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrackingPlatformFilter<$PrismaModel> | $Enums.TrackingPlatform
+  }
+
+  export type NestedEnumTrackingEventTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrackingEventType | EnumTrackingEventTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.TrackingEventType[] | ListEnumTrackingEventTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrackingEventType[] | ListEnumTrackingEventTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrackingEventTypeWithAggregatesFilter<$PrismaModel> | $Enums.TrackingEventType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTrackingEventTypeFilter<$PrismaModel>
+    _max?: NestedEnumTrackingEventTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumTrackingPlatformWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrackingPlatform | EnumTrackingPlatformFieldRefInput<$PrismaModel>
+    in?: $Enums.TrackingPlatform[] | ListEnumTrackingPlatformFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrackingPlatform[] | ListEnumTrackingPlatformFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrackingPlatformWithAggregatesFilter<$PrismaModel> | $Enums.TrackingPlatform
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTrackingPlatformFilter<$PrismaModel>
+    _max?: NestedEnumTrackingPlatformFilter<$PrismaModel>
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
   export type OrderCreateWithoutUserInput = {
     id?: string
     subtotal: number
@@ -35756,6 +50859,184 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type TrackingEventCreateWithoutUserInput = {
+    id?: string
+    eventName: string
+    eventType: $Enums.TrackingEventType
+    platform: $Enums.TrackingPlatform
+    eventData: JsonNullValueInput | InputJsonValue
+    userAgent?: string | null
+    ipAddress?: string | null
+    referrer?: string | null
+    pageUrl?: string | null
+    pageTitle?: string | null
+    transactionId?: string | null
+    value?: number | null
+    currency?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    conversionType?: string | null
+    timestamp?: Date | string
+    clientTimestamp?: Date | string | null
+    processed?: boolean
+    processingError?: string | null
+    config: TrackingConfigurationCreateNestedOneWithoutEventsInput
+    session?: UserSessionCreateNestedOneWithoutEventsInput
+  }
+
+  export type TrackingEventUncheckedCreateWithoutUserInput = {
+    id?: string
+    configId: string
+    sessionId: string
+    eventName: string
+    eventType: $Enums.TrackingEventType
+    platform: $Enums.TrackingPlatform
+    eventData: JsonNullValueInput | InputJsonValue
+    userAgent?: string | null
+    ipAddress?: string | null
+    referrer?: string | null
+    pageUrl?: string | null
+    pageTitle?: string | null
+    transactionId?: string | null
+    value?: number | null
+    currency?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    conversionType?: string | null
+    timestamp?: Date | string
+    clientTimestamp?: Date | string | null
+    processed?: boolean
+    processingError?: string | null
+  }
+
+  export type TrackingEventCreateOrConnectWithoutUserInput = {
+    where: TrackingEventWhereUniqueInput
+    create: XOR<TrackingEventCreateWithoutUserInput, TrackingEventUncheckedCreateWithoutUserInput>
+  }
+
+  export type TrackingEventCreateManyUserInputEnvelope = {
+    data: TrackingEventCreateManyUserInput | TrackingEventCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CustomEventInstanceCreateWithoutUserInput = {
+    id?: string
+    sessionId: string
+    parameters: JsonNullValueInput | InputJsonValue
+    value?: number | null
+    currency?: string | null
+    pageUrl?: string | null
+    timestamp?: Date | string
+    customEvent: CustomEventCreateNestedOneWithoutInstancesInput
+  }
+
+  export type CustomEventInstanceUncheckedCreateWithoutUserInput = {
+    id?: string
+    customEventId: string
+    sessionId: string
+    parameters: JsonNullValueInput | InputJsonValue
+    value?: number | null
+    currency?: string | null
+    pageUrl?: string | null
+    timestamp?: Date | string
+  }
+
+  export type CustomEventInstanceCreateOrConnectWithoutUserInput = {
+    where: CustomEventInstanceWhereUniqueInput
+    create: XOR<CustomEventInstanceCreateWithoutUserInput, CustomEventInstanceUncheckedCreateWithoutUserInput>
+  }
+
+  export type CustomEventInstanceCreateManyUserInputEnvelope = {
+    data: CustomEventInstanceCreateManyUserInput | CustomEventInstanceCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type FunnelSessionCreateWithoutUserInput = {
+    id?: string
+    sessionId: string
+    currentStep?: number
+    completed?: boolean
+    startedAt?: Date | string
+    completedAt?: Date | string | null
+    duration?: number | null
+    stepData: JsonNullValueInput | InputJsonValue
+    funnel: ConversionFunnelCreateNestedOneWithoutSessionsInput
+  }
+
+  export type FunnelSessionUncheckedCreateWithoutUserInput = {
+    id?: string
+    funnelId: string
+    sessionId: string
+    currentStep?: number
+    completed?: boolean
+    startedAt?: Date | string
+    completedAt?: Date | string | null
+    duration?: number | null
+    stepData: JsonNullValueInput | InputJsonValue
+  }
+
+  export type FunnelSessionCreateOrConnectWithoutUserInput = {
+    where: FunnelSessionWhereUniqueInput
+    create: XOR<FunnelSessionCreateWithoutUserInput, FunnelSessionUncheckedCreateWithoutUserInput>
+  }
+
+  export type FunnelSessionCreateManyUserInputEnvelope = {
+    data: FunnelSessionCreateManyUserInput | FunnelSessionCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserSessionCreateWithoutUserInput = {
+    id?: string
+    sessionId: string
+    ipAddress?: string | null
+    userAgent?: string | null
+    country?: string | null
+    city?: string | null
+    device?: string | null
+    browser?: string | null
+    os?: string | null
+    landingPage?: string | null
+    exitPage?: string | null
+    pageViews?: number
+    duration?: number | null
+    cartValue?: number | null
+    purchased?: boolean
+    firstSeen?: Date | string
+    lastSeen?: Date | string
+    events?: TrackingEventCreateNestedManyWithoutSessionInput
+  }
+
+  export type UserSessionUncheckedCreateWithoutUserInput = {
+    id?: string
+    sessionId: string
+    ipAddress?: string | null
+    userAgent?: string | null
+    country?: string | null
+    city?: string | null
+    device?: string | null
+    browser?: string | null
+    os?: string | null
+    landingPage?: string | null
+    exitPage?: string | null
+    pageViews?: number
+    duration?: number | null
+    cartValue?: number | null
+    purchased?: boolean
+    firstSeen?: Date | string
+    lastSeen?: Date | string
+    events?: TrackingEventUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type UserSessionCreateOrConnectWithoutUserInput = {
+    where: UserSessionWhereUniqueInput
+    create: XOR<UserSessionCreateWithoutUserInput, UserSessionUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserSessionCreateManyUserInputEnvelope = {
+    data: UserSessionCreateManyUserInput | UserSessionCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OrderUpsertWithWhereUniqueWithoutUserInput = {
     where: OrderWhereUniqueInput
     update: XOR<OrderUpdateWithoutUserInput, OrderUncheckedUpdateWithoutUserInput>
@@ -35869,6 +51150,154 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
   }
 
+  export type TrackingEventUpsertWithWhereUniqueWithoutUserInput = {
+    where: TrackingEventWhereUniqueInput
+    update: XOR<TrackingEventUpdateWithoutUserInput, TrackingEventUncheckedUpdateWithoutUserInput>
+    create: XOR<TrackingEventCreateWithoutUserInput, TrackingEventUncheckedCreateWithoutUserInput>
+  }
+
+  export type TrackingEventUpdateWithWhereUniqueWithoutUserInput = {
+    where: TrackingEventWhereUniqueInput
+    data: XOR<TrackingEventUpdateWithoutUserInput, TrackingEventUncheckedUpdateWithoutUserInput>
+  }
+
+  export type TrackingEventUpdateManyWithWhereWithoutUserInput = {
+    where: TrackingEventScalarWhereInput
+    data: XOR<TrackingEventUpdateManyMutationInput, TrackingEventUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type TrackingEventScalarWhereInput = {
+    AND?: TrackingEventScalarWhereInput | TrackingEventScalarWhereInput[]
+    OR?: TrackingEventScalarWhereInput[]
+    NOT?: TrackingEventScalarWhereInput | TrackingEventScalarWhereInput[]
+    id?: StringFilter<"TrackingEvent"> | string
+    configId?: StringFilter<"TrackingEvent"> | string
+    sessionId?: StringFilter<"TrackingEvent"> | string
+    userId?: StringNullableFilter<"TrackingEvent"> | string | null
+    eventName?: StringFilter<"TrackingEvent"> | string
+    eventType?: EnumTrackingEventTypeFilter<"TrackingEvent"> | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFilter<"TrackingEvent"> | $Enums.TrackingPlatform
+    eventData?: JsonFilter<"TrackingEvent">
+    userAgent?: StringNullableFilter<"TrackingEvent"> | string | null
+    ipAddress?: StringNullableFilter<"TrackingEvent"> | string | null
+    referrer?: StringNullableFilter<"TrackingEvent"> | string | null
+    pageUrl?: StringNullableFilter<"TrackingEvent"> | string | null
+    pageTitle?: StringNullableFilter<"TrackingEvent"> | string | null
+    transactionId?: StringNullableFilter<"TrackingEvent"> | string | null
+    value?: FloatNullableFilter<"TrackingEvent"> | number | null
+    currency?: StringNullableFilter<"TrackingEvent"> | string | null
+    items?: JsonNullableFilter<"TrackingEvent">
+    conversionValue?: FloatNullableFilter<"TrackingEvent"> | number | null
+    conversionType?: StringNullableFilter<"TrackingEvent"> | string | null
+    timestamp?: DateTimeFilter<"TrackingEvent"> | Date | string
+    clientTimestamp?: DateTimeNullableFilter<"TrackingEvent"> | Date | string | null
+    processed?: BoolFilter<"TrackingEvent"> | boolean
+    processingError?: StringNullableFilter<"TrackingEvent"> | string | null
+  }
+
+  export type CustomEventInstanceUpsertWithWhereUniqueWithoutUserInput = {
+    where: CustomEventInstanceWhereUniqueInput
+    update: XOR<CustomEventInstanceUpdateWithoutUserInput, CustomEventInstanceUncheckedUpdateWithoutUserInput>
+    create: XOR<CustomEventInstanceCreateWithoutUserInput, CustomEventInstanceUncheckedCreateWithoutUserInput>
+  }
+
+  export type CustomEventInstanceUpdateWithWhereUniqueWithoutUserInput = {
+    where: CustomEventInstanceWhereUniqueInput
+    data: XOR<CustomEventInstanceUpdateWithoutUserInput, CustomEventInstanceUncheckedUpdateWithoutUserInput>
+  }
+
+  export type CustomEventInstanceUpdateManyWithWhereWithoutUserInput = {
+    where: CustomEventInstanceScalarWhereInput
+    data: XOR<CustomEventInstanceUpdateManyMutationInput, CustomEventInstanceUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type CustomEventInstanceScalarWhereInput = {
+    AND?: CustomEventInstanceScalarWhereInput | CustomEventInstanceScalarWhereInput[]
+    OR?: CustomEventInstanceScalarWhereInput[]
+    NOT?: CustomEventInstanceScalarWhereInput | CustomEventInstanceScalarWhereInput[]
+    id?: StringFilter<"CustomEventInstance"> | string
+    customEventId?: StringFilter<"CustomEventInstance"> | string
+    sessionId?: StringFilter<"CustomEventInstance"> | string
+    userId?: StringNullableFilter<"CustomEventInstance"> | string | null
+    parameters?: JsonFilter<"CustomEventInstance">
+    value?: FloatNullableFilter<"CustomEventInstance"> | number | null
+    currency?: StringNullableFilter<"CustomEventInstance"> | string | null
+    pageUrl?: StringNullableFilter<"CustomEventInstance"> | string | null
+    timestamp?: DateTimeFilter<"CustomEventInstance"> | Date | string
+  }
+
+  export type FunnelSessionUpsertWithWhereUniqueWithoutUserInput = {
+    where: FunnelSessionWhereUniqueInput
+    update: XOR<FunnelSessionUpdateWithoutUserInput, FunnelSessionUncheckedUpdateWithoutUserInput>
+    create: XOR<FunnelSessionCreateWithoutUserInput, FunnelSessionUncheckedCreateWithoutUserInput>
+  }
+
+  export type FunnelSessionUpdateWithWhereUniqueWithoutUserInput = {
+    where: FunnelSessionWhereUniqueInput
+    data: XOR<FunnelSessionUpdateWithoutUserInput, FunnelSessionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type FunnelSessionUpdateManyWithWhereWithoutUserInput = {
+    where: FunnelSessionScalarWhereInput
+    data: XOR<FunnelSessionUpdateManyMutationInput, FunnelSessionUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type FunnelSessionScalarWhereInput = {
+    AND?: FunnelSessionScalarWhereInput | FunnelSessionScalarWhereInput[]
+    OR?: FunnelSessionScalarWhereInput[]
+    NOT?: FunnelSessionScalarWhereInput | FunnelSessionScalarWhereInput[]
+    id?: StringFilter<"FunnelSession"> | string
+    funnelId?: StringFilter<"FunnelSession"> | string
+    sessionId?: StringFilter<"FunnelSession"> | string
+    userId?: StringNullableFilter<"FunnelSession"> | string | null
+    currentStep?: IntFilter<"FunnelSession"> | number
+    completed?: BoolFilter<"FunnelSession"> | boolean
+    startedAt?: DateTimeFilter<"FunnelSession"> | Date | string
+    completedAt?: DateTimeNullableFilter<"FunnelSession"> | Date | string | null
+    duration?: IntNullableFilter<"FunnelSession"> | number | null
+    stepData?: JsonFilter<"FunnelSession">
+  }
+
+  export type UserSessionUpsertWithWhereUniqueWithoutUserInput = {
+    where: UserSessionWhereUniqueInput
+    update: XOR<UserSessionUpdateWithoutUserInput, UserSessionUncheckedUpdateWithoutUserInput>
+    create: XOR<UserSessionCreateWithoutUserInput, UserSessionUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserSessionUpdateWithWhereUniqueWithoutUserInput = {
+    where: UserSessionWhereUniqueInput
+    data: XOR<UserSessionUpdateWithoutUserInput, UserSessionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserSessionUpdateManyWithWhereWithoutUserInput = {
+    where: UserSessionScalarWhereInput
+    data: XOR<UserSessionUpdateManyMutationInput, UserSessionUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type UserSessionScalarWhereInput = {
+    AND?: UserSessionScalarWhereInput | UserSessionScalarWhereInput[]
+    OR?: UserSessionScalarWhereInput[]
+    NOT?: UserSessionScalarWhereInput | UserSessionScalarWhereInput[]
+    id?: StringFilter<"UserSession"> | string
+    sessionId?: StringFilter<"UserSession"> | string
+    userId?: StringNullableFilter<"UserSession"> | string | null
+    ipAddress?: StringNullableFilter<"UserSession"> | string | null
+    userAgent?: StringNullableFilter<"UserSession"> | string | null
+    country?: StringNullableFilter<"UserSession"> | string | null
+    city?: StringNullableFilter<"UserSession"> | string | null
+    device?: StringNullableFilter<"UserSession"> | string | null
+    browser?: StringNullableFilter<"UserSession"> | string | null
+    os?: StringNullableFilter<"UserSession"> | string | null
+    landingPage?: StringNullableFilter<"UserSession"> | string | null
+    exitPage?: StringNullableFilter<"UserSession"> | string | null
+    pageViews?: IntFilter<"UserSession"> | number
+    duration?: IntNullableFilter<"UserSession"> | number | null
+    cartValue?: FloatNullableFilter<"UserSession"> | number | null
+    purchased?: BoolFilter<"UserSession"> | boolean
+    firstSeen?: DateTimeFilter<"UserSession"> | Date | string
+    lastSeen?: DateTimeFilter<"UserSession"> | Date | string
+  }
+
   export type UserCreateWithoutPermissionsInput = {
     id?: string
     email: string
@@ -35888,6 +51317,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     orders?: OrderCreateNestedManyWithoutUserInput
     payments?: PaymentCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPermissionsInput = {
@@ -35909,6 +51342,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     orders?: OrderUncheckedCreateNestedManyWithoutUserInput
     payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventUncheckedCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceUncheckedCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionUncheckedCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPermissionsInput = {
@@ -35946,6 +51383,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orders?: OrderUpdateManyWithoutUserNestedInput
     payments?: PaymentUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPermissionsInput = {
@@ -35967,6 +51408,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orders?: OrderUncheckedUpdateManyWithoutUserNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUncheckedUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUncheckedUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUncheckedUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CategoryCreateWithoutChildrenInput = {
@@ -37235,6 +52680,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     permissions?: PermissionCreateNestedManyWithoutUserInput
     payments?: PaymentCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOrdersInput = {
@@ -37256,6 +52705,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     permissions?: PermissionUncheckedCreateNestedManyWithoutUserInput
     payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventUncheckedCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceUncheckedCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionUncheckedCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOrdersInput = {
@@ -37407,6 +52860,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     permissions?: PermissionUpdateManyWithoutUserNestedInput
     payments?: PaymentUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrdersInput = {
@@ -37428,6 +52885,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     permissions?: PermissionUncheckedUpdateManyWithoutUserNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUncheckedUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUncheckedUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUncheckedUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrderItemUpsertWithWhereUniqueWithoutOrderInput = {
@@ -37801,6 +53262,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     orders?: OrderCreateNestedManyWithoutUserInput
     permissions?: PermissionCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPaymentsInput = {
@@ -37822,6 +53287,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     orders?: OrderUncheckedCreateNestedManyWithoutUserInput
     permissions?: PermissionUncheckedCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventUncheckedCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceUncheckedCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionUncheckedCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPaymentsInput = {
@@ -37922,6 +53391,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orders?: OrderUpdateManyWithoutUserNestedInput
     permissions?: PermissionUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPaymentsInput = {
@@ -37943,6 +53416,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orders?: OrderUncheckedUpdateManyWithoutUserNestedInput
     permissions?: PermissionUncheckedUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUncheckedUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUncheckedUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUncheckedUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrderCreateWithoutAppliedPromoInput = {
@@ -38481,6 +53958,1602 @@ export namespace Prisma {
     variations?: ProductVariationUncheckedUpdateManyWithoutProductNestedInput
   }
 
+  export type TrackingEventCreateWithoutConfigInput = {
+    id?: string
+    eventName: string
+    eventType: $Enums.TrackingEventType
+    platform: $Enums.TrackingPlatform
+    eventData: JsonNullValueInput | InputJsonValue
+    userAgent?: string | null
+    ipAddress?: string | null
+    referrer?: string | null
+    pageUrl?: string | null
+    pageTitle?: string | null
+    transactionId?: string | null
+    value?: number | null
+    currency?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    conversionType?: string | null
+    timestamp?: Date | string
+    clientTimestamp?: Date | string | null
+    processed?: boolean
+    processingError?: string | null
+    user?: UserCreateNestedOneWithoutTrackingEventsInput
+    session?: UserSessionCreateNestedOneWithoutEventsInput
+  }
+
+  export type TrackingEventUncheckedCreateWithoutConfigInput = {
+    id?: string
+    sessionId: string
+    userId?: string | null
+    eventName: string
+    eventType: $Enums.TrackingEventType
+    platform: $Enums.TrackingPlatform
+    eventData: JsonNullValueInput | InputJsonValue
+    userAgent?: string | null
+    ipAddress?: string | null
+    referrer?: string | null
+    pageUrl?: string | null
+    pageTitle?: string | null
+    transactionId?: string | null
+    value?: number | null
+    currency?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    conversionType?: string | null
+    timestamp?: Date | string
+    clientTimestamp?: Date | string | null
+    processed?: boolean
+    processingError?: string | null
+  }
+
+  export type TrackingEventCreateOrConnectWithoutConfigInput = {
+    where: TrackingEventWhereUniqueInput
+    create: XOR<TrackingEventCreateWithoutConfigInput, TrackingEventUncheckedCreateWithoutConfigInput>
+  }
+
+  export type TrackingEventCreateManyConfigInputEnvelope = {
+    data: TrackingEventCreateManyConfigInput | TrackingEventCreateManyConfigInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CustomEventCreateWithoutConfigInput = {
+    id?: string
+    name: string
+    displayName: string
+    description?: string | null
+    category?: string | null
+    isActive?: boolean
+    triggers: JsonNullValueInput | InputJsonValue
+    parameters: JsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    trackGA4?: boolean
+    trackFacebook?: boolean
+    trackGoogleAds?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    instances?: CustomEventInstanceCreateNestedManyWithoutCustomEventInput
+  }
+
+  export type CustomEventUncheckedCreateWithoutConfigInput = {
+    id?: string
+    name: string
+    displayName: string
+    description?: string | null
+    category?: string | null
+    isActive?: boolean
+    triggers: JsonNullValueInput | InputJsonValue
+    parameters: JsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    trackGA4?: boolean
+    trackFacebook?: boolean
+    trackGoogleAds?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    instances?: CustomEventInstanceUncheckedCreateNestedManyWithoutCustomEventInput
+  }
+
+  export type CustomEventCreateOrConnectWithoutConfigInput = {
+    where: CustomEventWhereUniqueInput
+    create: XOR<CustomEventCreateWithoutConfigInput, CustomEventUncheckedCreateWithoutConfigInput>
+  }
+
+  export type CustomEventCreateManyConfigInputEnvelope = {
+    data: CustomEventCreateManyConfigInput | CustomEventCreateManyConfigInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AnalyticsCreateWithoutConfigInput = {
+    id?: string
+    date: Date | string
+    pageViews?: number
+    uniqueVisitors?: number
+    sessions?: number
+    bounceRate?: number | null
+    avgSessionDuration?: number | null
+    transactions?: number
+    revenue?: number
+    averageOrderValue?: number | null
+    conversionRate?: number | null
+    customEvents?: number
+    addToCarts?: number
+    checkouts?: number
+    organicTraffic?: number
+    paidTraffic?: number
+    socialTraffic?: number
+    directTraffic?: number
+    referralTraffic?: number
+    desktopUsers?: number
+    mobileUsers?: number
+    tabletUsers?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AnalyticsUncheckedCreateWithoutConfigInput = {
+    id?: string
+    date: Date | string
+    pageViews?: number
+    uniqueVisitors?: number
+    sessions?: number
+    bounceRate?: number | null
+    avgSessionDuration?: number | null
+    transactions?: number
+    revenue?: number
+    averageOrderValue?: number | null
+    conversionRate?: number | null
+    customEvents?: number
+    addToCarts?: number
+    checkouts?: number
+    organicTraffic?: number
+    paidTraffic?: number
+    socialTraffic?: number
+    directTraffic?: number
+    referralTraffic?: number
+    desktopUsers?: number
+    mobileUsers?: number
+    tabletUsers?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AnalyticsCreateOrConnectWithoutConfigInput = {
+    where: AnalyticsWhereUniqueInput
+    create: XOR<AnalyticsCreateWithoutConfigInput, AnalyticsUncheckedCreateWithoutConfigInput>
+  }
+
+  export type AnalyticsCreateManyConfigInputEnvelope = {
+    data: AnalyticsCreateManyConfigInput | AnalyticsCreateManyConfigInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TrackingEventUpsertWithWhereUniqueWithoutConfigInput = {
+    where: TrackingEventWhereUniqueInput
+    update: XOR<TrackingEventUpdateWithoutConfigInput, TrackingEventUncheckedUpdateWithoutConfigInput>
+    create: XOR<TrackingEventCreateWithoutConfigInput, TrackingEventUncheckedCreateWithoutConfigInput>
+  }
+
+  export type TrackingEventUpdateWithWhereUniqueWithoutConfigInput = {
+    where: TrackingEventWhereUniqueInput
+    data: XOR<TrackingEventUpdateWithoutConfigInput, TrackingEventUncheckedUpdateWithoutConfigInput>
+  }
+
+  export type TrackingEventUpdateManyWithWhereWithoutConfigInput = {
+    where: TrackingEventScalarWhereInput
+    data: XOR<TrackingEventUpdateManyMutationInput, TrackingEventUncheckedUpdateManyWithoutConfigInput>
+  }
+
+  export type CustomEventUpsertWithWhereUniqueWithoutConfigInput = {
+    where: CustomEventWhereUniqueInput
+    update: XOR<CustomEventUpdateWithoutConfigInput, CustomEventUncheckedUpdateWithoutConfigInput>
+    create: XOR<CustomEventCreateWithoutConfigInput, CustomEventUncheckedCreateWithoutConfigInput>
+  }
+
+  export type CustomEventUpdateWithWhereUniqueWithoutConfigInput = {
+    where: CustomEventWhereUniqueInput
+    data: XOR<CustomEventUpdateWithoutConfigInput, CustomEventUncheckedUpdateWithoutConfigInput>
+  }
+
+  export type CustomEventUpdateManyWithWhereWithoutConfigInput = {
+    where: CustomEventScalarWhereInput
+    data: XOR<CustomEventUpdateManyMutationInput, CustomEventUncheckedUpdateManyWithoutConfigInput>
+  }
+
+  export type CustomEventScalarWhereInput = {
+    AND?: CustomEventScalarWhereInput | CustomEventScalarWhereInput[]
+    OR?: CustomEventScalarWhereInput[]
+    NOT?: CustomEventScalarWhereInput | CustomEventScalarWhereInput[]
+    id?: StringFilter<"CustomEvent"> | string
+    configId?: StringFilter<"CustomEvent"> | string
+    name?: StringFilter<"CustomEvent"> | string
+    displayName?: StringFilter<"CustomEvent"> | string
+    description?: StringNullableFilter<"CustomEvent"> | string | null
+    category?: StringNullableFilter<"CustomEvent"> | string | null
+    isActive?: BoolFilter<"CustomEvent"> | boolean
+    triggers?: JsonFilter<"CustomEvent">
+    parameters?: JsonFilter<"CustomEvent">
+    conversionValue?: FloatNullableFilter<"CustomEvent"> | number | null
+    trackGA4?: BoolFilter<"CustomEvent"> | boolean
+    trackFacebook?: BoolFilter<"CustomEvent"> | boolean
+    trackGoogleAds?: BoolFilter<"CustomEvent"> | boolean
+    createdAt?: DateTimeFilter<"CustomEvent"> | Date | string
+    updatedAt?: DateTimeFilter<"CustomEvent"> | Date | string
+  }
+
+  export type AnalyticsUpsertWithWhereUniqueWithoutConfigInput = {
+    where: AnalyticsWhereUniqueInput
+    update: XOR<AnalyticsUpdateWithoutConfigInput, AnalyticsUncheckedUpdateWithoutConfigInput>
+    create: XOR<AnalyticsCreateWithoutConfigInput, AnalyticsUncheckedCreateWithoutConfigInput>
+  }
+
+  export type AnalyticsUpdateWithWhereUniqueWithoutConfigInput = {
+    where: AnalyticsWhereUniqueInput
+    data: XOR<AnalyticsUpdateWithoutConfigInput, AnalyticsUncheckedUpdateWithoutConfigInput>
+  }
+
+  export type AnalyticsUpdateManyWithWhereWithoutConfigInput = {
+    where: AnalyticsScalarWhereInput
+    data: XOR<AnalyticsUpdateManyMutationInput, AnalyticsUncheckedUpdateManyWithoutConfigInput>
+  }
+
+  export type AnalyticsScalarWhereInput = {
+    AND?: AnalyticsScalarWhereInput | AnalyticsScalarWhereInput[]
+    OR?: AnalyticsScalarWhereInput[]
+    NOT?: AnalyticsScalarWhereInput | AnalyticsScalarWhereInput[]
+    id?: StringFilter<"Analytics"> | string
+    configId?: StringFilter<"Analytics"> | string
+    date?: DateTimeFilter<"Analytics"> | Date | string
+    pageViews?: IntFilter<"Analytics"> | number
+    uniqueVisitors?: IntFilter<"Analytics"> | number
+    sessions?: IntFilter<"Analytics"> | number
+    bounceRate?: FloatNullableFilter<"Analytics"> | number | null
+    avgSessionDuration?: FloatNullableFilter<"Analytics"> | number | null
+    transactions?: IntFilter<"Analytics"> | number
+    revenue?: FloatFilter<"Analytics"> | number
+    averageOrderValue?: FloatNullableFilter<"Analytics"> | number | null
+    conversionRate?: FloatNullableFilter<"Analytics"> | number | null
+    customEvents?: IntFilter<"Analytics"> | number
+    addToCarts?: IntFilter<"Analytics"> | number
+    checkouts?: IntFilter<"Analytics"> | number
+    organicTraffic?: IntFilter<"Analytics"> | number
+    paidTraffic?: IntFilter<"Analytics"> | number
+    socialTraffic?: IntFilter<"Analytics"> | number
+    directTraffic?: IntFilter<"Analytics"> | number
+    referralTraffic?: IntFilter<"Analytics"> | number
+    desktopUsers?: IntFilter<"Analytics"> | number
+    mobileUsers?: IntFilter<"Analytics"> | number
+    tabletUsers?: IntFilter<"Analytics"> | number
+    createdAt?: DateTimeFilter<"Analytics"> | Date | string
+    updatedAt?: DateTimeFilter<"Analytics"> | Date | string
+  }
+
+  export type TrackingConfigurationCreateWithoutEventsInput = {
+    id?: string
+    gtmEnabled?: boolean
+    gtmContainerId?: string | null
+    gtmStatus?: $Enums.TrackingStatus
+    ga4Enabled?: boolean
+    ga4MeasurementId?: string | null
+    ga4ApiSecret?: string | null
+    ga4Status?: $Enums.TrackingStatus
+    metaEnabled?: boolean
+    metaPixelId?: string | null
+    metaAccessToken?: string | null
+    metaStatus?: $Enums.TrackingStatus
+    googleAdsEnabled?: boolean
+    googleAdsConversionId?: string | null
+    googleAdsConversionLabel?: string | null
+    googleAdsCustomerId?: string | null
+    googleAdsAccessToken?: string | null
+    googleAdsStatus?: $Enums.TrackingStatus
+    serverSideEnabled?: boolean
+    facebookConversionsApi?: boolean
+    googleConversionsApi?: boolean
+    serverSideStatus?: $Enums.TrackingStatus
+    dataRetentionDays?: number
+    anonymizeIp?: boolean
+    cookieConsent?: boolean
+    debugMode?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    customEvents?: CustomEventCreateNestedManyWithoutConfigInput
+    analytics?: AnalyticsCreateNestedManyWithoutConfigInput
+  }
+
+  export type TrackingConfigurationUncheckedCreateWithoutEventsInput = {
+    id?: string
+    gtmEnabled?: boolean
+    gtmContainerId?: string | null
+    gtmStatus?: $Enums.TrackingStatus
+    ga4Enabled?: boolean
+    ga4MeasurementId?: string | null
+    ga4ApiSecret?: string | null
+    ga4Status?: $Enums.TrackingStatus
+    metaEnabled?: boolean
+    metaPixelId?: string | null
+    metaAccessToken?: string | null
+    metaStatus?: $Enums.TrackingStatus
+    googleAdsEnabled?: boolean
+    googleAdsConversionId?: string | null
+    googleAdsConversionLabel?: string | null
+    googleAdsCustomerId?: string | null
+    googleAdsAccessToken?: string | null
+    googleAdsStatus?: $Enums.TrackingStatus
+    serverSideEnabled?: boolean
+    facebookConversionsApi?: boolean
+    googleConversionsApi?: boolean
+    serverSideStatus?: $Enums.TrackingStatus
+    dataRetentionDays?: number
+    anonymizeIp?: boolean
+    cookieConsent?: boolean
+    debugMode?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    customEvents?: CustomEventUncheckedCreateNestedManyWithoutConfigInput
+    analytics?: AnalyticsUncheckedCreateNestedManyWithoutConfigInput
+  }
+
+  export type TrackingConfigurationCreateOrConnectWithoutEventsInput = {
+    where: TrackingConfigurationWhereUniqueInput
+    create: XOR<TrackingConfigurationCreateWithoutEventsInput, TrackingConfigurationUncheckedCreateWithoutEventsInput>
+  }
+
+  export type UserCreateWithoutTrackingEventsInput = {
+    id?: string
+    email: string
+    name?: string | null
+    password: string
+    role?: $Enums.UserRole
+    isActive?: boolean
+    address?: string | null
+    phone?: string | null
+    city?: string | null
+    isNewCustomer?: boolean
+    lastLoginAt?: Date | string | null
+    emailVerified?: boolean
+    resetToken?: string | null
+    resetTokenExpiry?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orders?: OrderCreateNestedManyWithoutUserInput
+    permissions?: PermissionCreateNestedManyWithoutUserInput
+    payments?: PaymentCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutTrackingEventsInput = {
+    id?: string
+    email: string
+    name?: string | null
+    password: string
+    role?: $Enums.UserRole
+    isActive?: boolean
+    address?: string | null
+    phone?: string | null
+    city?: string | null
+    isNewCustomer?: boolean
+    lastLoginAt?: Date | string | null
+    emailVerified?: boolean
+    resetToken?: string | null
+    resetTokenExpiry?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orders?: OrderUncheckedCreateNestedManyWithoutUserInput
+    permissions?: PermissionUncheckedCreateNestedManyWithoutUserInput
+    payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceUncheckedCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionUncheckedCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutTrackingEventsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTrackingEventsInput, UserUncheckedCreateWithoutTrackingEventsInput>
+  }
+
+  export type UserSessionCreateWithoutEventsInput = {
+    id?: string
+    sessionId: string
+    ipAddress?: string | null
+    userAgent?: string | null
+    country?: string | null
+    city?: string | null
+    device?: string | null
+    browser?: string | null
+    os?: string | null
+    landingPage?: string | null
+    exitPage?: string | null
+    pageViews?: number
+    duration?: number | null
+    cartValue?: number | null
+    purchased?: boolean
+    firstSeen?: Date | string
+    lastSeen?: Date | string
+    user?: UserCreateNestedOneWithoutUserSessionsInput
+  }
+
+  export type UserSessionUncheckedCreateWithoutEventsInput = {
+    id?: string
+    sessionId: string
+    userId?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    country?: string | null
+    city?: string | null
+    device?: string | null
+    browser?: string | null
+    os?: string | null
+    landingPage?: string | null
+    exitPage?: string | null
+    pageViews?: number
+    duration?: number | null
+    cartValue?: number | null
+    purchased?: boolean
+    firstSeen?: Date | string
+    lastSeen?: Date | string
+  }
+
+  export type UserSessionCreateOrConnectWithoutEventsInput = {
+    where: UserSessionWhereUniqueInput
+    create: XOR<UserSessionCreateWithoutEventsInput, UserSessionUncheckedCreateWithoutEventsInput>
+  }
+
+  export type TrackingConfigurationUpsertWithoutEventsInput = {
+    update: XOR<TrackingConfigurationUpdateWithoutEventsInput, TrackingConfigurationUncheckedUpdateWithoutEventsInput>
+    create: XOR<TrackingConfigurationCreateWithoutEventsInput, TrackingConfigurationUncheckedCreateWithoutEventsInput>
+    where?: TrackingConfigurationWhereInput
+  }
+
+  export type TrackingConfigurationUpdateToOneWithWhereWithoutEventsInput = {
+    where?: TrackingConfigurationWhereInput
+    data: XOR<TrackingConfigurationUpdateWithoutEventsInput, TrackingConfigurationUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type TrackingConfigurationUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gtmEnabled?: BoolFieldUpdateOperationsInput | boolean
+    gtmContainerId?: NullableStringFieldUpdateOperationsInput | string | null
+    gtmStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    ga4Enabled?: BoolFieldUpdateOperationsInput | boolean
+    ga4MeasurementId?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4ApiSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4Status?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    metaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    metaPixelId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    googleAdsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    googleAdsConversionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsConversionLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    serverSideEnabled?: BoolFieldUpdateOperationsInput | boolean
+    facebookConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    googleConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    serverSideStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    dataRetentionDays?: IntFieldUpdateOperationsInput | number
+    anonymizeIp?: BoolFieldUpdateOperationsInput | boolean
+    cookieConsent?: BoolFieldUpdateOperationsInput | boolean
+    debugMode?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customEvents?: CustomEventUpdateManyWithoutConfigNestedInput
+    analytics?: AnalyticsUpdateManyWithoutConfigNestedInput
+  }
+
+  export type TrackingConfigurationUncheckedUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gtmEnabled?: BoolFieldUpdateOperationsInput | boolean
+    gtmContainerId?: NullableStringFieldUpdateOperationsInput | string | null
+    gtmStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    ga4Enabled?: BoolFieldUpdateOperationsInput | boolean
+    ga4MeasurementId?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4ApiSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4Status?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    metaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    metaPixelId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    googleAdsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    googleAdsConversionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsConversionLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    serverSideEnabled?: BoolFieldUpdateOperationsInput | boolean
+    facebookConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    googleConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    serverSideStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    dataRetentionDays?: IntFieldUpdateOperationsInput | number
+    anonymizeIp?: BoolFieldUpdateOperationsInput | boolean
+    cookieConsent?: BoolFieldUpdateOperationsInput | boolean
+    debugMode?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customEvents?: CustomEventUncheckedUpdateManyWithoutConfigNestedInput
+    analytics?: AnalyticsUncheckedUpdateManyWithoutConfigNestedInput
+  }
+
+  export type UserUpsertWithoutTrackingEventsInput = {
+    update: XOR<UserUpdateWithoutTrackingEventsInput, UserUncheckedUpdateWithoutTrackingEventsInput>
+    create: XOR<UserCreateWithoutTrackingEventsInput, UserUncheckedCreateWithoutTrackingEventsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutTrackingEventsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutTrackingEventsInput, UserUncheckedUpdateWithoutTrackingEventsInput>
+  }
+
+  export type UserUpdateWithoutTrackingEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    isNewCustomer?: BoolFieldUpdateOperationsInput | boolean
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orders?: OrderUpdateManyWithoutUserNestedInput
+    permissions?: PermissionUpdateManyWithoutUserNestedInput
+    payments?: PaymentUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTrackingEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    isNewCustomer?: BoolFieldUpdateOperationsInput | boolean
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orders?: OrderUncheckedUpdateManyWithoutUserNestedInput
+    permissions?: PermissionUncheckedUpdateManyWithoutUserNestedInput
+    payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUncheckedUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUncheckedUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserSessionUpsertWithoutEventsInput = {
+    update: XOR<UserSessionUpdateWithoutEventsInput, UserSessionUncheckedUpdateWithoutEventsInput>
+    create: XOR<UserSessionCreateWithoutEventsInput, UserSessionUncheckedCreateWithoutEventsInput>
+    where?: UserSessionWhereInput
+  }
+
+  export type UserSessionUpdateToOneWithWhereWithoutEventsInput = {
+    where?: UserSessionWhereInput
+    data: XOR<UserSessionUpdateWithoutEventsInput, UserSessionUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type UserSessionUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: NullableStringFieldUpdateOperationsInput | string | null
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    landingPage?: NullableStringFieldUpdateOperationsInput | string | null
+    exitPage?: NullableStringFieldUpdateOperationsInput | string | null
+    pageViews?: IntFieldUpdateOperationsInput | number
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    cartValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    purchased?: BoolFieldUpdateOperationsInput | boolean
+    firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutUserSessionsNestedInput
+  }
+
+  export type UserSessionUncheckedUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: NullableStringFieldUpdateOperationsInput | string | null
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    landingPage?: NullableStringFieldUpdateOperationsInput | string | null
+    exitPage?: NullableStringFieldUpdateOperationsInput | string | null
+    pageViews?: IntFieldUpdateOperationsInput | number
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    cartValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    purchased?: BoolFieldUpdateOperationsInput | boolean
+    firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrackingConfigurationCreateWithoutCustomEventsInput = {
+    id?: string
+    gtmEnabled?: boolean
+    gtmContainerId?: string | null
+    gtmStatus?: $Enums.TrackingStatus
+    ga4Enabled?: boolean
+    ga4MeasurementId?: string | null
+    ga4ApiSecret?: string | null
+    ga4Status?: $Enums.TrackingStatus
+    metaEnabled?: boolean
+    metaPixelId?: string | null
+    metaAccessToken?: string | null
+    metaStatus?: $Enums.TrackingStatus
+    googleAdsEnabled?: boolean
+    googleAdsConversionId?: string | null
+    googleAdsConversionLabel?: string | null
+    googleAdsCustomerId?: string | null
+    googleAdsAccessToken?: string | null
+    googleAdsStatus?: $Enums.TrackingStatus
+    serverSideEnabled?: boolean
+    facebookConversionsApi?: boolean
+    googleConversionsApi?: boolean
+    serverSideStatus?: $Enums.TrackingStatus
+    dataRetentionDays?: number
+    anonymizeIp?: boolean
+    cookieConsent?: boolean
+    debugMode?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: TrackingEventCreateNestedManyWithoutConfigInput
+    analytics?: AnalyticsCreateNestedManyWithoutConfigInput
+  }
+
+  export type TrackingConfigurationUncheckedCreateWithoutCustomEventsInput = {
+    id?: string
+    gtmEnabled?: boolean
+    gtmContainerId?: string | null
+    gtmStatus?: $Enums.TrackingStatus
+    ga4Enabled?: boolean
+    ga4MeasurementId?: string | null
+    ga4ApiSecret?: string | null
+    ga4Status?: $Enums.TrackingStatus
+    metaEnabled?: boolean
+    metaPixelId?: string | null
+    metaAccessToken?: string | null
+    metaStatus?: $Enums.TrackingStatus
+    googleAdsEnabled?: boolean
+    googleAdsConversionId?: string | null
+    googleAdsConversionLabel?: string | null
+    googleAdsCustomerId?: string | null
+    googleAdsAccessToken?: string | null
+    googleAdsStatus?: $Enums.TrackingStatus
+    serverSideEnabled?: boolean
+    facebookConversionsApi?: boolean
+    googleConversionsApi?: boolean
+    serverSideStatus?: $Enums.TrackingStatus
+    dataRetentionDays?: number
+    anonymizeIp?: boolean
+    cookieConsent?: boolean
+    debugMode?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: TrackingEventUncheckedCreateNestedManyWithoutConfigInput
+    analytics?: AnalyticsUncheckedCreateNestedManyWithoutConfigInput
+  }
+
+  export type TrackingConfigurationCreateOrConnectWithoutCustomEventsInput = {
+    where: TrackingConfigurationWhereUniqueInput
+    create: XOR<TrackingConfigurationCreateWithoutCustomEventsInput, TrackingConfigurationUncheckedCreateWithoutCustomEventsInput>
+  }
+
+  export type CustomEventInstanceCreateWithoutCustomEventInput = {
+    id?: string
+    sessionId: string
+    parameters: JsonNullValueInput | InputJsonValue
+    value?: number | null
+    currency?: string | null
+    pageUrl?: string | null
+    timestamp?: Date | string
+    user?: UserCreateNestedOneWithoutCustomEventInstancesInput
+  }
+
+  export type CustomEventInstanceUncheckedCreateWithoutCustomEventInput = {
+    id?: string
+    sessionId: string
+    userId?: string | null
+    parameters: JsonNullValueInput | InputJsonValue
+    value?: number | null
+    currency?: string | null
+    pageUrl?: string | null
+    timestamp?: Date | string
+  }
+
+  export type CustomEventInstanceCreateOrConnectWithoutCustomEventInput = {
+    where: CustomEventInstanceWhereUniqueInput
+    create: XOR<CustomEventInstanceCreateWithoutCustomEventInput, CustomEventInstanceUncheckedCreateWithoutCustomEventInput>
+  }
+
+  export type CustomEventInstanceCreateManyCustomEventInputEnvelope = {
+    data: CustomEventInstanceCreateManyCustomEventInput | CustomEventInstanceCreateManyCustomEventInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TrackingConfigurationUpsertWithoutCustomEventsInput = {
+    update: XOR<TrackingConfigurationUpdateWithoutCustomEventsInput, TrackingConfigurationUncheckedUpdateWithoutCustomEventsInput>
+    create: XOR<TrackingConfigurationCreateWithoutCustomEventsInput, TrackingConfigurationUncheckedCreateWithoutCustomEventsInput>
+    where?: TrackingConfigurationWhereInput
+  }
+
+  export type TrackingConfigurationUpdateToOneWithWhereWithoutCustomEventsInput = {
+    where?: TrackingConfigurationWhereInput
+    data: XOR<TrackingConfigurationUpdateWithoutCustomEventsInput, TrackingConfigurationUncheckedUpdateWithoutCustomEventsInput>
+  }
+
+  export type TrackingConfigurationUpdateWithoutCustomEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gtmEnabled?: BoolFieldUpdateOperationsInput | boolean
+    gtmContainerId?: NullableStringFieldUpdateOperationsInput | string | null
+    gtmStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    ga4Enabled?: BoolFieldUpdateOperationsInput | boolean
+    ga4MeasurementId?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4ApiSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4Status?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    metaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    metaPixelId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    googleAdsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    googleAdsConversionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsConversionLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    serverSideEnabled?: BoolFieldUpdateOperationsInput | boolean
+    facebookConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    googleConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    serverSideStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    dataRetentionDays?: IntFieldUpdateOperationsInput | number
+    anonymizeIp?: BoolFieldUpdateOperationsInput | boolean
+    cookieConsent?: BoolFieldUpdateOperationsInput | boolean
+    debugMode?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: TrackingEventUpdateManyWithoutConfigNestedInput
+    analytics?: AnalyticsUpdateManyWithoutConfigNestedInput
+  }
+
+  export type TrackingConfigurationUncheckedUpdateWithoutCustomEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gtmEnabled?: BoolFieldUpdateOperationsInput | boolean
+    gtmContainerId?: NullableStringFieldUpdateOperationsInput | string | null
+    gtmStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    ga4Enabled?: BoolFieldUpdateOperationsInput | boolean
+    ga4MeasurementId?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4ApiSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4Status?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    metaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    metaPixelId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    googleAdsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    googleAdsConversionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsConversionLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    serverSideEnabled?: BoolFieldUpdateOperationsInput | boolean
+    facebookConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    googleConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    serverSideStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    dataRetentionDays?: IntFieldUpdateOperationsInput | number
+    anonymizeIp?: BoolFieldUpdateOperationsInput | boolean
+    cookieConsent?: BoolFieldUpdateOperationsInput | boolean
+    debugMode?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: TrackingEventUncheckedUpdateManyWithoutConfigNestedInput
+    analytics?: AnalyticsUncheckedUpdateManyWithoutConfigNestedInput
+  }
+
+  export type CustomEventInstanceUpsertWithWhereUniqueWithoutCustomEventInput = {
+    where: CustomEventInstanceWhereUniqueInput
+    update: XOR<CustomEventInstanceUpdateWithoutCustomEventInput, CustomEventInstanceUncheckedUpdateWithoutCustomEventInput>
+    create: XOR<CustomEventInstanceCreateWithoutCustomEventInput, CustomEventInstanceUncheckedCreateWithoutCustomEventInput>
+  }
+
+  export type CustomEventInstanceUpdateWithWhereUniqueWithoutCustomEventInput = {
+    where: CustomEventInstanceWhereUniqueInput
+    data: XOR<CustomEventInstanceUpdateWithoutCustomEventInput, CustomEventInstanceUncheckedUpdateWithoutCustomEventInput>
+  }
+
+  export type CustomEventInstanceUpdateManyWithWhereWithoutCustomEventInput = {
+    where: CustomEventInstanceScalarWhereInput
+    data: XOR<CustomEventInstanceUpdateManyMutationInput, CustomEventInstanceUncheckedUpdateManyWithoutCustomEventInput>
+  }
+
+  export type CustomEventCreateWithoutInstancesInput = {
+    id?: string
+    name: string
+    displayName: string
+    description?: string | null
+    category?: string | null
+    isActive?: boolean
+    triggers: JsonNullValueInput | InputJsonValue
+    parameters: JsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    trackGA4?: boolean
+    trackFacebook?: boolean
+    trackGoogleAds?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    config: TrackingConfigurationCreateNestedOneWithoutCustomEventsInput
+  }
+
+  export type CustomEventUncheckedCreateWithoutInstancesInput = {
+    id?: string
+    configId: string
+    name: string
+    displayName: string
+    description?: string | null
+    category?: string | null
+    isActive?: boolean
+    triggers: JsonNullValueInput | InputJsonValue
+    parameters: JsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    trackGA4?: boolean
+    trackFacebook?: boolean
+    trackGoogleAds?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CustomEventCreateOrConnectWithoutInstancesInput = {
+    where: CustomEventWhereUniqueInput
+    create: XOR<CustomEventCreateWithoutInstancesInput, CustomEventUncheckedCreateWithoutInstancesInput>
+  }
+
+  export type UserCreateWithoutCustomEventInstancesInput = {
+    id?: string
+    email: string
+    name?: string | null
+    password: string
+    role?: $Enums.UserRole
+    isActive?: boolean
+    address?: string | null
+    phone?: string | null
+    city?: string | null
+    isNewCustomer?: boolean
+    lastLoginAt?: Date | string | null
+    emailVerified?: boolean
+    resetToken?: string | null
+    resetTokenExpiry?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orders?: OrderCreateNestedManyWithoutUserInput
+    permissions?: PermissionCreateNestedManyWithoutUserInput
+    payments?: PaymentCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutCustomEventInstancesInput = {
+    id?: string
+    email: string
+    name?: string | null
+    password: string
+    role?: $Enums.UserRole
+    isActive?: boolean
+    address?: string | null
+    phone?: string | null
+    city?: string | null
+    isNewCustomer?: boolean
+    lastLoginAt?: Date | string | null
+    emailVerified?: boolean
+    resetToken?: string | null
+    resetTokenExpiry?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orders?: OrderUncheckedCreateNestedManyWithoutUserInput
+    permissions?: PermissionUncheckedCreateNestedManyWithoutUserInput
+    payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventUncheckedCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionUncheckedCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutCustomEventInstancesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCustomEventInstancesInput, UserUncheckedCreateWithoutCustomEventInstancesInput>
+  }
+
+  export type CustomEventUpsertWithoutInstancesInput = {
+    update: XOR<CustomEventUpdateWithoutInstancesInput, CustomEventUncheckedUpdateWithoutInstancesInput>
+    create: XOR<CustomEventCreateWithoutInstancesInput, CustomEventUncheckedCreateWithoutInstancesInput>
+    where?: CustomEventWhereInput
+  }
+
+  export type CustomEventUpdateToOneWithWhereWithoutInstancesInput = {
+    where?: CustomEventWhereInput
+    data: XOR<CustomEventUpdateWithoutInstancesInput, CustomEventUncheckedUpdateWithoutInstancesInput>
+  }
+
+  export type CustomEventUpdateWithoutInstancesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    triggers?: JsonNullValueInput | InputJsonValue
+    parameters?: JsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    trackGA4?: BoolFieldUpdateOperationsInput | boolean
+    trackFacebook?: BoolFieldUpdateOperationsInput | boolean
+    trackGoogleAds?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    config?: TrackingConfigurationUpdateOneRequiredWithoutCustomEventsNestedInput
+  }
+
+  export type CustomEventUncheckedUpdateWithoutInstancesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    triggers?: JsonNullValueInput | InputJsonValue
+    parameters?: JsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    trackGA4?: BoolFieldUpdateOperationsInput | boolean
+    trackFacebook?: BoolFieldUpdateOperationsInput | boolean
+    trackGoogleAds?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUpsertWithoutCustomEventInstancesInput = {
+    update: XOR<UserUpdateWithoutCustomEventInstancesInput, UserUncheckedUpdateWithoutCustomEventInstancesInput>
+    create: XOR<UserCreateWithoutCustomEventInstancesInput, UserUncheckedCreateWithoutCustomEventInstancesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCustomEventInstancesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCustomEventInstancesInput, UserUncheckedUpdateWithoutCustomEventInstancesInput>
+  }
+
+  export type UserUpdateWithoutCustomEventInstancesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    isNewCustomer?: BoolFieldUpdateOperationsInput | boolean
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orders?: OrderUpdateManyWithoutUserNestedInput
+    permissions?: PermissionUpdateManyWithoutUserNestedInput
+    payments?: PaymentUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCustomEventInstancesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    isNewCustomer?: BoolFieldUpdateOperationsInput | boolean
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orders?: OrderUncheckedUpdateManyWithoutUserNestedInput
+    permissions?: PermissionUncheckedUpdateManyWithoutUserNestedInput
+    payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUncheckedUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUncheckedUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type TrackingConfigurationCreateWithoutAnalyticsInput = {
+    id?: string
+    gtmEnabled?: boolean
+    gtmContainerId?: string | null
+    gtmStatus?: $Enums.TrackingStatus
+    ga4Enabled?: boolean
+    ga4MeasurementId?: string | null
+    ga4ApiSecret?: string | null
+    ga4Status?: $Enums.TrackingStatus
+    metaEnabled?: boolean
+    metaPixelId?: string | null
+    metaAccessToken?: string | null
+    metaStatus?: $Enums.TrackingStatus
+    googleAdsEnabled?: boolean
+    googleAdsConversionId?: string | null
+    googleAdsConversionLabel?: string | null
+    googleAdsCustomerId?: string | null
+    googleAdsAccessToken?: string | null
+    googleAdsStatus?: $Enums.TrackingStatus
+    serverSideEnabled?: boolean
+    facebookConversionsApi?: boolean
+    googleConversionsApi?: boolean
+    serverSideStatus?: $Enums.TrackingStatus
+    dataRetentionDays?: number
+    anonymizeIp?: boolean
+    cookieConsent?: boolean
+    debugMode?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: TrackingEventCreateNestedManyWithoutConfigInput
+    customEvents?: CustomEventCreateNestedManyWithoutConfigInput
+  }
+
+  export type TrackingConfigurationUncheckedCreateWithoutAnalyticsInput = {
+    id?: string
+    gtmEnabled?: boolean
+    gtmContainerId?: string | null
+    gtmStatus?: $Enums.TrackingStatus
+    ga4Enabled?: boolean
+    ga4MeasurementId?: string | null
+    ga4ApiSecret?: string | null
+    ga4Status?: $Enums.TrackingStatus
+    metaEnabled?: boolean
+    metaPixelId?: string | null
+    metaAccessToken?: string | null
+    metaStatus?: $Enums.TrackingStatus
+    googleAdsEnabled?: boolean
+    googleAdsConversionId?: string | null
+    googleAdsConversionLabel?: string | null
+    googleAdsCustomerId?: string | null
+    googleAdsAccessToken?: string | null
+    googleAdsStatus?: $Enums.TrackingStatus
+    serverSideEnabled?: boolean
+    facebookConversionsApi?: boolean
+    googleConversionsApi?: boolean
+    serverSideStatus?: $Enums.TrackingStatus
+    dataRetentionDays?: number
+    anonymizeIp?: boolean
+    cookieConsent?: boolean
+    debugMode?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: TrackingEventUncheckedCreateNestedManyWithoutConfigInput
+    customEvents?: CustomEventUncheckedCreateNestedManyWithoutConfigInput
+  }
+
+  export type TrackingConfigurationCreateOrConnectWithoutAnalyticsInput = {
+    where: TrackingConfigurationWhereUniqueInput
+    create: XOR<TrackingConfigurationCreateWithoutAnalyticsInput, TrackingConfigurationUncheckedCreateWithoutAnalyticsInput>
+  }
+
+  export type TrackingConfigurationUpsertWithoutAnalyticsInput = {
+    update: XOR<TrackingConfigurationUpdateWithoutAnalyticsInput, TrackingConfigurationUncheckedUpdateWithoutAnalyticsInput>
+    create: XOR<TrackingConfigurationCreateWithoutAnalyticsInput, TrackingConfigurationUncheckedCreateWithoutAnalyticsInput>
+    where?: TrackingConfigurationWhereInput
+  }
+
+  export type TrackingConfigurationUpdateToOneWithWhereWithoutAnalyticsInput = {
+    where?: TrackingConfigurationWhereInput
+    data: XOR<TrackingConfigurationUpdateWithoutAnalyticsInput, TrackingConfigurationUncheckedUpdateWithoutAnalyticsInput>
+  }
+
+  export type TrackingConfigurationUpdateWithoutAnalyticsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gtmEnabled?: BoolFieldUpdateOperationsInput | boolean
+    gtmContainerId?: NullableStringFieldUpdateOperationsInput | string | null
+    gtmStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    ga4Enabled?: BoolFieldUpdateOperationsInput | boolean
+    ga4MeasurementId?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4ApiSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4Status?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    metaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    metaPixelId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    googleAdsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    googleAdsConversionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsConversionLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    serverSideEnabled?: BoolFieldUpdateOperationsInput | boolean
+    facebookConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    googleConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    serverSideStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    dataRetentionDays?: IntFieldUpdateOperationsInput | number
+    anonymizeIp?: BoolFieldUpdateOperationsInput | boolean
+    cookieConsent?: BoolFieldUpdateOperationsInput | boolean
+    debugMode?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: TrackingEventUpdateManyWithoutConfigNestedInput
+    customEvents?: CustomEventUpdateManyWithoutConfigNestedInput
+  }
+
+  export type TrackingConfigurationUncheckedUpdateWithoutAnalyticsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gtmEnabled?: BoolFieldUpdateOperationsInput | boolean
+    gtmContainerId?: NullableStringFieldUpdateOperationsInput | string | null
+    gtmStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    ga4Enabled?: BoolFieldUpdateOperationsInput | boolean
+    ga4MeasurementId?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4ApiSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    ga4Status?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    metaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    metaPixelId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    googleAdsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    googleAdsConversionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsConversionLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAdsStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    serverSideEnabled?: BoolFieldUpdateOperationsInput | boolean
+    facebookConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    googleConversionsApi?: BoolFieldUpdateOperationsInput | boolean
+    serverSideStatus?: EnumTrackingStatusFieldUpdateOperationsInput | $Enums.TrackingStatus
+    dataRetentionDays?: IntFieldUpdateOperationsInput | number
+    anonymizeIp?: BoolFieldUpdateOperationsInput | boolean
+    cookieConsent?: BoolFieldUpdateOperationsInput | boolean
+    debugMode?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: TrackingEventUncheckedUpdateManyWithoutConfigNestedInput
+    customEvents?: CustomEventUncheckedUpdateManyWithoutConfigNestedInput
+  }
+
+  export type FunnelSessionCreateWithoutFunnelInput = {
+    id?: string
+    sessionId: string
+    currentStep?: number
+    completed?: boolean
+    startedAt?: Date | string
+    completedAt?: Date | string | null
+    duration?: number | null
+    stepData: JsonNullValueInput | InputJsonValue
+    user?: UserCreateNestedOneWithoutFunnelSessionsInput
+  }
+
+  export type FunnelSessionUncheckedCreateWithoutFunnelInput = {
+    id?: string
+    sessionId: string
+    userId?: string | null
+    currentStep?: number
+    completed?: boolean
+    startedAt?: Date | string
+    completedAt?: Date | string | null
+    duration?: number | null
+    stepData: JsonNullValueInput | InputJsonValue
+  }
+
+  export type FunnelSessionCreateOrConnectWithoutFunnelInput = {
+    where: FunnelSessionWhereUniqueInput
+    create: XOR<FunnelSessionCreateWithoutFunnelInput, FunnelSessionUncheckedCreateWithoutFunnelInput>
+  }
+
+  export type FunnelSessionCreateManyFunnelInputEnvelope = {
+    data: FunnelSessionCreateManyFunnelInput | FunnelSessionCreateManyFunnelInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type FunnelSessionUpsertWithWhereUniqueWithoutFunnelInput = {
+    where: FunnelSessionWhereUniqueInput
+    update: XOR<FunnelSessionUpdateWithoutFunnelInput, FunnelSessionUncheckedUpdateWithoutFunnelInput>
+    create: XOR<FunnelSessionCreateWithoutFunnelInput, FunnelSessionUncheckedCreateWithoutFunnelInput>
+  }
+
+  export type FunnelSessionUpdateWithWhereUniqueWithoutFunnelInput = {
+    where: FunnelSessionWhereUniqueInput
+    data: XOR<FunnelSessionUpdateWithoutFunnelInput, FunnelSessionUncheckedUpdateWithoutFunnelInput>
+  }
+
+  export type FunnelSessionUpdateManyWithWhereWithoutFunnelInput = {
+    where: FunnelSessionScalarWhereInput
+    data: XOR<FunnelSessionUpdateManyMutationInput, FunnelSessionUncheckedUpdateManyWithoutFunnelInput>
+  }
+
+  export type ConversionFunnelCreateWithoutSessionsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    steps: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ConversionFunnelUncheckedCreateWithoutSessionsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    steps: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ConversionFunnelCreateOrConnectWithoutSessionsInput = {
+    where: ConversionFunnelWhereUniqueInput
+    create: XOR<ConversionFunnelCreateWithoutSessionsInput, ConversionFunnelUncheckedCreateWithoutSessionsInput>
+  }
+
+  export type UserCreateWithoutFunnelSessionsInput = {
+    id?: string
+    email: string
+    name?: string | null
+    password: string
+    role?: $Enums.UserRole
+    isActive?: boolean
+    address?: string | null
+    phone?: string | null
+    city?: string | null
+    isNewCustomer?: boolean
+    lastLoginAt?: Date | string | null
+    emailVerified?: boolean
+    resetToken?: string | null
+    resetTokenExpiry?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orders?: OrderCreateNestedManyWithoutUserInput
+    permissions?: PermissionCreateNestedManyWithoutUserInput
+    payments?: PaymentCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutFunnelSessionsInput = {
+    id?: string
+    email: string
+    name?: string | null
+    password: string
+    role?: $Enums.UserRole
+    isActive?: boolean
+    address?: string | null
+    phone?: string | null
+    city?: string | null
+    isNewCustomer?: boolean
+    lastLoginAt?: Date | string | null
+    emailVerified?: boolean
+    resetToken?: string | null
+    resetTokenExpiry?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orders?: OrderUncheckedCreateNestedManyWithoutUserInput
+    permissions?: PermissionUncheckedCreateNestedManyWithoutUserInput
+    payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventUncheckedCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceUncheckedCreateNestedManyWithoutUserInput
+    userSessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutFunnelSessionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutFunnelSessionsInput, UserUncheckedCreateWithoutFunnelSessionsInput>
+  }
+
+  export type ConversionFunnelUpsertWithoutSessionsInput = {
+    update: XOR<ConversionFunnelUpdateWithoutSessionsInput, ConversionFunnelUncheckedUpdateWithoutSessionsInput>
+    create: XOR<ConversionFunnelCreateWithoutSessionsInput, ConversionFunnelUncheckedCreateWithoutSessionsInput>
+    where?: ConversionFunnelWhereInput
+  }
+
+  export type ConversionFunnelUpdateToOneWithWhereWithoutSessionsInput = {
+    where?: ConversionFunnelWhereInput
+    data: XOR<ConversionFunnelUpdateWithoutSessionsInput, ConversionFunnelUncheckedUpdateWithoutSessionsInput>
+  }
+
+  export type ConversionFunnelUpdateWithoutSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    steps?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversionFunnelUncheckedUpdateWithoutSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    steps?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUpsertWithoutFunnelSessionsInput = {
+    update: XOR<UserUpdateWithoutFunnelSessionsInput, UserUncheckedUpdateWithoutFunnelSessionsInput>
+    create: XOR<UserCreateWithoutFunnelSessionsInput, UserUncheckedCreateWithoutFunnelSessionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutFunnelSessionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutFunnelSessionsInput, UserUncheckedUpdateWithoutFunnelSessionsInput>
+  }
+
+  export type UserUpdateWithoutFunnelSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    isNewCustomer?: BoolFieldUpdateOperationsInput | boolean
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orders?: OrderUpdateManyWithoutUserNestedInput
+    permissions?: PermissionUpdateManyWithoutUserNestedInput
+    payments?: PaymentUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutFunnelSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    isNewCustomer?: BoolFieldUpdateOperationsInput | boolean
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orders?: OrderUncheckedUpdateManyWithoutUserNestedInput
+    permissions?: PermissionUncheckedUpdateManyWithoutUserNestedInput
+    payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUncheckedUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUncheckedUpdateManyWithoutUserNestedInput
+    userSessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutUserSessionsInput = {
+    id?: string
+    email: string
+    name?: string | null
+    password: string
+    role?: $Enums.UserRole
+    isActive?: boolean
+    address?: string | null
+    phone?: string | null
+    city?: string | null
+    isNewCustomer?: boolean
+    lastLoginAt?: Date | string | null
+    emailVerified?: boolean
+    resetToken?: string | null
+    resetTokenExpiry?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orders?: OrderCreateNestedManyWithoutUserInput
+    permissions?: PermissionCreateNestedManyWithoutUserInput
+    payments?: PaymentCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutUserSessionsInput = {
+    id?: string
+    email: string
+    name?: string | null
+    password: string
+    role?: $Enums.UserRole
+    isActive?: boolean
+    address?: string | null
+    phone?: string | null
+    city?: string | null
+    isNewCustomer?: boolean
+    lastLoginAt?: Date | string | null
+    emailVerified?: boolean
+    resetToken?: string | null
+    resetTokenExpiry?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orders?: OrderUncheckedCreateNestedManyWithoutUserInput
+    permissions?: PermissionUncheckedCreateNestedManyWithoutUserInput
+    payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    trackingEvents?: TrackingEventUncheckedCreateNestedManyWithoutUserInput
+    customEventInstances?: CustomEventInstanceUncheckedCreateNestedManyWithoutUserInput
+    funnelSessions?: FunnelSessionUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutUserSessionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutUserSessionsInput, UserUncheckedCreateWithoutUserSessionsInput>
+  }
+
+  export type TrackingEventCreateWithoutSessionInput = {
+    id?: string
+    eventName: string
+    eventType: $Enums.TrackingEventType
+    platform: $Enums.TrackingPlatform
+    eventData: JsonNullValueInput | InputJsonValue
+    userAgent?: string | null
+    ipAddress?: string | null
+    referrer?: string | null
+    pageUrl?: string | null
+    pageTitle?: string | null
+    transactionId?: string | null
+    value?: number | null
+    currency?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    conversionType?: string | null
+    timestamp?: Date | string
+    clientTimestamp?: Date | string | null
+    processed?: boolean
+    processingError?: string | null
+    config: TrackingConfigurationCreateNestedOneWithoutEventsInput
+    user?: UserCreateNestedOneWithoutTrackingEventsInput
+  }
+
+  export type TrackingEventUncheckedCreateWithoutSessionInput = {
+    id?: string
+    configId: string
+    userId?: string | null
+    eventName: string
+    eventType: $Enums.TrackingEventType
+    platform: $Enums.TrackingPlatform
+    eventData: JsonNullValueInput | InputJsonValue
+    userAgent?: string | null
+    ipAddress?: string | null
+    referrer?: string | null
+    pageUrl?: string | null
+    pageTitle?: string | null
+    transactionId?: string | null
+    value?: number | null
+    currency?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    conversionType?: string | null
+    timestamp?: Date | string
+    clientTimestamp?: Date | string | null
+    processed?: boolean
+    processingError?: string | null
+  }
+
+  export type TrackingEventCreateOrConnectWithoutSessionInput = {
+    where: TrackingEventWhereUniqueInput
+    create: XOR<TrackingEventCreateWithoutSessionInput, TrackingEventUncheckedCreateWithoutSessionInput>
+  }
+
+  export type TrackingEventCreateManySessionInputEnvelope = {
+    data: TrackingEventCreateManySessionInput | TrackingEventCreateManySessionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutUserSessionsInput = {
+    update: XOR<UserUpdateWithoutUserSessionsInput, UserUncheckedUpdateWithoutUserSessionsInput>
+    create: XOR<UserCreateWithoutUserSessionsInput, UserUncheckedCreateWithoutUserSessionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutUserSessionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutUserSessionsInput, UserUncheckedUpdateWithoutUserSessionsInput>
+  }
+
+  export type UserUpdateWithoutUserSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    isNewCustomer?: BoolFieldUpdateOperationsInput | boolean
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orders?: OrderUpdateManyWithoutUserNestedInput
+    permissions?: PermissionUpdateManyWithoutUserNestedInput
+    payments?: PaymentUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutUserSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    isNewCustomer?: BoolFieldUpdateOperationsInput | boolean
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orders?: OrderUncheckedUpdateManyWithoutUserNestedInput
+    permissions?: PermissionUncheckedUpdateManyWithoutUserNestedInput
+    payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    trackingEvents?: TrackingEventUncheckedUpdateManyWithoutUserNestedInput
+    customEventInstances?: CustomEventInstanceUncheckedUpdateManyWithoutUserNestedInput
+    funnelSessions?: FunnelSessionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type TrackingEventUpsertWithWhereUniqueWithoutSessionInput = {
+    where: TrackingEventWhereUniqueInput
+    update: XOR<TrackingEventUpdateWithoutSessionInput, TrackingEventUncheckedUpdateWithoutSessionInput>
+    create: XOR<TrackingEventCreateWithoutSessionInput, TrackingEventUncheckedCreateWithoutSessionInput>
+  }
+
+  export type TrackingEventUpdateWithWhereUniqueWithoutSessionInput = {
+    where: TrackingEventWhereUniqueInput
+    data: XOR<TrackingEventUpdateWithoutSessionInput, TrackingEventUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type TrackingEventUpdateManyWithWhereWithoutSessionInput = {
+    where: TrackingEventScalarWhereInput
+    data: XOR<TrackingEventUpdateManyMutationInput, TrackingEventUncheckedUpdateManyWithoutSessionInput>
+  }
+
   export type OrderCreateManyUserInput = {
     id?: string
     subtotal: number
@@ -38532,6 +55605,74 @@ export namespace Prisma {
     refundedAmount?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type TrackingEventCreateManyUserInput = {
+    id?: string
+    configId: string
+    sessionId: string
+    eventName: string
+    eventType: $Enums.TrackingEventType
+    platform: $Enums.TrackingPlatform
+    eventData: JsonNullValueInput | InputJsonValue
+    userAgent?: string | null
+    ipAddress?: string | null
+    referrer?: string | null
+    pageUrl?: string | null
+    pageTitle?: string | null
+    transactionId?: string | null
+    value?: number | null
+    currency?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    conversionType?: string | null
+    timestamp?: Date | string
+    clientTimestamp?: Date | string | null
+    processed?: boolean
+    processingError?: string | null
+  }
+
+  export type CustomEventInstanceCreateManyUserInput = {
+    id?: string
+    customEventId: string
+    sessionId: string
+    parameters: JsonNullValueInput | InputJsonValue
+    value?: number | null
+    currency?: string | null
+    pageUrl?: string | null
+    timestamp?: Date | string
+  }
+
+  export type FunnelSessionCreateManyUserInput = {
+    id?: string
+    funnelId: string
+    sessionId: string
+    currentStep?: number
+    completed?: boolean
+    startedAt?: Date | string
+    completedAt?: Date | string | null
+    duration?: number | null
+    stepData: JsonNullValueInput | InputJsonValue
+  }
+
+  export type UserSessionCreateManyUserInput = {
+    id?: string
+    sessionId: string
+    ipAddress?: string | null
+    userAgent?: string | null
+    country?: string | null
+    city?: string | null
+    device?: string | null
+    browser?: string | null
+    os?: string | null
+    landingPage?: string | null
+    exitPage?: string | null
+    pageViews?: number
+    duration?: number | null
+    cartValue?: number | null
+    purchased?: boolean
+    firstSeen?: Date | string
+    lastSeen?: Date | string
   }
 
   export type OrderUpdateWithoutUserInput = {
@@ -38695,6 +55836,212 @@ export namespace Prisma {
     refundedAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrackingEventUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventName?: StringFieldUpdateOperationsInput | string
+    eventType?: EnumTrackingEventTypeFieldUpdateOperationsInput | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFieldUpdateOperationsInput | $Enums.TrackingPlatform
+    eventData?: JsonNullValueInput | InputJsonValue
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    pageTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionType?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processed?: BoolFieldUpdateOperationsInput | boolean
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    config?: TrackingConfigurationUpdateOneRequiredWithoutEventsNestedInput
+    session?: UserSessionUpdateOneWithoutEventsNestedInput
+  }
+
+  export type TrackingEventUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    eventName?: StringFieldUpdateOperationsInput | string
+    eventType?: EnumTrackingEventTypeFieldUpdateOperationsInput | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFieldUpdateOperationsInput | $Enums.TrackingPlatform
+    eventData?: JsonNullValueInput | InputJsonValue
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    pageTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionType?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processed?: BoolFieldUpdateOperationsInput | boolean
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TrackingEventUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    eventName?: StringFieldUpdateOperationsInput | string
+    eventType?: EnumTrackingEventTypeFieldUpdateOperationsInput | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFieldUpdateOperationsInput | $Enums.TrackingPlatform
+    eventData?: JsonNullValueInput | InputJsonValue
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    pageTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionType?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processed?: BoolFieldUpdateOperationsInput | boolean
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CustomEventInstanceUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    customEvent?: CustomEventUpdateOneRequiredWithoutInstancesNestedInput
+  }
+
+  export type CustomEventInstanceUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customEventId?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomEventInstanceUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customEventId?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FunnelSessionUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    currentStep?: IntFieldUpdateOperationsInput | number
+    completed?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    stepData?: JsonNullValueInput | InputJsonValue
+    funnel?: ConversionFunnelUpdateOneRequiredWithoutSessionsNestedInput
+  }
+
+  export type FunnelSessionUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    funnelId?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    currentStep?: IntFieldUpdateOperationsInput | number
+    completed?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    stepData?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type FunnelSessionUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    funnelId?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    currentStep?: IntFieldUpdateOperationsInput | number
+    completed?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    stepData?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type UserSessionUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: NullableStringFieldUpdateOperationsInput | string | null
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    landingPage?: NullableStringFieldUpdateOperationsInput | string | null
+    exitPage?: NullableStringFieldUpdateOperationsInput | string | null
+    pageViews?: IntFieldUpdateOperationsInput | number
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    cartValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    purchased?: BoolFieldUpdateOperationsInput | boolean
+    firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: TrackingEventUpdateManyWithoutSessionNestedInput
+  }
+
+  export type UserSessionUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: NullableStringFieldUpdateOperationsInput | string | null
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    landingPage?: NullableStringFieldUpdateOperationsInput | string | null
+    exitPage?: NullableStringFieldUpdateOperationsInput | string | null
+    pageViews?: IntFieldUpdateOperationsInput | number
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    cartValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    purchased?: BoolFieldUpdateOperationsInput | boolean
+    firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: TrackingEventUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type UserSessionUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: NullableStringFieldUpdateOperationsInput | string | null
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    landingPage?: NullableStringFieldUpdateOperationsInput | string | null
+    exitPage?: NullableStringFieldUpdateOperationsInput | string | null
+    pageViews?: IntFieldUpdateOperationsInput | number
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    cartValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    purchased?: BoolFieldUpdateOperationsInput | boolean
+    firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeen?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CategoryCreateManyParentInput = {
@@ -39375,6 +56722,476 @@ export namespace Prisma {
 
   export type ProductPromotionUncheckedUpdateManyWithoutPromotionInput = {
     productId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type TrackingEventCreateManyConfigInput = {
+    id?: string
+    sessionId: string
+    userId?: string | null
+    eventName: string
+    eventType: $Enums.TrackingEventType
+    platform: $Enums.TrackingPlatform
+    eventData: JsonNullValueInput | InputJsonValue
+    userAgent?: string | null
+    ipAddress?: string | null
+    referrer?: string | null
+    pageUrl?: string | null
+    pageTitle?: string | null
+    transactionId?: string | null
+    value?: number | null
+    currency?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    conversionType?: string | null
+    timestamp?: Date | string
+    clientTimestamp?: Date | string | null
+    processed?: boolean
+    processingError?: string | null
+  }
+
+  export type CustomEventCreateManyConfigInput = {
+    id?: string
+    name: string
+    displayName: string
+    description?: string | null
+    category?: string | null
+    isActive?: boolean
+    triggers: JsonNullValueInput | InputJsonValue
+    parameters: JsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    trackGA4?: boolean
+    trackFacebook?: boolean
+    trackGoogleAds?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AnalyticsCreateManyConfigInput = {
+    id?: string
+    date: Date | string
+    pageViews?: number
+    uniqueVisitors?: number
+    sessions?: number
+    bounceRate?: number | null
+    avgSessionDuration?: number | null
+    transactions?: number
+    revenue?: number
+    averageOrderValue?: number | null
+    conversionRate?: number | null
+    customEvents?: number
+    addToCarts?: number
+    checkouts?: number
+    organicTraffic?: number
+    paidTraffic?: number
+    socialTraffic?: number
+    directTraffic?: number
+    referralTraffic?: number
+    desktopUsers?: number
+    mobileUsers?: number
+    tabletUsers?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TrackingEventUpdateWithoutConfigInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventName?: StringFieldUpdateOperationsInput | string
+    eventType?: EnumTrackingEventTypeFieldUpdateOperationsInput | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFieldUpdateOperationsInput | $Enums.TrackingPlatform
+    eventData?: JsonNullValueInput | InputJsonValue
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    pageTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionType?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processed?: BoolFieldUpdateOperationsInput | boolean
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    user?: UserUpdateOneWithoutTrackingEventsNestedInput
+    session?: UserSessionUpdateOneWithoutEventsNestedInput
+  }
+
+  export type TrackingEventUncheckedUpdateWithoutConfigInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventName?: StringFieldUpdateOperationsInput | string
+    eventType?: EnumTrackingEventTypeFieldUpdateOperationsInput | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFieldUpdateOperationsInput | $Enums.TrackingPlatform
+    eventData?: JsonNullValueInput | InputJsonValue
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    pageTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionType?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processed?: BoolFieldUpdateOperationsInput | boolean
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TrackingEventUncheckedUpdateManyWithoutConfigInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventName?: StringFieldUpdateOperationsInput | string
+    eventType?: EnumTrackingEventTypeFieldUpdateOperationsInput | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFieldUpdateOperationsInput | $Enums.TrackingPlatform
+    eventData?: JsonNullValueInput | InputJsonValue
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    pageTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionType?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processed?: BoolFieldUpdateOperationsInput | boolean
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CustomEventUpdateWithoutConfigInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    triggers?: JsonNullValueInput | InputJsonValue
+    parameters?: JsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    trackGA4?: BoolFieldUpdateOperationsInput | boolean
+    trackFacebook?: BoolFieldUpdateOperationsInput | boolean
+    trackGoogleAds?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    instances?: CustomEventInstanceUpdateManyWithoutCustomEventNestedInput
+  }
+
+  export type CustomEventUncheckedUpdateWithoutConfigInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    triggers?: JsonNullValueInput | InputJsonValue
+    parameters?: JsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    trackGA4?: BoolFieldUpdateOperationsInput | boolean
+    trackFacebook?: BoolFieldUpdateOperationsInput | boolean
+    trackGoogleAds?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    instances?: CustomEventInstanceUncheckedUpdateManyWithoutCustomEventNestedInput
+  }
+
+  export type CustomEventUncheckedUpdateManyWithoutConfigInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    triggers?: JsonNullValueInput | InputJsonValue
+    parameters?: JsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    trackGA4?: BoolFieldUpdateOperationsInput | boolean
+    trackFacebook?: BoolFieldUpdateOperationsInput | boolean
+    trackGoogleAds?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsUpdateWithoutConfigInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    pageViews?: IntFieldUpdateOperationsInput | number
+    uniqueVisitors?: IntFieldUpdateOperationsInput | number
+    sessions?: IntFieldUpdateOperationsInput | number
+    bounceRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    avgSessionDuration?: NullableFloatFieldUpdateOperationsInput | number | null
+    transactions?: IntFieldUpdateOperationsInput | number
+    revenue?: FloatFieldUpdateOperationsInput | number
+    averageOrderValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    customEvents?: IntFieldUpdateOperationsInput | number
+    addToCarts?: IntFieldUpdateOperationsInput | number
+    checkouts?: IntFieldUpdateOperationsInput | number
+    organicTraffic?: IntFieldUpdateOperationsInput | number
+    paidTraffic?: IntFieldUpdateOperationsInput | number
+    socialTraffic?: IntFieldUpdateOperationsInput | number
+    directTraffic?: IntFieldUpdateOperationsInput | number
+    referralTraffic?: IntFieldUpdateOperationsInput | number
+    desktopUsers?: IntFieldUpdateOperationsInput | number
+    mobileUsers?: IntFieldUpdateOperationsInput | number
+    tabletUsers?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsUncheckedUpdateWithoutConfigInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    pageViews?: IntFieldUpdateOperationsInput | number
+    uniqueVisitors?: IntFieldUpdateOperationsInput | number
+    sessions?: IntFieldUpdateOperationsInput | number
+    bounceRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    avgSessionDuration?: NullableFloatFieldUpdateOperationsInput | number | null
+    transactions?: IntFieldUpdateOperationsInput | number
+    revenue?: FloatFieldUpdateOperationsInput | number
+    averageOrderValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    customEvents?: IntFieldUpdateOperationsInput | number
+    addToCarts?: IntFieldUpdateOperationsInput | number
+    checkouts?: IntFieldUpdateOperationsInput | number
+    organicTraffic?: IntFieldUpdateOperationsInput | number
+    paidTraffic?: IntFieldUpdateOperationsInput | number
+    socialTraffic?: IntFieldUpdateOperationsInput | number
+    directTraffic?: IntFieldUpdateOperationsInput | number
+    referralTraffic?: IntFieldUpdateOperationsInput | number
+    desktopUsers?: IntFieldUpdateOperationsInput | number
+    mobileUsers?: IntFieldUpdateOperationsInput | number
+    tabletUsers?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsUncheckedUpdateManyWithoutConfigInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    pageViews?: IntFieldUpdateOperationsInput | number
+    uniqueVisitors?: IntFieldUpdateOperationsInput | number
+    sessions?: IntFieldUpdateOperationsInput | number
+    bounceRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    avgSessionDuration?: NullableFloatFieldUpdateOperationsInput | number | null
+    transactions?: IntFieldUpdateOperationsInput | number
+    revenue?: FloatFieldUpdateOperationsInput | number
+    averageOrderValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    customEvents?: IntFieldUpdateOperationsInput | number
+    addToCarts?: IntFieldUpdateOperationsInput | number
+    checkouts?: IntFieldUpdateOperationsInput | number
+    organicTraffic?: IntFieldUpdateOperationsInput | number
+    paidTraffic?: IntFieldUpdateOperationsInput | number
+    socialTraffic?: IntFieldUpdateOperationsInput | number
+    directTraffic?: IntFieldUpdateOperationsInput | number
+    referralTraffic?: IntFieldUpdateOperationsInput | number
+    desktopUsers?: IntFieldUpdateOperationsInput | number
+    mobileUsers?: IntFieldUpdateOperationsInput | number
+    tabletUsers?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomEventInstanceCreateManyCustomEventInput = {
+    id?: string
+    sessionId: string
+    userId?: string | null
+    parameters: JsonNullValueInput | InputJsonValue
+    value?: number | null
+    currency?: string | null
+    pageUrl?: string | null
+    timestamp?: Date | string
+  }
+
+  export type CustomEventInstanceUpdateWithoutCustomEventInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutCustomEventInstancesNestedInput
+  }
+
+  export type CustomEventInstanceUncheckedUpdateWithoutCustomEventInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    parameters?: JsonNullValueInput | InputJsonValue
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomEventInstanceUncheckedUpdateManyWithoutCustomEventInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    parameters?: JsonNullValueInput | InputJsonValue
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FunnelSessionCreateManyFunnelInput = {
+    id?: string
+    sessionId: string
+    userId?: string | null
+    currentStep?: number
+    completed?: boolean
+    startedAt?: Date | string
+    completedAt?: Date | string | null
+    duration?: number | null
+    stepData: JsonNullValueInput | InputJsonValue
+  }
+
+  export type FunnelSessionUpdateWithoutFunnelInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    currentStep?: IntFieldUpdateOperationsInput | number
+    completed?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    stepData?: JsonNullValueInput | InputJsonValue
+    user?: UserUpdateOneWithoutFunnelSessionsNestedInput
+  }
+
+  export type FunnelSessionUncheckedUpdateWithoutFunnelInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: IntFieldUpdateOperationsInput | number
+    completed?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    stepData?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type FunnelSessionUncheckedUpdateManyWithoutFunnelInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: IntFieldUpdateOperationsInput | number
+    completed?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    stepData?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type TrackingEventCreateManySessionInput = {
+    id?: string
+    configId: string
+    userId?: string | null
+    eventName: string
+    eventType: $Enums.TrackingEventType
+    platform: $Enums.TrackingPlatform
+    eventData: JsonNullValueInput | InputJsonValue
+    userAgent?: string | null
+    ipAddress?: string | null
+    referrer?: string | null
+    pageUrl?: string | null
+    pageTitle?: string | null
+    transactionId?: string | null
+    value?: number | null
+    currency?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: number | null
+    conversionType?: string | null
+    timestamp?: Date | string
+    clientTimestamp?: Date | string | null
+    processed?: boolean
+    processingError?: string | null
+  }
+
+  export type TrackingEventUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventName?: StringFieldUpdateOperationsInput | string
+    eventType?: EnumTrackingEventTypeFieldUpdateOperationsInput | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFieldUpdateOperationsInput | $Enums.TrackingPlatform
+    eventData?: JsonNullValueInput | InputJsonValue
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    pageTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionType?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processed?: BoolFieldUpdateOperationsInput | boolean
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    config?: TrackingConfigurationUpdateOneRequiredWithoutEventsNestedInput
+    user?: UserUpdateOneWithoutTrackingEventsNestedInput
+  }
+
+  export type TrackingEventUncheckedUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventName?: StringFieldUpdateOperationsInput | string
+    eventType?: EnumTrackingEventTypeFieldUpdateOperationsInput | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFieldUpdateOperationsInput | $Enums.TrackingPlatform
+    eventData?: JsonNullValueInput | InputJsonValue
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    pageTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionType?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processed?: BoolFieldUpdateOperationsInput | boolean
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TrackingEventUncheckedUpdateManyWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventName?: StringFieldUpdateOperationsInput | string
+    eventType?: EnumTrackingEventTypeFieldUpdateOperationsInput | $Enums.TrackingEventType
+    platform?: EnumTrackingPlatformFieldUpdateOperationsInput | $Enums.TrackingPlatform
+    eventData?: JsonNullValueInput | InputJsonValue
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    pageTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    value?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    conversionValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    conversionType?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processed?: BoolFieldUpdateOperationsInput | boolean
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
 

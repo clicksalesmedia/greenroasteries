@@ -1,199 +1,253 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, readFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { PrismaClient } from '@/app/generated/prisma';
 
-interface TrackingConfig {
-  googleTagManager: {
-    enabled: boolean;
-    containerId: string;
-    status: 'active' | 'inactive' | 'error';
-  };
-  googleAnalytics: {
-    enabled: boolean;
-    measurementId: string;
-    status: 'active' | 'inactive' | 'error';
-  };
-  metaAds: {
-    enabled: boolean;
-    pixelId: string;
-    accessToken: string;
-    status: 'active' | 'inactive' | 'error';
-  };
-  googleAds: {
-    enabled: boolean;
-    conversionId: string;
-    conversionLabel: string;
-    status: 'active' | 'inactive' | 'error';
-  };
-  serverSideTracking: {
-    enabled: boolean;
-    facebookConversionsApi: boolean;
-    googleConversionsApi: boolean;
-    status: 'active' | 'inactive' | 'error';
-  };
+const prisma = new PrismaClient();
+
+interface TrackingConfigRequest {
+  // Google Tag Manager
+  gtmEnabled?: boolean;
+  gtmContainerId?: string;
+  
+  // Google Analytics 4
+  ga4Enabled?: boolean;
+  ga4MeasurementId?: string;
+  ga4ApiSecret?: string;
+  
+  // Meta Ads (Facebook Pixel)
+  metaEnabled?: boolean;
+  metaPixelId?: string;
+  metaAccessToken?: string;
+  
+  // Google Ads
+  googleAdsEnabled?: boolean;
+  googleAdsConversionId?: string;
+  googleAdsConversionLabel?: string;
+  googleAdsCustomerId?: string;
+  googleAdsAccessToken?: string;
+  
+  // Server-side Tracking
+  serverSideEnabled?: boolean;
+  facebookConversionsApi?: boolean;
+  googleConversionsApi?: boolean;
+  
+  // Advanced Settings
+  dataRetentionDays?: number;
+  anonymizeIp?: boolean;
+  cookieConsent?: boolean;
+  debugMode?: boolean;
 }
 
-const CONFIG_FILE_PATH = path.join(process.cwd(), 'data', 'tracking-config.json');
-const DATA_DIR = path.join(process.cwd(), 'data');
-
-// Default configuration
-const defaultConfig: TrackingConfig = {
-  googleTagManager: { enabled: false, containerId: '', status: 'inactive' },
-  googleAnalytics: { enabled: false, measurementId: '', status: 'inactive' },
-  metaAds: { enabled: false, pixelId: '', accessToken: '', status: 'inactive' },
-  googleAds: { enabled: false, conversionId: '', conversionLabel: '', status: 'inactive' },
-  serverSideTracking: { enabled: false, facebookConversionsApi: false, googleConversionsApi: false, status: 'inactive' }
-};
-
-// Ensure data directory exists
-async function ensureDataDir() {
-  if (!existsSync(DATA_DIR)) {
-    await mkdir(DATA_DIR, { recursive: true });
+// Get or create tracking configuration
+async function getOrCreateConfig() {
+  let config = await prisma.trackingConfiguration.findFirst();
+  
+  if (!config) {
+    config = await prisma.trackingConfiguration.create({
+      data: {
+        gtmEnabled: false,
+        ga4Enabled: false,
+        metaEnabled: false,
+        googleAdsEnabled: false,
+        serverSideEnabled: false,
+        facebookConversionsApi: false,
+        googleConversionsApi: false,
+        dataRetentionDays: 90,
+        anonymizeIp: true,
+        cookieConsent: true,
+        debugMode: false,
+      }
+    });
   }
+  
+  return config;
 }
 
-// Read configuration from file
-async function readConfig(): Promise<TrackingConfig> {
-  try {
-    await ensureDataDir();
-    if (existsSync(CONFIG_FILE_PATH)) {
-      const data = await readFile(CONFIG_FILE_PATH, 'utf-8');
-      return JSON.parse(data);
+// Update configuration status based on settings
+function updateConfigStatus(data: any) {
+  // GTM Status
+  if (data.gtmEnabled && data.gtmContainerId) {
+    data.gtmStatus = 'ACTIVE';
+  } else if (data.gtmEnabled && !data.gtmContainerId) {
+    data.gtmStatus = 'ERROR';
+  } else {
+    data.gtmStatus = 'INACTIVE';
+  }
+  
+  // GA4 Status
+  if (data.ga4Enabled && data.ga4MeasurementId) {
+    data.ga4Status = 'ACTIVE';
+  } else if (data.ga4Enabled && !data.ga4MeasurementId) {
+    data.ga4Status = 'ERROR';
+  } else {
+    data.ga4Status = 'INACTIVE';
+  }
+  
+  // Meta Status
+  if (data.metaEnabled && data.metaPixelId) {
+    data.metaStatus = 'ACTIVE';
+  } else if (data.metaEnabled && !data.metaPixelId) {
+    data.metaStatus = 'ERROR';
+  } else {
+    data.metaStatus = 'INACTIVE';
+  }
+  
+  // Google Ads Status
+  if (data.googleAdsEnabled && data.googleAdsConversionId && data.googleAdsConversionLabel) {
+    data.googleAdsStatus = 'ACTIVE';
+  } else if (data.googleAdsEnabled && (!data.googleAdsConversionId || !data.googleAdsConversionLabel)) {
+    data.googleAdsStatus = 'ERROR';
+  } else {
+    data.googleAdsStatus = 'INACTIVE';
+  }
+  
+  // Server-side Status
+  if (data.serverSideEnabled && (data.facebookConversionsApi || data.googleConversionsApi)) {
+    data.serverSideStatus = 'ACTIVE';
+  } else if (data.serverSideEnabled && !data.facebookConversionsApi && !data.googleConversionsApi) {
+    data.serverSideStatus = 'ERROR';
+  } else {
+    data.serverSideStatus = 'INACTIVE';
+  }
+  
+  return data;
+}
+
+// Format config for frontend response
+function formatConfigResponse(config: any) {
+  return {
+    googleTagManager: {
+      enabled: config.gtmEnabled,
+      containerId: config.gtmContainerId || '',
+      status: config.gtmStatus?.toLowerCase() || 'inactive'
+    },
+    googleAnalytics: {
+      enabled: config.ga4Enabled,
+      measurementId: config.ga4MeasurementId || '',
+      status: config.ga4Status?.toLowerCase() || 'inactive'
+    },
+    metaAds: {
+      enabled: config.metaEnabled,
+      pixelId: config.metaPixelId || '',
+      accessToken: config.metaAccessToken ? '***hidden***' : '',
+      status: config.metaStatus?.toLowerCase() || 'inactive'
+    },
+    googleAds: {
+      enabled: config.googleAdsEnabled,
+      conversionId: config.googleAdsConversionId || '',
+      conversionLabel: config.googleAdsConversionLabel || '',
+      status: config.googleAdsStatus?.toLowerCase() || 'inactive'
+    },
+    serverSideTracking: {
+      enabled: config.serverSideEnabled,
+      facebookConversionsApi: config.facebookConversionsApi,
+      googleConversionsApi: config.googleConversionsApi,
+      status: config.serverSideStatus?.toLowerCase() || 'inactive'
+    },
+    advanced: {
+      dataRetentionDays: config.dataRetentionDays,
+      anonymizeIp: config.anonymizeIp,
+      cookieConsent: config.cookieConsent,
+      debugMode: config.debugMode
     }
-    return defaultConfig;
-  } catch (error) {
-    console.error('Error reading tracking config:', error);
-    return defaultConfig;
-  }
-}
-
-// Write configuration to file
-async function writeConfig(config: TrackingConfig): Promise<void> {
-  try {
-    await ensureDataDir();
-    await writeFile(CONFIG_FILE_PATH, JSON.stringify(config, null, 2));
-  } catch (error) {
-    console.error('Error writing tracking config:', error);
-    throw error;
-  }
-}
-
-// Validate configuration
-function validateConfig(config: TrackingConfig): string[] {
-  const errors: string[] = [];
-
-  if (config.googleTagManager.enabled && !config.googleTagManager.containerId) {
-    errors.push('GTM Container ID is required when GTM is enabled');
-  }
-
-  if (config.googleAnalytics.enabled && !config.googleAnalytics.measurementId) {
-    errors.push('GA4 Measurement ID is required when Google Analytics is enabled');
-  }
-
-  if (config.metaAds.enabled && !config.metaAds.pixelId) {
-    errors.push('Facebook Pixel ID is required when Meta Ads is enabled');
-  }
-
-  if (config.googleAds.enabled && (!config.googleAds.conversionId || !config.googleAds.conversionLabel)) {
-    errors.push('Google Ads Conversion ID and Label are required when Google Ads is enabled');
-  }
-
-  return errors;
-}
-
-// Update status based on configuration
-function updateStatus(config: TrackingConfig): TrackingConfig {
-  const updatedConfig = { ...config };
-
-  // Update GTM status
-  if (updatedConfig.googleTagManager.enabled && updatedConfig.googleTagManager.containerId) {
-    updatedConfig.googleTagManager.status = 'active';
-  } else if (updatedConfig.googleTagManager.enabled && !updatedConfig.googleTagManager.containerId) {
-    updatedConfig.googleTagManager.status = 'error';
-  } else {
-    updatedConfig.googleTagManager.status = 'inactive';
-  }
-
-  // Update GA status
-  if (updatedConfig.googleAnalytics.enabled && updatedConfig.googleAnalytics.measurementId) {
-    updatedConfig.googleAnalytics.status = 'active';
-  } else if (updatedConfig.googleAnalytics.enabled && !updatedConfig.googleAnalytics.measurementId) {
-    updatedConfig.googleAnalytics.status = 'error';
-  } else {
-    updatedConfig.googleAnalytics.status = 'inactive';
-  }
-
-  // Update Meta Ads status
-  if (updatedConfig.metaAds.enabled && updatedConfig.metaAds.pixelId) {
-    updatedConfig.metaAds.status = 'active';
-  } else if (updatedConfig.metaAds.enabled && !updatedConfig.metaAds.pixelId) {
-    updatedConfig.metaAds.status = 'error';
-  } else {
-    updatedConfig.metaAds.status = 'inactive';
-  }
-
-  // Update Google Ads status
-  if (updatedConfig.googleAds.enabled && updatedConfig.googleAds.conversionId && updatedConfig.googleAds.conversionLabel) {
-    updatedConfig.googleAds.status = 'active';
-  } else if (updatedConfig.googleAds.enabled && (!updatedConfig.googleAds.conversionId || !updatedConfig.googleAds.conversionLabel)) {
-    updatedConfig.googleAds.status = 'error';
-  } else {
-    updatedConfig.googleAds.status = 'inactive';
-  }
-
-  // Update Server-side tracking status
-  if (updatedConfig.serverSideTracking.enabled && (updatedConfig.serverSideTracking.facebookConversionsApi || updatedConfig.serverSideTracking.googleConversionsApi)) {
-    updatedConfig.serverSideTracking.status = 'active';
-  } else if (updatedConfig.serverSideTracking.enabled && !updatedConfig.serverSideTracking.facebookConversionsApi && !updatedConfig.serverSideTracking.googleConversionsApi) {
-    updatedConfig.serverSideTracking.status = 'error';
-  } else {
-    updatedConfig.serverSideTracking.status = 'inactive';
-  }
-
-  return updatedConfig;
+  };
 }
 
 // GET - Retrieve tracking configuration
 export async function GET() {
   try {
-    const config = await readConfig();
-    return NextResponse.json(config);
+    const config = await getOrCreateConfig();
+    return NextResponse.json(formatConfigResponse(config));
   } catch (error) {
     console.error('Error retrieving tracking config:', error);
     return NextResponse.json(
       { error: 'Failed to retrieve tracking configuration' },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
 // POST - Update tracking configuration
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body: TrackingConfigRequest = await request.json();
     
-    // Validate the configuration
-    const errors = validateConfig(body);
-    if (errors.length > 0) {
-      return NextResponse.json(
-        { error: 'Configuration validation failed', details: errors },
-        { status: 400 }
-      );
-    }
-
+    // Get current config
+    const currentConfig = await getOrCreateConfig();
+    
+    // Prepare update data
+    const updateData: any = {
+      ...body,
+      updatedAt: new Date()
+    };
+    
     // Update status based on configuration
-    const updatedConfig = updateStatus(body);
-
-    // Save the configuration
-    await writeConfig(updatedConfig);
-
-    return NextResponse.json(updatedConfig);
+    const dataWithStatus = updateConfigStatus(updateData);
+    
+    // Update the configuration
+    const updatedConfig = await prisma.trackingConfiguration.update({
+      where: { id: currentConfig.id },
+      data: dataWithStatus
+    });
+    
+    return NextResponse.json(formatConfigResponse(updatedConfig));
   } catch (error) {
     console.error('Error updating tracking config:', error);
     return NextResponse.json(
       { error: 'Failed to update tracking configuration' },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+// PUT - Reset configuration to defaults
+export async function PUT() {
+  try {
+    const currentConfig = await getOrCreateConfig();
+    
+    const resetConfig = await prisma.trackingConfiguration.update({
+      where: { id: currentConfig.id },
+      data: {
+        gtmEnabled: false,
+        gtmContainerId: null,
+        gtmStatus: 'INACTIVE',
+        ga4Enabled: false,
+        ga4MeasurementId: null,
+        ga4ApiSecret: null,
+        ga4Status: 'INACTIVE',
+        metaEnabled: false,
+        metaPixelId: null,
+        metaAccessToken: null,
+        metaStatus: 'INACTIVE',
+        googleAdsEnabled: false,
+        googleAdsConversionId: null,
+        googleAdsConversionLabel: null,
+        googleAdsCustomerId: null,
+        googleAdsAccessToken: null,
+        googleAdsStatus: 'INACTIVE',
+        serverSideEnabled: false,
+        facebookConversionsApi: false,
+        googleConversionsApi: false,
+        serverSideStatus: 'INACTIVE',
+        dataRetentionDays: 90,
+        anonymizeIp: true,
+        cookieConsent: true,
+        debugMode: false,
+        updatedAt: new Date()
+      }
+    });
+    
+    return NextResponse.json(formatConfigResponse(resetConfig));
+  } catch (error) {
+    console.error('Error resetting tracking config:', error);
+    return NextResponse.json(
+      { error: 'Failed to reset tracking configuration' },
+      { status: 500 }
+    );
+  } finally {
+    await prisma.$disconnect();
   }
 } 

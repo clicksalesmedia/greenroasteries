@@ -28,6 +28,12 @@ model User {
   orders           Order[]
   permissions      Permission[]
   payments         Payment[]
+
+  // Tracking Relations
+  trackingEvents       TrackingEvent[]
+  customEventInstances CustomEventInstance[]
+  funnelSessions       FunnelSession[]
+  userSessions         UserSession[]
 }
 
 model Permission {
@@ -418,4 +424,318 @@ enum SubscriptionStatus {
   UNSUBSCRIBED
   BOUNCED
   COMPLAINED
+}
+
+// ======== TRACKING SYSTEM MODELS ========
+
+model TrackingConfiguration {
+  id             String         @id @default(uuid())
+  // Google Tag Manager
+  gtmEnabled     Boolean        @default(false)
+  gtmContainerId String?
+  gtmStatus      TrackingStatus @default(INACTIVE)
+
+  // Google Analytics 4
+  ga4Enabled       Boolean        @default(false)
+  ga4MeasurementId String?
+  ga4ApiSecret     String?
+  ga4Status        TrackingStatus @default(INACTIVE)
+
+  // Meta Ads (Facebook Pixel)
+  metaEnabled     Boolean        @default(false)
+  metaPixelId     String?
+  metaAccessToken String?
+  metaStatus      TrackingStatus @default(INACTIVE)
+
+  // Google Ads
+  googleAdsEnabled         Boolean        @default(false)
+  googleAdsConversionId    String?
+  googleAdsConversionLabel String?
+  googleAdsCustomerId      String?
+  googleAdsAccessToken     String?
+  googleAdsStatus          TrackingStatus @default(INACTIVE)
+
+  // Server-side Tracking
+  serverSideEnabled      Boolean        @default(false)
+  facebookConversionsApi Boolean        @default(false)
+  googleConversionsApi   Boolean        @default(false)
+  serverSideStatus       TrackingStatus @default(INACTIVE)
+
+  // Advanced Settings
+  dataRetentionDays Int     @default(90)
+  anonymizeIp       Boolean @default(true)
+  cookieConsent     Boolean @default(true)
+  debugMode         Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  events       TrackingEvent[]
+  customEvents CustomEvent[]
+  analytics    Analytics[]
+
+  @@unique([id])
+}
+
+model TrackingEvent {
+  id        String            @id @default(uuid())
+  configId  String
+  sessionId String
+  userId    String?
+  eventName String
+  eventType TrackingEventType
+  platform  TrackingPlatform
+
+  // Event Data
+  eventData Json // Flexible JSON for event properties
+  userAgent String?
+  ipAddress String?
+  referrer  String?
+  pageUrl   String?
+  pageTitle String?
+
+  // E-commerce specific
+  transactionId String?
+  value         Float?
+  currency      String? @default("AED")
+  items         Json? // Array of items
+
+  // Conversion Data
+  conversionValue Float?
+  conversionType  String?
+
+  // Timing
+  timestamp       DateTime  @default(now())
+  clientTimestamp DateTime?
+
+  // Status
+  processed       Boolean @default(false)
+  processingError String?
+
+  // Relations
+  config  TrackingConfiguration @relation(fields: [configId], references: [id], onDelete: Cascade)
+  user    User?                 @relation(fields: [userId], references: [id])
+  session UserSession?          @relation(fields: [sessionId], references: [sessionId])
+
+  @@index([eventName, timestamp])
+  @@index([sessionId])
+  @@index([userId])
+  @@index([platform])
+}
+
+model CustomEvent {
+  id          String  @id @default(uuid())
+  configId    String
+  name        String
+  displayName String
+  description String?
+  category    String?
+  isActive    Boolean @default(true)
+
+  // Event Configuration
+  triggers        Json // Conditions for triggering
+  parameters      Json // Expected parameters
+  conversionValue Float?
+
+  // Tracking Platforms
+  trackGA4       Boolean @default(true)
+  trackFacebook  Boolean @default(true)
+  trackGoogleAds Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  config    TrackingConfiguration @relation(fields: [configId], references: [id], onDelete: Cascade)
+  instances CustomEventInstance[]
+
+  @@unique([configId, name])
+}
+
+model CustomEventInstance {
+  id            String  @id @default(uuid())
+  customEventId String
+  sessionId     String
+  userId        String?
+
+  // Event Data
+  parameters Json // Actual parameters when fired
+  value      Float?
+  currency   String? @default("AED")
+
+  // Context
+  pageUrl   String?
+  timestamp DateTime @default(now())
+
+  // Relations
+  customEvent CustomEvent @relation(fields: [customEventId], references: [id], onDelete: Cascade)
+  user        User?       @relation(fields: [userId], references: [id])
+
+  @@index([customEventId, timestamp])
+  @@index([sessionId])
+}
+
+model Analytics {
+  id       String   @id @default(uuid())
+  configId String
+  date     DateTime
+
+  // Traffic Metrics
+  pageViews          Int    @default(0)
+  uniqueVisitors     Int    @default(0)
+  sessions           Int    @default(0)
+  bounceRate         Float?
+  avgSessionDuration Float?
+
+  // E-commerce Metrics
+  transactions      Int    @default(0)
+  revenue           Float  @default(0)
+  averageOrderValue Float?
+  conversionRate    Float?
+
+  // Event Metrics
+  customEvents Int @default(0)
+  addToCarts   Int @default(0)
+  checkouts    Int @default(0)
+
+  // Traffic Sources
+  organicTraffic  Int @default(0)
+  paidTraffic     Int @default(0)
+  socialTraffic   Int @default(0)
+  directTraffic   Int @default(0)
+  referralTraffic Int @default(0)
+
+  // Device/Browser Data
+  desktopUsers Int @default(0)
+  mobileUsers  Int @default(0)
+  tabletUsers  Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  config TrackingConfiguration @relation(fields: [configId], references: [id], onDelete: Cascade)
+
+  @@unique([configId, date])
+  @@index([date])
+}
+
+model ConversionFunnel {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  steps       Json // Array of step definitions
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sessions FunnelSession[]
+
+  @@unique([name])
+}
+
+model FunnelSession {
+  id        String  @id @default(uuid())
+  funnelId  String
+  sessionId String
+  userId    String?
+
+  // Progress
+  currentStep Int     @default(0)
+  completed   Boolean @default(false)
+
+  // Timing
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  duration    Int? // in seconds
+
+  // Data
+  stepData Json // Data collected at each step
+
+  // Relations
+  funnel ConversionFunnel @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+  user   User?            @relation(fields: [userId], references: [id])
+
+  @@index([sessionId])
+  @@index([funnelId, startedAt])
+}
+
+model UserSession {
+  id        String  @id @default(uuid())
+  sessionId String  @unique
+  userId    String?
+
+  // Session Data
+  ipAddress String?
+  userAgent String?
+  country   String?
+  city      String?
+  device    String?
+  browser   String?
+  os        String?
+
+  // Journey
+  landingPage String?
+  exitPage    String?
+  pageViews   Int     @default(0)
+  duration    Int? // in seconds
+
+  // E-commerce
+  cartValue Float?
+  purchased Boolean @default(false)
+
+  // Timestamps
+  firstSeen DateTime @default(now())
+  lastSeen  DateTime @default(now())
+
+  // Relations
+  user   User?           @relation(fields: [userId], references: [id])
+  events TrackingEvent[]
+
+  @@index([sessionId])
+  @@index([userId])
+  @@index([firstSeen])
+}
+
+// ======== TRACKING ENUMS ========
+
+enum TrackingStatus {
+  ACTIVE
+  INACTIVE
+  ERROR
+  TESTING
+}
+
+enum TrackingEventType {
+  PAGE_VIEW
+  CLICK
+  FORM_SUBMIT
+  PURCHASE
+  ADD_TO_CART
+  REMOVE_FROM_CART
+  BEGIN_CHECKOUT
+  ADD_PAYMENT_INFO
+  SIGN_UP
+  LOGIN
+  SEARCH
+  VIEW_ITEM
+  VIEW_CATEGORY
+  ADD_TO_WISHLIST
+  SHARE
+  DOWNLOAD
+  VIDEO_PLAY
+  VIDEO_COMPLETE
+  CUSTOM
+}
+
+enum TrackingPlatform {
+  GA4
+  FACEBOOK_PIXEL
+  GOOGLE_ADS
+  GTM
+  SERVER_SIDE
+  CUSTOM
 }
