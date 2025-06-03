@@ -127,6 +127,10 @@ const translations: Record<Language, Record<string, string>> = {
     'admin_dashboard': 'Admin Dashboard',
     'contacts': 'Contact Messages',
     'email_subscribers': 'Email Subscribers',
+    'tracking_system': 'Tracking System',
+    'website_content': 'Website Content',
+    'variations': 'Variations',
+    'payments': 'Payments',
     
     // Dashboard charts and statistics translations
     'sales_trend': 'Sales Trend',
@@ -344,6 +348,10 @@ const translations: Record<Language, Record<string, string>> = {
     'admin_dashboard': 'لوحة تحكم المدير',
     'contacts': 'رسائل الاتصال',
     'email_subscribers': 'مشتركون البريد الإلكتروني',
+    'tracking_system': 'نظام التتبع',
+    'website_content': 'محتوى الموقع',
+    'variations': 'التغييرات',
+    'payments': 'الدفعات',
     
     // Dashboard charts and statistics translations
     'sales_trend': 'اتجاه المبيعات',

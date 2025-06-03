@@ -1,0 +1,30 @@
+{
+  "googleTagManager": {
+    "enabled": false,
+    "containerId": "",
+    "status": "inactive"
+  },
+  "googleAnalytics": {
+    "enabled": false,
+    "measurementId": "",
+    "status": "inactive"
+  },
+  "metaAds": {
+    "enabled": false,
+    "pixelId": "",
+    "accessToken": "",
+    "status": "inactive"
+  },
+  "googleAds": {
+    "enabled": false,
+    "conversionId": "",
+    "conversionLabel": "",
+    "status": "inactive"
+  },
+  "serverSideTracking": {
+    "enabled": false,
+    "facebookConversionsApi": false,
+    "googleConversionsApi": false,
+    "status": "inactive"
+  }
+}
