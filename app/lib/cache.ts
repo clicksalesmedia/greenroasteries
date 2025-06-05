@@ -1,125 +1,142 @@
-// Simple in-memory cache for API responses
-interface CacheItem {
-  data: any;
+// Enhanced caching system for better performance
+type CacheEntry<T> = {
+  data: T;
   timestamp: number;
   ttl: number;
-}
+};
 
 class MemoryCache {
-  private cache: Map<string, CacheItem> = new Map();
+  private cache = new Map<string, CacheEntry<any>>();
+  private maxSize = 1000; // Maximum number of cache entries
+  private cleanupInterval: NodeJS.Timeout;
 
-  set(key: string, data: any, ttlSeconds: number = 300): void {
+  constructor() {
+    // Cleanup expired entries every 5 minutes
+    this.cleanupInterval = setInterval(() => {
+      this.cleanup();
+    }, 5 * 60 * 1000);
+  }
+
+  set<T>(key: string, data: T, ttl: number = 300): void {
+    // If cache is full, remove oldest entries
+    if (this.cache.size >= this.maxSize) {
+      const oldestKey = this.cache.keys().next().value;
+      if (oldestKey) {
+        this.cache.delete(oldestKey);
+      }
+    }
+
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
-      ttl: ttlSeconds * 1000,
+      ttl: ttl * 1000 // Convert to milliseconds
     });
   }
 
-  get(key: string): any | null {
-    const item = this.cache.get(key);
-    
-    if (!item) {
-      return null;
-    }
+  get<T>(key: string): T | null {
+    const entry = this.cache.get(key);
+    if (!entry) return null;
 
-    // Check if item has expired
-    if (Date.now() - item.timestamp > item.ttl) {
+    // Check if entry has expired
+    if (Date.now() - entry.timestamp > entry.ttl) {
       this.cache.delete(key);
       return null;
     }
 
-    return item.data;
+    return entry.data;
   }
 
-  delete(key: string): void {
-    this.cache.delete(key);
+  has(key: string): boolean {
+    const entry = this.cache.get(key);
+    if (!entry) return false;
+
+    // Check if entry has expired
+    if (Date.now() - entry.timestamp > entry.ttl) {
+      this.cache.delete(key);
+      return false;
+    }
+
+    return true;
+  }
+
+  delete(key: string): boolean {
+    return this.cache.delete(key);
   }
 
   clear(): void {
     this.cache.clear();
   }
 
-  // Clean up expired items
-  cleanup(): void {
+  private cleanup(): void {
     const now = Date.now();
-    for (const [key, item] of this.cache.entries()) {
-      if (now - item.timestamp > item.ttl) {
+    for (const [key, entry] of this.cache.entries()) {
+      if (now - entry.timestamp > entry.ttl) {
         this.cache.delete(key);
       }
     }
   }
 
-  // Get cache statistics
-  getStats(): { size: number; keys: string[] } {
+  getStats() {
     return {
       size: this.cache.size,
-      keys: Array.from(this.cache.keys()),
+      maxSize: this.maxSize
     };
+  }
+
+  destroy(): void {
+    clearInterval(this.cleanupInterval);
+    this.cache.clear();
   }
 }
 
-// Create a global cache instance
-const cache = new MemoryCache();
+// Global cache instance
+const globalCache = new MemoryCache();
 
-// Clean up expired items every 5 minutes
-if (typeof window === 'undefined') {
-  setInterval(() => {
-    cache.cleanup();
-  }, 5 * 60 * 1000);
-}
-
-// Cache wrapper function for API responses
 export async function withCache<T>(
   key: string,
-  fetcher: () => Promise<T>,
-  ttlSeconds: number = 300
+  fn: () => Promise<T>,
+  ttl: number = 300 // 5 minutes default
 ): Promise<T> {
   // Try to get from cache first
-  const cached = cache.get(key);
+  const cached = globalCache.get<T>(key);
   if (cached !== null) {
+    console.log(`Cache HIT for key: ${key}`);
     return cached;
   }
 
-  // Fetch fresh data
-  const data = await fetcher();
+  console.log(`Cache MISS for key: ${key}`);
   
-  // Store in cache
-  cache.set(key, data, ttlSeconds);
-  
-  return data;
+  try {
+    // Execute the function and cache the result
+    const result = await fn();
+    globalCache.set(key, result, ttl);
+    return result;
+  } catch (error) {
+    console.error(`Error executing function for cache key ${key}:`, error);
+    throw error;
+  }
 }
 
-// Specific cache functions for common operations
-export const cacheKeys = {
-  products: (category?: string) => `products${category ? `-${category}` : ''}`,
-  product: (id: string) => `product-${id}`,
-  categories: () => 'categories',
-  sliders: () => 'sliders',
-  variations: (type: string) => `variations-${type}`,
-};
+export function invalidateCache(pattern?: string): void {
+  if (!pattern) {
+    globalCache.clear();
+    console.log('All cache entries cleared');
+    return;
+  }
 
-// Cache invalidation functions
-export const invalidateCache = {
-  products: () => {
-    const keys = Array.from((cache as any).cache.keys()) as string[];
-    keys.forEach((key: string) => {
-      if (key.includes('products')) {
-        cache.delete(key);
-      }
-    });
-  },
-  product: (id: string) => {
-    cache.delete(cacheKeys.product(id));
-    // Also invalidate products list
-    invalidateCache.products();
-  },
-  categories: () => {
-    cache.delete(cacheKeys.categories());
-  },
-  all: () => {
-    cache.clear();
-  },
-};
+  // Clear entries matching pattern
+  let cleared = 0;
+  for (const key of Array.from(globalCache['cache'].keys())) {
+    if (key.includes(pattern)) {
+      globalCache.delete(key);
+      cleared++;
+    }
+  }
+  console.log(`Cleared ${cleared} cache entries matching pattern: ${pattern}`);
+}
 
-export default cache; 
+export function getCacheStats() {
+  return globalCache.getStats();
+}
+
+export { globalCache }; 
