@@ -8,6 +8,7 @@ import { useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
+import { trackInitiateCheckout, trackAddShippingInfo, trackAddPaymentInfo, trackPurchase } from '../lib/tracking-integration';
 
 // Step components
 import CustomerInfoForm from '../components/checkout/CustomerInfoForm';
@@ -109,11 +110,51 @@ export default function CheckoutPage() {
 
   const handleCustomerInfoSubmit = (data: typeof customerInfo) => {
     setCustomerInfo(data);
+    
+    // Track initiate checkout when customer info is submitted
+    trackInitiateCheckout({
+      items: items.map(item => ({
+        id: item.productId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        category: 'Unknown' // Could be enhanced to include category
+      })),
+      total: finalTotal,
+      customer: {
+        email: data.email,
+        firstName: data.fullName.split(' ')[0],
+        lastName: data.fullName.split(' ').slice(1).join(' '),
+        phone: data.phone
+      }
+    });
+    
     handleNextStep();
   };
 
   const handleShippingInfoSubmit = (data: typeof shippingInfo) => {
     setShippingInfo(data);
+    
+    // Track add shipping info
+    trackAddShippingInfo({
+      items: items.map(item => ({
+        id: item.productId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        category: 'Unknown'
+      })),
+      total: finalTotal,
+      customer: {
+        email: customerInfo.email,
+        firstName: customerInfo.fullName.split(' ')[0],
+        lastName: customerInfo.fullName.split(' ').slice(1).join(' '),
+        phone: customerInfo.phone,
+        city: data.city,
+        state: data.emirate
+      }
+    });
+    
     handleNextStep();
   };
 

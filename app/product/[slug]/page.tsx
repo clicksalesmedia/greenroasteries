@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import UAEDirhamSymbol from '../../components/UAEDirhamSymbol';
+import { trackViewContent, trackAddToCart } from '../../lib/tracking-integration';
 
 interface ProductVariation {
   id: string;
@@ -304,6 +305,22 @@ export default function ProductPage() {
         // In a real app, this would be an API call to increment the view count
         // For now, we'll simulate it with our local state
         setViewCount(prevCount => prevCount + 1);
+
+        // Track product view
+        if (data) {
+          const categoryName = typeof data.category === 'string' 
+            ? data.category 
+            : (typeof data.category === 'object' && data.category && 'name' in data.category 
+               ? (data.category as { name: string }).name 
+               : 'Unknown');
+          
+          trackViewContent({
+            id: data.id,
+            name: data.name,
+            price: data.price,
+            category: categoryName
+          });
+        }
         
         // Fetch recommended products
         fetchRecommendedProducts(data);
@@ -1017,6 +1034,15 @@ export default function ProductPage() {
       extractValue(selectedVariation?.additions, language)
     ].filter(Boolean).join(', ');
     
+    // Track add to cart
+    trackAddToCart({
+      id: product.id,
+      name: product.name,
+      price: getCurrentPrice(),
+      quantity: quantity,
+      category: getCategoryName()
+    });
+
     // Add item to cart using our cart context
     addItem({
       id: `${product.id}-${selectedVariation.id}`,

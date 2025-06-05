@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { XMarkIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
+import { trackAddToCart } from '../lib/tracking-integration';
 import Image from 'next/image';
 
 // Helper function to extract display values from variation objects or strings
@@ -258,6 +259,19 @@ export default function VariationModal({ isOpen, onClose, product, onAddToCart }
       }
     }
     
+    // Track add to cart
+    trackAddToCart({
+      id: product.id,
+      name: product.name,
+      price: finalPrice,
+      quantity: quantity,
+      category: typeof product.category === 'string' 
+        ? product.category 
+        : (typeof product.category === 'object' && product.category && 'name' in product.category 
+           ? (product.category as { name: string }).name 
+           : 'Unknown')
+    });
+
     // Add to cart
     addItem({
       id: `${product.id}-${Date.now()}`,

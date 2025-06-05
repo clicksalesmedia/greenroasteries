@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import { trackRemoveFromCart } from '../lib/tracking-integration';
 
 // Type definitions
 export interface CartVariation {
@@ -105,7 +106,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   // Remove item from cart
   const removeItem = (itemId: string) => {
-    setItems(currentItems => currentItems.filter(item => item.id !== itemId));
+    setItems(currentItems => {
+      const itemToRemove = currentItems.find(item => item.id === itemId);
+      
+      // Track remove from cart
+      if (itemToRemove) {
+        trackRemoveFromCart({
+          id: itemToRemove.productId,
+          name: itemToRemove.name,
+          price: itemToRemove.price,
+          quantity: itemToRemove.quantity,
+          category: 'Unknown' // We don't have category in cart item, could be enhanced
+        });
+      }
+      
+      return currentItems.filter(item => item.id !== itemId);
+    });
   };
 
   // Update item quantity

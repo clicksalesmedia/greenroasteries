@@ -11,6 +11,7 @@ import {
   useElements
 } from '@stripe/react-stripe-js';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { trackAddPaymentInfo, trackPurchase } from '../../lib/tracking-integration';
 
 // Initialize Stripe promise
 let stripePromise: Promise<any> | null = null;
@@ -171,13 +172,36 @@ function CheckoutForm({
 
           const orderData = await orderResponse.json();
 
-          if (orderData.success) {
-            event.complete('success');
-            onSuccess(orderData.orderId, orderData.isNewCustomer);
-          } else {
-            event.complete('fail');
-            setError(orderData.error || 'Failed to create order');
-          }
+                  if (orderData.success) {
+          // Track purchase completion
+          trackPurchase({
+            orderId: orderData.orderId,
+            items: items.map(item => ({
+              id: item.id,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              category: 'Unknown'
+            })),
+            total: totalAmount,
+            subtotal: subtotal,
+            shipping: shippingCost,
+            tax: tax,
+            discount: discount,
+            customer: {
+              email: customerInfo.email,
+              firstName: customerInfo.fullName.split(' ')[0],
+              lastName: customerInfo.fullName.split(' ').slice(1).join(' '),
+              phone: customerInfo.phone
+            }
+          });
+          
+          event.complete('success');
+          onSuccess(orderData.orderId, orderData.isNewCustomer);
+        } else {
+          event.complete('fail');
+          setError(orderData.error || 'Failed to create order');
+        }
         } catch (err) {
           event.complete('fail');
           setError('Failed to create order');
@@ -197,6 +221,24 @@ function CheckoutForm({
 
     setProcessing(true);
     setError('');
+
+    // Track add payment info
+    trackAddPaymentInfo({
+      items: items.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        category: 'Unknown'
+      })),
+      total: totalAmount,
+      customer: {
+        email: customerInfo.email,
+        firstName: customerInfo.fullName.split(' ')[0],
+        lastName: customerInfo.fullName.split(' ').slice(1).join(' '),
+        phone: customerInfo.phone
+      }
+    });
 
     const cardElement = elements.getElement(CardElement);
 
@@ -252,6 +294,29 @@ function CheckoutForm({
         const orderData = await orderResponse.json();
 
         if (orderData.success) {
+          // Track purchase completion
+          trackPurchase({
+            orderId: orderData.orderId,
+            items: items.map(item => ({
+              id: item.id,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              category: 'Unknown'
+            })),
+            total: totalAmount,
+            subtotal: subtotal,
+            shipping: shippingCost,
+            tax: tax,
+            discount: discount,
+            customer: {
+              email: customerInfo.email,
+              firstName: customerInfo.fullName.split(' ')[0],
+              lastName: customerInfo.fullName.split(' ').slice(1).join(' '),
+              phone: customerInfo.phone
+            }
+          });
+          
           onSuccess(orderData.orderId, orderData.isNewCustomer);
         } else {
           setError(orderData.error || 'Failed to create order');

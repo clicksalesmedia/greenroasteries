@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../contexts/LanguageContext';
+import { trackAddToCart } from '../lib/tracking-integration';
 import { useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
 import UAEDirhamSymbol from './UAEDirhamSymbol';
@@ -407,6 +408,17 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({ isOpen, o
       return;
     }
     
+    const productName = language === 'ar' && product.nameAr ? product.nameAr : product.name;
+    
+    // Track add to cart
+    trackAddToCart({
+      id: product.id,
+      name: productName,
+      price: getCurrentPrice(),
+      quantity: quantity,
+      category: 'Unknown' // Category not available in this modal
+    });
+    
     // Format the selected variation options for display
     const variationOptions = [
       selectedWeight,
@@ -418,7 +430,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({ isOpen, o
     addItem({
       id: `${product.id}-${selectedVariation.id}`,
       productId: product.id,
-      name: language === 'ar' && product.nameAr ? product.nameAr : product.name,
+      name: productName,
       price: getCurrentPrice(),
       quantity: quantity,
       image: product.imageUrl || (product.images && product.images.length > 0 ? product.images[0] : ''),
@@ -430,7 +442,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({ isOpen, o
     });
     
     // Show success message with toast
-    showToast(`${quantity} × ${language === 'ar' && product.nameAr ? product.nameAr : product.name} ${t('added_to_cart', 'added to cart')}`, 'success');
+    showToast(`${quantity} × ${productName} ${t('added_to_cart', 'added to cart')}`, 'success');
     
     // Close the modal
     onClose();
