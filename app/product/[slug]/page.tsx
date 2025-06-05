@@ -314,10 +314,25 @@ export default function ProductPage() {
                ? (data.category as { name: string }).name 
                : 'Unknown');
           
+          // Use the current price (considering variations and discounts)
+          const trackingPrice = selectedVariation ? 
+            (selectedVariation.discount && selectedVariation.discount > 0 ? 
+              (selectedVariation.discountType === 'PERCENTAGE' ? 
+                selectedVariation.price * (1 - selectedVariation.discount) : 
+                Math.max(0, selectedVariation.price - selectedVariation.discount)
+              ) : selectedVariation.price
+            ) : 
+            (data.discount && data.discount > 0 ? 
+              (data.discountType === 'PERCENTAGE' ? 
+                data.price * (1 - data.discount / 100) : 
+                Math.max(0, data.price - data.discount)
+              ) : data.price
+            );
+          
           trackViewContent({
             id: data.id,
             name: data.name,
-            price: data.price,
+            price: trackingPrice,
             category: categoryName
           });
         }
@@ -894,6 +909,23 @@ export default function ProductPage() {
       console.log('Selected variation:', bestMatch);
       setSelectedVariation(bestMatch);
       
+      // Track view content with updated variation price
+      if (product) {
+        const categoryName = getCategoryName();
+        const variationPrice = bestMatch.discount && bestMatch.discount > 0 ? 
+          (bestMatch.discountType === 'PERCENTAGE' ? 
+            bestMatch.price * (1 - bestMatch.discount) : 
+            Math.max(0, bestMatch.price - bestMatch.discount)
+          ) : bestMatch.price;
+        
+        trackViewContent({
+          id: product.id,
+          name: product.name,
+          price: variationPrice,
+          category: categoryName
+        });
+      }
+      
       // Set variation image if available
       if (bestMatch.imageUrl) {
         setVariationImage(bestMatch.imageUrl);
@@ -923,6 +955,23 @@ export default function ProductPage() {
       if (partialMatches.length > 0) {
         console.log(`Found ${partialMatches.length} partial matches. Selecting first one:`, partialMatches[0]);
         setSelectedVariation(partialMatches[0]);
+        
+        // Track view content with updated variation price
+        if (product) {
+          const categoryName = getCategoryName();
+          const variationPrice = partialMatches[0].discount && partialMatches[0].discount > 0 ? 
+            (partialMatches[0].discountType === 'PERCENTAGE' ? 
+              partialMatches[0].price * (1 - partialMatches[0].discount) : 
+              Math.max(0, partialMatches[0].price - partialMatches[0].discount)
+            ) : partialMatches[0].price;
+          
+          trackViewContent({
+            id: product.id,
+            name: product.name,
+            price: variationPrice,
+            category: categoryName
+          });
+        }
         
         // Set variation image if available
         if (partialMatches[0].imageUrl) {

@@ -44,6 +44,7 @@ interface EventsResponse {
     offset: number;
     hasMore: boolean;
   };
+  error?: string;
 }
 
 export default function TrackingEventsPage() {
@@ -67,6 +68,7 @@ export default function TrackingEventsPage() {
   const fetchEvents = async () => {
     try {
       setLoading(true);
+      setError(null);
       const params = new URLSearchParams();
       if (filters.eventName) params.append('eventName', filters.eventName);
       if (filters.platform) params.append('platform', filters.platform);
@@ -74,16 +76,22 @@ export default function TrackingEventsPage() {
       params.append('offset', filters.offset.toString());
 
       const response = await fetch(`/api/tracking/events?${params}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data: EventsResponse = await response.json();
 
       if (data.success) {
         setEvents(data.events);
         setPagination(data.pagination);
       } else {
-        setError('Failed to fetch tracking events');
+        setError(data.error || 'Failed to fetch tracking events');
       }
     } catch (err) {
-      setError('Error fetching tracking events');
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(`Error fetching tracking events: ${errorMessage}`);
       console.error('Fetch events error:', err);
     } finally {
       setLoading(false);
@@ -135,8 +143,10 @@ export default function TrackingEventsPage() {
     const colors: { [key: string]: string } = {
       'GA4': 'bg-blue-500 text-white',
       'GTM': 'bg-green-500 text-white',
-      'META': 'bg-blue-600 text-white',
-      'GOOGLE_ADS': 'bg-red-500 text-white'
+      'FACEBOOK_PIXEL': 'bg-blue-600 text-white',
+      'GOOGLE_ADS': 'bg-red-500 text-white',
+      'SERVER_SIDE': 'bg-purple-500 text-white',
+      'CUSTOM': 'bg-gray-600 text-white'
     };
     return colors[platform] || 'bg-gray-500 text-white';
   };
@@ -159,12 +169,23 @@ export default function TrackingEventsPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          {t('tracking_events', 'Tracking Events')}
-        </h1>
-        <p className="text-gray-600">
-          {t('tracking_events_desc', 'Monitor and analyze all tracking events captured by the system')}
-        </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              {t('tracking_events', 'Tracking Events')}
+            </h1>
+            <p className="text-gray-600">
+              {t('tracking_events_desc', 'Monitor and analyze all tracking events captured by the system')}
+            </p>
+          </div>
+          <button
+            onClick={fetchEvents}
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -206,8 +227,10 @@ export default function TrackingEventsPage() {
               <option value="">All Platforms</option>
               <option value="GA4">Google Analytics 4</option>
               <option value="GTM">Google Tag Manager</option>
-              <option value="META">Meta Pixel</option>
+              <option value="FACEBOOK_PIXEL">Facebook Pixel</option>
               <option value="GOOGLE_ADS">Google Ads</option>
+              <option value="SERVER_SIDE">Server Side</option>
+              <option value="CUSTOM">Custom</option>
             </select>
           </div>
 
@@ -265,7 +288,15 @@ export default function TrackingEventsPage() {
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
-          <div className="text-red-800">{error}</div>
+          <div className="flex justify-between items-center">
+            <div className="text-red-800">{error}</div>
+            <button
+              onClick={fetchEvents}
+              className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
         </div>
       )}
 

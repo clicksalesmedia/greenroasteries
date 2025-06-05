@@ -364,6 +364,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     return NextResponse.json({
+      success: true,
       events,
       pagination: {
         total,
@@ -376,7 +377,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error retrieving events:', error);
     return NextResponse.json(
-      { error: 'Failed to retrieve events' },
+      { 
+        success: false,
+        error: 'Failed to retrieve events' 
+      },
       { status: 500 }
     );
   }

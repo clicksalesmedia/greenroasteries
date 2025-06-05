@@ -211,9 +211,9 @@ export default function TrackingScripts() {
             // Initialize enhanced tracking
             window.trackingConfig = ${JSON.stringify(config)};
             
-            // Set up automatic page view tracking
+            // Set up automatic page view tracking (GA4 only, Facebook Pixel already tracks PageView in init)
             if (typeof window !== 'undefined') {
-              // Track initial page view
+              // Track initial page view for GA4
               setTimeout(() => {
                 if (window.gtag) {
                   window.gtag('event', 'page_view', {
@@ -223,9 +223,8 @@ export default function TrackingScripts() {
                   });
                 }
                 
-                if (window.fbq) {
-                  window.fbq('track', 'PageView');
-                }
+                // Facebook Pixel PageView is already tracked in fbq('init') above
+                // Remove duplicate call: window.fbq('track', 'PageView');
               }, 100);
             }
           `,
