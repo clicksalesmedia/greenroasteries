@@ -4,6 +4,7 @@ import "./globals.css";
 import "./styles/toast.css";
 import Header from './components/Header';
 import Footer from './components/Footer';
+import TrackingScripts from './components/TrackingScripts';
 import { CartProvider } from './contexts/CartContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { LanguageProvider } from './contexts/LanguageContext';
@@ -37,6 +38,7 @@ export default function RootLayout({
         suppressHydrationWarning={true}
         style={{ fontFamily: "'Cairo', 'Poppins', sans-serif", color: "#333" }}
       >
+        <TrackingScripts />
         <ErrorBoundary showDetails={process.env.NODE_ENV === 'development'}>
           <LanguageProvider>
             <Suspense fallback={

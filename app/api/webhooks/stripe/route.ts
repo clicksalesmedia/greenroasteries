@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { PrismaClient } from '@/app/generated/prisma';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -67,22 +68,26 @@ export async function POST(request: NextRequest) {
 
 async function handlePaymentIntentSucceeded(paymentIntent: any) {
   try {
-    // Update payment status
-    await prisma.payment.updateMany({
-      where: { stripePaymentIntentId: paymentIntent.id },
-      data: {
-        status: 'SUCCEEDED',
-        updatedAt: new Date()
-      }
-    });
-
-    // Update associated order status
-    const payment = await prisma.payment.findFirst({
+    console.log(`Processing payment_intent.succeeded for ${paymentIntent.id}`);
+    
+    // First, check if payment record already exists
+    let payment = await prisma.payment.findFirst({
       where: { stripePaymentIntentId: paymentIntent.id },
       include: { order: true }
     });
 
     if (payment && payment.order) {
+      // Order already exists, just update status
+      console.log(`Order already exists for payment ${paymentIntent.id}, updating status`);
+      
+      await prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: 'SUCCEEDED',
+          updatedAt: new Date()
+        }
+      });
+
       await prisma.order.update({
         where: { id: payment.orderId },
         data: {
@@ -90,6 +95,120 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
           updatedAt: new Date()
         }
       });
+    } else {
+      // Payment/Order doesn't exist - this is the race condition case
+      // We need to create the order from the payment intent metadata
+      console.log(`No order found for payment ${paymentIntent.id}, creating from webhook...`);
+      
+      const metadata = paymentIntent.metadata;
+      const customerEmail = metadata.customerEmail;
+      const customerName = metadata.customerName;
+      const customerPhone = metadata.customerPhone || '';
+      const shippingCity = metadata.shippingCity || 'Dubai';
+      const shippingAddress = metadata.shippingAddress || '';
+      const amount = paymentIntent.amount / 100;
+
+      if (!customerEmail || !customerName) {
+        console.error(`Missing customer data in payment intent ${paymentIntent.id}`);
+        return;
+      }
+
+      // Check if user exists
+      let user = await prisma.user.findUnique({
+        where: { email: customerEmail }
+      });
+
+      // Create user if doesn't exist
+      if (!user) {
+        console.log(`Creating new user for ${customerEmail}`);
+        const tempPassword = Math.random().toString(36).slice(-8);
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+        user = await prisma.user.create({
+          data: {
+            email: customerEmail,
+            name: customerName,
+            phone: customerPhone,
+            city: shippingCity,
+            address: shippingAddress,
+            password: hashedPassword,
+            role: 'CUSTOMER',
+            isNewCustomer: true,
+            emailVerified: false,
+          }
+        });
+      }
+
+      // Get a default product for the order item (we'll use the first available product)
+      const defaultProduct = await prisma.product.findFirst({
+        where: { inStock: true }
+      });
+
+      if (!defaultProduct) {
+        console.error('No products available to create webhook order');
+        return;
+      }
+
+      // Create order and payment in transaction
+      const result = await prisma.$transaction(async (tx) => {
+        // Create the order
+        const order = await tx.order.create({
+          data: {
+            userId: user.id,
+            customerName: customerName,
+            customerEmail: customerEmail,
+            customerPhone: customerPhone,
+            city: shippingCity,
+            shippingAddress: shippingAddress,
+            subtotal: amount * 0.9,
+            tax: amount * 0.05,
+            shippingCost: amount * 0.05,
+            discount: 0,
+            total: amount,
+            status: 'PROCESSING',
+            paymentMethod: 'stripe',
+            stripePaymentIntentId: paymentIntent.id,
+            emailSent: false,
+            items: {
+              create: [{
+                productId: defaultProduct.id,
+                quantity: 1,
+                unitPrice: amount,
+                subtotal: amount
+              }]
+            }
+          }
+        });
+
+        // Get charge information
+        const charges = await stripe.charges.list({
+          payment_intent: paymentIntent.id,
+          limit: 1
+        });
+
+        const charge = charges.data[0];
+        const paymentMethodDetails = charge?.payment_method_details;
+
+        // Create payment record
+        const paymentRecord = await tx.payment.create({
+          data: {
+            orderId: order.id,
+            userId: user.id,
+            stripePaymentIntentId: paymentIntent.id,
+            stripeChargeId: charge?.id,
+            amount: amount,
+            currency: 'aed',
+            status: 'SUCCEEDED',
+            paymentMethod: paymentMethodDetails?.card?.brand || 'card',
+            last4: paymentMethodDetails?.card?.last4,
+            brand: paymentMethodDetails?.card?.brand,
+          }
+        });
+
+        return { order, payment: paymentRecord };
+      });
+
+      console.log(`✅ Created order ${result.order.id} from webhook for ${customerEmail}`);
     }
 
     console.log(`Payment intent ${paymentIntent.id} succeeded`);

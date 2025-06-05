@@ -44,17 +44,35 @@ export const GA4 = {
     }
   },
 
-  // Track purchase event
-  purchase: (transactionData: EcommerceEvent) => {
+  // Track view item event
+  viewItem: (item: EcommerceItem, currency = 'AED') => {
     if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('event', 'purchase', {
-        transaction_id: transactionData.transaction_id,
-        value: transactionData.value,
-        currency: transactionData.currency || 'AED',
-        items: transactionData.items,
-        coupon: transactionData.coupon,
-        shipping: transactionData.shipping,
-        tax: transactionData.tax
+      window.gtag('event', 'view_item', {
+        currency,
+        value: item.price,
+        items: [item]
+      });
+    }
+  },
+
+  // Track view item list event
+  viewItemList: (items: EcommerceItem[], listName?: string, currency = 'AED') => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'view_item_list', {
+        currency,
+        item_list_name: listName,
+        items
+      });
+    }
+  },
+
+  // Track add to wishlist event
+  addToWishlist: (item: EcommerceItem, currency = 'AED') => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'add_to_wishlist', {
+        currency,
+        value: item.price,
+        items: [item]
       });
     }
   },
@@ -70,6 +88,17 @@ export const GA4 = {
     }
   },
 
+  // Track remove from cart event
+  removeFromCart: (item: EcommerceItem, currency = 'AED') => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'remove_from_cart', {
+        currency,
+        value: item.price * item.quantity,
+        items: [item]
+      });
+    }
+  },
+
   // Track begin checkout event
   beginCheckout: (items: EcommerceItem[], value: number, currency = 'AED') => {
     if (typeof window !== 'undefined' && window.gtag) {
@@ -77,6 +106,83 @@ export const GA4 = {
         currency,
         value,
         items
+      });
+    }
+  },
+
+  // Track add shipping info event
+  addShippingInfo: (items: EcommerceItem[], value: number, currency = 'AED', shippingTier?: string) => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'add_shipping_info', {
+        currency,
+        value,
+        items,
+        shipping_tier: shippingTier
+      });
+    }
+  },
+
+  // Track add payment info event
+  addPaymentInfo: (items: EcommerceItem[], value: number, currency = 'AED', paymentType?: string) => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'add_payment_info', {
+        currency,
+        value,
+        items,
+        payment_type: paymentType
+      });
+    }
+  },
+
+  // Track purchase event
+  purchase: (transactionData: EcommerceEvent) => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'purchase', {
+        transaction_id: transactionData.transaction_id,
+        value: transactionData.value,
+        currency: transactionData.currency || 'AED',
+        items: transactionData.items,
+        coupon: transactionData.coupon,
+        shipping: transactionData.shipping,
+        tax: transactionData.tax
+      });
+    }
+  },
+
+  // Track search event
+  search: (searchTerm: string, searchResults?: number) => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'search', {
+        search_term: searchTerm,
+        search_results: searchResults
+      });
+    }
+  },
+
+  // Track sign up event
+  signUp: (method?: string) => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'sign_up', {
+        method
+      });
+    }
+  },
+
+  // Track login event
+  login: (method?: string) => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'login', {
+        method
+      });
+    }
+  },
+
+  // Track share event
+  share: (contentType?: string, itemId?: string) => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'share', {
+        content_type: contentType,
+        item_id: itemId
       });
     }
   },
@@ -98,14 +204,38 @@ export const FacebookPixel = {
     }
   },
 
+  // Track view content event
+  viewContent: (contentId?: string, contentType = 'product', value?: number, currency = 'AED') => {
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'ViewContent', {
+        content_ids: contentId ? [contentId] : [],
+        content_type: contentType,
+        value,
+        currency
+      });
+    }
+  },
+
+  // Track add to wishlist event
+  addToWishlist: (contentId?: string, value?: number, currency = 'AED') => {
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'AddToWishlist', {
+        content_ids: contentId ? [contentId] : [],
+        value,
+        currency
+      });
+    }
+  },
+
   // Track purchase event
-  purchase: (value: number, currency = 'AED', contentIds: string[] = []) => {
+  purchase: (value: number, currency = 'AED', contentIds: string[] = [], orderId?: string) => {
     if (typeof window !== 'undefined' && window.fbq) {
       window.fbq('track', 'Purchase', {
         value,
         currency,
         content_ids: contentIds,
-        content_type: 'product'
+        content_type: 'product',
+        order_id: orderId
       });
     }
   },
@@ -122,6 +252,16 @@ export const FacebookPixel = {
     }
   },
 
+  // Track add payment info event
+  addPaymentInfo: (value?: number, currency = 'AED') => {
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'AddPaymentInfo', {
+        value,
+        currency
+      });
+    }
+  },
+
   // Track initiate checkout event
   initiateCheckout: (value: number, currency = 'AED', contentIds: string[] = []) => {
     if (typeof window !== 'undefined' && window.fbq) {
@@ -130,6 +270,42 @@ export const FacebookPixel = {
         currency,
         content_ids: contentIds,
         content_type: 'product'
+      });
+    }
+  },
+
+  // Track contact event
+  contact: () => {
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'Contact');
+    }
+  },
+
+  // Track search event
+  search: (searchString: string) => {
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'Search', {
+        search_string: searchString
+      });
+    }
+  },
+
+  // Track complete registration event
+  completeRegistration: (value?: number, currency = 'AED') => {
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'CompleteRegistration', {
+        value,
+        currency
+      });
+    }
+  },
+
+  // Track subscribe event
+  subscribe: (value?: number, currency = 'AED') => {
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'Subscribe', {
+        value,
+        currency
       });
     }
   },
@@ -189,6 +365,9 @@ export const ServerSideTracking = {
       currency?: string;
       content_ids?: string[];
       order_id?: string;
+      content_name?: string;
+      content_category?: string;
+      search_string?: string;
     };
     event_source_url?: string;
   }) => {
@@ -202,7 +381,7 @@ export const ServerSideTracking = {
           event_name: eventData.event_name,
           event_time: Math.floor(Date.now() / 1000),
           action_source: 'website',
-          event_source_url: eventData.event_source_url || window.location.href,
+          event_source_url: eventData.event_source_url || (typeof window !== 'undefined' ? window.location.href : ''),
           user_data: eventData.user_data,
           custom_data: eventData.custom_data,
           event_id: crypto.randomUUID()
@@ -247,6 +426,204 @@ export const ServerSideTracking = {
       console.error('Error sending Google conversion event:', error);
       return { success: false, error };
     }
+  },
+
+  // Unified event tracking for all platforms
+  trackEvent: async (eventName: string, eventData: {
+    items?: EcommerceItem[];
+    value?: number;
+    currency?: string;
+    transaction_id?: string;
+    user_data?: UserData;
+    search_term?: string;
+    content_name?: string;
+    content_category?: string;
+    enableServerSide?: boolean;
+  }) => {
+    const promises = [];
+
+    // Client-side tracking
+    if (typeof window !== 'undefined') {
+      // Facebook Pixel
+      switch (eventName) {
+        case 'page_view':
+          FacebookPixel.pageView();
+          break;
+        case 'view_content':
+          FacebookPixel.viewContent(
+            eventData.items?.[0]?.item_id,
+            'product',
+            eventData.value,
+            eventData.currency
+          );
+          break;
+        case 'add_to_cart':
+          FacebookPixel.addToCart(
+            eventData.value || 0,
+            eventData.currency,
+            eventData.items?.map(item => item.item_id) || []
+          );
+          break;
+        case 'add_to_wishlist':
+          FacebookPixel.addToWishlist(
+            eventData.items?.[0]?.item_id,
+            eventData.value,
+            eventData.currency
+          );
+          break;
+        case 'initiate_checkout':
+          FacebookPixel.initiateCheckout(
+            eventData.value || 0,
+            eventData.currency,
+            eventData.items?.map(item => item.item_id) || []
+          );
+          break;
+        case 'add_payment_info':
+          FacebookPixel.addPaymentInfo(eventData.value, eventData.currency);
+          break;
+        case 'purchase':
+          FacebookPixel.purchase(
+            eventData.value || 0,
+            eventData.currency,
+            eventData.items?.map(item => item.item_id) || [],
+            eventData.transaction_id
+          );
+          break;
+        case 'search':
+          FacebookPixel.search(eventData.search_term || '');
+          break;
+        case 'complete_registration':
+          FacebookPixel.completeRegistration(eventData.value, eventData.currency);
+          break;
+        case 'contact':
+          FacebookPixel.contact();
+          break;
+        case 'subscribe':
+          FacebookPixel.subscribe(eventData.value, eventData.currency);
+          break;
+      }
+
+      // Google Analytics 4
+      switch (eventName) {
+        case 'page_view':
+          GA4.pageView();
+          break;
+        case 'view_item':
+          if (eventData.items?.[0]) {
+            GA4.viewItem(eventData.items[0], eventData.currency);
+          }
+          break;
+        case 'view_item_list':
+          if (eventData.items) {
+            GA4.viewItemList(eventData.items, eventData.content_category, eventData.currency);
+          }
+          break;
+        case 'add_to_cart':
+          if (eventData.items?.[0]) {
+            GA4.addToCart(eventData.items[0], eventData.value);
+          }
+          break;
+        case 'add_to_wishlist':
+          if (eventData.items?.[0]) {
+            GA4.addToWishlist(eventData.items[0], eventData.currency);
+          }
+          break;
+        case 'remove_from_cart':
+          if (eventData.items?.[0]) {
+            GA4.removeFromCart(eventData.items[0], eventData.currency);
+          }
+          break;
+        case 'begin_checkout':
+          if (eventData.items) {
+            GA4.beginCheckout(eventData.items, eventData.value || 0, eventData.currency);
+          }
+          break;
+        case 'add_shipping_info':
+          if (eventData.items) {
+            GA4.addShippingInfo(eventData.items, eventData.value || 0, eventData.currency);
+          }
+          break;
+        case 'add_payment_info':
+          if (eventData.items) {
+            GA4.addPaymentInfo(eventData.items, eventData.value || 0, eventData.currency);
+          }
+          break;
+        case 'purchase':
+          GA4.purchase({
+            event_name: 'purchase',
+            transaction_id: eventData.transaction_id || '',
+            value: eventData.value || 0,
+            currency: eventData.currency || 'AED',
+            items: eventData.items || []
+          });
+          break;
+        case 'search':
+          GA4.search(eventData.search_term || '');
+          break;
+        case 'sign_up':
+          GA4.signUp();
+          break;
+        case 'login':
+          GA4.login();
+          break;
+        case 'share':
+          GA4.share(eventData.content_category, eventData.items?.[0]?.item_id);
+          break;
+      }
+    }
+
+    // Server-side tracking
+    if (eventData.enableServerSide) {
+      // Facebook Conversions API
+      promises.push(
+        ServerSideTracking.sendFacebookEvent({
+          event_name: eventName === 'initiate_checkout' ? 'InitiateCheckout' :
+                     eventName === 'add_to_cart' ? 'AddToCart' :
+                     eventName === 'add_payment_info' ? 'AddPaymentInfo' :
+                     eventName === 'purchase' ? 'Purchase' :
+                     eventName === 'view_content' ? 'ViewContent' :
+                     eventName === 'add_to_wishlist' ? 'AddToWishlist' :
+                     eventName === 'search' ? 'Search' :
+                     eventName === 'complete_registration' ? 'CompleteRegistration' :
+                     eventName === 'contact' ? 'Contact' :
+                     eventName === 'subscribe' ? 'Subscribe' :
+                     'PageView',
+          user_data: eventData.user_data,
+          custom_data: {
+            value: eventData.value,
+            currency: eventData.currency,
+            content_ids: eventData.items?.map(item => item.item_id),
+            order_id: eventData.transaction_id,
+            content_name: eventData.content_name,
+            content_category: eventData.content_category,
+            search_string: eventData.search_term
+          }
+        })
+      );
+
+      // Google Analytics Measurement Protocol
+      promises.push(
+        ServerSideTracking.sendGoogleEvent({
+          conversion_action: eventName,
+          conversion_value: eventData.value,
+          currency_code: eventData.currency,
+          order_id: eventData.transaction_id,
+          user_data: eventData.user_data,
+          method: 'ga4'
+        })
+      );
+    }
+
+    // Wait for all server-side requests
+    if (promises.length > 0) {
+      try {
+        await Promise.allSettled(promises);
+      } catch (error) {
+        console.error('Error in server-side tracking:', error);
+      }
+    }
+
+    return { success: true };
   }
 };
 

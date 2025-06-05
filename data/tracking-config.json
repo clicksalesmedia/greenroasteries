@@ -1,30 +1,30 @@
 {
   "googleTagManager": {
-    "enabled": false,
-    "containerId": "",
-    "status": "inactive"
+    "enabled": true,
+    "containerId": "GTM-W6X2NGX7",
+    "status": "active"
   },
   "googleAnalytics": {
-    "enabled": false,
-    "measurementId": "",
-    "status": "inactive"
+    "enabled": true,
+    "measurementId": "G-RYC9K25QGQ",
+    "status": "active"
   },
   "metaAds": {
-    "enabled": false,
-    "pixelId": "",
-    "accessToken": "",
-    "status": "inactive"
+    "enabled": true,
+    "pixelId": "3805848799548541",
+    "accessToken": "EAAX7Xr0jeMQBO2lCgCyyRhnG1AVnKMdILdHv6gRwomuZBVF4Aoz1beFjoLhzDf3njCZAB2eg3u9bw2EjnlEuyvnaxH7h3gZCtWFBw0QZAxacZCBs3ieR2OP1KUyAevlrMTdCb62pfkJZBoVPkkAvBvoIKWeXVxgUbBnMBm6KuZCAT2d1k1N6DZCRl1I9fwP96T3IZCQZDZD",
+    "status": "active"
   },
   "googleAds": {
-    "enabled": false,
-    "conversionId": "",
-    "conversionLabel": "",
-    "status": "inactive"
+    "enabled": true,
+    "conversionId": "AW-123456789",
+    "conversionLabel": "abcdefghijk",
+    "status": "active"
   },
   "serverSideTracking": {
-    "enabled": false,
-    "facebookConversionsApi": false,
-    "googleConversionsApi": false,
-    "status": "inactive"
+    "enabled": true,
+    "facebookConversionsApi": true,
+    "googleConversionsApi": true,
+    "status": "active"
   }
 }

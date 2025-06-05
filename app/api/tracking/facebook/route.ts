@@ -153,8 +153,30 @@ async function sendToFacebook(pixelId: string, accessToken: string, eventData: F
 export async function POST(request: NextRequest) {
   try {
     // Get Facebook credentials from environment or config
-    const pixelId = process.env.FACEBOOK_PIXEL_ID;
-    const accessToken = process.env.FACEBOOK_ACCESS_TOKEN;
+    let pixelId = process.env.FACEBOOK_PIXEL_ID;
+    let accessToken = process.env.FACEBOOK_ACCESS_TOKEN;
+
+    // Try to get from database config if not in environment
+    if (!pixelId || !accessToken) {
+      try {
+        const configResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/config`);
+        if (configResponse.ok) {
+          const config = await configResponse.json();
+          pixelId = pixelId || config.metaAds?.pixelId;
+          accessToken = accessToken || config.metaAds?.accessToken;
+        }
+      } catch (error) {
+        console.error('Error fetching config:', error);
+      }
+    }
+
+    // Fallback to hardcoded values if still not found
+    if (!pixelId) {
+      pixelId = '3805848799548541';
+    }
+    if (!accessToken) {
+      accessToken = 'EAAX7Xr0jeMQBO2lCgCyyRhnG1AVnKMdILdHv6gRwomuZBVF4Aoz1beFjoLhzDf3njCZAB2eg3u9bw2EjnlEuyvnaxH7h3gZCtWFBw0QZAxacZCBs3ieR2OP1KUyAevlrMTdCb62pfkJZBoVPkkAvBvoIKWeXVxgUbBnMBm6KuZCAT2d1k1N6DZCRl1I9fwP96T3IZCQZDZD';
+    }
 
     if (!pixelId || !accessToken) {
       return NextResponse.json(
