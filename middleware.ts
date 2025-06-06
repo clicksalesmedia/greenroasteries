@@ -35,6 +35,10 @@ const PUBLIC_PATHS = [
   '/api/create-payment-intent',
   '/api/test-email',
   '/api/contacts',
+  '/api/webhooks/stripe',
+  '/api/webhooks/stripe-test',
+  '/api/payments/check-incomplete',
+  '/api/payments/recover-missing',
 ];
 
 // Cache control helper function

@@ -50,6 +50,9 @@ export async function POST(request: NextRequest) {
     // Payment succeeded but no order exists - manually trigger the webhook handler
     console.log(`[Manual Recovery] Payment ${paymentIntentId} is succeeded, creating order...`);
     
+    // Log metadata for debugging
+    console.log(`[Manual Recovery] Payment metadata:`, paymentIntent.metadata);
+    
     await handlePaymentIntentSucceeded(paymentIntent);
 
     // Verify order was created

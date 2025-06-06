@@ -126,7 +126,13 @@ export async function handlePaymentIntentSucceeded(paymentIntent: any) {
       const customerPhone = metadata.customerPhone || '';
       const shippingCity = metadata.shippingCity || 'Dubai';
       const shippingAddress = metadata.shippingAddress || '';
-      const amount = paymentIntent.amount / 100;
+      
+      // Parse order details from metadata
+      const subtotal = parseFloat(metadata.subtotal || '0');
+      const tax = parseFloat(metadata.tax || '0');
+      const shippingCost = parseFloat(metadata.shippingCost || '0');
+      const discount = parseFloat(metadata.discount || '0');
+      const total = parseFloat(metadata.total || String(paymentIntent.amount / 100));
 
       if (!customerEmail || !customerName) {
         console.error(`Missing customer data in payment intent ${paymentIntent.id}`);
@@ -159,14 +165,55 @@ export async function handlePaymentIntentSucceeded(paymentIntent: any) {
         });
       }
 
-      // Get a default product for the order item (we'll use the first available product)
-      const defaultProduct = await prisma.product.findFirst({
-        where: { inStock: true }
-      });
+      // Parse order items from metadata
+      let orderItems = [];
+      try {
+        const itemsData = metadata.orderItems ? JSON.parse(metadata.orderItems) : [];
+        console.log(`[Stripe Webhook] Parsed ${itemsData.length} items from metadata`);
+        
+        // Validate and prepare order items
+        for (const item of itemsData) {
+          // Check if product exists
+          const product = await prisma.product.findUnique({
+            where: { id: item.id }
+          });
+          
+          if (product) {
+            orderItems.push({
+              productId: item.id,
+              variationId: item.variationId || null,
+              quantity: item.quantity || 1,
+              unitPrice: item.price || 0,
+              subtotal: (item.price || 0) * (item.quantity || 1)
+            });
+          } else {
+            console.warn(`[Stripe Webhook] Product ${item.id} not found, skipping`);
+          }
+        }
+      } catch (parseError) {
+        console.error(`[Stripe Webhook] Error parsing order items:`, parseError);
+        console.log(`[Stripe Webhook] Raw orderItems metadata:`, metadata.orderItems);
+      }
 
-      if (!defaultProduct) {
-        console.error('No products available to create webhook order');
-        return;
+      // If no valid items found, create a fallback order item
+      if (orderItems.length === 0) {
+        console.warn(`[Stripe Webhook] No valid items found, creating fallback order`);
+        const defaultProduct = await prisma.product.findFirst({
+          where: { inStock: true }
+        });
+
+        if (!defaultProduct) {
+          console.error('No products available to create webhook order');
+          return;
+        }
+
+        orderItems.push({
+          productId: defaultProduct.id,
+          variationId: null,
+          quantity: 1,
+          unitPrice: total,
+          subtotal: total
+        });
       }
 
       // Create order and payment in transaction
@@ -180,22 +227,17 @@ export async function handlePaymentIntentSucceeded(paymentIntent: any) {
             customerPhone: customerPhone,
             city: shippingCity,
             shippingAddress: shippingAddress,
-            subtotal: amount * 0.9,
-            tax: amount * 0.05,
-            shippingCost: amount * 0.05,
-            discount: 0,
-            total: amount,
+            subtotal: subtotal || total * 0.9,
+            tax: tax || total * 0.05,
+            shippingCost: shippingCost || 0,
+            discount: discount || 0,
+            total: total,
             status: 'PROCESSING',
             paymentMethod: 'stripe',
             stripePaymentIntentId: paymentIntent.id,
             emailSent: false,
             items: {
-              create: [{
-                productId: defaultProduct.id,
-                quantity: 1,
-                unitPrice: amount,
-                subtotal: amount
-              }]
+              create: orderItems
             }
           }
         });
@@ -216,7 +258,7 @@ export async function handlePaymentIntentSucceeded(paymentIntent: any) {
             userId: user.id,
             stripePaymentIntentId: paymentIntent.id,
             stripeChargeId: charge?.id,
-            amount: amount,
+            amount: total,
             currency: 'aed',
             status: 'SUCCEEDED',
             paymentMethod: paymentMethodDetails?.card?.brand || 'card',
@@ -229,6 +271,7 @@ export async function handlePaymentIntentSucceeded(paymentIntent: any) {
       });
 
       console.log(`✅ Created order ${result.order.id} from webhook for ${customerEmail}`);
+      console.log(`[Stripe Webhook] Order details - Items: ${orderItems.length}, Subtotal: ${subtotal}, Tax: ${tax}, Shipping: ${shippingCost}, Total: ${total}`);
     }
 
     console.log(`Payment intent ${paymentIntent.id} succeeded`);

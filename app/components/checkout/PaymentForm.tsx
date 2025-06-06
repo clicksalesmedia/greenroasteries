@@ -85,7 +85,11 @@ function CheckoutForm({
             currency: 'aed',
             customerInfo,
             shippingInfo,
-            items
+            items,
+            subtotal,
+            tax,
+            shippingCost,
+            discount
           }),
         });
 
@@ -103,7 +107,7 @@ function CheckoutForm({
     };
 
     createPaymentIntent();
-  }, [totalAmount, customerInfo, shippingInfo, items]);
+  }, [totalAmount, customerInfo, shippingInfo, items, subtotal, tax, shippingCost, discount]);
 
   // Set up payment request for Apple Pay / Google Pay
   useEffect(() => {
