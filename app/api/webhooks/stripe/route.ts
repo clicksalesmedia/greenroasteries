@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
   const signature = request.headers.get('stripe-signature');
 
   if (!signature) {
+    console.error('[Stripe Webhook] Missing stripe-signature header');
     return NextResponse.json(
       { error: 'Missing stripe-signature header' },
       { status: 400 }
@@ -25,14 +26,14 @@ export async function POST(request: NextRequest) {
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (error: any) {
-    console.error('Webhook signature verification failed:', error.message);
+    console.error('[Stripe Webhook] Signature verification failed:', error.message);
     return NextResponse.json(
       { error: 'Webhook signature verification failed' },
       { status: 400 }
     );
   }
 
-  console.log(`Received webhook event: ${event.type}`);
+  console.log(`[Stripe Webhook] Received event: ${event.type} - ID: ${event.id}`);
 
   try {
     switch (event.type) {
@@ -47,18 +48,26 @@ export async function POST(request: NextRequest) {
       case 'payment_intent.canceled':
         await handlePaymentIntentCanceled(event.data.object);
         break;
+
+      case 'payment_intent.created':
+        console.log(`[Stripe Webhook] Payment intent created: ${event.data.object.id} - Amount: ${event.data.object.amount/100} ${event.data.object.currency}`);
+        break;
+
+      case 'payment_intent.processing':
+        console.log(`[Stripe Webhook] Payment intent processing: ${event.data.object.id}`);
+        break;
       
       case 'charge.dispute.created':
         await handleChargeDisputeCreated(event.data.object);
         break;
       
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error('Error processing webhook:', error);
+    console.error('[Stripe Webhook] Error processing webhook:', error);
     return NextResponse.json(
       { error: 'Error processing webhook' },
       { status: 500 }
@@ -66,9 +75,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handlePaymentIntentSucceeded(paymentIntent: any) {
+export async function handlePaymentIntentSucceeded(paymentIntent: any) {
   try {
-    console.log(`Processing payment_intent.succeeded for ${paymentIntent.id}`);
+    console.log(`[Stripe Webhook] Processing payment_intent.succeeded for ${paymentIntent.id}`);
+    console.log(`[Stripe Webhook] Payment details - Amount: ${paymentIntent.amount/100} ${paymentIntent.currency}, Customer: ${paymentIntent.metadata?.customerEmail || 'unknown'}`);
     
     // First, check if payment record already exists
     let payment = await prisma.payment.findFirst({
