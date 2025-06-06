@@ -17,6 +17,7 @@ const protectedPaths = [
   '/api/variations',
   '/api/promotions',
   '/api/users',
+  '/api/logs',
 ];
 
 // Paths that are excluded from protection (login, public API, etc.)
