@@ -9,6 +9,9 @@ export async function POST(request: NextRequest) {
   const body = await request.text();
   const signature = request.headers.get('stripe-signature');
 
+  // Log webhook receipt
+  console.log(`[Stripe Webhook] Received webhook at ${new Date().toISOString()}`);
+
   if (!signature) {
     console.error('[Stripe Webhook] Missing stripe-signature header');
     return NextResponse.json(
@@ -27,6 +30,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: any) {
     console.error('[Stripe Webhook] Signature verification failed:', error.message);
+    console.error('[Stripe Webhook] Webhook secret might be misconfigured');
     return NextResponse.json(
       { error: 'Webhook signature verification failed' },
       { status: 400 }
@@ -34,6 +38,12 @@ export async function POST(request: NextRequest) {
   }
 
   console.log(`[Stripe Webhook] Received event: ${event.type} - ID: ${event.id}`);
+  
+  // Log payment intent details for succeeded events
+  if (event.type === 'payment_intent.succeeded') {
+    const paymentIntent = event.data.object as any;
+    console.log(`[Stripe Webhook] Payment succeeded - ID: ${paymentIntent.id}, Amount: ${paymentIntent.amount/100} ${paymentIntent.currency}, Customer: ${paymentIntent.metadata?.customerEmail || 'unknown'}`);
+  }
 
   try {
     switch (event.type) {
