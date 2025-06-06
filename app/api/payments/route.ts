@@ -242,7 +242,7 @@ export async function PATCH(request: NextRequest) {
       ]);
 
       // Get monthly revenue for the last 12 months
-      const monthlyRevenue = await prisma.$queryRaw`
+      const monthlyRevenueRaw = await prisma.$queryRaw`
         SELECT 
           DATE_TRUNC('month', "createdAt") as month,
           SUM(amount) as revenue,
@@ -254,14 +254,25 @@ export async function PATCH(request: NextRequest) {
         ORDER BY month DESC
       `;
 
+      // Convert BigInt values to numbers
+      const monthlyRevenue = (monthlyRevenueRaw as any[]).map(row => ({
+        month: row.month,
+        revenue: Number(row.revenue) || 0,
+        transactions: Number(row.transactions) || 0
+      }));
+
+      // Convert BigInt values to numbers for stats
+      const revenueSum = totalRevenue._sum.amount;
+      const refundedSum = totalRefunded._sum.refundedAmount;
+
       return NextResponse.json({
         stats: {
-          totalPayments,
-          successfulPayments,
-          failedPayments,
-          refundedPayments,
-          totalRevenue: totalRevenue._sum.amount || 0,
-          totalRefunded: totalRefunded._sum.refundedAmount || 0,
+          totalPayments: Number(totalPayments),
+          successfulPayments: Number(successfulPayments),
+          failedPayments: Number(failedPayments),
+          refundedPayments: Number(refundedPayments),
+          totalRevenue: revenueSum ? Number(revenueSum) : 0,
+          totalRefunded: refundedSum ? Number(refundedSum) : 0,
           successRate: totalPayments > 0 ? (successfulPayments / totalPayments * 100).toFixed(2) : 0
         },
         monthlyRevenue
