@@ -198,13 +198,13 @@ export async function handlePaymentIntentSucceeded(paymentIntent: any) {
       // If no valid items found, create a fallback order item
       if (orderItems.length === 0) {
         console.warn(`[Stripe Webhook] No valid items found, creating fallback order`);
-        const defaultProduct = await prisma.product.findFirst({
-          where: { inStock: true }
-        });
+      const defaultProduct = await prisma.product.findFirst({
+        where: { inStock: true }
+      });
 
-        if (!defaultProduct) {
-          console.error('No products available to create webhook order');
-          return;
+      if (!defaultProduct) {
+        console.error('No products available to create webhook order');
+        return;
         }
 
         orderItems.push({

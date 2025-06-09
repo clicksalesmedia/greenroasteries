@@ -50,3 +50,8 @@ next-env.d.ts
 # Schema dump files
 local_schema.sql
 remote_schema.sql
+
+# Google Service Account Keys
+google-service-account.json
+*.json.key
+*service-account*.json
