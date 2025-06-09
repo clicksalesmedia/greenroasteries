@@ -64,23 +64,24 @@ export async function POST(
 
     try {
       // Convert product to Google Shopping format
-      const googleProduct = await googleShopping.convertProductToGoogleFormat(product, includeVariations);
+      const productData = await googleShopping.convertProductToGoogleFormat(product, includeVariations);
       
       if (dryRun) {
         return NextResponse.json({
           success: true,
           productId: product.id,
           productName: product.name,
-          googleProductId: googleProduct.offerId,
-          variations: googleProduct.variations?.length || 0,
+          googleProductId: productData.mainProduct.offerId,
+          variationsCount: productData.variations.length || 0,
           status: 'validated',
           dryRun: true,
-          googleProduct: googleProduct
+          googleProduct: productData.mainProduct,
+          variations: productData.variations
         });
       }
 
       // Actually sync to Google Shopping
-      const syncResult = await googleShopping.syncProduct(googleProduct);
+      const syncResult = await googleShopping.syncProduct(productData);
       
       if (syncResult.success) {
         return NextResponse.json({

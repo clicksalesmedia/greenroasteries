@@ -56,7 +56,7 @@ interface ProductWithRelations {
   }>;
 }
 
-// Google Shopping Product format
+// Google Shopping Product format - matches official API spec
 interface GoogleShoppingProduct {
   offerId: string;
   title: string;
@@ -76,8 +76,8 @@ interface GoogleShoppingProduct {
   brand: string;
   gtin?: string;
   mpn?: string;
-
   googleProductCategory?: string;
+  productTypes?: string[];  // Official API field for product types
   material?: string;
   color?: string;
   size?: string;
@@ -92,7 +92,6 @@ interface GoogleShoppingProduct {
     value: number;
     unit: string;
   };
-  variations?: GoogleShoppingProduct[];
   customAttributes?: Array<{
     name: string;
     value: string;
@@ -153,21 +152,20 @@ export class GoogleShoppingService {
   async convertProductToGoogleFormat(
     product: ProductWithRelations, 
     includeVariations: boolean = true
-  ): Promise<GoogleShoppingProduct> {
+  ): Promise<{ mainProduct: GoogleShoppingProduct; variations: GoogleShoppingProduct[] }> {
     // Generate main product
-    const googleProduct = await this.convertSingleProduct(product);
+    const mainProduct = await this.convertSingleProduct(product);
 
-    // Add variations if requested and available
+    // Generate variation products if requested and available
+    const variations: GoogleShoppingProduct[] = [];
     if (includeVariations && product.variations.length > 0) {
-      googleProduct.variations = [];
-      
       for (const variation of product.variations) {
         const variationProduct = await this.convertVariationToProduct(product, variation);
-        googleProduct.variations.push(variationProduct);
+        variations.push(variationProduct);
       }
     }
 
-    return googleProduct;
+    return { mainProduct, variations };
   }
 
   private async convertSingleProduct(product: ProductWithRelations): Promise<GoogleShoppingProduct> {
@@ -288,7 +286,7 @@ export class GoogleShoppingService {
     };
   }
 
-  async syncProduct(googleProduct: GoogleShoppingProduct): Promise<{
+  async syncProduct(productData: { mainProduct: GoogleShoppingProduct; variations: GoogleShoppingProduct[] }): Promise<{
     success: boolean;
     googleProductId?: string;
     variationCount?: number;
@@ -305,19 +303,19 @@ export class GoogleShoppingService {
       const allowedFields = [
         'offerId', 'title', 'description', 'link', 'imageLink', 'additionalImageLinks',
         'contentLanguage', 'targetCountry', 'channel', 'availability', 'condition',
-        'price', 'brand', 'gtin', 'mpn', 'googleProductCategory', 'material',
+        'price', 'brand', 'gtin', 'mpn', 'googleProductCategory', 'productTypes', 'material',
         'color', 'size', 'sizeSystem', 'ageGroup', 'gender', 'productWeight',
         'shippingWeight', 'customAttributes'
       ];
       
       for (const field of allowedFields) {
-        if (googleProduct[field as keyof GoogleShoppingProduct] !== undefined) {
-          cleanedProduct[field] = googleProduct[field as keyof GoogleShoppingProduct];
+        if (productData.mainProduct[field as keyof GoogleShoppingProduct] !== undefined) {
+          cleanedProduct[field] = productData.mainProduct[field as keyof GoogleShoppingProduct];
         }
       }
 
       // Debug: Log what we're sending to Google
-      console.log('Sending to Google Shopping API:', JSON.stringify(cleanedProduct, null, 2));
+      console.log('Sending main product to Google Shopping API:', JSON.stringify(cleanedProduct, null, 2));
 
       // Upload main product
       const mainResult = await content.products.insert({
@@ -327,9 +325,9 @@ export class GoogleShoppingService {
 
       let variationCount = 0;
 
-      // Upload variations as separate products if any
-      if (googleProduct.variations && googleProduct.variations.length > 0) {
-        for (const variation of googleProduct.variations) {
+      // Upload variations as separate products
+      if (productData.variations && productData.variations.length > 0) {
+        for (const variation of productData.variations) {
           try {
             // Create clean variation product with only allowed fields
             const cleanVariation: any = {};
@@ -355,7 +353,7 @@ export class GoogleShoppingService {
 
       return {
         success: true,
-        googleProductId: mainResult.data.id || googleProduct.offerId,
+        googleProductId: mainResult.data.id || productData.mainProduct.offerId,
         variationCount
       };
 

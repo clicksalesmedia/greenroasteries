@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
 
       if (sampleProduct) {
         // Test product conversion
-        const googleProduct = await googleShopping.convertProductToGoogleFormat(sampleProduct, true);
+        const productData = await googleShopping.convertProductToGoogleFormat(sampleProduct, true);
         
         productTest = {
           found: true,
@@ -60,12 +60,12 @@ export async function GET(request: NextRequest) {
           hasImages: sampleProduct.images.length > 0,
           hasVariations: sampleProduct.variations.length > 0,
           googleFormat: {
-            offerId: googleProduct.offerId,
-            title: googleProduct.title,
-            description: googleProduct.description?.substring(0, 100) + '...',
-            price: googleProduct.price,
-            availability: googleProduct.availability,
-            variationsCount: googleProduct.variations?.length || 0
+            offerId: productData.mainProduct.offerId,
+            title: productData.mainProduct.title,
+            description: productData.mainProduct.description?.substring(0, 100) + '...',
+            price: productData.mainProduct.price,
+            availability: productData.mainProduct.availability,
+            variationsCount: productData.variations.length || 0
           }
         };
       } else {
@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Test product conversion
-    const googleProduct = await googleShopping.convertProductToGoogleFormat(product, true);
+    const productData = await googleShopping.convertProductToGoogleFormat(product, true);
 
     return NextResponse.json({
       success: true,
@@ -213,16 +213,16 @@ export async function POST(request: NextRequest) {
         variationsCount: product.variations.length
       },
       googleProduct: {
-        offerId: googleProduct.offerId,
-        title: googleProduct.title,
-        description: googleProduct.description?.substring(0, 200) + '...',
-        link: googleProduct.link,
-        imageLink: googleProduct.imageLink,
-        price: googleProduct.price,
-        availability: googleProduct.availability,
-        brand: googleProduct.brand,
-        category: googleProduct.googleProductCategory,
-        variations: googleProduct.variations?.map(v => ({
+        offerId: productData.mainProduct.offerId,
+        title: productData.mainProduct.title,
+        description: productData.mainProduct.description?.substring(0, 200) + '...',
+        link: productData.mainProduct.link,
+        imageLink: productData.mainProduct.imageLink,
+        price: productData.mainProduct.price,
+        availability: productData.mainProduct.availability,
+        brand: productData.mainProduct.brand,
+        category: productData.mainProduct.googleProductCategory,
+        variations: productData.variations.map(v => ({
           offerId: v.offerId,
           title: v.title,
           price: v.price,
@@ -231,12 +231,12 @@ export async function POST(request: NextRequest) {
       },
       validation: {
         hasRequiredFields: !!(
-          googleProduct.offerId &&
-          googleProduct.title &&
-          googleProduct.description &&
-          googleProduct.link &&
-          googleProduct.imageLink &&
-          googleProduct.price
+          productData.mainProduct.offerId &&
+          productData.mainProduct.title &&
+          productData.mainProduct.description &&
+          productData.mainProduct.link &&
+          productData.mainProduct.imageLink &&
+          productData.mainProduct.price
         ),
         issues: []
       }

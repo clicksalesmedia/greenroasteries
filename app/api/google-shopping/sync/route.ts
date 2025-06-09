@@ -111,21 +111,21 @@ export async function POST(request: NextRequest) {
     for (const product of products) {
       try {
         // Convert product to Google Shopping format
-        const googleProduct = await googleShopping.convertProductToGoogleFormat(product, includeVariations);
+        const productData = await googleShopping.convertProductToGoogleFormat(product, includeVariations);
         
         if (dryRun) {
           // Just validate the conversion
           results.syncedProducts.push({
             productId: product.id,
             productName: product.name,
-            googleProductId: googleProduct.offerId,
-            variations: googleProduct.variations?.length || 0,
+            googleProductId: productData.mainProduct.offerId,
+            variations: productData.variations.length || 0,
             status: 'validated'
           });
           results.successCount++;
         } else {
           // Actually sync to Google Shopping
-          const syncResult = await googleShopping.syncProduct(googleProduct);
+          const syncResult = await googleShopping.syncProduct(productData);
           
           if (syncResult.success) {
             results.syncedProducts.push({
