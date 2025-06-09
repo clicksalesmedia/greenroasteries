@@ -108,7 +108,9 @@ export class GoogleShoppingService {
   private baseUrl: string;
 
   constructor() {
-    this.merchantId = process.env.GOOGLE_MERCHANT_CENTER_ID || '';
+    // For Google Shopping, merchant ID should be the numeric ID from Merchant Center
+    // You can find this in Google Merchant Center under Settings > Account Information  
+    this.merchantId = process.env.GOOGLE_MERCHANT_CENTER_ID || '123456789';
     this.country = process.env.GOOGLE_SHOPPING_COUNTRY || 'AE';
     this.language = process.env.GOOGLE_SHOPPING_LANGUAGE || 'en';
     this.currency = process.env.GOOGLE_SHOPPING_CURRENCY || 'AED';
@@ -206,7 +208,6 @@ export class GoogleShoppingService {
       brand: 'Green Roasteries',
       gtin: gtin,
       mpn: mpn,
-      productType: productTypes,
       googleProductCategory: googleCategory,
       material: 'Coffee',
       ageGroup: 'adult',
@@ -298,21 +299,29 @@ export class GoogleShoppingService {
       const auth = await this.getAuthClient();
       const content = google.content({ version: 'v2.1', auth });
 
+      // Create a clean product without variations field for main product
+      const cleanMainProduct = { ...googleProduct };
+      delete cleanMainProduct.variations;
+
       // Upload main product
       const mainResult = await content.products.insert({
         merchantId: this.merchantId,
-        requestBody: googleProduct
+        requestBody: cleanMainProduct
       });
 
       let variationCount = 0;
 
-      // Upload variations if any
+      // Upload variations as separate products if any
       if (googleProduct.variations && googleProduct.variations.length > 0) {
         for (const variation of googleProduct.variations) {
           try {
+            // Clean variation product (no nested variations)
+            const cleanVariation = { ...variation };
+            delete cleanVariation.variations;
+            
             await content.products.insert({
               merchantId: this.merchantId,
-              requestBody: variation
+              requestBody: cleanVariation
             });
             variationCount++;
           } catch (variationError) {
