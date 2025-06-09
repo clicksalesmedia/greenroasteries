@@ -10,8 +10,8 @@ export async function POST(
   try {
     const { id } = await params;
     
-    // Check admin authentication
-    const auth = await checkAuth(['ADMIN', 'MANAGER']);
+    // Check admin authentication - ADMIN only
+    const auth = await checkAuth(['ADMIN']);
     if (!auth.authorized) {
       return NextResponse.json(
         { error: auth.error || 'Unauthorized' },
@@ -134,8 +134,8 @@ export async function DELETE(
   try {
     const { id } = await params;
     
-    // Check admin authentication
-    const auth = await checkAuth(['ADMIN', 'MANAGER']);
+    // Check admin authentication - ADMIN only
+    const auth = await checkAuth(['ADMIN']);
     if (!auth.authorized) {
       return NextResponse.json(
         { error: auth.error || 'Unauthorized' },
@@ -222,8 +222,8 @@ export async function GET(
   try {
     const { id } = await params;
     
-    // Check admin authentication
-    const auth = await checkAuth(['ADMIN', 'MANAGER']);
+    // Check admin authentication - ADMIN only
+    const auth = await checkAuth(['ADMIN']);
     if (!auth.authorized) {
       return NextResponse.json(
         { error: auth.error || 'Unauthorized' },

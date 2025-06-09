@@ -5,8 +5,8 @@ import { GoogleShoppingService } from '@/app/lib/google-shopping';
 
 export async function POST(request: NextRequest) {
   try {
-    // Check admin authentication
-    const auth = await checkAuth(['ADMIN', 'MANAGER']);
+    // Check admin authentication - ADMIN only
+    const auth = await checkAuth(['ADMIN']);
     if (!auth.authorized) {
       return NextResponse.json(
         { error: auth.error || 'Unauthorized' },
@@ -175,8 +175,8 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
-    const auth = await checkAuth(['ADMIN', 'MANAGER']);
+    // Check admin authentication - ADMIN only
+    const auth = await checkAuth(['ADMIN']);
     if (!auth.authorized) {
       return NextResponse.json(
         { error: auth.error || 'Unauthorized' },
