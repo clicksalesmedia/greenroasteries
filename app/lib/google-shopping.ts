@@ -301,11 +301,21 @@ export class GoogleShoppingService {
       // Create a clean product without variations field for main product
       const cleanMainProduct = { ...googleProduct };
       delete cleanMainProduct.variations;
+      
+      // Remove any unwanted fields that might cause issues
+      const {
+        variations,
+        productType,
+        ...cleanedProduct
+      } = cleanMainProduct as any;
+
+      // Debug: Log what we're sending to Google
+      console.log('Sending to Google Shopping API:', JSON.stringify(cleanedProduct, null, 2));
 
       // Upload main product
       const mainResult = await content.products.insert({
         merchantId: this.merchantId,
-        requestBody: cleanMainProduct
+        requestBody: cleanedProduct
       });
 
       let variationCount = 0;
@@ -314,9 +324,14 @@ export class GoogleShoppingService {
       if (googleProduct.variations && googleProduct.variations.length > 0) {
         for (const variation of googleProduct.variations) {
           try {
-            // Clean variation product (no nested variations)
-            const cleanVariation = { ...variation };
-            delete cleanVariation.variations;
+            // Clean variation product (no nested variations or problematic fields)
+            const {
+              variations: nestedVariations,
+              productType,
+              ...cleanVariation
+            } = variation as any;
+            
+            console.log(`Sending variation ${cleanVariation.offerId} to Google Shopping API:`, JSON.stringify(cleanVariation, null, 2));
             
             await content.products.insert({
               merchantId: this.merchantId,
