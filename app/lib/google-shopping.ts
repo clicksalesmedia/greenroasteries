@@ -293,13 +293,18 @@ export class GoogleShoppingService {
     error?: string;
   }> {
     try {
+      console.log('=== SYNC PRODUCT DEBUG ===');
+      console.log('Main product keys:', Object.keys(productData.mainProduct));
+      console.log('Main product has productType?', productData.mainProduct.hasOwnProperty('productType'));
+      console.log('Main product has variations?', productData.mainProduct.hasOwnProperty('variations'));
+      
       const auth = await this.getAuthClient();
       const content = google.content({ version: 'v2.1', auth });
 
       // Create a clean product without problematic fields
       const cleanedProduct: any = {};
       
-      // Copy only the allowed fields explicitly
+      // Copy only the allowed fields explicitly (NO productType or variations)
       const allowedFields = [
         'offerId', 'title', 'description', 'link', 'imageLink', 'additionalImageLinks',
         'contentLanguage', 'targetCountry', 'channel', 'availability', 'condition',
@@ -308,14 +313,34 @@ export class GoogleShoppingService {
         'shippingWeight', 'customAttributes'
       ];
       
+      // Extra safety check - ensure problematic fields are never included
+      console.log('Allowed fields:', allowedFields);
+      console.log('productType in allowedFields?', allowedFields.includes('productType'));
+      console.log('variations in allowedFields?', allowedFields.includes('variations'));
+      
       for (const field of allowedFields) {
         if (productData.mainProduct[field as keyof GoogleShoppingProduct] !== undefined) {
           cleanedProduct[field] = productData.mainProduct[field as keyof GoogleShoppingProduct];
         }
       }
 
-      // Debug: Log what we're sending to Google
-      console.log('Sending main product to Google Shopping API:', JSON.stringify(cleanedProduct, null, 2));
+      // Debug: Log what we're sending to Google - with error checking
+      console.log('=== GOOGLE SHOPPING PAYLOAD DEBUG ===');
+      console.log('Cleaned product keys:', Object.keys(cleanedProduct));
+      console.log('Has productType?', cleanedProduct.hasOwnProperty('productType'));
+      console.log('Has variations?', cleanedProduct.hasOwnProperty('variations'));
+      console.log('Full payload:', JSON.stringify(cleanedProduct, null, 2));
+      console.log('=== END DEBUG ===');
+
+      // Final safety check before sending to Google
+      if (cleanedProduct.hasOwnProperty('productType')) {
+        console.error('ERROR: productType found in final payload!');
+        delete cleanedProduct.productType;
+      }
+      if (cleanedProduct.hasOwnProperty('variations')) {
+        console.error('ERROR: variations found in final payload!');
+        delete cleanedProduct.variations;
+      }
 
       // Upload main product
       const mainResult = await content.products.insert({
