@@ -298,16 +298,23 @@ export class GoogleShoppingService {
       const auth = await this.getAuthClient();
       const content = google.content({ version: 'v2.1', auth });
 
-      // Create a clean product without variations field for main product
-      const cleanMainProduct = { ...googleProduct };
-      delete cleanMainProduct.variations;
+      // Create a clean product without problematic fields
+      const cleanedProduct: any = {};
       
-      // Remove any unwanted fields that might cause issues
-      const {
-        variations,
-        productType,
-        ...cleanedProduct
-      } = cleanMainProduct as any;
+      // Copy only the allowed fields explicitly
+      const allowedFields = [
+        'offerId', 'title', 'description', 'link', 'imageLink', 'additionalImageLinks',
+        'contentLanguage', 'targetCountry', 'channel', 'availability', 'condition',
+        'price', 'brand', 'gtin', 'mpn', 'googleProductCategory', 'material',
+        'color', 'size', 'sizeSystem', 'ageGroup', 'gender', 'productWeight',
+        'shippingWeight', 'customAttributes'
+      ];
+      
+      for (const field of allowedFields) {
+        if (googleProduct[field as keyof GoogleShoppingProduct] !== undefined) {
+          cleanedProduct[field] = googleProduct[field as keyof GoogleShoppingProduct];
+        }
+      }
 
       // Debug: Log what we're sending to Google
       console.log('Sending to Google Shopping API:', JSON.stringify(cleanedProduct, null, 2));
@@ -324,12 +331,14 @@ export class GoogleShoppingService {
       if (googleProduct.variations && googleProduct.variations.length > 0) {
         for (const variation of googleProduct.variations) {
           try {
-            // Clean variation product (no nested variations or problematic fields)
-            const {
-              variations: nestedVariations,
-              productType,
-              ...cleanVariation
-            } = variation as any;
+            // Create clean variation product with only allowed fields
+            const cleanVariation: any = {};
+            
+            for (const field of allowedFields) {
+              if (variation[field as keyof GoogleShoppingProduct] !== undefined) {
+                cleanVariation[field] = variation[field as keyof GoogleShoppingProduct];
+              }
+            }
             
             console.log(`Sending variation ${cleanVariation.offerId} to Google Shopping API:`, JSON.stringify(cleanVariation, null, 2));
             
