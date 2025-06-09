@@ -76,7 +76,7 @@ interface GoogleShoppingProduct {
   brand: string;
   gtin?: string;
   mpn?: string;
-  productType?: string[];
+
   googleProductCategory?: string;
   material?: string;
   color?: string;
@@ -187,7 +187,6 @@ export class GoogleShoppingService {
 
     // Category mapping
     const googleCategory = this.mapCategoryToGoogle(product.category.name);
-    const productTypes = [product.category.name];
 
     return {
       offerId: product.sku || `gr-${product.id}`,
