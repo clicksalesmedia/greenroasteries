@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
       productIds = [], 
       syncAll = false, 
       dryRun = false,
-      includeVariations = true 
+      includeVariations = true,
+      batchSize = 5  // Process 5 products at a time to prevent timeouts
     } = body;
 
     // Validate Google Shopping configuration
@@ -102,13 +103,21 @@ export async function POST(request: NextRequest) {
       skippedCount: 0,
       errors: [] as any[],
       syncedProducts: [] as any[],
-      dryRun
+      dryRun,
+      message: '' as string
     };
 
-    console.log(`Starting Google Shopping sync for ${products.length} products (dryRun: ${dryRun})`);
+    console.log(`Starting Google Shopping sync for ${products.length} products (dryRun: ${dryRun}, batchSize: ${batchSize})`);
 
-    // Process each product
-    for (const product of products) {
+    // Process products in batches to prevent timeouts
+    const totalProducts = products.length;
+    const processBatch = Math.min(batchSize, totalProducts);
+    const processedProducts = products.slice(0, processBatch);
+    
+    console.log(`Processing batch of ${processedProducts.length} products (total: ${totalProducts})`);
+
+    // Process each product in the current batch
+    for (const product of processedProducts) {
       try {
         // Convert product to Google Shopping format
         const productData = await googleShopping.convertProductToGoogleFormat(product, includeVariations);
@@ -158,6 +167,12 @@ export async function POST(request: NextRequest) {
 
     // Log the sync operation
     console.log(`Google Shopping sync completed. Success: ${results.successCount}, Errors: ${results.errorCount}, Skipped: ${results.skippedCount}`);
+
+    // Add information about remaining products
+    const remainingProducts = totalProducts - processedProducts.length;
+    if (remainingProducts > 0) {
+      results.message = `Processed ${processedProducts.length} of ${totalProducts} products. ${remainingProducts} products remaining. Run sync again to continue.`;
+    }
 
     return NextResponse.json(results);
 
