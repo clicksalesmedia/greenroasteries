@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       syncAll = false, 
       dryRun = false,
       includeVariations = true,
-      batchSize = 1  // Process 1 product at a time to prevent timeouts
+      batchSize = 10  // Process 10 products at a time
     } = body;
 
     // Validate Google Shopping configuration

@@ -16,14 +16,24 @@ interface Product {
 }
 
 interface SyncResult {
-  success: boolean;
+  success?: boolean;
   totalProducts?: number;
   successCount?: number;
   errorCount?: number;
+  skippedCount?: number;
+  dryRun?: boolean;
+  message?: string;
   errors?: Array<{
     productId: string;
     productName: string;
     error: string;
+  }>;
+  syncedProducts?: Array<{
+    productId: string;
+    productName: string;
+    googleProductId?: string;
+    variations?: number;
+    status: string;
   }>;
   results?: Array<{
     productId: string;
@@ -91,8 +101,11 @@ export default function GoogleShoppingPage() {
         syncAll,
         productIds: syncAll ? [] : selectedProducts,
         includeVariations,
-        dryRun
+        dryRun,
+        batchSize: 10
       };
+
+      console.log('Sync payload:', payload);
 
       const response = await fetch('/api/google-shopping/sync', {
         method: 'POST',
@@ -103,12 +116,16 @@ export default function GoogleShoppingPage() {
       });
 
       const data = await response.json();
+      console.log('Sync response:', data);
       setSyncResults(data);
 
-      if (data.success) {
-        toast.success(dryRun ? 'Validation completed successfully!' : 'Products synced successfully!');
+      if (data.successCount > 0) {
+        const message = data.message || `${dryRun ? 'Validated' : 'Synced'} ${data.successCount} products successfully!`;
+        toast.success(message);
+      } else if (data.errorCount > 0) {
+        toast.error(`Sync failed with ${data.errorCount} errors`);
       } else {
-        toast.error('Sync failed with errors');
+        toast.success('No products were processed');
       }
     } catch (error) {
       console.error('Sync error:', error);
