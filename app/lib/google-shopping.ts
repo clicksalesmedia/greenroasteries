@@ -171,13 +171,16 @@ export class GoogleShoppingService {
   private async convertSingleProduct(product: ProductWithRelations): Promise<GoogleShoppingProduct> {
     // Generate URLs
     const productUrl = `${this.baseUrl}/product/${this.generateSlug(product.name)}`;
-    const imageUrl = product.imageUrl || (product.images.length > 0 ? product.images[0].url : '');
+    
+    // Convert image URLs to absolute URLs
+    const rawImageUrl = product.imageUrl || (product.images.length > 0 ? product.images[0].url : '');
+    const imageUrl = this.makeAbsoluteUrl(rawImageUrl);
 
-    // Additional images
+    // Additional images - convert to absolute URLs
     const additionalImages = product.images
       .slice(1, 11) // Max 10 additional images
-      .map(img => img.url)
-      .filter(url => url !== imageUrl);
+      .map(img => this.makeAbsoluteUrl(img.url))
+      .filter(url => url && url !== imageUrl && url !== '');
 
     // Generate GTIN/MPN from SKU if available
     const gtin = this.generateGTIN(product.sku || undefined);
@@ -267,7 +270,7 @@ export class GoogleShoppingService {
         value: variation.size.value,
         unit: 'g'
       },
-      imageLink: variation.imageUrl || baseGoogleProduct.imageLink,
+      imageLink: this.makeAbsoluteUrl(variation.imageUrl) || baseGoogleProduct.imageLink,
       customAttributes: [
         ...baseGoogleProduct.customAttributes || [],
         {
@@ -489,5 +492,24 @@ export class GoogleShoppingService {
     }
 
     return 'Food, Beverages & Tobacco > Beverages > Coffee';
+  }
+
+  private makeAbsoluteUrl(url: string | null | undefined): string {
+    if (!url || url === '') {
+      return '';
+    }
+
+    // If already absolute URL, return as is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+
+    // If relative URL, make it absolute
+    if (url.startsWith('/')) {
+      return `${this.baseUrl}${url}`;
+    }
+
+    // If no leading slash, add one
+    return `${this.baseUrl}/${url}`;
   }
 } 
