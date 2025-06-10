@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       syncAll = false, 
       dryRun = false,
       includeVariations = true,
-      batchSize = 5  // Process 5 products at a time to prevent timeouts
+      batchSize = 1  // Process 1 product at a time to prevent timeouts
     } = body;
 
     // Validate Google Shopping configuration
@@ -115,9 +115,19 @@ export async function POST(request: NextRequest) {
     const processedProducts = products.slice(0, processBatch);
     
     console.log(`Processing batch of ${processedProducts.length} products (total: ${totalProducts})`);
+    
+    // Start timeout tracking
+    const startTime = Date.now();
+    const maxProcessingTime = 25000; // 25 seconds max to leave buffer for response
 
     // Process each product in the current batch
     for (const product of processedProducts) {
+      // Check if we're approaching timeout
+      if (Date.now() - startTime > maxProcessingTime) {
+        console.log('Approaching timeout, stopping batch processing');
+        break;
+      }
+      
       try {
         // Convert product to Google Shopping format
         const productData = await googleShopping.convertProductToGoogleFormat(product, includeVariations);
