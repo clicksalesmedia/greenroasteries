@@ -175,10 +175,6 @@ export class GoogleShoppingService {
     // Convert image URLs to absolute URLs
     const rawImageUrl = product.imageUrl || (product.images.length > 0 ? product.images[0].url : '');
     const imageUrl = this.makeAbsoluteUrl(rawImageUrl);
-    
-    // TEMPORARY: Force a simple test image URL to isolate the issue
-    const testImageUrl = 'https://thegreenroasteries.com/images/logo.png';
-    console.log('TEMP: Using test image URL instead of:', imageUrl);
 
     // Additional images - convert to absolute URLs
     const additionalImages = product.images
@@ -198,7 +194,7 @@ export class GoogleShoppingService {
       title: this.cleanTitle(product.name),
       description: this.cleanDescription(product.description || product.name),
       link: productUrl,
-      imageLink: testImageUrl, // TEMPORARY: Use test URL
+      imageLink: imageUrl,
       additionalImageLinks: additionalImages.length > 0 ? additionalImages : undefined,
       contentLanguage: this.language,
       targetCountry: this.country,
@@ -311,12 +307,12 @@ export class GoogleShoppingService {
       // Create a clean product without problematic fields
       const cleanedProduct: any = {};
       
-      // Copy only the allowed fields explicitly (NO productType or variations)
+      // Copy only the allowed fields explicitly (NO productType, variations, or size)
       const allowedFields = [
         'offerId', 'title', 'description', 'link', 'imageLink', 'additionalImageLinks',
         'contentLanguage', 'targetCountry', 'channel', 'availability', 'condition',
         'price', 'brand', 'gtin', 'mpn', 'googleProductCategory', 'productTypes', 'material',
-        'color', 'size', 'sizeSystem', 'ageGroup', 'gender', 'productWeight',
+        'color', 'sizeSystem', 'ageGroup', 'gender', 'productWeight',
         'shippingWeight', 'customAttributes'
       ];
       
