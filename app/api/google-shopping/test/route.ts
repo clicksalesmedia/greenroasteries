@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Check admin authentication - ADMIN only
+    // Check admin authentication
     const auth = await checkAuth(['ADMIN']);
     if (!auth.authorized) {
       return NextResponse.json(
@@ -156,98 +156,86 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { productId } = body;
+    const startTime = Date.now();
+    console.log('Starting Google Shopping API test...');
 
-    if (!productId) {
-      return NextResponse.json(
-        { error: 'Product ID is required' },
-        { status: 400 }
-      );
-    }
-
+    // Test 1: Check configuration
     const googleShopping = new GoogleShoppingService();
-    
-    if (!googleShopping.isConfigured()) {
-      return NextResponse.json(
-        { error: 'Google Shopping not configured' },
-        { status: 400 }
-      );
+    const isConfigured = googleShopping.isConfigured();
+    console.log(`Configuration test: ${isConfigured ? 'PASS' : 'FAIL'}`);
+
+    if (!isConfigured) {
+      return NextResponse.json({
+        success: false,
+        error: 'Google Shopping not configured',
+        timeElapsed: Date.now() - startTime
+      });
     }
 
-    // Get specific product for testing
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-      include: {
-        category: true,
-        images: true,
-        variations: {
-          where: { isActive: true },
-          include: {
-            size: true,
-            type: true,
-            beans: true,
-          }
-        }
-      }
-    });
+    // Test 2: Try to authenticate with Google API
+    try {
+      console.log('Testing Google API authentication...');
+      const testProduct = {
+        mainProduct: {
+          offerId: 'test-product-001',
+          title: 'Test Product',
+          description: 'Test product for API connectivity',
+          link: 'https://thegreenroasteries.com/test',
+          imageLink: 'https://thegreenroasteries.com/images/logo.png',
+          contentLanguage: 'en',
+          targetCountry: 'AE',
+          channel: 'online' as const,
+          availability: 'in stock' as const,
+          condition: 'new' as const,
+          price: {
+            value: '10.00',
+            currency: 'AED'
+          },
+          brand: 'Green Roasteries',
+          mpn: 'test-001',
+          googleProductCategory: 'Food, Beverages & Tobacco > Beverages > Coffee',
+          material: 'Coffee',
+          ageGroup: 'adult',
+          gender: 'unisex',
+          customAttributes: [
+            { name: 'test', value: 'true' }
+          ]
+        },
+        variations: []
+      };
 
-    if (!product) {
-      return NextResponse.json(
-        { error: 'Product not found' },
-        { status: 404 }
-      );
+      console.log('Attempting test product sync...');
+      const syncResult = await googleShopping.syncProduct(testProduct);
+      console.log('Sync result:', syncResult);
+
+      return NextResponse.json({
+        success: true,
+        configured: true,
+        authTest: 'PASS',
+        syncTest: syncResult.success ? 'PASS' : 'FAIL',
+        syncError: syncResult.error,
+        timeElapsed: Date.now() - startTime
+      });
+
+    } catch (authError) {
+      console.error('Google API authentication failed:', authError);
+      return NextResponse.json({
+        success: false,
+        configured: true,
+        authTest: 'FAIL',
+        authError: authError instanceof Error ? authError.message : 'Unknown auth error',
+        timeElapsed: Date.now() - startTime
+      });
     }
-
-    // Test product conversion
-    const productData = await googleShopping.convertProductToGoogleFormat(product, true);
-
-    return NextResponse.json({
-      success: true,
-      product: {
-        id: product.id,
-        name: product.name,
-        inStock: product.inStock,
-        stockQuantity: product.stockQuantity,
-        imagesCount: product.images.length,
-        variationsCount: product.variations.length
-      },
-      googleProduct: {
-        offerId: productData.mainProduct.offerId,
-        title: productData.mainProduct.title,
-        description: productData.mainProduct.description?.substring(0, 200) + '...',
-        link: productData.mainProduct.link,
-        imageLink: productData.mainProduct.imageLink,
-        price: productData.mainProduct.price,
-        availability: productData.mainProduct.availability,
-        brand: productData.mainProduct.brand,
-        category: productData.mainProduct.googleProductCategory,
-        variations: productData.variations.map(v => ({
-          offerId: v.offerId,
-          title: v.title,
-          price: v.price,
-          size: v.size
-        })) || []
-      },
-      validation: {
-        hasRequiredFields: !!(
-          productData.mainProduct.offerId &&
-          productData.mainProduct.title &&
-          productData.mainProduct.description &&
-          productData.mainProduct.link &&
-          productData.mainProduct.imageLink &&
-          productData.mainProduct.price
-        ),
-        issues: []
-      }
-    });
 
   } catch (error) {
-    console.error('Product test error:', error);
+    console.error('Google Shopping test error:', error);
     return NextResponse.json(
       { 
-        error: 'Product test failed',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        success: false,
+        error: 'Test failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timeElapsed: Date.now() - Date.now()
       },
       { status: 500 }
     );
