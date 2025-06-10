@@ -495,21 +495,29 @@ export class GoogleShoppingService {
   }
 
   private makeAbsoluteUrl(url: string | null | undefined): string {
+    console.log('makeAbsoluteUrl input:', url);
+    
     if (!url || url === '') {
+      console.log('makeAbsoluteUrl: Empty URL, returning empty string');
       return '';
     }
 
     // If already absolute URL, return as is
     if (url.startsWith('http://') || url.startsWith('https://')) {
+      console.log('makeAbsoluteUrl: Already absolute, returning:', url);
       return url;
     }
 
     // If relative URL, make it absolute
     if (url.startsWith('/')) {
-      return `${this.baseUrl}${url}`;
+      const result = `${this.baseUrl}${url}`;
+      console.log('makeAbsoluteUrl: Converted relative URL to:', result);
+      return result;
     }
 
     // If no leading slash, add one
-    return `${this.baseUrl}/${url}`;
+    const result = `${this.baseUrl}/${url}`;
+    console.log('makeAbsoluteUrl: Added leading slash, result:', result);
+    return result;
   }
 } 
