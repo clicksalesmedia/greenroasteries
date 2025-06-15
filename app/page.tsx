@@ -2119,8 +2119,8 @@ export default function Home() {
         )}
       </section>
 
-      {/* EID Banner Section - Dynamic based on category */}
-      <CategoryBanner category="EID AL ADHA - CATALOG" />
+      {/* EID Banner Section - Dynamic based on category 
+      <CategoryBanner category="EID AL ADHA - CATALOG" />*/}
 
       {/* Modern Categories Section */}
       <section className="section bg-white">

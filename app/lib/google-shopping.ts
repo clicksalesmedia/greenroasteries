@@ -113,7 +113,7 @@ export class GoogleShoppingService {
     this.country = process.env.GOOGLE_SHOPPING_COUNTRY || 'AE';
     this.language = process.env.GOOGLE_SHOPPING_LANGUAGE || 'en';
     this.currency = process.env.GOOGLE_SHOPPING_CURRENCY || 'AED';
-    this.baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://greenroasteries.com';
+    this.baseUrl = 'https://thegreenroasteries.com';
 
     // Parse service account key
     try {
@@ -496,11 +496,16 @@ export class GoogleShoppingService {
 
   private makeAbsoluteUrl(url: string | null | undefined): string {
     console.log('makeAbsoluteUrl input:', url);
+    console.log('makeAbsoluteUrl baseUrl:', this.baseUrl);
     
     if (!url || url === '') {
       console.log('makeAbsoluteUrl: Empty URL, returning empty string');
       return '';
     }
+
+    // Ensure baseUrl is set
+    const baseUrl = this.baseUrl || 'https://thegreenroasteries.com';
+    console.log('makeAbsoluteUrl using baseUrl:', baseUrl);
 
     // If already absolute URL, return as is
     if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -510,13 +515,13 @@ export class GoogleShoppingService {
 
     // If relative URL, make it absolute
     if (url.startsWith('/')) {
-      const result = `${this.baseUrl}${url}`;
+      const result = `${baseUrl}${url}`;
       console.log('makeAbsoluteUrl: Converted relative URL to:', result);
       return result;
     }
 
     // If no leading slash, add one
-    const result = `${this.baseUrl}/${url}`;
+    const result = `${baseUrl}/${url}`;
     console.log('makeAbsoluteUrl: Added leading slash, result:', result);
     return result;
   }
