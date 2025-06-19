@@ -13,41 +13,30 @@ export default function LanguageSwitcher() {
     setIsOpen(!isOpen);
   };
 
-  // Helper function to preserve URL parameters when switching languages
+  // Helper function to switch languages with URL updates
   const switchLanguage = (newLanguage: 'en' | 'ar') => {
     setLanguage(newLanguage);
     setIsOpen(false);
     
-    // If we're on the shop page with a category parameter, ensure it remains in English
-    if (typeof window !== 'undefined' && window.location.pathname.includes('/shop')) {
+    if (typeof window !== 'undefined') {
       const currentUrl = new URL(window.location.href);
-      const categoryParam = currentUrl.searchParams.get('category');
+      const pathname = currentUrl.pathname;
+      const search = currentUrl.search;
       
-      // If there's a category parameter, ensure it stays in English format
-      if (categoryParam) {
-        // Map of Arabic category names to their English equivalents for URL consistency
-        const categoryMappings: Record<string, string> = {
-          'المكسرات والفواكه المجففة': 'NUTS & DRIED FRUITS',
-          'قهوة عربية': 'ARABIC COFFEE',
-          'قهوة مختصة': 'SPECIALTY COFFEE',
-          'قهوة مطحونة': 'GROUND COFFEE',
-          'قهوة اسبريسو': 'ESPRESSO ROAST',
-          'قهوة متوسطة التحميص': 'MEDIUM ROAST',
-          'قهوة داكنة التحميص': 'DARK ROAST',
-          'قهوة فاتحة التحميص': 'LIGHT ROAST',
-          'أكسسوارات القهوة': 'COFFEE ACCESSORIES',
-        };
-        
-        // If switching to Arabic and the category is in English, preserve English in URL
-        if (newLanguage === 'ar') {
-          // No need to change anything - keep English category in URL
-        } 
-        // If switching to English and the category might be in Arabic, convert to English
-        else if (newLanguage === 'en' && categoryMappings[categoryParam]) {
-          currentUrl.searchParams.set('category', categoryMappings[categoryParam]);
-          window.history.pushState({}, '', currentUrl.toString());
-        }
+      // Remove existing language prefix if present
+      const cleanPath = pathname.replace(/^\/ar/, '') || '/';
+      
+      // Generate new URL based on target language
+      let newPath: string;
+      if (newLanguage === 'ar') {
+        newPath = cleanPath === '/' ? '/ar' : `/ar${cleanPath}`;
+      } else {
+        newPath = cleanPath;
       }
+      
+      // Navigate to the new URL
+      const newUrl = `${newPath}${search}`;
+      window.location.href = newUrl;
     }
   };
 

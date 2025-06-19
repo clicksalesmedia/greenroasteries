@@ -11,6 +11,27 @@ interface JwtPayload {
   role: string;
 }
 
+// Supported languages
+const SUPPORTED_LANGUAGES = ['ar', 'en'];
+const DEFAULT_LANGUAGE = 'en';
+
+// Language detection and URL handling
+function getLanguageFromUrl(pathname: string): { language: string; cleanPath: string } {
+  const segments = pathname.split('/').filter(Boolean);
+  
+  if (segments.length > 0 && SUPPORTED_LANGUAGES.includes(segments[0])) {
+    return {
+      language: segments[0],
+      cleanPath: '/' + segments.slice(1).join('/')
+    };
+  }
+  
+  return {
+    language: DEFAULT_LANGUAGE,
+    cleanPath: pathname
+  };
+}
+
 // Paths that should be protected (require authentication)
 const protectedPaths = [
   '/backend',
@@ -40,7 +61,6 @@ const PUBLIC_PATHS = [
   '/api/webhooks/stripe-test',
   '/api/payments/check-incomplete',
   '/api/payments/recover-missing',
-
 ];
 
 // Cache control helper function
@@ -129,6 +149,30 @@ function setCacheHeaders(response: NextResponse, pathname: string) {
 // Main middleware function
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  
+  // Handle language routing for frontend pages (not API routes)
+  if (!pathname.startsWith('/api/') && !pathname.startsWith('/_next/') && !pathname.startsWith('/backend/')) {
+    const { language, cleanPath } = getLanguageFromUrl(pathname);
+    
+    // If this is a language-prefixed URL, rewrite to the clean path
+    // and add language headers for the application to detect
+    if (language !== DEFAULT_LANGUAGE || pathname.startsWith(`/${language}/`)) {
+      const url = request.nextUrl.clone();
+      url.pathname = cleanPath || '/';
+      
+      // Create response with rewrite
+      const response = NextResponse.rewrite(url);
+      
+      // Add language header for the application to detect
+      response.headers.set('x-language', language);
+      response.headers.set('x-original-path', pathname);
+      
+      // Apply cache headers
+      setCacheHeaders(response, pathname);
+      
+      return response;
+    }
+  }
   
   // Create response object
   let response = NextResponse.next();

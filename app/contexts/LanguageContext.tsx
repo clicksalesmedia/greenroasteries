@@ -477,7 +477,15 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [language]);
 
   useEffect(() => {
-    // Load language preference from localStorage on initial load
+    // First check if language is detected from URL (middleware sets this header)
+    const urlLanguage = document.querySelector('meta[name="x-language"]')?.getAttribute('content') as Language;
+    
+    if (urlLanguage && (urlLanguage === 'ar' || urlLanguage === 'en')) {
+      setLanguage(urlLanguage);
+      return;
+    }
+
+    // Fallback: Load language preference from localStorage on initial load
     const savedLanguage = localStorage.getItem('preferredLanguage') as Language;
     if (savedLanguage && (savedLanguage === 'ar' || savedLanguage === 'en')) {
       setLanguage(savedLanguage);
