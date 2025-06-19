@@ -98,7 +98,13 @@ export async function POST(request: NextRequest) {
         id: { in: productIds }
       },
       include: {
-        variations: true
+        variations: {
+          include: {
+            size: true,
+            type: true,
+            beans: true
+          }
+        }
       }
     });
 
@@ -127,12 +133,49 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Extract variation ID from cart item
-      let variationId = null;
+      // Extract variation ID from cart item - FIXED VERSION
+      let variationId: string | null = null;
       if (item.id && item.id.includes('-')) {
         const parts = item.id.split('-');
-        if (parts.length >= 2 && parts[parts.length - 1].length > 10) {
-          variationId = parts.slice(1).join('-');
+        
+        // New logic: Check if this is a properly formatted variation ID
+        // Cart items should be in format: productId-variationId
+        // Where variationId is a UUID (36 characters with dashes)
+        if (parts.length >= 2) {
+          // Join all parts except the first (product ID)
+          const possibleVariationId = parts.slice(1).join('-');
+          
+          // Check if it looks like a UUID (8-4-4-4-12 format)
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          
+          if (uuidRegex.test(possibleVariationId)) {
+            variationId = possibleVariationId;
+          } else {
+            // If it doesn't look like a UUID, it might be a timestamp-based ID
+            // In this case, we need to find the variation by matching other criteria
+            console.warn(`Malformed variation ID detected: ${possibleVariationId}. Attempting to find matching variation.`);
+            
+            // Try to find the variation by checking if the item has variation data
+            if (item.variation) {
+              // Find variation by matching size (weight), beans, type (additions)
+              const matchingVariation = product.variations.find(v => {
+                const size = v.size?.displayName || v.size?.name;
+                const beans = v.beans?.name;
+                const type = v.type?.name;
+                
+                return (
+                  (!item.variation.weight || size === item.variation.weight) &&
+                  (!item.variation.beans || beans === item.variation.beans) &&
+                  (!item.variation.additions || type === item.variation.additions)
+                );
+              });
+              
+              if (matchingVariation) {
+                variationId = matchingVariation.id;
+                console.log(`Found matching variation: ${variationId} for malformed ID: ${possibleVariationId}`);
+              }
+            }
+          }
         }
       }
 
@@ -141,10 +184,15 @@ export async function POST(request: NextRequest) {
       if (variationId) {
         variation = product.variations.find(v => v.id === variationId);
         if (!variation) {
-          return NextResponse.json(
-            { error: `Variation ${variationId} not found for product ${product.name}` },
-            { status: 400 }
-          );
+          // CRITICAL FIX: Instead of failing the order, log the error and continue without variation
+          console.error(`Variation ${variationId} not found for product ${product.name}. Processing order without variation to prevent payment loss.`);
+          
+          // Log detailed info for debugging
+          console.error('Available variations:', product.variations.map(v => ({ id: v.id, size: v.size?.displayName, beans: v.beans?.name, type: v.type?.name })));
+          console.error('Cart item:', { id: item.id, variation: item.variation });
+          
+          // Clear variationId to process as regular product
+          variationId = null;
         }
       }
 
