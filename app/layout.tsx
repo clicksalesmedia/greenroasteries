@@ -48,6 +48,17 @@ export default async function RootLayout({
             `
           }}
         />
+        <style 
+          dangerouslySetInnerHTML={{
+            __html: `
+              /* Critical CSS for immediate layout - prevent CLS */
+              .section.bg-gray-50 { min-height: 700px; }
+              .product-image-wrapper { aspect-ratio: 1; min-height: 200px; background: #f3f4f6; }
+              .hero-slider { min-height: 70vh; }
+              .grid { min-height: 400px; }
+            `
+          }}
+        />
         <noscript>
           <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
         </noscript>

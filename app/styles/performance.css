@@ -7,6 +7,21 @@
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background-color: #f3f4f6;
+  /* Add immediate size to prevent layout shift */
+  width: 100%;
+  height: auto;
+  min-height: 200px; /* Reserve space immediately */
+}
+
+/* Critical CSS for Featured Products section */
+.section.bg-gray-50 {
+  /* Reserve space immediately for content */
+  min-height: 700px;
+}
+
+.grid.grid-cols-2.md\\:grid-cols-3.lg\\:grid-cols-4 {
+  /* Ensure grid has minimum height immediately */
+  min-height: 600px;
 }
 
 .category-image {
