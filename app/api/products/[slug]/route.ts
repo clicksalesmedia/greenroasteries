@@ -469,16 +469,68 @@ export async function DELETE(
       );
     }
     
-    // Delete the product (relations should cascade via Prisma schema)
-    await prisma.product.delete({
-      where: { id: existingProduct.id }
+    // Check if product is used in any orders or bundles
+    const orderItemsCount = await prisma.orderItem.count({
+      where: { productId: existingProduct.id }
+    });
+    
+    const bundleItemsCount = await prisma.bundleItem.count({
+      where: {
+        OR: [
+          { bundleProductId: existingProduct.id },
+          { containedProductId: existingProduct.id }
+        ]
+      }
+    });
+    
+    if (orderItemsCount > 0) {
+      return NextResponse.json(
+        { error: 'Cannot delete product: it is used in existing orders. Consider deactivating it instead.' },
+        { status: 400 }
+      );
+    }
+    
+    if (bundleItemsCount > 0) {
+      return NextResponse.json(
+        { error: 'Cannot delete product: it is used in product bundles. Please remove it from bundles first.' },
+        { status: 400 }
+      );
+    }
+    
+    // Delete the product in a transaction to ensure data integrity
+    // Relations with CASCADE delete will be handled automatically
+    await prisma.$transaction(async (tx) => {
+      // ProductImage, ProductPromotion, and ProductVariation will cascade delete
+      // due to onDelete: Cascade in the schema
+      await tx.product.delete({
+        where: { id: existingProduct.id }
+      });
     });
     
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to delete product:', error);
+    
+    // Handle specific Prisma errors
+    if (error.code === 'P2003') {
+      return NextResponse.json(
+        { error: 'Cannot delete product: it is referenced by other records. Please check for dependencies.' },
+        { status: 400 }
+      );
+    }
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Product not found' },
+        { status: 404 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to delete product' },
+      { 
+        error: 'Failed to delete product',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
       { status: 500 }
     );
   }

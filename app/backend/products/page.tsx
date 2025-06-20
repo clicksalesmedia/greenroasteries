@@ -63,14 +63,17 @@ export default function ProductsPage() {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to delete product');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete product');
       }
       
       // Remove the deleted product from the state
       setProducts(products.filter(product => product.id !== id));
+      setError(null); // Clear any previous errors
     } catch (err) {
       console.error('Error deleting product:', err);
-      setError('Failed to delete product. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete product. Please try again.';
+      setError(errorMessage);
     }
   };
   
