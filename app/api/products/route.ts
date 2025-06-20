@@ -340,14 +340,20 @@ export async function GET(request: Request) {
           ? 'PERCENTAGE'
           : discountType;
         
-        // Add discount properties to the product
-        return {
+        // Add discount properties to the product (only if there's actually a discount)
+        const productWithPrice: any = {
           ...product,
           price: lowestVariationPrice, // Use the lowest variation price as the display price
-          discount: finalDiscount,
-          discountType: finalDiscountType,
           hasVariationDiscount: hasVariationDiscount
         };
+        
+        // Only add discount properties if there's actually a discount
+        if (finalDiscount > 0) {
+          productWithPrice.discount = finalDiscount;
+          productWithPrice.discountType = finalDiscountType;
+        }
+        
+        return productWithPrice;
       });
       
       console.log(`Found ${processedProducts.length} products`);
