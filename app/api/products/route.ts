@@ -176,9 +176,63 @@ export async function GET(request: Request) {
       
       // Query with filtering, include related data
       console.log('Executing prisma query with filters:', JSON.stringify(filters, null, 2));
+      
+      // Optimize payload for featured products - reduce data transfer
+      const isLightweightRequest = featured && limit && limit <= 12;
+      
       const products = await prisma.product.findMany({
         where: filters,
-        include: {
+        include: isLightweightRequest ? {
+          // Lightweight include for featured products
+          category: {
+            select: {
+              id: true,
+              name: true,
+              nameAr: true,
+              slug: true,
+            },
+          },
+          // Only include first image for featured products
+          images: {
+            take: 1,
+            orderBy: {
+              createdAt: 'asc'
+            }
+          },
+          // Simplified variations for featured products
+          variations: {
+            where: {
+              isActive: true
+            },
+            select: {
+              id: true,
+              price: true,
+              discount: true,
+              discountType: true,
+            },
+            take: 3 // Limit variations
+          },
+          promotions: {
+            where: {
+              promotion: {
+                isActive: true,
+                startDate: { lte: new Date() },
+                endDate: { gte: new Date() }
+              }
+            },
+            include: {
+              promotion: {
+                select: {
+                  id: true,
+                  type: true,
+                  value: true
+                }
+              }
+            },
+            take: 1 // Only first active promotion
+          }
+        } : {
+          // Full include for regular requests
           category: {
             select: {
               id: true,

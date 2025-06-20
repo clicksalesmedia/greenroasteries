@@ -98,7 +98,7 @@ export default function TrackingScripts() {
         <>
           <Script
             id="gtm-script"
-            strategy="afterInteractive"
+            strategy="lazyOnload"
             dangerouslySetInnerHTML={{
               __html: `
                 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -126,11 +126,11 @@ export default function TrackingScripts() {
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${config.googleAnalytics.measurementId}`}
-            strategy="afterInteractive"
+            strategy="lazyOnload"
           />
           <Script
             id="ga4-script"
-            strategy="afterInteractive"
+            strategy="lazyOnload"
             dangerouslySetInnerHTML={{
               __html: `
                 window.dataLayer = window.dataLayer || [];
@@ -151,7 +151,7 @@ export default function TrackingScripts() {
         <>
           <Script
             id="facebook-pixel"
-            strategy="afterInteractive"
+            strategy="lazyOnload"
             dangerouslySetInnerHTML={{
               __html: `
                 !function(f,b,e,v,n,t,s)
@@ -185,11 +185,11 @@ export default function TrackingScripts() {
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${config.googleAds.conversionId}`}
-            strategy="afterInteractive"
+            strategy="lazyOnload"
           />
           <Script
             id="google-ads-script"
-            strategy="afterInteractive"
+            strategy="lazyOnload"
             dangerouslySetInnerHTML={{
               __html: `
                 window.dataLayer = window.dataLayer || [];

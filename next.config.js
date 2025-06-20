@@ -25,6 +25,8 @@ const nextConfig = {
     loader: 'default',
     path: '/_next/image',
     unoptimized: false,
+    // Optimize image quality for smaller file sizes
+    quality: 65, // Reduce from default 75 to 65
     remotePatterns: [
       {
         protocol: 'https',

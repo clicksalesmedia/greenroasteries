@@ -17,11 +17,26 @@
 .section.bg-gray-50 {
   /* Reserve space immediately for content */
   min-height: 700px;
+  contain: layout;
 }
 
 .grid.grid-cols-2.md\\:grid-cols-3.lg\\:grid-cols-4 {
   /* Ensure grid has minimum height immediately */
   min-height: 600px;
+  contain: layout style;
+}
+
+/* Prevent navbar logo layout shift */
+.h-16.w-auto {
+  width: 64px !important;
+  height: 64px !important;
+  contain: size;
+}
+
+/* Optimize product cards for better CLS */
+.product-card {
+  contain: layout style;
+  height: 350px; /* Fixed height to prevent shifts */
 }
 
 .category-image {
