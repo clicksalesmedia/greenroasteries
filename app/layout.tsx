@@ -1,5 +1,6 @@
 import "./globals.css";
 import "./styles/toast.css";
+import "./styles/performance.css";
 import { headers } from 'next/headers';
 import LayoutClient from './components/LayoutClient';
 import TrackingScripts from './components/TrackingScripts';
@@ -32,8 +33,24 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <link 
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" 
+          rel="stylesheet" 
+          media="print" 
+        />
+        <script 
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                var link = document.querySelector('link[media="print"]');
+                if(link) link.media = 'all';
+              })();
+            `
+          }}
+        />
+        <noscript>
+          <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        </noscript>
       </head>
       <body
         suppressHydrationWarning={true}

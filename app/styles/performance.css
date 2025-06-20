@@ -1,0 +1,131 @@
+/* Performance optimizations to prevent layout shifts */
+
+/* Image containers with aspect ratios to prevent layout shifts */
+.product-image-container,
+.product-image-wrapper {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background-color: #f3f4f6;
+}
+
+.category-image {
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-image {
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+/* Optimize for Core Web Vitals */
+.product-card {
+  contain: layout style;
+  will-change: transform;
+}
+
+.product-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Prevent font loading layout shifts */
+.font-loading {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Preload critical images */
+.hero-image-container {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  min-height: 400px;
+  background-color: #f3f4f6;
+}
+
+/* Optimize carousel performance */
+.carousel-container {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Grid optimizations to prevent layout shifts */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Skeleton loading states */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Optimize scrolling performance */
+.scroll-optimized {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  transform: translateZ(0);
+}
+
+/* Image loading states */
+.image-loading {
+  background-color: #f3f4f6;
+  position: relative;
+}
+
+.image-loading::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Prevent cumulative layout shift for buttons */
+.product-action,
+.category-link {
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Optimize font rendering */
+.text-optimized {
+  text-rendering: optimizeSpeed;
+  font-display: swap;
+} 
