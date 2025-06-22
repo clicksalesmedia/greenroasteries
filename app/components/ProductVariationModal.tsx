@@ -22,6 +22,8 @@ interface ProductVariation {
   stockQuantity?: number;
   sku?: string;
   imageUrl?: string;
+  discount?: number;
+  discountType?: string;
 }
 
 interface Product {
@@ -34,6 +36,8 @@ interface Product {
   images: string[];
   imageUrl?: string;
   variations?: ProductVariation[];
+  discount?: number;
+  discountType?: string;
 }
 
 interface ProductVariationModalProps {
@@ -398,9 +402,27 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({ isOpen, o
 
   const getCurrentPrice = () => {
     if (selectedVariation) {
-      return selectedVariation.discountPrice || selectedVariation.price;
+      // Check if variation has discount
+      if (selectedVariation.discount && selectedVariation.discount > 0) {
+        if (selectedVariation.discountType === 'PERCENTAGE') {
+          return selectedVariation.price * (1 - selectedVariation.discount);
+        } else if (selectedVariation.discountType === 'FIXED_AMOUNT') {
+          return Math.max(0, selectedVariation.price - selectedVariation.discount);
+        }
+      }
+      return selectedVariation.price;
     }
-    return product?.discountPrice || product?.price || 0;
+    
+    // Check if product has discount
+    if (product?.discount && product.discount > 0) {
+      if (product.discountType === 'PERCENTAGE') {
+        return product.price * (1 - product.discount / 100);
+      } else if (product.discountType === 'FIXED_AMOUNT') {
+        return Math.max(0, product.price - product.discount);
+      }
+    }
+    
+    return product?.price || 0;
   };
 
   const handleAddToCart = () => {

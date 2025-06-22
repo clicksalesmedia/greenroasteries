@@ -32,6 +32,8 @@ interface ProductVariation {
   additionsId?: string;
   additions?: string | { id: string; name: string; [key: string]: any };
   price: number;
+  discount?: number;
+  discountType?: string;
   discountPrice?: number;
   stockQuantity?: number;
   sku?: string;
@@ -249,10 +251,20 @@ export default function VariationModal({ isOpen, onClose, product, onAddToCart }
       
       if (matchingVariation) {
         console.log(`Found matching variation with price: ${matchingVariation.price}`, matchingVariation);
+        
+        // Calculate final price with discount if applicable
         finalPrice = matchingVariation.price;
+        if (matchingVariation.discount && matchingVariation.discount > 0) {
+          if (matchingVariation.discountType === 'PERCENTAGE') {
+            finalPrice = matchingVariation.price * (1 - matchingVariation.discount);
+          } else if (matchingVariation.discountType === 'FIXED_AMOUNT') {
+            finalPrice = Math.max(0, matchingVariation.price - matchingVariation.discount);
+          }
+        }
+        
         productToAdd = {
           ...product,
-          price: matchingVariation.price,
+          price: finalPrice,
           // Use type assertion to avoid TypeScript error
         } as typeof product & { selectedVariationId: string };
         (productToAdd as any).selectedVariationId = matchingVariation.id;
@@ -481,9 +493,18 @@ export default function VariationModal({ isOpen, onClose, product, onAddToCart }
                     {(() => {
                       const matchingVariation = findMatchingVariation();
                       if (matchingVariation) {
-                        return `$${matchingVariation.price.toFixed(2)}`;
+                        // Calculate price with discount if applicable
+                        let finalPrice = matchingVariation.price;
+                        if (matchingVariation.discount && matchingVariation.discount > 0) {
+                          if (matchingVariation.discountType === 'PERCENTAGE') {
+                            finalPrice = matchingVariation.price * (1 - matchingVariation.discount);
+                          } else if (matchingVariation.discountType === 'FIXED_AMOUNT') {
+                            finalPrice = Math.max(0, matchingVariation.price - matchingVariation.discount);
+                          }
+                        }
+                        return `${finalPrice.toFixed(2)} AED`;
                       }
-                      return `$${product.price.toFixed(2)}`;
+                      return `${product.price.toFixed(2)} AED`;
                     })()}
                   </div>
                 </div>
