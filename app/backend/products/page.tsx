@@ -33,7 +33,8 @@ export default function ProductsPage() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/products');
+        // Include inactive products for admin backend
+        const response = await fetch('/api/products?includeInactive=true');
         
         if (!response.ok) {
           throw new Error('Failed to fetch products');
@@ -79,22 +80,22 @@ export default function ProductsPage() {
   
   const handleToggleActive = async (id: string, currentStatus: boolean) => {
     try {
-      const response = await fetch(`/api/products/${id}`, {
+      const response = await fetch('/api/products', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ isActive: !currentStatus }),
+        body: JSON.stringify({ id, isActive: !currentStatus }),
       });
       
       if (!response.ok) {
         throw new Error('Failed to update product status');
       }
       
-      // Update the local state
+      // Update the local state - use inStock as the active status
       setProducts(products.map(product => {
         if (product.id === id) {
-          return { ...product, isActive: !currentStatus };
+          return { ...product, inStock: !currentStatus, isActive: !currentStatus };
         }
         return product;
       }));
@@ -137,13 +138,19 @@ export default function ProductsPage() {
                   <th className="py-3 px-4 text-left">{t('category', 'Category')}</th>
                   <th className="py-3 px-4 text-left">{t('price', 'Price')}</th>
                   <th className="py-3 px-4 text-left">{t('stock', 'Stock')}</th>
+                  <th className="py-3 px-4 text-left">{t('status', 'Status')}</th>
                   <th className="py-3 px-4 text-left">{t('actions', 'Actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {products.length > 0 ? (
                   products.map((product) => (
-                    <tr key={product.id} className="hover:bg-gray-50">
+                    <tr 
+                      key={product.id} 
+                      className={`hover:bg-gray-50 ${
+                        (product.isActive === false || !product.inStock) ? 'opacity-60 bg-gray-50' : ''
+                      }`}
+                    >
                       <td className="py-3 px-4">
                         <div className="w-12 h-12 relative">
                           {product.imageUrl ? (
@@ -185,6 +192,17 @@ export default function ProductsPage() {
                         )}
                       </td>
                       <td className="py-3 px-4">
+                        {(product.isActive !== false && product.inStock) ? (
+                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                            {t('active', 'Active')}
+                          </span>
+                        ) : (
+                          <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">
+                            {t('inactive', 'Inactive')}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
                         <div className="flex space-x-2">
                           <button
                             onClick={() => handleToggleActive(product.id, product.isActive || product.inStock)}
@@ -214,7 +232,7 @@ export default function ProductsPage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-gray-500">
+                    <td colSpan={7} className="py-8 text-center text-gray-500">
                       {t('no_products_found', 'No products found. Click "Add New Product" to create one.')}
                     </td>
                   </tr>

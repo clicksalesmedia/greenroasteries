@@ -48,13 +48,14 @@ export async function GET(request: Request) {
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
     const featured = searchParams.get('featured') === 'true';
     const discounted = searchParams.get('discounted') === 'true';
+    const includeInactive = searchParams.get('includeInactive') === 'true';
     
     console.log(`API Request: /api/products with params:`, { 
-      categoryId, category, inStock, search, limit, featured, discounted 
+      categoryId, category, inStock, search, limit, featured, discounted, includeInactive 
     });
     
     // Create cache key based on parameters
-    const cacheKey = `products-${JSON.stringify({ categoryId, category, inStock, search, limit, featured, discounted })}`;
+    const cacheKey = `products-${JSON.stringify({ categoryId, category, inStock, search, limit, featured, discounted, includeInactive })}`;
     
     // Use cache for non-search queries (search results should be fresh)
     const shouldCache = !search || search.trim() === '';
@@ -62,6 +63,11 @@ export async function GET(request: Request) {
     
     const result = await withCache(cacheKey, async () => {
       const filters: any = {};
+      
+      // Only show active products by default (except for admin backend)
+      if (!includeInactive) {
+        filters.inStock = true;
+      }
       
       if (categoryId) {
         filters.categoryId = categoryId;
@@ -376,6 +382,65 @@ export async function GET(request: Request) {
 }
 
 // Create a new product (requires ADMIN or MANAGER role)
+// Update product (e.g., activate/deactivate)
+export async function PATCH(request: Request) {
+  try {
+    // Get the product ID from the request body since we're in the main route
+    const body = await request.json();
+    const { id, isActive } = body;
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Product ID is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Check authentication
+    const authResult = await checkAuth(['ADMIN', 'MANAGER']);
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { error: authResult.error },
+        { status: authResult.status }
+      );
+    }
+    
+    // Update the product - use inStock as the active status field
+    const updatedProduct = await prisma.product.update({
+      where: { id },
+      data: { inStock: isActive },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            nameAr: true,
+          },
+        },
+      },
+    });
+    
+    // Invalidate cache
+    await invalidateCache('products-*');
+    
+    return NextResponse.json(updatedProduct);
+  } catch (error: any) {
+    console.error('Error updating product:', error);
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Product not found' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json(
+      { error: 'Failed to update product' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: Request) {
   try {
     // Optional authentication - try to get session but don't fail if not configured
