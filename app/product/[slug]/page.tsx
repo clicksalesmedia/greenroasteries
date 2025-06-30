@@ -376,23 +376,13 @@ export default function ProductPage() {
         .map(v => extractValue(v.beans, language))
         .filter(Boolean))] as string[];
       
-      // Extract additions from variations
+      // Extract additions from variations - only show actual variations, no static "Normal"
       let extractedAdditions = [...new Set(product.variations
         .map(v => extractValue(v.additions || v.type, language))
         .filter(Boolean))] as string[];
       
-      // Create a new array with "Normal" always first, followed by other options
-      let additions: string[] = [];
-      
-      // Always include "Normal" as the first option
-      additions.push('Normal');
-      
-      // Add other additions that aren't "Normal"
-      extractedAdditions.forEach(addition => {
-        if (addition && addition.toLowerCase() !== 'normal') {
-          additions.push(addition);
-        }
-      });
+      // Use only the actual additions from variations
+      let additions: string[] = extractedAdditions;
       
       console.log('Available options by language:', {
         language,
@@ -589,21 +579,11 @@ export default function ProductPage() {
     
     const beans = [...new Set(dummyProduct.variations?.map(v => extractValue(v.beans, language)).filter(Boolean))] as string[];
     
-    // Extract additions from variations
+    // Extract additions from variations - only show actual variations, no static "Normal"
     let extractedAdditions = [...new Set(dummyProduct.variations?.map(v => extractValue(v.additions, language)).filter(Boolean))] as string[];
     
-    // Create a new array with "Normal" always first, followed by other options
-    let additions: string[] = [];
-    
-    // Always include "Normal" as the first option
-    additions.push('Normal');
-    
-    // Add other additions that aren't "Normal"
-    extractedAdditions.forEach(addition => {
-      if (addition && addition.toLowerCase() !== 'normal') {
-        additions.push(addition);
-      }
-    });
+    // Use only the actual additions from variations
+    let additions: string[] = extractedAdditions;
     
     console.log('Dummy product variations options:', { weights: sortedWeights, beans, additions });
     
