@@ -147,6 +147,7 @@ export default function ShopContent() {
                   sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
                   className="object-contain transition-all duration-500 hover:scale-105"
                   loading="lazy"
+                  unoptimized={true}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;

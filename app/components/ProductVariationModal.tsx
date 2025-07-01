@@ -514,6 +514,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({ isOpen, o
                   fill
                   sizes="64px"
                   className="object-contain"
+                  unoptimized={true}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;

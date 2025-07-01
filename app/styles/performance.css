@@ -20,7 +20,8 @@
   contain: layout;
 }
 
-.grid.grid-cols-2.md\\:grid-cols-3.lg\\:grid-cols-4 {
+/* Product grid container optimizations */
+.product-grid-container {
   /* Ensure grid has minimum height immediately */
   min-height: 600px;
   contain: layout style;

@@ -158,6 +158,7 @@ const ProductImageMagnifier = ({ src, alt, zoomLevel = 1.8 }: ProductImageMagnif
         sizes="(max-width: 768px) 100vw, 50vw"
         quality={90}
         priority={true}
+        unoptimized={true}
         className={`object-contain transition-transform duration-200 ${isHovered ? 'scale-[1.8]' : 'scale-100'}`}
         style={{
           transformOrigin: `${mousePosition.x * 100}% ${mousePosition.y * 100}%`
@@ -1324,6 +1325,7 @@ export default function ProductPage() {
                         fill
                         sizes="(max-width: 768px) 20vw, 10vw"
                         className="object-contain"
+                        unoptimized={true}
                       />
                     </button>
                   );
@@ -1346,6 +1348,7 @@ export default function ProductPage() {
                     fill
                     sizes="(max-width: 768px) 20vw, 10vw"
                     className="object-contain"
+                    unoptimized={true}
                   />
                   <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1 text-center">
                     Variation
@@ -1663,6 +1666,7 @@ export default function ProductPage() {
                             fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                             className="object-contain group-hover:scale-105 transition-transform duration-300"
+                            unoptimized={true}
                           />
                         </div>
                         
