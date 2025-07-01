@@ -42,7 +42,7 @@ export default function Footer() {
               <li><Link href="/shop" className="hover:text-white transition">All Coffee</Link></li>
               <li><Link href="/shop?category=ARABIC%20COFFEE" className="hover:text-white transition">Arabic Coffee</Link></li>
               <li><Link href="/shop?category=MEDIUM%20ROAST" className="hover:text-white transition">Medium Coffee</Link></li>
-              <li><Link href="http://localhost:3000/shop?category=ESPRESSO%20ROAST" className="hover:text-white transition">Espresso Coffee</Link></li>
+                              <li><Link href="/shop?category=ESPRESSO%20ROAST" className="hover:text-white transition">Espresso Coffee</Link></li>
               <li><Link href="/shop?category=TURKISH%20ROAST" className="hover:text-white transition">Turkish Coffee</Link></li>
               <li><Link href="/shop?category=NUTS%20%26%20DRIED%20FRUITS" className="hover:text-white transition">Nuts & Dried Fruits</Link></li>
             </ul>
