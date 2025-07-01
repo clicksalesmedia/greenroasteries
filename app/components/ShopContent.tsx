@@ -109,7 +109,30 @@ export default function ShopContent() {
                           categoryName === 'مكسرات وفواكه مجففة' ||
                           categoryName === 'NUTS & DRIED FOOD';
     
+    // Check if it's CHOCOLATE category
+    const isChocolateCategory = categoryName.toUpperCase() === 'CHOCOLATE' || 
+                               categoryName === 'شوكولاتة' ||
+                               categoryName === 'الشوكولاتة';
+    
+    // No background for chocolate category since images will cover the entire area
+    if (isChocolateCategory) return 'transparent';
+    
     return isNutsCategory ? '#f6f6f6' : '#e9e9e9';
+  };
+
+  // Function to get the object fit style for product images
+  const getImageObjectFit = (product: Product) => {
+    const categoryName = typeof product.category === 'string' 
+      ? product.category 
+      : product.category?.name || '';
+    
+    // Check if it's CHOCOLATE category
+    const isChocolateCategory = categoryName.toUpperCase() === 'CHOCOLATE' || 
+                               categoryName === 'شوكولاتة' ||
+                               categoryName === 'الشوكولاتة';
+    
+    // Use object-cover for chocolate to fill the entire card
+    return isChocolateCategory ? 'object-cover' : 'object-contain';
   };
 
   if (loading) {
@@ -145,7 +168,7 @@ export default function ShopContent() {
                   alt={product.name}
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                  className="object-contain transition-all duration-500 hover:scale-105"
+                  className={`${getImageObjectFit(product)} transition-all duration-500 hover:scale-105`}
                   loading="lazy"
                   unoptimized={true}
                   onError={(e) => {
