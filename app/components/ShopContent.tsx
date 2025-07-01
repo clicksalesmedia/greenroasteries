@@ -147,14 +147,14 @@ export default function ShopContent() {
                   sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
                   className="object-contain transition-all duration-500 hover:scale-105"
                   loading="lazy"
-                  placeholder="blur"
-                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkrHR8f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyb5v3xv+tH8WjQJeU7Hv8AhiNySsFJV8krkzAOjfvMV2pq1Lqf4GiJwbUY6c7nEKi/ztKk7KYHS8dkr9X4zRc/DWPMHx5WKnD8cNSbzqPCLhJ6/FdKrQJnN9j6A=="
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
                     target.style.display = 'none';
-                    // The parent already has the appropriate background color
+                    console.warn('Failed to load image:', product.imageUrl);
                   }}
+                  priority={false}
+                  quality={85}
                 />
                 {product.discount && product.discount > 0 && getDiscountDisplay(product) && (
                   <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">

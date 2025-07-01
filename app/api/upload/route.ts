@@ -1,17 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
-// Edge-compatible configurations - remove runtime specification for better compatibility
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// Use Node.js runtime to enable file system operations
+export const runtime = 'nodejs';
 
 // This route will handle file uploads from the browser
 export async function POST(req: NextRequest) {
   try {
-    console.log('Edge Upload API called');
+    console.log('Upload API called');
     
     // Skip authentication check - log but don't block
     const authHeader = req.headers.get('authorization');
@@ -89,42 +87,47 @@ export async function POST(req: NextRequest) {
     
     // Validate extension and convert if necessary
     if (!['jpg', 'jpeg', 'png', 'webp', 'avif'].includes(extension)) {
-      console.log(`Unsupported extension ${extension}, converting to jpg for better compatibility`);
-      extension = 'jpg';
+      console.log(`Unsupported extension ${extension}, converting to webp for better compression`);
+      extension = 'webp';
     }
     
-    const fileName = `${uploadType}_${uuidv4()}.${extension}`;
+    const fileName = `${uuidv4()}.${extension}`;
     const fileUrl = `/uploads/${fileName}`;
     
     try {
-      // Try to create a data URL directly from the file for image preview
-      const arrayBuffer = await file.arrayBuffer();
-      const base64 = Buffer.from(arrayBuffer).toString('base64');
-      const dataUrl = `data:${file.type};base64,${base64}`;
+      // Convert file to buffer
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
       
-      console.log('Edge upload complete. File will be available at:', fileUrl);
-      console.log('NOTE: Edge runtime cannot write to filesystem; rely on server-side sync');
+      // Create uploads directory if it doesn't exist
+      const uploadDir = join(process.cwd(), 'public', 'uploads');
+      try {
+        await mkdir(uploadDir, { recursive: true });
+      } catch (err) {
+        // Directory might already exist
+        console.log('Upload directory already exists or created');
+      }
+      
+      // Write file to public/uploads directory
+      const filePath = join(uploadDir, fileName);
+      await writeFile(filePath, buffer);
+      
+      console.log('File uploaded successfully to:', filePath);
+      console.log('File will be accessible at:', fileUrl);
       
       return NextResponse.json({
         success: true,
-        url: fileUrl, // Add url field for backward compatibility
+        url: fileUrl,
         file: fileUrl,
         fileName: fileName,
-        fileData: dataUrl,
-        message: 'File processed for upload - server sync required'
+        message: 'File uploaded successfully'
       });
-    } catch (err) {
-      console.error('Error creating data URL:', err);
-      // Return a success response even if data URL creation failed
-      console.log('Edge upload complete without preview. File will be available at:', fileUrl);
-      
-      return NextResponse.json({
-        success: true,
-        url: fileUrl, // Add url field for backward compatibility
-        file: fileUrl,
-        fileName: fileName,
-        message: 'File processed for upload (no preview available) - server sync required'
-      });
+    } catch (writeError) {
+      console.error('Error writing file:', writeError);
+      return NextResponse.json(
+        { error: 'Failed to save file to disk' },
+        { status: 500 }
+      );
     }
   } catch (error: any) {
     console.error('Error processing upload:', error);
