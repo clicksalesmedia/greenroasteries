@@ -92,15 +92,38 @@ export async function POST(req: NextRequest) {
     }
     
     const fileName = `${uuidv4()}.${extension}`;
-    const fileUrl = `/uploads/${fileName}`;
+    
+    // Determine the subfolder based on type
+    let subfolder = '';
+    if (uploadType === 'products' || uploadType === 'product') {
+      subfolder = 'products';
+    } else if (uploadType === 'categories' || uploadType === 'category') {
+      subfolder = 'categories';
+    } else if (uploadType === 'sliders' || uploadType === 'slider') {
+      subfolder = 'sliders';
+    } else if (uploadType === 'content') {
+      subfolder = 'content';
+    } else if (uploadType === 'variations' || uploadType === 'variation') {
+      subfolder = 'products/variations';
+    } else if (uploadType === 'gallery') {
+      subfolder = 'products/gallery';
+    } else {
+      // Default to root uploads if type unknown
+      subfolder = '';
+    }
+    
+    const fileUrl = subfolder ? `/uploads/${subfolder}/${fileName}` : `/uploads/${fileName}`;
     
     try {
       // Convert file to buffer
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
       
-      // Create uploads directory if it doesn't exist
-      const uploadDir = join(process.cwd(), 'public', 'uploads');
+      // Create uploads directory with subfolder if it doesn't exist
+      const uploadDir = subfolder 
+        ? join(process.cwd(), 'public', 'uploads', subfolder)
+        : join(process.cwd(), 'public', 'uploads');
+        
       try {
         await mkdir(uploadDir, { recursive: true });
       } catch (err) {
