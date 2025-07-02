@@ -91,7 +91,7 @@ export async function handlePaymentIntentSucceeded(paymentIntent: any) {
     console.log(`[Stripe Webhook] Payment details - Amount: ${paymentIntent.amount/100} ${paymentIntent.currency}, Customer: ${paymentIntent.metadata?.customerEmail || 'unknown'}`);
     
     // First, check if payment record already exists
-    let payment = await prisma.payment.findFirst({
+    const payment = await prisma.payment.findFirst({
       where: { stripePaymentIntentId: paymentIntent.id },
       include: { order: true }
     });
@@ -166,7 +166,13 @@ export async function handlePaymentIntentSucceeded(paymentIntent: any) {
       }
 
       // Parse order items from metadata
-      let orderItems = [];
+      const orderItems: Array<{
+        productId: string;
+        variationId: string | null;
+        quantity: number;
+        unitPrice: number;
+        subtotal: number;
+      }> = [];
       try {
         const itemsData = metadata.orderItems ? JSON.parse(metadata.orderItems) : [];
         console.log(`[Stripe Webhook] Parsed ${itemsData.length} items from metadata`);

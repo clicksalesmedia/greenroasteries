@@ -23,7 +23,7 @@
   },
   "serverSideTracking": {
     "enabled": true,
-    "facebookConversionsApi": true,
+    "facebookConversionsApi": false,
     "googleConversionsApi": true,
     "status": "active"
   }

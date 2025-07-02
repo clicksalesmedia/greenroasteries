@@ -160,6 +160,7 @@ export default function ProductsPage() {
                               layout="fill" 
                               objectFit="cover"
                               className="rounded-md"
+                              unoptimized={true}
                             />
                           ) : (
                             <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">

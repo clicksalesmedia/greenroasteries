@@ -8,6 +8,7 @@ const nextConfig = {
   // Enable experimental features for better performance
   experimental: {
     // Updated for Next.js 15
+    serverComponentsExternalPackages: ['sharp'],
   },
   
   // Transpile packages that need it
@@ -16,7 +17,7 @@ const nextConfig = {
   // Optimize images
   images: {
     formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
+    minimumCacheTTL: 60, // 1 minute instead of default 60 seconds
     loader: 'default',
     path: '/_next/image',
     unoptimized: false,
@@ -34,14 +35,12 @@ const nextConfig = {
     domains: ['thegreenroasteries.com', '167.235.137.52', 'localhost'],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   
   // Enable compression
   compress: true,
-  
-
   
   // Configure headers for better caching
   async headers() {
@@ -51,7 +50,15 @@ const nextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=2592000, immutable', // 30 days
+            value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
           },
         ],
       },
@@ -127,6 +134,15 @@ const nextConfig = {
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
+          },
+        ],
+      },
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, max-age=0',
           },
         ],
       },
@@ -209,6 +225,12 @@ const nextConfig = {
       };
     }
     
+    // Optimize for server-side rendering
+    if (isServer) {
+      config.externals = config.externals || [];
+      config.externals.push('sharp');
+    }
+    
     return config;
   },
   
@@ -221,7 +243,26 @@ const nextConfig = {
   // Enable React strict mode for better performance
   reactStrictMode: true,
   
-
+  // Environment variables
+  env: {
+    NEXT_REVALIDATE_TIME: '0', // Disable revalidation for uploaded content
+  },
+  
+  // Asset prefix for standalone mode
+  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
+  
+  // Disable x-powered-by header
+  poweredByHeader: false,
+  
+  // Custom rewrites for uploads
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: '/api/serve-image/:path*',
+      },
+    ];
+  },
 }
 
 module.exports = nextConfig

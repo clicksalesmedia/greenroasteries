@@ -13,6 +13,7 @@ import { ShoppingCartIcon, ArrowRightIcon, SparklesIcon } from '@heroicons/react
 import dynamic from 'next/dynamic';
 import UAEDirhamSymbol from './components/UAEDirhamSymbol';
 import CategoryBanner from './components/CategoryBanner';
+import { addCacheBuster, getOptimizedImageUrl, handleImageError } from './utils/image-cache';
 
 interface Product {
   id: string;
@@ -621,7 +622,7 @@ export default function Home() {
             <Link href={`/product/${product.id}`} className="product-card block">
               <div className="product-image-container relative aspect-square">
                 <Image 
-                  src={product.imageUrl || ''} 
+                  src={getOptimizedImageUrl(product.imageUrl || '')} 
                   alt={getProductName(product)} 
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
@@ -629,22 +630,12 @@ export default function Home() {
                   loading="lazy"
                   placeholder="blur"
                   blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkrHR8f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyb5v3xv+tH8WjQJeU7Hv8AhiNySsFJV8krkzAOjfvMV2pq1Lqf4GiJwbUY6c7nEKi/ztKk7KYHS8dkr9X4zRc/DWPMHx5WKnD8cNSbzqPCLhJ6/FdKrQJnN9j6A=="
+                  unoptimized={product.imageUrl?.startsWith('/uploads/') ? true : false}
                   onError={(e) => {
                     console.error(`Failed to load product image: ${product.imageUrl}`);
-                    // Use background color instead of placeholder image
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
-                    target.style.display = 'none';
-                    // Add a colored background to the container
-                    const container = target.parentElement;
-                    if (container) {
-                      container.style.backgroundColor = '#f3f4f6';
-                      // Add placeholder SVG
-                      const placeholder = document.createElement('div');
-                      placeholder.className = 'absolute inset-0 flex items-center justify-center';
-                      placeholder.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
-                      container.appendChild(placeholder);
-                    }
+                    target.src = handleImageError(product.imageUrl || '');
                   }}
                 />
               </div>
@@ -1932,7 +1923,7 @@ export default function Home() {
                 {/* Background Image with Optimization */}
                 <div className="absolute inset-0 overflow-hidden">
                   <Image
-                    src={heroSlides[currentSlide].image}
+                    src={getOptimizedImageUrl(heroSlides[currentSlide].image)}
                     alt={heroSlides[currentSlide].title}
                     fill
                     className="object-cover object-center transition-transform duration-700 hover:scale-105"
@@ -1941,10 +1932,12 @@ export default function Home() {
                     sizes="100vw"
                     placeholder="blur"
                     blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkrHR8f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyb5v3xv+tH8WjQJeU7Hv8AhiNySsFJV8krkzAOjfvMV2pq1Lqf4GiJwbUY6c7nEKi/ztKk7KYHS8dkr9X4zRc/DWPMHx5WKnD8cNSbzqPCLhJ6/FdKrQJnN9j6A=="
+                    unoptimized={heroSlides[currentSlide].image?.startsWith('/uploads/') ? true : false}
                     onError={(e) => {
                       console.warn('Slider image failed to load:', heroSlides[currentSlide].image);
-                      // Set fallback image source
-                      (e.target as HTMLImageElement).src = '/images/hero-coffee.jpg';
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null;
+                      target.src = handleImageError(heroSlides[currentSlide].image);
                     }}
                   />
                 </div>
@@ -2157,6 +2150,7 @@ export default function Home() {
                     loading="lazy"
                     placeholder="blur"
                     blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkrHR8f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyb5v3xv+tH8WjQJeU7Hv8AhiNySsFJV8krkzAOjfvMV2pq1Lqf4GiJwbUY6c7nEKi/ztKk7KYHS8dkr9X4zRc/DWPMHx5WKnD8cNSbzqPCLhJ6/FdKrQJnN9j6A=="
+                    unoptimized={category.imageUrl?.startsWith('/uploads/') ? true : undefined}
                   />
                   <div className="category-content absolute inset-0 flex flex-col justify-end p-6">
                     <h3 className="category-name text-white font-semibold text-lg mb-2">{contentByLang(category.name, category.nameAr || category.name)}</h3>
@@ -2215,6 +2209,7 @@ export default function Home() {
                         quality={60}
                         placeholder="blur"
                         blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkrHR8f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyb5v3xv+tH8WjQJeU7Hv8AhiNySsFJV8krkzAOjfvMV2pq1Lqf4GiJwbUY6c7nEKi/ztKk7KYHS8dkr9X4zRc/DWPMHx5WKnD8cNSbzqPCLhJ6/FdKrQJnN9j6A=="
+                        unoptimized={product.imageUrl?.startsWith('/uploads/') ? true : undefined}
                       />
                       {product.discount && product.discount > 0 && (
                         <span className="product-badge">
@@ -2329,7 +2324,8 @@ export default function Home() {
                           loading="lazy"
                           quality={60}
                           placeholder="blur"
-                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkrHR8f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyb5v3xv+tH8WjQJeU7Hv8AhiNySsFJV8krkzAOjfvMV2pq1Lqf4GiJwbUY6c7nEKi/ztKk7KYHS8dkr9X4zRc/DWPMHx5WKnD8cNSbzqPCLhJ6/FdKrQJnN9j6A=="
+                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkrHR8f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aaAgBAgEBPwAONyAP/8QAFhEBAQEAAAAAAAAAAAAAAAAAAhEA/9oACAEDAQE/AEiop//aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyb5v3xv+tH8WjQJeU7Hv8AhiNySsFJV8krkzAOjfvMV2pq1Lqf4GiJwbUY6c7nEKi/ztKk7KYHS8dkr9X4zRc/DWPMHx5WKnD8cNSbzqPCLhJ6/FdKrQJnN9j6A=="
+                          unoptimized={product.imageUrl?.startsWith('/uploads/') ? true : undefined}
                         />
                         {product.discount && product.discount > 0 && (
                           <span className="product-badge">

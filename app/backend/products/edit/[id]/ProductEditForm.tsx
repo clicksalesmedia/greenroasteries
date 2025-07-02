@@ -282,36 +282,65 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
     }
   };
   
-  const handleMainImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+  const handleMainImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
       setMainImageFile(file);
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         setMainImagePreview(reader.result as string);
+        
+        // Save the raw file data to localStorage for recovery if needed
+        // This is a safety net in case of upload failure
+        // const key = `file_data_${file.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        // const data = {
+        //   fileName: file.name,
+        //   fileType: file.type,
+        //   fileData: reader.result as string,
+        //   timestamp: new Date().toISOString()
+        // };
+        
+        // try {
+        //   localStorage.setItem(key, JSON.stringify(data));
+        //   console.log('File data saved to localStorage for recovery if needed');
+        // } catch (e) {
+        //   console.warn('Could not save file data to localStorage:', e);
+        // }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleGalleryImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      const newFiles = Array.from(files);
-      setGalleryFiles(prev => [...prev, ...newFiles]);
+  const handleGalleryImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setGalleryFiles(prev => [...prev, ...files]);
       
-      // Generate previews
-      const newPreviews: string[] = [];
-      newFiles.forEach(file => {
+      const newPreviews = files.map(file => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          newPreviews.push(reader.result as string);
-          if (newPreviews.length === newFiles.length) {
-            setGalleryPreviews(prevPreviews => [...prevPreviews, ...newPreviews]);
-          }
+          // Save the raw file data to localStorage for recovery if needed
+          // const key = `gallery_file_data_${file.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
+          // const data = {
+          //   fileName: file.name,
+          //   fileType: file.type,
+          //   fileData: reader.result as string,
+          //   timestamp: new Date().toISOString()
+          // };
+          
+          // try {
+          //   localStorage.setItem(key, JSON.stringify(data));
+          //   console.log('Gallery file data saved to localStorage for recovery if needed');
+          // } catch (e) {
+          //   console.warn('Could not save gallery file data to localStorage:', e);
+          // }
         };
         reader.readAsDataURL(file);
+        return URL.createObjectURL(file);
       });
+      
+      setGalleryPreviews(prev => [...prev, ...newPreviews]);
     }
   };
 

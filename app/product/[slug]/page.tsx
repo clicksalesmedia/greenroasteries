@@ -378,12 +378,12 @@ export default function ProductPage() {
         .filter(Boolean))] as string[];
       
       // Extract additions from variations - only show actual variations, no static "Normal"
-      let extractedAdditions = [...new Set(product.variations
+      const extractedAdditions = [...new Set(product.variations
         .map(v => extractValue(v.additions || v.type, language))
         .filter(Boolean))] as string[];
       
       // Use only the actual additions from variations
-      let additions: string[] = extractedAdditions;
+      const additions: string[] = extractedAdditions;
       
       console.log('Available options by language:', {
         language,
@@ -581,10 +581,10 @@ export default function ProductPage() {
     const beans = [...new Set(dummyProduct.variations?.map(v => extractValue(v.beans, language)).filter(Boolean))] as string[];
     
     // Extract additions from variations - only show actual variations, no static "Normal"
-    let extractedAdditions = [...new Set(dummyProduct.variations?.map(v => extractValue(v.additions, language)).filter(Boolean))] as string[];
+    const extractedAdditions = [...new Set(dummyProduct.variations?.map(v => extractValue(v.additions, language)).filter(Boolean))] as string[];
     
     // Use only the actual additions from variations
-    let additions: string[] = extractedAdditions;
+    const additions: string[] = extractedAdditions;
     
     console.log('Dummy product variations options:', { weights: sortedWeights, beans, additions });
     
@@ -1281,7 +1281,7 @@ export default function ProductPage() {
       </nav>
       
       {/* Product Detail */}
-      <div className="flex flex-col md:flex-row -mx-4">
+      <div className="flex flex-col md:flex-row -mx-4 md:min-h-[600px]">
         {/* Left Column - Gallery */}
         <div className="md:w-1/2 px-4 mb-8 md:mb-0">
           {/* Main Image with Magnifier */}
@@ -1361,184 +1361,185 @@ export default function ProductPage() {
         
         {/* Right Column - Product Details */}
         <div className="md:w-1/2 px-4">
-          <div className="flex flex-col h-full">
-            <div className="flex justify-between items-start mb-2">
-              <h1 className="text-2xl sm:text-3xl font-bold">{getProductName()}</h1>
-              <div className="text-sm text-gray-500">
-                <span className="flex items-center">
-                  <EyeIcon className="h-4 w-4 mr-1" />
-                  {viewCount} {t('views', 'views')}
-                </span>
-              </div>
+          {/* Header Section */}
+          <div className="flex justify-between items-start mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold">{getProductName()}</h1>
+            <div className="text-sm text-gray-500">
+              <span className="flex items-center">
+                <EyeIcon className="h-4 w-4 mr-1" />
+                {viewCount} {t('views', 'views')}
+              </span>
             </div>
-            
-            {/* Category */}
-            <div className="text-sm text-gray-500 mb-4">
-              {t('category', 'Category')}: <Link href={`/shop?category=${encodeURIComponent(getCategoryName())}`} className="hover:text-black">{getCategoryName()}</Link>
-            </div>
-            
-            {/* Price */}
-            <div className="mb-4">
-              {getOriginalPrice() ? (
-                <div className="flex items-center">
-                  <span className="text-xl sm:text-2xl font-bold text-black flex items-center gap-1">
-                    {getCurrentPrice().toFixed(2)}
-                    <UAEDirhamSymbol size={18} />
-                  </span>
-                  <span className="ml-2 text-sm text-gray-500 line-through flex items-center gap-1">
-                    {getOriginalPrice()?.toFixed(2)}
-                    <UAEDirhamSymbol size={12} />
-                  </span>
-                  {getDiscountPercentage() > 0 && (
-                    <span className="ml-2 bg-red-100 text-red-700 px-2 py-0.5 text-xs font-medium rounded-md">
-                      {getDiscountPercentage()}% {t('off', 'OFF')}
-                    </span>
-                  )}
-                </div>
-              ) : (
+          </div>
+          
+          {/* Category */}
+          <div className="text-sm text-gray-500 mb-4">
+            {t('category', 'Category')}: <Link href={`/shop?category=${encodeURIComponent(getCategoryName())}`} className="hover:text-black">{getCategoryName()}</Link>
+          </div>
+          
+          {/* Price */}
+          <div className="mb-4">
+            {getOriginalPrice() ? (
+              <div className="flex items-center">
                 <span className="text-xl sm:text-2xl font-bold text-black flex items-center gap-1">
                   {getCurrentPrice().toFixed(2)}
                   <UAEDirhamSymbol size={18} />
                 </span>
+                <span className="ml-2 text-sm text-gray-500 line-through flex items-center gap-1">
+                  {getOriginalPrice()?.toFixed(2)}
+                  <UAEDirhamSymbol size={12} />
+                </span>
+                {getDiscountPercentage() > 0 && (
+                  <span className="ml-2 bg-red-100 text-red-700 px-2 py-0.5 text-xs font-medium rounded-md">
+                    {getDiscountPercentage()}% {t('off', 'OFF')}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <span className="text-xl sm:text-2xl font-bold text-black flex items-center gap-1">
+                {getCurrentPrice().toFixed(2)}
+                <UAEDirhamSymbol size={18} />
+              </span>
+            )}
+          </div>
+          
+          {/* Rating */}
+          {product.rating && (
+            <div className="flex items-center mb-4">
+              <div className="flex">
+                {renderRatingStars(product.rating)}
+              </div>
+              <span className="ml-2 text-sm text-gray-600">
+                {product.rating.toFixed(1)} ({product.reviews || 0} {t('reviews', 'reviews')})
+              </span>
+            </div>
+          )}
+          
+          {/* Description */}
+          <div className="mb-4">
+            <h2 className="text-lg font-medium mb-2">{t('description', 'Description')}</h2>
+            <div className="text-gray-700 space-y-2 text-sm sm:text-base max-h-32 overflow-y-auto">
+              {getProductDescription() ? (
+                getProductDescription().split('\n\n').map((paragraph, idx) => (
+                  <p key={idx}>{paragraph}</p>
+                ))
+              ) : (
+                <p>{t('no_description', 'No description available.')}</p>
               )}
             </div>
-            
-            {/* Rating */}
-            {product.rating && (
-              <div className="flex items-center mb-4">
-                <div className="flex">
-                  {renderRatingStars(product.rating)}
+          </div>
+          
+          {/* Variations */}
+          <div className="mb-4 space-y-3">
+            {/* Weight Variation */}
+            {availableWeights.length > 0 && (
+              <div>
+                <h2 className="text-sm font-medium mb-2">{t('weight', 'Weight')}</h2>
+                <div className="flex flex-wrap gap-2">
+                  {availableWeights.map((weight) => (
+                    <button 
+                      key={weight}
+                      onClick={() => handleVariationChange('weight', weight)}
+                      className={`px-3 py-1.5 rounded-md border text-sm font-medium transition-colors
+                        ${extractValue(selectedVariation?.weight, language) === weight
+                          ? 'bg-black text-white border-black' 
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        }`}
+                    >
+                      {weight}
+                    </button>
+                  ))}
                 </div>
-                <span className="ml-2 text-sm text-gray-600">
-                  {product.rating.toFixed(1)} ({product.reviews || 0} {t('reviews', 'reviews')})
-                </span>
               </div>
             )}
             
-            {/* Description */}
-            <div className="mb-6">
-              <h2 className="text-lg font-medium mb-2">{t('description', 'Description')}</h2>
-              <div className="text-gray-700 space-y-2 text-sm sm:text-base">
-                {getProductDescription() ? (
-                  getProductDescription().split('\n\n').map((paragraph, idx) => (
-                    <p key={idx}>{paragraph}</p>
-                  ))
-                ) : (
-                  <p>{t('no_description', 'No description available.')}</p>
-                )}
+            {/* Beans Variation */}
+            {availableBeans.length > 0 && (
+              <div>
+                <h2 className="text-sm font-medium mb-2">{t('beans', 'Beans')}</h2>
+                <div className="flex flex-wrap gap-2">
+                  {availableBeans.map((bean) => (
+                    <button 
+                      key={bean}
+                      onClick={() => handleVariationChange('beans', bean)}
+                      className={`px-3 py-1.5 rounded-md border text-sm font-medium transition-colors
+                        ${extractValue(selectedVariation?.beans, language) === bean
+                          ? 'bg-black text-white border-black' 
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        }`}
+                    >
+                      {bean}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
             
-            {/* Variations */}
-            <div className="mb-6 space-y-4">
-              {/* Weight Variation */}
-              {availableWeights.length > 0 && (
+            {/* Additions Variation */}
+            {availableAdditions.length > 0 && (() => {
+              // Get current category name
+              const categoryName = getCategoryName().toUpperCase();
+              
+              // List of categories where additions should NOT be shown
+              const excludedCategories = [
+                'NUTS & DRIED FRUITS',
+                'EID AL ADHA - CATALOG'
+              ];
+              
+              // Check if current category is in the excluded list
+              const shouldHideAdditions = excludedCategories.some(excludedCat => 
+                categoryName.includes(excludedCat.toUpperCase())
+              );
+              
+              // Only render additions if not in excluded categories
+              if (shouldHideAdditions) {
+                return null;
+              }
+              
+              return (
                 <div>
-                  <h2 className="text-lg font-medium mb-2">{t('weight', 'Weight')}</h2>
+                  <h2 className="text-sm font-medium mb-2">{t('additions', 'Additions')}</h2>
                   <div className="flex flex-wrap gap-2">
-                    {availableWeights.map((weight) => (
-                      <button 
-                        key={weight}
-                        onClick={() => handleVariationChange('weight', weight)}
-                        className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors
-                          ${extractValue(selectedVariation?.weight, language) === weight
-                            ? 'bg-black text-white border-black' 
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                          }`}
-                      >
-                        {weight}
-                      </button>
-                    ))}
+                    {availableAdditions.map((addition) => {
+                      // Get current selected addition
+                      const currentAddition = extractValue(selectedVariation?.additions || selectedVariation?.type, language);
+                      
+                      // Check if this addition is selected (exact match only)
+                      const isSelected = currentAddition.toLowerCase() === addition.toLowerCase();
+                      
+                      return (
+                        <button 
+                          key={addition}
+                          onClick={() => handleVariationChange('additions', addition)}
+                          className={`px-3 py-1.5 rounded-md border text-sm font-medium transition-colors
+                            ${isSelected
+                              ? 'bg-black text-white border-black' 
+                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            }`}
+                        >
+                          {addition}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
-              )}
-              
-              {/* Beans Variation */}
-              {availableBeans.length > 0 && (
-                <div>
-                  <h2 className="text-lg font-medium mb-2">{t('beans', 'Beans')}</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {availableBeans.map((bean) => (
-                      <button 
-                        key={bean}
-                        onClick={() => handleVariationChange('beans', bean)}
-                        className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors
-                          ${extractValue(selectedVariation?.beans, language) === bean
-                            ? 'bg-black text-white border-black' 
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                          }`}
-                      >
-                        {bean}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Additions Variation */}
-              {availableAdditions.length > 0 && (() => {
-                // Get current category name
-                const categoryName = getCategoryName().toUpperCase();
-                
-                // List of categories where additions should NOT be shown
-                const excludedCategories = [
-                  'NUTS & DRIED FRUITS',
-                  'EID AL ADHA - CATALOG'
-                ];
-                
-                // Check if current category is in the excluded list
-                const shouldHideAdditions = excludedCategories.some(excludedCat => 
-                  categoryName.includes(excludedCat.toUpperCase())
-                );
-                
-                // Only render additions if not in excluded categories
-                if (shouldHideAdditions) {
-                  return null;
-                }
-                
-                return (
-                  <div>
-                    <h2 className="text-lg font-medium mb-2">{t('additions', 'Additions')}</h2>
-                    <div className="flex flex-wrap gap-2">
-                      {availableAdditions.map((addition) => {
-                        // Get current selected addition
-                        const currentAddition = extractValue(selectedVariation?.additions || selectedVariation?.type, language);
-                        
-                        // Check if this addition is selected (exact match only)
-                        const isSelected = currentAddition.toLowerCase() === addition.toLowerCase();
-                        
-                        return (
-                          <button 
-                            key={addition}
-                            onClick={() => handleVariationChange('additions', addition)}
-                            className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors
-                              ${isSelected
-                                ? 'bg-black text-white border-black' 
-                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                              }`}
-                          >
-                            {addition}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
+              );
+            })()}
+          </div>
+          
+          {/* Quantity */}
+          <div className="mb-6">
+            <h2 className="text-sm font-medium mb-2">{t('quantity', 'Quantity')}</h2>
             
-            {/* Quantity */}
-            <div className="mb-6">
-              <h2 className="text-lg font-medium mb-2">{t('quantity', 'Quantity')}</h2>
-              
-              {/* Stock Status */}
-              {isOutOfStock() ? (
-                <div className="mb-4">
-                  <span className="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {t('out_of_stock', 'Out of Stock')}
-                  </span>
-                </div>
-              ) : (
+            {/* Stock Status */}
+            {isOutOfStock() ? (
+              <div className="mb-4">
+                <span className="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                  {t('out_of_stock', 'Out of Stock')}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center flex-wrap gap-2">
                 <div className="flex items-center">
                   <button 
                     onClick={() => handleQuantityChange(-1)}
@@ -1557,40 +1558,42 @@ export default function ProductPage() {
                   >
                     +
                   </button>
-                  
+                </div>
+                
+                <div className="flex items-center gap-4 text-sm">
                   {getAvailableStock() < 10 && getAvailableStock() > 0 && (
-                    <span className="ml-4 text-sm text-orange-500">
+                    <span className="text-orange-500">
                       {t('only_left', 'Only')} {getAvailableStock()} {t('left', 'left')}
                     </span>
                   )}
                   
                   {getAvailableStock() > 0 && (
-                    <span className="ml-4 text-sm text-green-600">
+                    <span className="text-green-600">
                       {getAvailableStock()} {t('in_stock', 'in stock')}
                     </span>
                   )}
                 </div>
-              )}
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-auto">
+              </div>
+            )}
+          </div>
+          
+          {/* Action Buttons - Positioned at the bottom */}
+          <div className="mt-auto">
+            <div className="flex flex-col sm:flex-row gap-3">
               {isOutOfStock() ? (
-                <div className="flex-1">
-                  <button 
-                    disabled
-                    className="w-full bg-gray-300 text-gray-500 py-3 rounded-md cursor-not-allowed flex items-center justify-center"
-                  >
-                    <ShoppingCartIcon className="h-5 w-5 mr-2" />
-                    {t('out_of_stock', 'Out of Stock')}
-                  </button>
-                </div>
+                <button 
+                  disabled
+                  className="w-full bg-gray-300 text-gray-500 py-3 rounded-md cursor-not-allowed flex items-center justify-center font-medium"
+                >
+                  <ShoppingCartIcon className="h-5 w-5 mr-2" />
+                  {t('out_of_stock', 'Out of Stock')}
+                </button>
               ) : (
                 <>
                   <button 
                     onClick={handleAddToCart}
                     disabled={!selectedVariation}
-                    className="flex-1 bg-white border-2 border-black text-black py-3 rounded-md flex items-center justify-center hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 bg-white border-2 border-black text-black py-3 rounded-md flex items-center justify-center hover:bg-gray-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                   >
                     <ShoppingCartIcon className="h-5 w-5 mr-2" />
                     {t('add_to_cart', 'Add to Cart')}
@@ -1598,7 +1601,7 @@ export default function ProductPage() {
                   <button 
                     onClick={handleBuyNow}
                     disabled={!selectedVariation}
-                    className="flex-1 bg-black text-white py-3 rounded-md hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 bg-black text-white py-3 rounded-md hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                   >
                     {t('buy_now', 'Buy Now')}
                   </button>
@@ -1666,7 +1669,7 @@ export default function ProductPage() {
                             fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                             className="object-contain group-hover:scale-105 transition-transform duration-300"
-                            unoptimized={true}
+                            unoptimized={(recommendedProduct.imageUrl || getImageUrl(recommendedProduct.images?.[0]))?.startsWith('/uploads/') ? true : undefined}
                           />
                         </div>
                         

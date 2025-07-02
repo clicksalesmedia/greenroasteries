@@ -94,11 +94,13 @@ export async function POST(req: NextRequest) {
     
     const uniqueFileName = `${uuidv4()}.${extension}`;
     
-    // Base uploads directory
+    // Base uploads directory - save to both main public and standalone public
     const baseUploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    const standaloneUploadsDir = path.join(process.cwd(), '.next', 'standalone', 'public', 'uploads');
     
     // targetDirectory will be like /public/uploads/categories or /public/uploads/products/variations
     const targetDirectory = path.join(baseUploadsDir, uploadFolderSpecifier);
+    const standaloneTargetDirectory = path.join(standaloneUploadsDir, uploadFolderSpecifier);
     
     // filePathOnServer is the absolute path on the server
     // e.g., /var/www/greenroasteries/public/uploads/categories/guid.webp
@@ -110,6 +112,11 @@ export async function POST(req: NextRequest) {
         mkdirSync(targetDirectory, { recursive: true });
         console.log(`Directory ${targetDirectory} created successfully.`);
       }
+      if (!existsSync(standaloneTargetDirectory)) {
+        console.log(`Standalone target directory ${standaloneTargetDirectory} does not exist. Creating...`);
+        mkdirSync(standaloneTargetDirectory, { recursive: true });
+        console.log(`Standalone directory ${standaloneTargetDirectory} created successfully.`);
+      }
     } catch (dirError: any) {
       console.error('Error creating target directory:', targetDirectory, dirError);
       return NextResponse.json(
@@ -118,11 +125,18 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    console.log('Attempting to save file to server path:', filePathOnServer);
+    const standaloneFilePathOnServer = path.join(standaloneTargetDirectory, uniqueFileName);
+    
+    console.log('Attempting to save file to server paths:', filePathOnServer, 'and', standaloneFilePathOnServer);
     
     try {
+      // Save to main public directory (for nginx serving)
       await writeFile(filePathOnServer, buffer);
-      console.log('File saved successfully to server path:', filePathOnServer);
+      console.log('File saved successfully to main public path:', filePathOnServer);
+      
+      // Also save to standalone directory (for consistency)
+      await writeFile(standaloneFilePathOnServer, buffer);
+      console.log('File saved successfully to standalone path:', standaloneFilePathOnServer);
     } catch (writeError: any) {
       console.error('Error writing file to disk:', filePathOnServer, writeError);
       return NextResponse.json(
@@ -164,7 +178,18 @@ export async function POST(req: NextRequest) {
       fileName: uniqueFileName, // The actual unique name of the saved file
       originalFilename: file.name, // Original name for reference if needed
       fileData: dataUrl,
-      message: 'File uploaded successfully'
+      message: 'File uploaded successfully',
+      // Add timestamp for cache busting
+      timestamp: Date.now(),
+      // Add cache buster URL
+      cacheBustedUrl: `${fileUrl}?t=${Date.now()}`
+    }, {
+      headers: {
+        // Disable caching for upload responses
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     });
     
   } catch (error: any) {

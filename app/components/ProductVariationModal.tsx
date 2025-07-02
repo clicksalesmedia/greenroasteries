@@ -191,7 +191,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({ isOpen, o
         });
         
         // Create a new array for additions with "Normal" always first
-        let sortedAdditions: string[] = [];
+        const sortedAdditions: string[] = [];
         
         // Always add "Normal" as the first option
         sortedAdditions.push('Normal');

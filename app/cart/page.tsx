@@ -7,25 +7,39 @@ import { useCart } from '../contexts/CartContext';
 import { TrashIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../contexts/LanguageContext';
 import UAEDirhamSymbol from '../components/UAEDirhamSymbol';
+import OptimizedImage from '../components/OptimizedImage';
+import ShopErrorBoundary from '../components/ShopErrorBoundary';
 
 export default function CartPage() {
   const { items, totalItems, totalPrice, removeItem, updateItemQuantity } = useCart();
   const { t } = useLanguage();
   const [couponCode, setCouponCode] = useState('');
+  const [isClient, setIsClient] = useState(false);
   
   // Shipping calculation state
   const [shippingCost, setShippingCost] = useState(0);
   const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
+  const [shippingError, setShippingError] = useState<string | null>(null);
+
+  // Ensure we're on the client side to prevent hydration mismatches
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Calculate shipping when items or total price changes
   useEffect(() => {
+    if (!isClient) return;
+
     const calculateShipping = async () => {
       if (totalPrice <= 0) {
         setShippingCost(0);
+        setShippingError(null);
         return;
       }
 
       setIsCalculatingShipping(true);
+      setShippingError(null);
+      
       try {
         const response = await fetch('/api/shipping/calculate', {
           method: 'POST',
@@ -49,13 +63,14 @@ export default function CartPage() {
         console.error('Error calculating shipping:', error);
         // Fallback: free shipping over 200 AED, otherwise 25 AED
         setShippingCost(totalPrice >= 200 ? 0 : 25);
+        setShippingError(t('shipping_calc_error', 'Using fallback shipping rates'));
       } finally {
         setIsCalculatingShipping(false);
       }
     };
 
     calculateShipping();
-  }, [totalPrice, items]);
+  }, [totalPrice, items, isClient, t]);
 
   // Calculate final total including shipping
   const finalTotal = totalPrice + shippingCost;
@@ -73,27 +88,56 @@ export default function CartPage() {
   // Handle quantity changes
   const handleQuantityChange = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    updateItemQuantity(itemId, newQuantity);
+    try {
+      updateItemQuantity(itemId, newQuantity);
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+    }
   };
+
+  // Handle item removal
+  const handleRemoveItem = (itemId: string) => {
+    try {
+      removeItem(itemId);
+    } catch (error) {
+      console.error('Error removing item:', error);
+    }
+  };
+
+  // Show loading state until client-side hydration is complete
+  if (!isClient) {
+    return (
+      <ShopErrorBoundary>
+        <div className="container mx-auto px-4 py-16">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          </div>
+        </div>
+      </ShopErrorBoundary>
+    );
+  }
 
   // Empty cart message
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-16">
-        <h1 className="text-3xl font-bold mb-8 text-center">{t('your_cart', 'Your Cart')}</h1>
-        <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-sm text-center">
-          <p className="text-gray-600 mb-6">{t('cart_empty', 'Your cart is currently empty.')}</p>
-          <Link href="/shop" className="inline-block bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 transition">
-            {t('continue_shopping', 'Continue Shopping')}
-          </Link>
+      <ShopErrorBoundary>
+        <div className="container mx-auto px-4 py-16">
+          <h1 className="text-3xl font-bold mb-8 text-center">{t('your_cart', 'Your Cart')}</h1>
+          <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-sm text-center">
+            <p className="text-gray-600 mb-6">{t('cart_empty', 'Your cart is currently empty.')}</p>
+            <Link href="/shop" className="inline-block bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 transition">
+              {t('continue_shopping', 'Continue Shopping')}
+            </Link>
+          </div>
         </div>
-      </div>
+      </ShopErrorBoundary>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-16">
-      <h1 className="text-3xl font-bold mb-8 text-center">{t('your_cart', 'Your Cart')}</h1>
+    <ShopErrorBoundary>
+      <div className="container mx-auto px-4 py-16">
+        <h1 className="text-3xl font-bold mb-8 text-center">{t('your_cart', 'Your Cart')}</h1>
       
       <div className="lg:grid lg:grid-cols-12 lg:gap-8">
         {/* Cart Items (Left Column) */}
@@ -113,23 +157,15 @@ export default function CartPage() {
                 {/* Product Info */}
                 <div className="md:col-span-6 flex mb-4 md:mb-0">
                   {/* Product Image */}
-                  <div className="w-20 h-20 bg-gray-100 rounded flex-shrink-0">
-                    {item.image ? (
-                      <Image 
-                        src={item.image} 
-                        alt={item.name}
-                        width={80}
-                        height={80}
-                        className="object-cover w-full h-full rounded"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
+                  <OptimizedImage 
+                    src={item.image} 
+                    alt={item.name}
+                    width={80}
+                    height={80}
+                    className="w-20 h-20 rounded flex-shrink-0 object-cover"
+                    fallbackSrc="/images/placeholder.svg"
+                    loading="lazy"
+                  />
                   
                   {/* Product Details */}
                   <div className="ml-4 flex-1">
@@ -150,7 +186,7 @@ export default function CartPage() {
                     
                     {/* Mobile Remove Button */}
                     <button 
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => handleRemoveItem(item.id)}
                       className="md:hidden mt-3 text-sm text-red-600 hover:text-red-800 flex items-center"
                     >
                       <TrashIcon className="h-4 w-4 mr-1" />
@@ -169,7 +205,8 @@ export default function CartPage() {
                   <div className="flex border border-gray-300 rounded">
                     <button 
                       onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                      className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                      className="px-3 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                      disabled={item.quantity <= 1}
                     >
                       <MinusIcon className="h-4 w-4" />
                     </button>
@@ -187,7 +224,7 @@ export default function CartPage() {
                 <div className="hidden md:flex md:col-span-2 justify-between items-center">
                   <span className="text-sm font-medium text-gray-900 flex items-center">{formatPrice(item.price * item.quantity)}</span>
                   <button 
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => handleRemoveItem(item.id)}
                     className="text-gray-400 hover:text-red-600"
                     aria-label={t('remove', 'Remove item')}
                   >
@@ -263,7 +300,9 @@ export default function CartPage() {
                   )}
                 </span>
               </div>
-              {/* Discount would go here if coupon is valid */}
+              {shippingError && (
+                <div className="text-xs text-orange-600">{shippingError}</div>
+              )}
             </div>
             
             {/* Total */}
@@ -275,7 +314,7 @@ export default function CartPage() {
             {/* Checkout Button */}
             <Link
               href="/checkout"
-              className="w-full bg-black text-white py-3 px-6 rounded-md text-center font-medium hover:bg-gray-800 transition"
+              className="w-full bg-black text-white py-3 px-6 rounded-md text-center font-medium hover:bg-gray-800 transition block"
             >
               {t('proceed_to_checkout', 'Proceed to Checkout')}
             </Link>
@@ -290,6 +329,7 @@ export default function CartPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </ShopErrorBoundary>
   );
 } 
