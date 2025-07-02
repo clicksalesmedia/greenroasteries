@@ -4,9 +4,12 @@ import path from 'path';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: { params: Promise<{ path: string[] }> }
 ) {
   try {
+    // Await the params in Next.js 15
+    const params = await context.params;
+    
     // Get the file path from the URL
     const filePath = params.path.join('/');
     
