@@ -142,7 +142,8 @@ export default function CheckoutPage() {
       setCustomerInfo(data);
       setError(null);
       
-      // Track initiate checkout when customer info is submitted
+      // Track initiate checkout when customer info is submitted (non-blocking)
+      // Don't await this to prevent tracking errors from blocking the checkout flow
       trackInitiateCheckout({
         items: items.map(item => ({
           id: item.productId,
@@ -158,6 +159,9 @@ export default function CheckoutPage() {
           lastName: data.fullName.split(' ').slice(1).join(' '),
           phone: data.phone
         }
+      }).catch(error => {
+        // Silently handle tracking errors to prevent checkout interruption
+        console.warn('Tracking error (non-critical):', error);
       });
       
       handleNextStep();

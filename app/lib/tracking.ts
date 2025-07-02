@@ -572,9 +572,9 @@ export const ServerSideTracking = {
       }
     }
 
-    // Server-side tracking
+    // Server-side tracking (non-blocking with extra error handling)
     if (eventData.enableServerSide) {
-      // Facebook Conversions API
+      // Facebook Conversions API - wrapped with extra error handling to prevent UI crashes
       promises.push(
         ServerSideTracking.sendFacebookEvent({
           event_name: eventName === 'initiate_checkout' ? 'InitiateCheckout' :
@@ -598,10 +598,14 @@ export const ServerSideTracking = {
             content_category: eventData.content_category,
             search_string: eventData.search_term
           }
+        }).catch(error => {
+          // Silent error handling to prevent tracking failures from affecting UI
+          console.warn('Facebook tracking failed (non-critical):', error);
+          return { success: false, error: 'Facebook tracking failed' };
         })
       );
 
-      // Google Analytics Measurement Protocol
+      // Google Analytics Measurement Protocol - wrapped with extra error handling to prevent UI crashes
       promises.push(
         ServerSideTracking.sendGoogleEvent({
           conversion_action: eventName,
@@ -610,6 +614,10 @@ export const ServerSideTracking = {
           order_id: eventData.transaction_id,
           user_data: eventData.user_data,
           method: 'ga4'
+        }).catch(error => {
+          // Silent error handling to prevent tracking failures from affecting UI
+          console.warn('Google tracking failed (non-critical):', error);
+          return { success: false, error: 'Google tracking failed' };
         })
       );
     }
