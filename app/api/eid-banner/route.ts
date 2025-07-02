@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -32,7 +31,7 @@ export async function GET() {
       const data = await fs.readFile(EID_BANNER_FILE, 'utf-8');
       const banner = JSON.parse(data) as EidBanner;
       return NextResponse.json(banner);
-    } catch (error) {
+    } catch (_error) {
       // Return default EID banner data pointing to the existing image
       const defaultBanner: EidBanner = {
         id: 'default',
@@ -82,7 +81,7 @@ export async function POST(request: NextRequest) {
       banner.imageUrl = imageUrl;
       banner.isActive = isActive;
       banner.updatedAt = new Date().toISOString();
-    } catch (error) {
+    } catch (_error) {
       // Create new banner
       banner = {
         id: `eid-banner-${Date.now()}`,

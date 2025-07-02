@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
-    } catch (error) {
+    } catch (_error) {
       return NextResponse.json(
         { error: 'Invalid token' },
         { status: 401 }

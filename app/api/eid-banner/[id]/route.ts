@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -57,7 +56,7 @@ export async function PUT(
       banner.imageUrl = imageUrl;
       banner.isActive = isActive;
       banner.updatedAt = new Date().toISOString();
-    } catch (error) {
+    } catch (_error) {
       // Create new banner
       banner = {
         id: params.id,
