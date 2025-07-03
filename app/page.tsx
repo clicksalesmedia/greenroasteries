@@ -13,6 +13,7 @@ import { ShoppingCartIcon, ArrowRightIcon, SparklesIcon } from '@heroicons/react
 import dynamic from 'next/dynamic';
 import UAEDirhamSymbol from './components/UAEDirhamSymbol';
 import CategoryBanner from './components/CategoryBanner';
+import DiscountedVariationsCarousel from './components/DiscountedVariationsCarousel';
 import { addCacheBuster, getOptimizedImageUrl, handleImageError } from './utils/image-cache';
 
 interface Product {
@@ -2165,6 +2166,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Discounted Variations Carousel */}
+      <DiscountedVariationsCarousel onOpenVariationModal={openVariationModal} />
 
       {/* Modern Featured Products */}
       <section className="section bg-gray-50">

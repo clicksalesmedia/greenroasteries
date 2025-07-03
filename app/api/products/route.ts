@@ -48,14 +48,15 @@ export async function GET(request: Request) {
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
     const featured = searchParams.get('featured') === 'true';
     const discounted = searchParams.get('discounted') === 'true';
+    const variationDiscounts = searchParams.get('variationDiscounts') === 'true';
     const includeInactive = searchParams.get('includeInactive') === 'true';
     
     console.log(`API Request: /api/products with params:`, { 
-      categoryId, category, inStock, search, limit, featured, discounted, includeInactive 
+      categoryId, category, inStock, search, limit, featured, discounted, variationDiscounts, includeInactive 
     });
     
     // Create cache key based on parameters
-    const cacheKey = `products-${JSON.stringify({ categoryId, category, inStock, search, limit, featured, discounted, includeInactive })}`;
+    const cacheKey = `products-${JSON.stringify({ categoryId, category, inStock, search, limit, featured, discounted, variationDiscounts, includeInactive })}`;
     
     // Use cache for non-search queries (search results should be fresh)
     const shouldCache = !search || search.trim() === '';
@@ -156,6 +157,19 @@ export async function GET(request: Request) {
           // No active promotions, return empty array early
           return [];
         }
+      }
+
+      // Filter for products with discounted variations
+      if (variationDiscounts) {
+        // Add filter to include products that have variations with discounts
+        filters.variations = {
+          some: {
+            AND: [
+              { isActive: true },
+              { discount: { gt: 0 } }
+            ]
+          }
+        };
       }
       
       // Comprehensive search across multiple fields
@@ -362,8 +376,14 @@ export async function GET(request: Request) {
         return productWithPrice;
       });
       
-      console.log(`Found ${processedProducts.length} products`);
-      return processedProducts;
+      // If filtering for variation discounts only, filter out products without variation discounts
+      let finalProducts = processedProducts;
+      if (variationDiscounts) {
+        finalProducts = processedProducts.filter(product => product.hasVariationDiscount);
+      }
+
+      console.log(`Found ${finalProducts.length} products`);
+      return finalProducts;
     }, cacheTTL);
     
     return NextResponse.json(result);
