@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { uploadToCloudinary, validateImageFile } from '@/app/lib/cloudinary-upload';
+import { CLOUDINARY_FALLBACK_IMAGE } from '@/app/lib/cloudinary-fallback';
 
 interface VariationSize {
   id: string;
@@ -559,20 +561,16 @@ export default function ProductVariations({
   const handleVariationImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file type
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
-      if (!validTypes.includes(file.type)) {
-        setFormError(`Invalid file type: ${file.type}. Please use JPG, PNG, WEBP, or AVIF.`);
-        return;
-      }
-      
-      // Validate file size (5MB max)
-      if (file.size > 5 * 1024 * 1024) {
-        setFormError('File size exceeds 5MB limit.');
+      // Validate file using the utility function
+      const validation = validateImageFile(file);
+      if (!validation.isValid) {
+        setFormError(validation.error || 'Invalid image file');
         return;
       }
       
       setVariationImageFile(file);
+      setFormError(null); // Clear any previous errors
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         setVariationImagePreview(reader.result as string);
@@ -584,16 +582,10 @@ export default function ProductVariations({
   const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file type
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
-      if (!validTypes.includes(file.type)) {
-        alert(`Invalid file type: ${file.type}. Please use JPG, PNG, WEBP, or AVIF.`);
-        return;
-      }
-      
-      // Validate file size (5MB max)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size exceeds 5MB limit.');
+      // Validate file using the utility function
+      const validation = validateImageFile(file);
+      if (!validation.isValid) {
+        alert(validation.error || 'Invalid image file');
         return;
       }
       
@@ -610,74 +602,31 @@ export default function ProductVariations({
   const uploadImage = async (file: File): Promise<string> => {
     setIsUploadingImage(true);
     try {
-      // Validate file type
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
-      if (!validTypes.includes(file.type)) {
-        throw new Error(`Invalid file type: ${file.type}. Please use JPG, PNG, WEBP, or AVIF.`);
+      // Validate file using the utility function
+      const validation = validateImageFile(file);
+      if (!validation.isValid) {
+        throw new Error(validation.error);
       }
       
-      // Validate file size (5MB max)
-      if (file.size > 5 * 1024 * 1024) {
-        throw new Error('File size exceeds 5MB limit.');
-      }
-      
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', 'products/variations'); // Use consistent path format with slashes
-      
-      console.log('Uploading variation image:', {
+      console.log('Uploading variation image to Cloudinary:', {
         filename: file.name,
         size: file.size,
         type: file.type
       });
       
-      // Add authorization header for debugging
-      const response = await fetch('/api/upload-file', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Authorization': 'Bearer temp-auth-for-upload'
-        }
+      // Upload directly to Cloudinary
+      const result = await uploadToCloudinary(file, 'products/variations');
+      
+      console.log('Variation image uploaded successfully to Cloudinary:', {
+        public_id: result.public_id,
+        secure_url: result.secure_url,
+        format: result.format,
+        bytes: result.bytes
       });
       
-      if (!response.ok) {
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (e) {
-          errorData = { error: 'Server returned an invalid response' };
-        }
-        console.error('Variation upload API Error:', errorData);
-        throw new Error(errorData.error || 'Failed to upload variation image');
-      }
-      
-      const data = await response.json();
-      console.log('Variation upload successful, response:', data);
-      
-      // Get the URL of the uploaded image
-      let imageUrl = data.url || data.file;
-      
-      // Ensure the URL starts with a slash
-      if (imageUrl && !imageUrl.startsWith('/') && !imageUrl.startsWith('http')) {
-        imageUrl = `/${imageUrl}`;
-      }
-      
-      console.log('Using variation image URL:', imageUrl);
-      
-      // Save the raw file data to localStorage for recovery if needed
-      if (data.fileData) {
-        try {
-          const key = `file_data_${imageUrl.replace(/[^a-zA-Z0-9]/g, '_')}`;
-          localStorage.setItem(key, data.fileData);
-          console.log('Variation file data saved to localStorage for recovery if needed');
-        } catch (e) {
-          console.warn('Could not save variation file data to localStorage:', e);
-        }
-      }
-      
-      return imageUrl;
+      return result.secure_url;
     } catch (error) {
-      console.error('Error uploading variation image:', error);
+      console.error('Error uploading variation image to Cloudinary:', error);
       throw error;
     } finally {
       setIsUploadingImage(false);

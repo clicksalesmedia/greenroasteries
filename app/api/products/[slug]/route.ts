@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { checkAuth } from '@/app/lib/auth';
+import { invalidateAllProductCaches } from '@/app/lib/cache-invalidation';
 
 export const runtime = 'nodejs'; // Use Node.js runtime for Prisma compatibility
 
@@ -21,9 +22,9 @@ export async function GET(
       );
     }
     
-    // First attempt to find product directly by ID
+    // First attempt to find product by slug
     let product = await prisma.product.findUnique({
-      where: { id: slug },
+      where: { slug: slug },
       include: {
         category: {
           select: {
@@ -44,7 +45,32 @@ export async function GET(
       }
     });
     
-    // If not found by ID, try matching against name
+    // If not found by slug, try finding by ID (backwards compatibility)
+    if (!product) {
+      product = await prisma.product.findUnique({
+        where: { id: slug },
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+              nameAr: true,
+              slug: true
+            }
+          },
+          images: true,
+          variations: {
+            include: {
+              size: true,
+              type: true,
+              beans: true,
+            }
+          }
+        }
+      });
+    }
+    
+    // If still not found, try matching against name/sku
     if (!product) {
       // Convert slug format back to potential name formats
       const possibleName = slug.replace(/-/g, ' ');
@@ -120,12 +146,19 @@ export async function PATCH(
     const body = await request.json();
     console.log(`[API] Request body:`, body);
     
-    // Check if product exists (try finding by ID first)
+    // Check if product exists (try finding by slug first)
     let existingProduct = await prisma.product.findUnique({
-      where: { id: slug }
+      where: { slug: slug }
     });
     
-    // If not found by ID, try finding by name/sku
+    // If not found by slug, try finding by ID (backwards compatibility)
+    if (!existingProduct) {
+      existingProduct = await prisma.product.findUnique({
+        where: { id: slug }
+      });
+    }
+    
+    // If still not found, try finding by name/sku
     if (!existingProduct) {
       const possibleName = slug.replace(/-/g, ' ');
       existingProduct = await prisma.product.findFirst({
@@ -175,6 +208,9 @@ export async function PATCH(
       ...updatedProduct,
       isActive: updatedProduct.inStock
     };
+    
+    // Invalidate all product caches after successful update
+    invalidateAllProductCaches();
     
     console.log(`[API] Product updated successfully:`, responseProduct);
     return NextResponse.json(responseProduct);
@@ -232,15 +268,25 @@ export async function PUT(
       );
     }
     
-    // Check if product exists (try finding by ID first)
+    // Check if product exists (try finding by slug first)
     let existingProduct = await prisma.product.findUnique({
-      where: { id: slug },
+      where: { slug: slug },
       include: {
         variations: true
       }
     });
     
-    // If not found by ID, try finding by name/sku
+    // If not found by slug, try finding by ID (backwards compatibility)
+    if (!existingProduct) {
+      existingProduct = await prisma.product.findUnique({
+        where: { id: slug },
+        include: {
+          variations: true
+        }
+      });
+    }
+    
+    // If still not found, try finding by name/sku
     if (!existingProduct) {
       const possibleName = slug.replace(/-/g, ' ');
       existingProduct = await prisma.product.findFirst({
@@ -361,6 +407,9 @@ export async function PUT(
         },
       });
       
+      // Invalidate all product caches after successful update
+      invalidateAllProductCaches();
+      
       return NextResponse.json(updatedProduct);
     } catch (transactionError: any) {
       console.error('Transaction error:', transactionError);
@@ -443,12 +492,19 @@ export async function DELETE(
       );
     }
     
-    // Check if product exists (try finding by ID first)
+    // Check if product exists (try finding by slug first)
     let existingProduct = await prisma.product.findUnique({
-      where: { id: slug }
+      where: { slug: slug }
     });
     
-    // If not found by ID, try finding by name/sku
+    // If not found by slug, try finding by ID (backwards compatibility)
+    if (!existingProduct) {
+      existingProduct = await prisma.product.findUnique({
+        where: { id: slug }
+      });
+    }
+    
+    // If still not found, try finding by name/sku
     if (!existingProduct) {
       const possibleName = slug.replace(/-/g, ' ');
       existingProduct = await prisma.product.findFirst({

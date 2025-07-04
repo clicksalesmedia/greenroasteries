@@ -3,6 +3,7 @@ import prisma from '@/app/lib/db';
 import { cookies } from 'next/headers';
 import { verify } from 'jsonwebtoken';
 import { withCache, invalidateCache } from '@/app/lib/cache';
+import { invalidateAllProductCaches } from '@/app/lib/cache-invalidation';
 
 // JWT secret key should be stored in env variables
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
@@ -60,7 +61,7 @@ export async function GET(request: Request) {
     
     // Use cache for non-search queries (search results should be fresh)
     const shouldCache = !search || search.trim() === '';
-    const cacheTTL = shouldCache ? 300 : 60; // 5 minutes for regular queries, 1 minute for search
+    const cacheTTL = shouldCache ? 60 : 30; // Reduced from 300 to 60 seconds for faster updates
     
     const result = await withCache(cacheKey, async () => {
       const filters: any = {};
@@ -565,8 +566,8 @@ export async function POST(request: Request) {
       }
     }
     
-    // Invalidate products cache after creating new product
-    invalidateCache('products');
+    // Invalidate all product caches after creating new product
+    invalidateAllProductCaches();
     
     return NextResponse.json(product, { status: 201 });
   } catch (error) {

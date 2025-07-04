@@ -16,8 +16,11 @@ interface Payment {
   id: string;
   orderId: string;
   userId: string;
-  stripePaymentIntentId: string;
+  paymentProvider: 'STRIPE' | 'TABBY';
+  stripePaymentIntentId?: string;
   stripeChargeId?: string;
+  tabbyPaymentId?: string;
+  tabbyCheckoutUrl?: string;
   amount: number;
   currency: string;
   status: 'PENDING' | 'PROCESSING' | 'SUCCEEDED' | 'FAILED' | 'CANCELLED' | 'REFUNDED' | 'PARTIALLY_REFUNDED';
@@ -358,10 +361,17 @@ export default function PaymentsPage() {
                           <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                             <div>
                               <div className="font-mono text-xs text-gray-500">
-                                {payment.stripePaymentIntentId.substring(0, 20)}...
+                                {payment.paymentProvider === 'STRIPE' && payment.stripePaymentIntentId
+                                  ? `${payment.stripePaymentIntentId.substring(0, 20)}...`
+                                  : payment.paymentProvider === 'TABBY' && payment.tabbyPaymentId
+                                  ? `${payment.tabbyPaymentId.substring(0, 20)}...`
+                                  : 'N/A'}
                               </div>
                               <div className="text-xs text-gray-500">
                                 Order: {payment.order.id.substring(0, 8)}...
+                              </div>
+                              <div className="text-xs text-blue-600 font-medium">
+                                {payment.paymentProvider}
                               </div>
                             </div>
                           </td>
@@ -394,7 +404,11 @@ export default function PaymentsPage() {
                           </td>
                           <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                             <div>
-                              <div className="capitalize">{payment.brand || payment.paymentMethod || 'Card'}</div>
+                              <div className="capitalize">
+                                {payment.paymentProvider === 'TABBY' 
+                                  ? 'Tabby (4 installments)' 
+                                  : payment.brand || payment.paymentMethod || 'Card'}
+                              </div>
                               {payment.last4 && (
                                 <div className="text-xs text-gray-400">•••• {payment.last4}</div>
                               )}

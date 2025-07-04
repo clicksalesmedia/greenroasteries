@@ -73,6 +73,7 @@ model Product {
   id            String             @id @default(uuid())
   name          String
   nameAr        String?
+  slug          String             @unique
   description   String?
   descriptionAr String?
   price         Float
@@ -206,8 +207,11 @@ model Payment {
   id                    String        @id @default(uuid())
   orderId               String        @unique
   userId                String
-  stripePaymentIntentId String        @unique
+  paymentProvider       PaymentProvider @default(STRIPE)
+  stripePaymentIntentId String?       @unique
   stripeChargeId        String?
+  tabbyPaymentId        String?       @unique
+  tabbyCheckoutUrl      String?
   amount                Float
   currency              String        @default("aed")
   status                PaymentStatus @default(PENDING)
@@ -406,6 +410,11 @@ enum PaymentStatus {
   CANCELLED
   REFUNDED
   PARTIALLY_REFUNDED
+}
+
+enum PaymentProvider {
+  STRIPE
+  TABBY
 }
 
 enum ShippingType {

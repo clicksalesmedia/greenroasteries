@@ -6,6 +6,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import ProductVariations from './ProductVariations';
 import { useLanguage } from '@/app/contexts/LanguageContext';
+import { uploadToCloudinary, uploadMultipleToCloudinary, validateImageFile, CloudinaryUploadResult } from '@/app/lib/cloudinary-upload';
+import { CLOUDINARY_FALLBACK_IMAGE } from '@/app/lib/cloudinary-fallback';
 
 interface Category {
   id: string;
@@ -129,12 +131,22 @@ export function ProductForm() {
   const handleMainImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file before setting
+      const validation = validateImageFile(file);
+      if (!validation.isValid) {
+        setError(validation.error || 'Invalid image file');
+        return;
+      }
+      
       setMainImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setMainImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+      
+      // Clear any previous errors
+      setError(null);
     }
   };
 
@@ -142,20 +154,44 @@ export function ProductForm() {
     const files = e.target.files;
     if (files && files.length > 0) {
       const newFiles = Array.from(files);
-      setGalleryFiles(prevFiles => [...prevFiles, ...newFiles]);
       
-      // Generate previews
-      const newPreviews: string[] = [];
+      // Validate all files before processing
+      const validFiles: File[] = [];
+      const errors: string[] = [];
+      
       newFiles.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          newPreviews.push(reader.result as string);
-          if (newPreviews.length === newFiles.length) {
-            setGalleryPreviews(prevPreviews => [...prevPreviews, ...newPreviews]);
-          }
-        };
-        reader.readAsDataURL(file);
+        const validation = validateImageFile(file);
+        if (validation.isValid) {
+          validFiles.push(file);
+        } else {
+          errors.push(`${file.name}: ${validation.error}`);
+        }
       });
+      
+      // Show errors if any
+      if (errors.length > 0) {
+        setError(`Some files were rejected:\n${errors.join('\n')}`);
+      } else {
+        setError(null);
+      }
+      
+      // Add valid files only
+      if (validFiles.length > 0) {
+        setGalleryFiles(prevFiles => [...prevFiles, ...validFiles]);
+        
+        // Generate previews
+        const newPreviews: string[] = [];
+        validFiles.forEach(file => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            newPreviews.push(reader.result as string);
+            if (newPreviews.length === validFiles.length) {
+              setGalleryPreviews(prevPreviews => [...prevPreviews, ...newPreviews]);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
     }
   };
 
@@ -171,50 +207,26 @@ export function ProductForm() {
       let mainImageUrl = null;
       const galleryUrls: string[] = [];
       
-      // Upload main image
+      // Upload main image to Cloudinary
       if (mainImageFile) {
-        const formData = new FormData();
-        formData.append('file', mainImageFile);
-        formData.append('folder', 'products');
-        
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to upload main image');
-        }
-        
-        const data = await response.json();
-        mainImageUrl = data.url;
+        console.log('Uploading main product image to Cloudinary...');
+        const result = await uploadToCloudinary(mainImageFile, 'products');
+        mainImageUrl = result.secure_url;
+        console.log('Main image uploaded successfully:', mainImageUrl);
       }
       
-      // Upload gallery images
+      // Upload gallery images to Cloudinary
       if (galleryFiles.length > 0) {
-        for (const file of galleryFiles) {
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('folder', 'products/gallery');
-          
-          const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
-          
-          if (!response.ok) {
-            throw new Error('Failed to upload gallery image');
-          }
-          
-          const data = await response.json();
-          galleryUrls.push(data.url);
-        }
+        console.log(`Uploading ${galleryFiles.length} gallery images to Cloudinary...`);
+        const results = await uploadMultipleToCloudinary(galleryFiles, 'products/gallery');
+        galleryUrls.push(...results.map(result => result.secure_url));
+        console.log(`Gallery images uploaded successfully: ${galleryUrls.length} images`);
       }
       
       return { mainImageUrl, galleryUrls };
     } catch (err) {
-      console.error('Error uploading images:', err);
-      throw new Error('Failed to upload images');
+      console.error('Error uploading images to Cloudinary:', err);
+      throw new Error(`Failed to upload images: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
     }

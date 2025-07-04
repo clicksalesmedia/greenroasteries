@@ -219,6 +219,14 @@ export const PaymentStatus: {
 export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
 
 
+export const PaymentProvider: {
+  STRIPE: 'STRIPE',
+  TABBY: 'TABBY'
+};
+
+export type PaymentProvider = (typeof PaymentProvider)[keyof typeof PaymentProvider]
+
+
 export const ShippingType: {
   STANDARD: 'STANDARD',
   EXPRESS: 'EXPRESS',
@@ -317,6 +325,10 @@ export const PageType: typeof $Enums.PageType
 export type PaymentStatus = $Enums.PaymentStatus
 
 export const PaymentStatus: typeof $Enums.PaymentStatus
+
+export type PaymentProvider = $Enums.PaymentProvider
+
+export const PaymentProvider: typeof $Enums.PaymentProvider
 
 export type ShippingType = $Enums.ShippingType
 
@@ -7869,6 +7881,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     nameAr: string | null
+    slug: string | null
     description: string | null
     descriptionAr: string | null
     price: number | null
@@ -7888,6 +7901,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     nameAr: string | null
+    slug: string | null
     description: string | null
     descriptionAr: string | null
     price: number | null
@@ -7907,6 +7921,7 @@ export namespace Prisma {
     id: number
     name: number
     nameAr: number
+    slug: number
     description: number
     descriptionAr: number
     price: number
@@ -7940,6 +7955,7 @@ export namespace Prisma {
     id?: true
     name?: true
     nameAr?: true
+    slug?: true
     description?: true
     descriptionAr?: true
     price?: true
@@ -7959,6 +7975,7 @@ export namespace Prisma {
     id?: true
     name?: true
     nameAr?: true
+    slug?: true
     description?: true
     descriptionAr?: true
     price?: true
@@ -7978,6 +7995,7 @@ export namespace Prisma {
     id?: true
     name?: true
     nameAr?: true
+    slug?: true
     description?: true
     descriptionAr?: true
     price?: true
@@ -8084,6 +8102,7 @@ export namespace Prisma {
     id: string
     name: string
     nameAr: string | null
+    slug: string
     description: string | null
     descriptionAr: string | null
     price: number
@@ -8122,6 +8141,7 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     nameAr?: boolean
+    slug?: boolean
     description?: boolean
     descriptionAr?: boolean
     price?: boolean
@@ -8149,6 +8169,7 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     nameAr?: boolean
+    slug?: boolean
     description?: boolean
     descriptionAr?: boolean
     price?: boolean
@@ -8169,6 +8190,7 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     nameAr?: boolean
+    slug?: boolean
     description?: boolean
     descriptionAr?: boolean
     price?: boolean
@@ -8189,6 +8211,7 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     nameAr?: boolean
+    slug?: boolean
     description?: boolean
     descriptionAr?: boolean
     price?: boolean
@@ -8204,7 +8227,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "nameAr" | "description" | "descriptionAr" | "price" | "imageUrl" | "categoryId" | "origin" | "inStock" | "stockQuantity" | "sku" | "weight" | "dimensions" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "nameAr" | "slug" | "description" | "descriptionAr" | "price" | "imageUrl" | "categoryId" | "origin" | "inStock" | "stockQuantity" | "sku" | "weight" | "dimensions" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
   export type ProductInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     bundleItems?: boolean | Product$bundleItemsArgs<ExtArgs>
     bundles?: boolean | Product$bundlesArgs<ExtArgs>
@@ -8237,6 +8260,7 @@ export namespace Prisma {
       id: string
       name: string
       nameAr: string | null
+      slug: string
       description: string | null
       descriptionAr: string | null
       price: number
@@ -8683,6 +8707,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Product", 'String'>
     readonly name: FieldRef<"Product", 'String'>
     readonly nameAr: FieldRef<"Product", 'String'>
+    readonly slug: FieldRef<"Product", 'String'>
     readonly description: FieldRef<"Product", 'String'>
     readonly descriptionAr: FieldRef<"Product", 'String'>
     readonly price: FieldRef<"Product", 'Float'>
@@ -17552,8 +17577,11 @@ export namespace Prisma {
     id: string | null
     orderId: string | null
     userId: string | null
+    paymentProvider: $Enums.PaymentProvider | null
     stripePaymentIntentId: string | null
     stripeChargeId: string | null
+    tabbyPaymentId: string | null
+    tabbyCheckoutUrl: string | null
     amount: number | null
     currency: string | null
     status: $Enums.PaymentStatus | null
@@ -17571,8 +17599,11 @@ export namespace Prisma {
     id: string | null
     orderId: string | null
     userId: string | null
+    paymentProvider: $Enums.PaymentProvider | null
     stripePaymentIntentId: string | null
     stripeChargeId: string | null
+    tabbyPaymentId: string | null
+    tabbyCheckoutUrl: string | null
     amount: number | null
     currency: string | null
     status: $Enums.PaymentStatus | null
@@ -17590,8 +17621,11 @@ export namespace Prisma {
     id: number
     orderId: number
     userId: number
+    paymentProvider: number
     stripePaymentIntentId: number
     stripeChargeId: number
+    tabbyPaymentId: number
+    tabbyCheckoutUrl: number
     amount: number
     currency: number
     status: number
@@ -17621,8 +17655,11 @@ export namespace Prisma {
     id?: true
     orderId?: true
     userId?: true
+    paymentProvider?: true
     stripePaymentIntentId?: true
     stripeChargeId?: true
+    tabbyPaymentId?: true
+    tabbyCheckoutUrl?: true
     amount?: true
     currency?: true
     status?: true
@@ -17640,8 +17677,11 @@ export namespace Prisma {
     id?: true
     orderId?: true
     userId?: true
+    paymentProvider?: true
     stripePaymentIntentId?: true
     stripeChargeId?: true
+    tabbyPaymentId?: true
+    tabbyCheckoutUrl?: true
     amount?: true
     currency?: true
     status?: true
@@ -17659,8 +17699,11 @@ export namespace Prisma {
     id?: true
     orderId?: true
     userId?: true
+    paymentProvider?: true
     stripePaymentIntentId?: true
     stripeChargeId?: true
+    tabbyPaymentId?: true
+    tabbyCheckoutUrl?: true
     amount?: true
     currency?: true
     status?: true
@@ -17765,8 +17808,11 @@ export namespace Prisma {
     id: string
     orderId: string
     userId: string
-    stripePaymentIntentId: string
+    paymentProvider: $Enums.PaymentProvider
+    stripePaymentIntentId: string | null
     stripeChargeId: string | null
+    tabbyPaymentId: string | null
+    tabbyCheckoutUrl: string | null
     amount: number
     currency: string
     status: $Enums.PaymentStatus
@@ -17803,8 +17849,11 @@ export namespace Prisma {
     id?: boolean
     orderId?: boolean
     userId?: boolean
+    paymentProvider?: boolean
     stripePaymentIntentId?: boolean
     stripeChargeId?: boolean
+    tabbyPaymentId?: boolean
+    tabbyCheckoutUrl?: boolean
     amount?: boolean
     currency?: boolean
     status?: boolean
@@ -17824,8 +17873,11 @@ export namespace Prisma {
     id?: boolean
     orderId?: boolean
     userId?: boolean
+    paymentProvider?: boolean
     stripePaymentIntentId?: boolean
     stripeChargeId?: boolean
+    tabbyPaymentId?: boolean
+    tabbyCheckoutUrl?: boolean
     amount?: boolean
     currency?: boolean
     status?: boolean
@@ -17845,8 +17897,11 @@ export namespace Prisma {
     id?: boolean
     orderId?: boolean
     userId?: boolean
+    paymentProvider?: boolean
     stripePaymentIntentId?: boolean
     stripeChargeId?: boolean
+    tabbyPaymentId?: boolean
+    tabbyCheckoutUrl?: boolean
     amount?: boolean
     currency?: boolean
     status?: boolean
@@ -17866,8 +17921,11 @@ export namespace Prisma {
     id?: boolean
     orderId?: boolean
     userId?: boolean
+    paymentProvider?: boolean
     stripePaymentIntentId?: boolean
     stripeChargeId?: boolean
+    tabbyPaymentId?: boolean
+    tabbyCheckoutUrl?: boolean
     amount?: boolean
     currency?: boolean
     status?: boolean
@@ -17881,7 +17939,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "userId" | "stripePaymentIntentId" | "stripeChargeId" | "amount" | "currency" | "status" | "paymentMethod" | "last4" | "brand" | "receiptUrl" | "failureReason" | "refundedAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
+  export type PaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "userId" | "paymentProvider" | "stripePaymentIntentId" | "stripeChargeId" | "tabbyPaymentId" | "tabbyCheckoutUrl" | "amount" | "currency" | "status" | "paymentMethod" | "last4" | "brand" | "receiptUrl" | "failureReason" | "refundedAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
   export type PaymentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     order?: boolean | OrderDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -17905,8 +17963,11 @@ export namespace Prisma {
       id: string
       orderId: string
       userId: string
-      stripePaymentIntentId: string
+      paymentProvider: $Enums.PaymentProvider
+      stripePaymentIntentId: string | null
       stripeChargeId: string | null
+      tabbyPaymentId: string | null
+      tabbyCheckoutUrl: string | null
       amount: number
       currency: string
       status: $Enums.PaymentStatus
@@ -18346,8 +18407,11 @@ export namespace Prisma {
     readonly id: FieldRef<"Payment", 'String'>
     readonly orderId: FieldRef<"Payment", 'String'>
     readonly userId: FieldRef<"Payment", 'String'>
+    readonly paymentProvider: FieldRef<"Payment", 'PaymentProvider'>
     readonly stripePaymentIntentId: FieldRef<"Payment", 'String'>
     readonly stripeChargeId: FieldRef<"Payment", 'String'>
+    readonly tabbyPaymentId: FieldRef<"Payment", 'String'>
+    readonly tabbyCheckoutUrl: FieldRef<"Payment", 'String'>
     readonly amount: FieldRef<"Payment", 'Float'>
     readonly currency: FieldRef<"Payment", 'String'>
     readonly status: FieldRef<"Payment", 'PaymentStatus'>
@@ -39283,6 +39347,7 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     nameAr: 'nameAr',
+    slug: 'slug',
     description: 'description',
     descriptionAr: 'descriptionAr',
     price: 'price',
@@ -39417,8 +39482,11 @@ export namespace Prisma {
     id: 'id',
     orderId: 'orderId',
     userId: 'userId',
+    paymentProvider: 'paymentProvider',
     stripePaymentIntentId: 'stripePaymentIntentId',
     stripeChargeId: 'stripeChargeId',
+    tabbyPaymentId: 'tabbyPaymentId',
+    tabbyCheckoutUrl: 'tabbyCheckoutUrl',
     amount: 'amount',
     currency: 'currency',
     status: 'status',
@@ -39922,6 +39990,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'PaymentProvider'
+   */
+  export type EnumPaymentProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentProvider'>
+    
+
+
+  /**
+   * Reference to a field of type 'PaymentProvider[]'
+   */
+  export type ListEnumPaymentProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentProvider[]'>
+    
+
+
+  /**
    * Reference to a field of type 'PaymentStatus'
    */
   export type EnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentStatus'>
@@ -40366,6 +40448,7 @@ export namespace Prisma {
     id?: StringFilter<"Product"> | string
     name?: StringFilter<"Product"> | string
     nameAr?: StringNullableFilter<"Product"> | string | null
+    slug?: StringFilter<"Product"> | string
     description?: StringNullableFilter<"Product"> | string | null
     descriptionAr?: StringNullableFilter<"Product"> | string | null
     price?: FloatFilter<"Product"> | number
@@ -40392,6 +40475,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     nameAr?: SortOrderInput | SortOrder
+    slug?: SortOrder
     description?: SortOrderInput | SortOrder
     descriptionAr?: SortOrderInput | SortOrder
     price?: SortOrder
@@ -40416,6 +40500,7 @@ export namespace Prisma {
 
   export type ProductWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    slug?: string
     sku?: string
     AND?: ProductWhereInput | ProductWhereInput[]
     OR?: ProductWhereInput[]
@@ -40441,12 +40526,13 @@ export namespace Prisma {
     images?: ProductImageListRelationFilter
     promotions?: ProductPromotionListRelationFilter
     variations?: ProductVariationListRelationFilter
-  }, "id" | "sku">
+  }, "id" | "slug" | "sku">
 
   export type ProductOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
     nameAr?: SortOrderInput | SortOrder
+    slug?: SortOrder
     description?: SortOrderInput | SortOrder
     descriptionAr?: SortOrderInput | SortOrder
     price?: SortOrder
@@ -40474,6 +40560,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Product"> | string
     name?: StringWithAggregatesFilter<"Product"> | string
     nameAr?: StringNullableWithAggregatesFilter<"Product"> | string | null
+    slug?: StringWithAggregatesFilter<"Product"> | string
     description?: StringNullableWithAggregatesFilter<"Product"> | string | null
     descriptionAr?: StringNullableWithAggregatesFilter<"Product"> | string | null
     price?: FloatWithAggregatesFilter<"Product"> | number
@@ -41091,8 +41178,11 @@ export namespace Prisma {
     id?: StringFilter<"Payment"> | string
     orderId?: StringFilter<"Payment"> | string
     userId?: StringFilter<"Payment"> | string
-    stripePaymentIntentId?: StringFilter<"Payment"> | string
+    paymentProvider?: EnumPaymentProviderFilter<"Payment"> | $Enums.PaymentProvider
+    stripePaymentIntentId?: StringNullableFilter<"Payment"> | string | null
     stripeChargeId?: StringNullableFilter<"Payment"> | string | null
+    tabbyPaymentId?: StringNullableFilter<"Payment"> | string | null
+    tabbyCheckoutUrl?: StringNullableFilter<"Payment"> | string | null
     amount?: FloatFilter<"Payment"> | number
     currency?: StringFilter<"Payment"> | string
     status?: EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
@@ -41112,8 +41202,11 @@ export namespace Prisma {
     id?: SortOrder
     orderId?: SortOrder
     userId?: SortOrder
-    stripePaymentIntentId?: SortOrder
+    paymentProvider?: SortOrder
+    stripePaymentIntentId?: SortOrderInput | SortOrder
     stripeChargeId?: SortOrderInput | SortOrder
+    tabbyPaymentId?: SortOrderInput | SortOrder
+    tabbyCheckoutUrl?: SortOrderInput | SortOrder
     amount?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -41133,11 +41226,14 @@ export namespace Prisma {
     id?: string
     orderId?: string
     stripePaymentIntentId?: string
+    tabbyPaymentId?: string
     AND?: PaymentWhereInput | PaymentWhereInput[]
     OR?: PaymentWhereInput[]
     NOT?: PaymentWhereInput | PaymentWhereInput[]
     userId?: StringFilter<"Payment"> | string
+    paymentProvider?: EnumPaymentProviderFilter<"Payment"> | $Enums.PaymentProvider
     stripeChargeId?: StringNullableFilter<"Payment"> | string | null
+    tabbyCheckoutUrl?: StringNullableFilter<"Payment"> | string | null
     amount?: FloatFilter<"Payment"> | number
     currency?: StringFilter<"Payment"> | string
     status?: EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
@@ -41151,14 +41247,17 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id" | "orderId" | "stripePaymentIntentId">
+  }, "id" | "orderId" | "stripePaymentIntentId" | "tabbyPaymentId">
 
   export type PaymentOrderByWithAggregationInput = {
     id?: SortOrder
     orderId?: SortOrder
     userId?: SortOrder
-    stripePaymentIntentId?: SortOrder
+    paymentProvider?: SortOrder
+    stripePaymentIntentId?: SortOrderInput | SortOrder
     stripeChargeId?: SortOrderInput | SortOrder
+    tabbyPaymentId?: SortOrderInput | SortOrder
+    tabbyCheckoutUrl?: SortOrderInput | SortOrder
     amount?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -41184,8 +41283,11 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Payment"> | string
     orderId?: StringWithAggregatesFilter<"Payment"> | string
     userId?: StringWithAggregatesFilter<"Payment"> | string
-    stripePaymentIntentId?: StringWithAggregatesFilter<"Payment"> | string
+    paymentProvider?: EnumPaymentProviderWithAggregatesFilter<"Payment"> | $Enums.PaymentProvider
+    stripePaymentIntentId?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     stripeChargeId?: StringNullableWithAggregatesFilter<"Payment"> | string | null
+    tabbyPaymentId?: StringNullableWithAggregatesFilter<"Payment"> | string | null
+    tabbyCheckoutUrl?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     amount?: FloatWithAggregatesFilter<"Payment"> | number
     currency?: StringWithAggregatesFilter<"Payment"> | string
     status?: EnumPaymentStatusWithAggregatesFilter<"Payment"> | $Enums.PaymentStatus
@@ -43305,6 +43407,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -43330,6 +43433,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -43355,6 +43459,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -43380,6 +43485,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -43405,6 +43511,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -43424,6 +43531,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -43442,6 +43550,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -44110,8 +44219,11 @@ export namespace Prisma {
 
   export type PaymentCreateInput = {
     id?: string
-    stripePaymentIntentId: string
+    paymentProvider?: $Enums.PaymentProvider
+    stripePaymentIntentId?: string | null
     stripeChargeId?: string | null
+    tabbyPaymentId?: string | null
+    tabbyCheckoutUrl?: string | null
     amount: number
     currency?: string
     status?: $Enums.PaymentStatus
@@ -44131,8 +44243,11 @@ export namespace Prisma {
     id?: string
     orderId: string
     userId: string
-    stripePaymentIntentId: string
+    paymentProvider?: $Enums.PaymentProvider
+    stripePaymentIntentId?: string | null
     stripeChargeId?: string | null
+    tabbyPaymentId?: string | null
+    tabbyCheckoutUrl?: string | null
     amount: number
     currency?: string
     status?: $Enums.PaymentStatus
@@ -44148,8 +44263,11 @@ export namespace Prisma {
 
   export type PaymentUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    stripePaymentIntentId?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: EnumPaymentProviderFieldUpdateOperationsInput | $Enums.PaymentProvider
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeChargeId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
@@ -44169,8 +44287,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     orderId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    stripePaymentIntentId?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: EnumPaymentProviderFieldUpdateOperationsInput | $Enums.PaymentProvider
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeChargeId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
@@ -44188,8 +44309,11 @@ export namespace Prisma {
     id?: string
     orderId: string
     userId: string
-    stripePaymentIntentId: string
+    paymentProvider?: $Enums.PaymentProvider
+    stripePaymentIntentId?: string | null
     stripeChargeId?: string | null
+    tabbyPaymentId?: string | null
+    tabbyCheckoutUrl?: string | null
     amount: number
     currency?: string
     status?: $Enums.PaymentStatus
@@ -44205,8 +44329,11 @@ export namespace Prisma {
 
   export type PaymentUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    stripePaymentIntentId?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: EnumPaymentProviderFieldUpdateOperationsInput | $Enums.PaymentProvider
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeChargeId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
@@ -44224,8 +44351,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     orderId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    stripePaymentIntentId?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: EnumPaymentProviderFieldUpdateOperationsInput | $Enums.PaymentProvider
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeChargeId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
@@ -46778,6 +46908,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     nameAr?: SortOrder
+    slug?: SortOrder
     description?: SortOrder
     descriptionAr?: SortOrder
     price?: SortOrder
@@ -46803,6 +46934,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     nameAr?: SortOrder
+    slug?: SortOrder
     description?: SortOrder
     descriptionAr?: SortOrder
     price?: SortOrder
@@ -46822,6 +46954,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     nameAr?: SortOrder
+    slug?: SortOrder
     description?: SortOrder
     descriptionAr?: SortOrder
     price?: SortOrder
@@ -47269,6 +47402,13 @@ export namespace Prisma {
     subtotal?: SortOrder
   }
 
+  export type EnumPaymentProviderFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentProvider | EnumPaymentProviderFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentProvider[] | ListEnumPaymentProviderFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentProvider[] | ListEnumPaymentProviderFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentProviderFilter<$PrismaModel> | $Enums.PaymentProvider
+  }
+
   export type EnumPaymentStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel>
     in?: $Enums.PaymentStatus[] | ListEnumPaymentStatusFieldRefInput<$PrismaModel>
@@ -47280,8 +47420,11 @@ export namespace Prisma {
     id?: SortOrder
     orderId?: SortOrder
     userId?: SortOrder
+    paymentProvider?: SortOrder
     stripePaymentIntentId?: SortOrder
     stripeChargeId?: SortOrder
+    tabbyPaymentId?: SortOrder
+    tabbyCheckoutUrl?: SortOrder
     amount?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -47304,8 +47447,11 @@ export namespace Prisma {
     id?: SortOrder
     orderId?: SortOrder
     userId?: SortOrder
+    paymentProvider?: SortOrder
     stripePaymentIntentId?: SortOrder
     stripeChargeId?: SortOrder
+    tabbyPaymentId?: SortOrder
+    tabbyCheckoutUrl?: SortOrder
     amount?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -47323,8 +47469,11 @@ export namespace Prisma {
     id?: SortOrder
     orderId?: SortOrder
     userId?: SortOrder
+    paymentProvider?: SortOrder
     stripePaymentIntentId?: SortOrder
     stripeChargeId?: SortOrder
+    tabbyPaymentId?: SortOrder
+    tabbyCheckoutUrl?: SortOrder
     amount?: SortOrder
     currency?: SortOrder
     status?: SortOrder
@@ -47341,6 +47490,16 @@ export namespace Prisma {
   export type PaymentSumOrderByAggregateInput = {
     amount?: SortOrder
     refundedAmount?: SortOrder
+  }
+
+  export type EnumPaymentProviderWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentProvider | EnumPaymentProviderFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentProvider[] | ListEnumPaymentProviderFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentProvider[] | ListEnumPaymentProviderFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentProviderWithAggregatesFilter<$PrismaModel> | $Enums.PaymentProvider
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPaymentProviderFilter<$PrismaModel>
+    _max?: NestedEnumPaymentProviderFilter<$PrismaModel>
   }
 
   export type EnumPaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -49831,6 +49990,10 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type EnumPaymentProviderFieldUpdateOperationsInput = {
+    set?: $Enums.PaymentProvider
+  }
+
   export type EnumPaymentStatusFieldUpdateOperationsInput = {
     set?: $Enums.PaymentStatus
   }
@@ -50693,11 +50856,28 @@ export namespace Prisma {
     _max?: NestedEnumOrderStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumPaymentProviderFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentProvider | EnumPaymentProviderFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentProvider[] | ListEnumPaymentProviderFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentProvider[] | ListEnumPaymentProviderFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentProviderFilter<$PrismaModel> | $Enums.PaymentProvider
+  }
+
   export type NestedEnumPaymentStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel>
     in?: $Enums.PaymentStatus[] | ListEnumPaymentStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.PaymentStatus[] | ListEnumPaymentStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumPaymentStatusFilter<$PrismaModel> | $Enums.PaymentStatus
+  }
+
+  export type NestedEnumPaymentProviderWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentProvider | EnumPaymentProviderFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentProvider[] | ListEnumPaymentProviderFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentProvider[] | ListEnumPaymentProviderFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentProviderWithAggregatesFilter<$PrismaModel> | $Enums.PaymentProvider
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPaymentProviderFilter<$PrismaModel>
+    _max?: NestedEnumPaymentProviderFilter<$PrismaModel>
   }
 
   export type NestedEnumPaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -51004,8 +51184,11 @@ export namespace Prisma {
 
   export type PaymentCreateWithoutUserInput = {
     id?: string
-    stripePaymentIntentId: string
+    paymentProvider?: $Enums.PaymentProvider
+    stripePaymentIntentId?: string | null
     stripeChargeId?: string | null
+    tabbyPaymentId?: string | null
+    tabbyCheckoutUrl?: string | null
     amount: number
     currency?: string
     status?: $Enums.PaymentStatus
@@ -51023,8 +51206,11 @@ export namespace Prisma {
   export type PaymentUncheckedCreateWithoutUserInput = {
     id?: string
     orderId: string
-    stripePaymentIntentId: string
+    paymentProvider?: $Enums.PaymentProvider
+    stripePaymentIntentId?: string | null
     stripeChargeId?: string | null
+    tabbyPaymentId?: string | null
+    tabbyCheckoutUrl?: string | null
     amount: number
     currency?: string
     status?: $Enums.PaymentStatus
@@ -51324,8 +51510,11 @@ export namespace Prisma {
     id?: StringFilter<"Payment"> | string
     orderId?: StringFilter<"Payment"> | string
     userId?: StringFilter<"Payment"> | string
-    stripePaymentIntentId?: StringFilter<"Payment"> | string
+    paymentProvider?: EnumPaymentProviderFilter<"Payment"> | $Enums.PaymentProvider
+    stripePaymentIntentId?: StringNullableFilter<"Payment"> | string | null
     stripeChargeId?: StringNullableFilter<"Payment"> | string | null
+    tabbyPaymentId?: StringNullableFilter<"Payment"> | string | null
+    tabbyCheckoutUrl?: StringNullableFilter<"Payment"> | string | null
     amount?: FloatFilter<"Payment"> | number
     currency?: StringFilter<"Payment"> | string
     status?: EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
@@ -51682,6 +51871,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -51706,6 +51896,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -51833,6 +52024,7 @@ export namespace Prisma {
     id?: StringFilter<"Product"> | string
     name?: StringFilter<"Product"> | string
     nameAr?: StringNullableFilter<"Product"> | string | null
+    slug?: StringFilter<"Product"> | string
     description?: StringNullableFilter<"Product"> | string | null
     descriptionAr?: StringNullableFilter<"Product"> | string | null
     price?: FloatFilter<"Product"> | number
@@ -52252,6 +52444,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -52276,6 +52469,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -52316,6 +52510,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -52340,6 +52535,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -52569,6 +52765,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -52593,6 +52790,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -52742,6 +52940,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -52766,6 +52965,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -52990,8 +53190,11 @@ export namespace Prisma {
 
   export type PaymentCreateWithoutOrderInput = {
     id?: string
-    stripePaymentIntentId: string
+    paymentProvider?: $Enums.PaymentProvider
+    stripePaymentIntentId?: string | null
     stripeChargeId?: string | null
+    tabbyPaymentId?: string | null
+    tabbyCheckoutUrl?: string | null
     amount: number
     currency?: string
     status?: $Enums.PaymentStatus
@@ -53009,8 +53212,11 @@ export namespace Prisma {
   export type PaymentUncheckedCreateWithoutOrderInput = {
     id?: string
     userId: string
-    stripePaymentIntentId: string
+    paymentProvider?: $Enums.PaymentProvider
+    stripePaymentIntentId?: string | null
     stripeChargeId?: string | null
+    tabbyPaymentId?: string | null
+    tabbyCheckoutUrl?: string | null
     amount: number
     currency?: string
     status?: $Enums.PaymentStatus
@@ -53166,8 +53372,11 @@ export namespace Prisma {
 
   export type PaymentUpdateWithoutOrderInput = {
     id?: StringFieldUpdateOperationsInput | string
-    stripePaymentIntentId?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: EnumPaymentProviderFieldUpdateOperationsInput | $Enums.PaymentProvider
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeChargeId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
@@ -53185,8 +53394,11 @@ export namespace Prisma {
   export type PaymentUncheckedUpdateWithoutOrderInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    stripePaymentIntentId?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: EnumPaymentProviderFieldUpdateOperationsInput | $Enums.PaymentProvider
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeChargeId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
@@ -53261,6 +53473,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -53285,6 +53498,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -53427,6 +53641,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -53451,6 +53666,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -53868,6 +54084,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -53892,6 +54109,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -53973,6 +54191,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -53997,6 +54216,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -54068,6 +54288,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -54092,6 +54313,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -54121,6 +54343,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -54145,6 +54368,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -54185,6 +54409,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -54209,6 +54434,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -54244,6 +54470,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -54268,6 +54495,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -55922,8 +56150,11 @@ export namespace Prisma {
   export type PaymentCreateManyUserInput = {
     id?: string
     orderId: string
-    stripePaymentIntentId: string
+    paymentProvider?: $Enums.PaymentProvider
+    stripePaymentIntentId?: string | null
     stripeChargeId?: string | null
+    tabbyPaymentId?: string | null
+    tabbyCheckoutUrl?: string | null
     amount: number
     currency?: string
     status?: $Enums.PaymentStatus
@@ -56116,8 +56347,11 @@ export namespace Prisma {
 
   export type PaymentUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    stripePaymentIntentId?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: EnumPaymentProviderFieldUpdateOperationsInput | $Enums.PaymentProvider
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeChargeId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
@@ -56135,8 +56369,11 @@ export namespace Prisma {
   export type PaymentUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderId?: StringFieldUpdateOperationsInput | string
-    stripePaymentIntentId?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: EnumPaymentProviderFieldUpdateOperationsInput | $Enums.PaymentProvider
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeChargeId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
@@ -56153,8 +56390,11 @@ export namespace Prisma {
   export type PaymentUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderId?: StringFieldUpdateOperationsInput | string
-    stripePaymentIntentId?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: EnumPaymentProviderFieldUpdateOperationsInput | $Enums.PaymentProvider
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeChargeId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    tabbyCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
@@ -56391,6 +56631,7 @@ export namespace Prisma {
     id?: string
     name: string
     nameAr?: string | null
+    slug: string
     description?: string | null
     descriptionAr?: string | null
     price: number
@@ -56452,6 +56693,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -56476,6 +56718,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number
@@ -56500,6 +56743,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
     price?: FloatFieldUpdateOperationsInput | number

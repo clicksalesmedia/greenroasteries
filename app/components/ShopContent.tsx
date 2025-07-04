@@ -10,6 +10,7 @@ import { ShoppingCartIcon } from '@heroicons/react/24/outline';
 import ProductVariationModal from './ProductVariationModal';
 import UAEDirhamSymbol from './UAEDirhamSymbol';
 import CategoryBanner from './CategoryBanner';
+import { CLOUDINARY_FALLBACK_IMAGE } from '../lib/cloudinary-fallback';
 
 // Define Product interface
 interface Product {
@@ -158,27 +159,33 @@ export default function ShopContent() {
             key={product.id}
             className="bg-white rounded-lg shadow-sm overflow-hidden transition-transform hover:shadow-md hover:-translate-y-1"
           >
-            <Link href={`/product/${product.id}`} className="block">
+                            <Link href={`/product/${product.slug}`} className="block">
               <div 
                 className="aspect-square relative overflow-hidden"
                 style={{ backgroundColor: getImageBackgroundColor(product) }}
               >
                 <Image 
-                  src={product.imageUrl || (product.images && product.images.length > 0 ? product.images[0] : '')}
+                  src={product.imageUrl || (product.images && product.images.length > 0 ? product.images[0] : CLOUDINARY_FALLBACK_IMAGE)}
                   alt={product.name}
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                  className={`${getImageObjectFit(product)} transition-all duration-500 hover:scale-105`}
+                  className={`${getImageObjectFit(product)} transition-all duration-500 hover:scale-105 opacity-0`}
                   loading="lazy"
                   unoptimized={true}
+                  onLoad={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.opacity = '1';
+                  }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
-                    target.style.display = 'none';
-                    console.warn('Failed to load image:', product.imageUrl);
+                    target.src = CLOUDINARY_FALLBACK_IMAGE;
+                    target.style.opacity = '1';
+                    console.warn('Image load failed, using Cloudinary fallback:', product.imageUrl);
                   }}
                   priority={false}
                   quality={85}
+                  style={{ transition: 'opacity 0.3s ease-in-out' }}
                 />
                 {product.discount && product.discount > 0 && getDiscountDisplay(product) && (
                   <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">

@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../app/generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../app/generated/prisma"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
 datasource db {
@@ -72,6 +73,7 @@ model Product {
   id            String             @id @default(uuid())
   name          String
   nameAr        String?
+  slug          String             @unique
   description   String?
   descriptionAr String?
   price         Float
@@ -202,24 +204,27 @@ model OrderItem {
 }
 
 model Payment {
-  id                    String        @id @default(uuid())
-  orderId               String        @unique
+  id                    String          @id @default(uuid())
+  orderId               String          @unique
   userId                String
-  stripePaymentIntentId String        @unique
+  paymentProvider       PaymentProvider @default(STRIPE)
+  stripePaymentIntentId String?         @unique
   stripeChargeId        String?
+  tabbyPaymentId        String?         @unique
+  tabbyCheckoutUrl      String?
   amount                Float
-  currency              String        @default("aed")
-  status                PaymentStatus @default(PENDING)
+  currency              String          @default("aed")
+  status                PaymentStatus   @default(PENDING)
   paymentMethod         String?
   last4                 String?
   brand                 String?
   receiptUrl            String?
   failureReason         String?
-  refundedAmount        Float?        @default(0)
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
-  order                 Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  user                  User          @relation(fields: [userId], references: [id])
+  refundedAmount        Float?          @default(0)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  order                 Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user                  User            @relation(fields: [userId], references: [id])
 }
 
 model ShippingRule {
@@ -405,6 +410,11 @@ enum PaymentStatus {
   CANCELLED
   REFUNDED
   PARTIALLY_REFUNDED
+}
+
+enum PaymentProvider {
+  STRIPE
+  TABBY
 }
 
 enum ShippingType {

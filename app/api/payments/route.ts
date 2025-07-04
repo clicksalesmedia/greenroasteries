@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/app/generated/prisma';
 import { stripe } from '@/lib/stripe';
+import { tabbyService } from '@/app/lib/tabby';
 
 const prisma = new PrismaClient();
 
@@ -122,12 +123,29 @@ export async function POST(request: NextRequest) {
         }
 
         try {
-          // Create refund in Stripe
-          const refund = await stripe.refunds.create({
-            payment_intent: payment.stripePaymentIntentId,
-            amount: Math.round(amount * 100), // Convert to cents
-            reason: 'requested_by_customer'
-          });
+          let refundResult;
+          
+          // Handle refund based on payment provider
+          if (payment.paymentProvider === 'STRIPE' && payment.stripePaymentIntentId) {
+            // Create refund in Stripe
+            refundResult = await stripe.refunds.create({
+              payment_intent: payment.stripePaymentIntentId,
+              amount: Math.round(amount * 100), // Convert to cents
+              reason: 'requested_by_customer'
+            });
+          } else if (payment.paymentProvider === 'TABBY' && payment.tabbyPaymentId) {
+            // Create refund in Tabby
+            refundResult = await tabbyService.refundPayment(
+              payment.tabbyPaymentId, 
+              amount,
+              'requested_by_customer'
+            );
+          } else {
+            return NextResponse.json(
+              { error: 'Invalid payment provider or missing payment ID' },
+              { status: 400 }
+            );
+          }
 
           // Update payment record
           const newRefundedAmount = (payment.refundedAmount || 0) + amount;
@@ -153,17 +171,17 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({
             success: true,
             refund: {
-              id: refund.id,
+              id: refundResult.id,
               amount: amount,
-              status: refund.status
+              status: refundResult.status || 'processed'
             },
-            message: `Refund of ${amount} AED processed successfully`
+            message: `Refund of ${amount} AED processed successfully via ${payment.paymentProvider}`
           });
 
-        } catch (stripeError: any) {
-          console.error('Stripe refund error:', stripeError);
+        } catch (providerError: any) {
+          console.error(`${payment.paymentProvider} refund error:`, providerError);
           return NextResponse.json(
-            { error: `Refund failed: ${stripeError.message}` },
+            { error: `Refund failed: ${providerError.message}` },
             { status: 400 }
           );
         }

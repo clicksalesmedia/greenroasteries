@@ -169,6 +169,7 @@ exports.Prisma.ProductScalarFieldEnum = {
   id: 'id',
   name: 'name',
   nameAr: 'nameAr',
+  slug: 'slug',
   description: 'description',
   descriptionAr: 'descriptionAr',
   price: 'price',
@@ -279,8 +280,11 @@ exports.Prisma.PaymentScalarFieldEnum = {
   id: 'id',
   orderId: 'orderId',
   userId: 'userId',
+  paymentProvider: 'paymentProvider',
   stripePaymentIntentId: 'stripePaymentIntentId',
   stripeChargeId: 'stripeChargeId',
+  tabbyPaymentId: 'tabbyPaymentId',
+  tabbyCheckoutUrl: 'tabbyCheckoutUrl',
   amount: 'amount',
   currency: 'currency',
   status: 'status',
@@ -628,6 +632,11 @@ exports.OrderStatus = exports.$Enums.OrderStatus = {
   DELIVERED: 'DELIVERED',
   CANCELLED: 'CANCELLED',
   REFUNDED: 'REFUNDED'
+};
+
+exports.PaymentProvider = exports.$Enums.PaymentProvider = {
+  STRIPE: 'STRIPE',
+  TABBY: 'TABBY'
 };
 
 exports.PaymentStatus = exports.$Enums.PaymentStatus = {

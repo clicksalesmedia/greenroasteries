@@ -36,17 +36,7 @@ export default async function RootLayout({
         <link 
           href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" 
           rel="stylesheet" 
-          media="print" 
-        />
-        <script 
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(){
-                var link = document.querySelector('link[media="print"]');
-                if(link) link.media = 'all';
-              })();
-            `
-          }}
+          media="all" 
         />
         <style 
           dangerouslySetInnerHTML={{
@@ -55,7 +45,7 @@ export default async function RootLayout({
               .section.bg-gray-50 { min-height: 700px; }
               .product-image-wrapper { aspect-ratio: 1; min-height: 200px; background: #f3f4f6; }
               .hero-slider { min-height: 70vh; }
-              .grid { min-height: 400px; }
+              .grid:not(.thumbnail-gallery) { min-height: 400px; }
             `
           }}
         />

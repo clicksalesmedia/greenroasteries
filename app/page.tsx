@@ -620,7 +620,7 @@ export default function Home() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-6">
         {featuredProducts.map(product => (
           <div key={product.id}>
-            <Link href={`/product/${product.id}`} className="product-card block">
+            <Link href={`/product/${product.slug}`} className="product-card block">
               <div className="product-image-container relative aspect-square">
                 <Image 
                   src={getOptimizedImageUrl(product.imageUrl || '')} 
@@ -709,7 +709,7 @@ export default function Home() {
               key={product.id} 
               className="flex-none w-full sm:w-[calc(50%-16px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-16px)] snap-start offer-carousel-item"
             >
-              <Link href={`/product/${product.id}`} className="product-card block h-full">
+              <Link href={`/product/${product.slug}`} className="product-card block h-full">
                 <div className="product-image-container relative">
                   <Image 
                     src={product.imageUrl || ''} 
@@ -2201,7 +2201,7 @@ export default function Home() {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.02, duration: 0.4 }} // Reduce delay and duration for faster rendering
                 >
-                  <Link href={`/product/${product.id}`} className="product-card">
+                  <Link href={`/product/${product.slug}`} className="product-card">
                     <div className="product-image-wrapper relative aspect-square">
                       <Image
                         src={product.imageUrl || ''}
@@ -2317,7 +2317,7 @@ export default function Home() {
                     transition={{ delay: index * 0.05 }}
                     className="flex-none w-[280px] snap-start"
                   >
-                    <Link href={`/product/${product.id}`} className="product-card">
+                    <Link href={`/product/${product.slug}`} className="product-card">
                       <div className="product-image-wrapper relative aspect-square">
                         <Image
                           src={product.imageUrl || ''}

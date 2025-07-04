@@ -19,21 +19,60 @@ export default function ThankYouPage() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
-    // Retrieve the order details from localStorage
-    const savedOrder = localStorage.getItem('lastOrder');
-    if (savedOrder) {
-      try {
-        const orderData = JSON.parse(savedOrder);
-        setOrderDetails(orderData);
-      } catch (error) {
-        console.error('Failed to parse order details:', error);
+    const handleOrderRetrieval = async () => {
+      // Check if this is a Tabby redirect
+      const paymentType = searchParams.get('payment');
+      const sessionId = searchParams.get('session_id');
+      
+      if (paymentType === 'tabby' && sessionId) {
+        // Handle Tabby payment redirect
+        try {
+          // Retrieve payment details from Tabby
+          const response = await fetch(`/api/payments/tabby?payment_id=${sessionId}`);
+          const data = await response.json();
+          
+          if (data.success) {
+            // Find the order associated with this payment
+            const ordersResponse = await fetch('/api/orders');
+            const ordersData = await ordersResponse.json();
+            
+            // Find order with matching Tabby payment ID
+            const matchingOrder = ordersData.orders?.find((order: any) => 
+              order.payment?.tabbyPaymentId === sessionId
+            );
+            
+            if (matchingOrder) {
+              setOrderDetails({
+                orderId: matchingOrder.id,
+                isNewCustomer: matchingOrder.user?.isNewCustomer || false,
+                paymentProvider: 'TABBY',
+                paymentStatus: data.payment?.status || 'PENDING'
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Failed to retrieve Tabby payment details:', error);
+        }
+      } else {
+        // Standard flow - retrieve from localStorage
+        const savedOrder = localStorage.getItem('lastOrder');
+        if (savedOrder) {
+          try {
+            const orderData = JSON.parse(savedOrder);
+            setOrderDetails(orderData);
+          } catch (error) {
+            console.error('Failed to parse order details:', error);
+          }
+        }
       }
-    }
+    };
+
+    handleOrderRetrieval();
 
     // Hide confetti after 3 seconds
     const timer = setTimeout(() => setShowConfetti(false), 3000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [searchParams]);
 
   if (!orderDetails) {
     return (
@@ -154,11 +193,27 @@ export default function ThankYouPage() {
               </motion.div>
             )}
 
-            {orderDetails?.isNewCustomer && (
+            {orderDetails?.paymentProvider === 'TABBY' && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 1.1 }}
+                className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl mx-auto max-w-md"
+              >
+                <p className="text-green-800 font-medium">
+                  💳 {t('tabby_payment_confirmed', 'Tabby Payment Confirmed!')}
+                </p>
+                <p className="text-green-700 text-sm mt-1">
+                  {t('tabby_installment_message', 'Your order will be processed and you\'ll pay in 4 easy installments with 0% interest.')}
+                </p>
+              </motion.div>
+            )}
+
+            {orderDetails?.isNewCustomer && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1.3 }}
                 className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl mx-auto max-w-md"
               >
                 <p className="text-blue-800 font-medium">

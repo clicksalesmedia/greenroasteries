@@ -16,6 +16,7 @@ export default function Header() {
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
+  const [currentTopBarMessage, setCurrentTopBarMessage] = useState(0);
   const shopDropdownRef = useRef<HTMLLIElement>(null);
   const cartDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -50,6 +51,21 @@ export default function Header() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Top bar message rotation
+  useEffect(() => {
+    if (!isClient) return; // Only start animation after client hydration
+    
+    const interval = setInterval(() => {
+      setCurrentTopBarMessage(prev => {
+        const next = (prev + 1) % 2;
+        console.log('Top bar message changing from', prev, 'to', next, 'Language:', language);
+        return next;
+      });
+    }, 3500); // Change message every 3.5 seconds
+
+    return () => clearInterval(interval);
+  }, [isClient, language]);
 
   // At the beginning of the component, add a mapping object for category name translations
   const getCategorySlug = (categoryName: string) => {
@@ -373,19 +389,71 @@ export default function Header() {
   return (
     <>
       {/* Top Bar */}
-      <div className="bg-gray-900 text-white text-sm py-2">
+      <div className="bg-gray-900 text-white text-sm py-3 overflow-hidden">
         <div className="container mx-auto flex justify-between items-center px-4">
-          <div>
-            <span className="flex items-center gap-1">
-              {t('free_shipping_message', 'Free shipping on all orders over 200')}
-              <UAEDirhamSymbol size={12} />
-            </span>
+          <div className="relative flex-1 mr-4">
+            {/* Message Container */}
+            <div className="relative h-7 w-full">
+              {/* Free Shipping Message */}
+              <div 
+                className="absolute top-0 left-0 w-full flex items-center gap-2 transition-all duration-1000 ease-in-out whitespace-nowrap"
+                style={{
+                  opacity: currentTopBarMessage === 0 ? 1 : 0,
+                  transform: currentTopBarMessage === 0 ? 'translateY(0px)' : 'translateY(-28px)',
+                  pointerEvents: currentTopBarMessage === 0 ? 'auto' : 'none'
+                }}
+              >
+                <span className="text-yellow-400">🚚</span>
+                <span className="font-medium flex items-center gap-1">
+                  {language === 'ar' ? (
+                    <>
+                      شحن مجاني للطلبات التي تزيد عن 200
+                      <UAEDirhamSymbol size={12} />
+                    </>
+                  ) : (
+                    <>
+                      Free shipping on all orders over 200
+                      <UAEDirhamSymbol size={12} />
+                    </>
+                  )}
+                </span>
+                <span className="text-yellow-400">✨</span>
+              </div>
+              
+              {/* Tabby Payment Message */}
+              <div 
+                className="absolute top-0 left-0 w-full flex items-center gap-2 transition-all duration-1000 ease-in-out whitespace-nowrap"
+                style={{
+                  opacity: currentTopBarMessage === 1 ? 1 : 0,
+                  transform: currentTopBarMessage === 1 ? 'translateY(0px)' : 'translateY(28px)',
+                  pointerEvents: currentTopBarMessage === 1 ? 'auto' : 'none'
+                }}
+              >
+                <span className="font-medium flex items-center gap-2">
+                  {language === 'ar' ? 'قسط مشترياتك على 4 دفعات مع تابي' : 'Split payment by 4 with Tabby'}
+                  <img 
+                    src="/tabby.png" 
+                    alt="Tabby" 
+                    className="h-5 w-auto"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="flex">
+          <div className="flex flex-shrink-0 items-center gap-4">
+            {/* Debug indicator - remove this after testing */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="text-xs opacity-0">
+                {currentTopBarMessage}
+              </div>
+            )}
             {/* Hidden items as requested by user */}
             {/* <a href="#" className="mr-4">{t('my_account', 'My Account')}</a> */}
             {/* <a href="#" className="mr-4">{t('wishlist', 'Wishlist')}</a> */}
-            <a href="#" className="mr-4">{t('contact', 'Contact')}</a>
+            <a href="#" className="hover:text-yellow-400 transition-colors">{t('contact', 'Contact')}</a>
             {/* <Link href="/cart">{t('cart', 'Cart')} ({isClient ? totalItems : 0})</Link> */}
           </div>
         </div>

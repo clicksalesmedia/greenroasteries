@@ -6,6 +6,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import ProductVariations from '../../new/ProductVariations';
 import { useLanguage } from '@/app/contexts/LanguageContext';
+import { uploadToCloudinary, uploadMultipleToCloudinary, validateImageFile, CloudinaryUploadResult } from '@/app/lib/cloudinary-upload';
+import { CLOUDINARY_FALLBACK_IMAGE } from '@/app/lib/cloudinary-fallback';
 
 interface Category {
   id: string;
@@ -285,28 +287,20 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
   const handleMainImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      
+      // Validate file before setting
+      const validation = validateImageFile(file);
+      if (!validation.isValid) {
+        setError(validation.error || 'Invalid image file');
+        return;
+      }
+      
       setMainImageFile(file);
+      setError(null); // Clear any previous errors
       
       const reader = new FileReader();
       reader.onloadend = () => {
         setMainImagePreview(reader.result as string);
-        
-        // Save the raw file data to localStorage for recovery if needed
-        // This is a safety net in case of upload failure
-        // const key = `file_data_${file.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
-        // const data = {
-        //   fileName: file.name,
-        //   fileType: file.type,
-        //   fileData: reader.result as string,
-        //   timestamp: new Date().toISOString()
-        // };
-        
-        // try {
-        //   localStorage.setItem(key, JSON.stringify(data));
-        //   console.log('File data saved to localStorage for recovery if needed');
-        // } catch (e) {
-        //   console.warn('Could not save file data to localStorage:', e);
-        // }
       };
       reader.readAsDataURL(file);
     }
@@ -315,32 +309,39 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
   const handleGalleryImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setGalleryFiles(prev => [...prev, ...files]);
       
-      const newPreviews = files.map(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          // Save the raw file data to localStorage for recovery if needed
-          // const key = `gallery_file_data_${file.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
-          // const data = {
-          //   fileName: file.name,
-          //   fileType: file.type,
-          //   fileData: reader.result as string,
-          //   timestamp: new Date().toISOString()
-          // };
-          
-          // try {
-          //   localStorage.setItem(key, JSON.stringify(data));
-          //   console.log('Gallery file data saved to localStorage for recovery if needed');
-          // } catch (e) {
-          //   console.warn('Could not save gallery file data to localStorage:', e);
-          // }
-        };
-        reader.readAsDataURL(file);
-        return URL.createObjectURL(file);
+      // Validate all files before processing
+      const validFiles: File[] = [];
+      const errors: string[] = [];
+      
+      files.forEach(file => {
+        const validation = validateImageFile(file);
+        if (validation.isValid) {
+          validFiles.push(file);
+        } else {
+          errors.push(`${file.name}: ${validation.error}`);
+        }
       });
       
-      setGalleryPreviews(prev => [...prev, ...newPreviews]);
+      // Show errors if any
+      if (errors.length > 0) {
+        setError(`Some files were rejected:\n${errors.join('\n')}`);
+      } else {
+        setError(null);
+      }
+      
+      // Add valid files only
+      if (validFiles.length > 0) {
+        setGalleryFiles(prev => [...prev, ...validFiles]);
+        
+        const newPreviews = validFiles.map(file => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          return URL.createObjectURL(file);
+        });
+        
+        setGalleryPreviews(prev => [...prev, ...newPreviews]);
+      }
     }
   };
 
@@ -367,132 +368,26 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
     const results: UploadResults = {};
     
     try {
-      // Upload main image if a new one was selected
+      // Upload main image to Cloudinary if a new one was selected
       if (mainImageFile) {
-        const formData = new FormData();
-        formData.append('file', mainImageFile);
-        formData.append('folder', 'products');
-        
-        console.log('Uploading main product image:', {
-          filename: mainImageFile.name,
-          size: mainImageFile.size,
-          type: mainImageFile.type
-        });
-        
-        // Add authorization header for debugging
-        const response = await fetch('/api/upload-file', {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'Authorization': 'Bearer temp-auth-for-upload'
-          }
-        });
-        
-        if (!response.ok) {
-          let errorData;
-          try {
-            errorData = await response.json();
-          } catch (e) {
-            errorData = { error: 'Server returned an invalid response' };
-          }
-          console.error('Upload API Error:', errorData);
-          throw new Error(errorData.error || 'Failed to upload main image');
-        }
-        
-        const data = await response.json();
-        console.log('Upload successful, response:', data);
-        
-        // Return the URL of the uploaded image
-        let imageUrl = data.url || data.file;
-        
-        // Ensure the URL starts with a slash
-        if (imageUrl && !imageUrl.startsWith('/') && !imageUrl.startsWith('http')) {
-          imageUrl = `/${imageUrl}`;
-        }
-        
-        console.log('Using image URL:', imageUrl);
-        
-        // Save the raw file data to localStorage for recovery if needed
-        if (data.fileData) {
-          try {
-            const key = `file_data_${imageUrl.replace(/[^a-zA-Z0-9]/g, '_')}`;
-            localStorage.setItem(key, data.fileData);
-            console.log('File data saved to localStorage for recovery if needed');
-          } catch (e) {
-            console.warn('Could not save file data to localStorage:', e);
-          }
-        }
-        
-        results.mainImageUrl = imageUrl;
+        console.log('Uploading main product image to Cloudinary...');
+        const result = await uploadToCloudinary(mainImageFile, 'products');
+        results.mainImageUrl = result.secure_url;
+        console.log('Main image uploaded successfully:', results.mainImageUrl);
       }
       
-      // Upload gallery images if new ones were added
+      // Upload gallery images to Cloudinary if new ones were added
       if (galleryFiles.length > 0) {
-        const uploadedUrls: string[] = [];
-        
-        for (const file of galleryFiles) {
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('folder', 'products/gallery');
-          
-          console.log('Uploading gallery image:', {
-            filename: file.name,
-            size: file.size,
-            type: file.type
-          });
-          
-          // Add authorization header for debugging
-          const response = await fetch('/api/upload-file', {
-            method: 'POST',
-            body: formData,
-            headers: {
-              'Authorization': 'Bearer temp-auth-for-upload'
-            }
-          });
-          
-          if (!response.ok) {
-            let errorData;
-            try {
-              errorData = await response.json();
-            } catch (e) {
-              errorData = { error: 'Server returned an invalid response' };
-            }
-            console.error('Gallery upload API Error:', errorData);
-            throw new Error(errorData.error || 'Failed to upload gallery image');
-          }
-          
-          const data = await response.json();
-          console.log('Gallery upload successful, response:', data);
-          
-          // Get the URL of the uploaded image
-          let imageUrl = data.url || data.file;
-          
-          // Ensure the URL starts with a slash
-          if (imageUrl && !imageUrl.startsWith('/') && !imageUrl.startsWith('http')) {
-            imageUrl = `/${imageUrl}`;
-          }
-          
-          // Save the raw file data to localStorage for recovery if needed
-          if (data.fileData) {
-            try {
-              const key = `file_data_${imageUrl.replace(/[^a-zA-Z0-9]/g, '_')}`;
-              localStorage.setItem(key, data.fileData);
-              console.log('Gallery file data saved to localStorage for recovery if needed');
-            } catch (e) {
-              console.warn('Could not save gallery file data to localStorage:', e);
-            }
-          }
-          
-          uploadedUrls.push(imageUrl);
-        }
-        
-        results.galleryUrls = uploadedUrls;
+        console.log(`Uploading ${galleryFiles.length} gallery images to Cloudinary...`);
+        const uploadResults = await uploadMultipleToCloudinary(galleryFiles, 'products/gallery');
+        results.galleryUrls = uploadResults.map(result => result.secure_url);
+        console.log(`Gallery images uploaded successfully: ${results.galleryUrls.length} images`);
       }
       
       return results;
     } catch (err) {
-      console.error('Error uploading images:', err);
-      throw new Error(err instanceof Error ? err.message : 'Failed to upload images');
+      console.error('Error uploading images to Cloudinary:', err);
+      throw new Error(`Failed to upload images: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
     }

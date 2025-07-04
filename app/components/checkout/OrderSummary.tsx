@@ -218,11 +218,19 @@ export default function OrderSummary() {
 
       {/* Payment methods icons */}
       <div className="border-t pt-4">
-        <div className="flex justify-center space-x-2 mb-2">
+        <div className="flex justify-center items-center space-x-3 mb-2">
           <img 
             src="/images/creditvcard.webp" 
             alt="Accepted payment methods: Visa, MasterCard, American Express, Apple Pay, Google Pay" 
             className="h-6 w-auto" 
+          />
+          <Image
+            src="/tabby.png"
+            alt="Tabby - Pay in 4 installments"
+            width={60}
+            height={24}
+            className="h-6 w-auto"
+            priority
           />
         </div>
         <p className={`text-xs text-center text-gray-500 ${language === 'ar' ? 'text-center' : ''}`}>

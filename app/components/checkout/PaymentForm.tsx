@@ -13,6 +13,9 @@ import {
 import { useLanguage } from '../../contexts/LanguageContext';
 import { trackAddPaymentInfo, trackPurchase } from '../../lib/tracking-integration';
 
+// Payment method types
+type PaymentMethod = 'stripe' | 'tabby';
+
 // Initialize Stripe promise
 let stripePromise: Promise<any> | null = null;
 const getStripePromise = () => {
@@ -65,14 +68,28 @@ function CheckoutForm({
   const { t, language } = useLanguage();
   const stripe = useStripe();
   const elements = useElements();
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('stripe');
   const [clientSecret, setClientSecret] = useState<string>('');
   const [paymentIntentId, setPaymentIntentId] = useState<string>('');
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string>('');
   const [paymentRequest, setPaymentRequest] = useState<any>(null);
+  const [tabbyAvailable, setTabbyAvailable] = useState<boolean>(false);
 
   useEffect(() => {
-    // Create payment intent when component mounts
+    // Check if Tabby is available for this order amount
+    const checkTabbyAvailability = () => {
+      // Tabby is typically available for amounts between 1 and 5000 AED
+      setTabbyAvailable(totalAmount >= 1 && totalAmount <= 5000);
+    };
+
+    checkTabbyAvailability();
+  }, [totalAmount]);
+
+  useEffect(() => {
+    // Create payment intent when component mounts and Stripe is selected
+    if (selectedPaymentMethod !== 'stripe') return;
+
     const createPaymentIntent = async () => {
       try {
         const response = await fetch('/api/create-payment-intent', {
@@ -107,7 +124,7 @@ function CheckoutForm({
     };
 
     createPaymentIntent();
-  }, [totalAmount, customerInfo, shippingInfo, items, subtotal, tax, shippingCost, discount]);
+  }, [totalAmount, customerInfo, shippingInfo, items, subtotal, tax, shippingCost, discount, selectedPaymentMethod]);
 
   // Set up payment request for Apple Pay / Google Pay
   useEffect(() => {
@@ -216,9 +233,72 @@ function CheckoutForm({
     });
   }, [stripe, totalAmount, clientSecret, customerInfo, shippingInfo, items, subtotal, tax, shippingCost, discount, onSuccess]);
 
+  const handleTabbyPayment = async () => {
+    setProcessing(true);
+    setError('');
+
+    try {
+      // Track add payment info
+      trackAddPaymentInfo({
+        items: items.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          category: 'Unknown'
+        })),
+        total: totalAmount,
+        customer: {
+          email: customerInfo.email,
+          firstName: customerInfo.fullName.split(' ')[0],
+          lastName: customerInfo.fullName.split(' ').slice(1).join(' '),
+          phone: customerInfo.phone
+        }
+      });
+
+      // Create Tabby payment session
+      const response = await fetch('/api/payments/tabby', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: totalAmount,
+          currency: 'AED',
+          customerInfo,
+          shippingInfo,
+          items,
+          subtotal,
+          tax,
+          shippingCost,
+          discount,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.checkout_url) {
+        // Redirect to Tabby checkout
+        window.location.href = data.checkout_url;
+      } else {
+        setError(data.error || 'Failed to create Tabby payment session');
+      }
+    } catch (err) {
+      setError('Failed to initialize Tabby payment');
+    }
+
+    setProcessing(false);
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    if (selectedPaymentMethod === 'tabby') {
+      await handleTabbyPayment();
+      return;
+    }
+
+    // Stripe payment handling
     if (!stripe || !elements || !clientSecret) {
       return;
     }
@@ -382,8 +462,99 @@ function CheckoutForm({
       
       <form onSubmit={handleSubmit}>
         <div className="space-y-6">
-          {/* Apple Pay / Google Pay Button */}
-          {paymentRequest && (
+          {/* Payment Method Selection */}
+          <div>
+            <label className={`block text-sm font-medium text-gray-700 mb-3 ${language === 'ar' ? 'text-right' : ''}`}>
+              {t('payment_method', 'Payment Method')}*
+            </label>
+            <div className="space-y-3">
+              {/* Stripe/Card Payment Option */}
+              <div 
+                className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                  selectedPaymentMethod === 'stripe' 
+                    ? 'border-black bg-gray-50' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+                onClick={() => setSelectedPaymentMethod('stripe')}
+              >
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="stripe"
+                    name="paymentMethod"
+                    value="stripe"
+                    checked={selectedPaymentMethod === 'stripe'}
+                    onChange={() => setSelectedPaymentMethod('stripe')}
+                    className="mr-3"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="stripe" className="text-sm font-medium text-gray-900 cursor-pointer">
+                        {t('card_payment', 'Credit/Debit Card')}
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <img 
+                          src="/images/creditvcard.webp" 
+                          alt="Visa, MasterCard, American Express" 
+                          className="h-6 w-auto"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {t('secure_payment_stripe', 'Secure payment with Stripe')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tabby Payment Option */}
+              {tabbyAvailable && (
+                <div 
+                  className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                    selectedPaymentMethod === 'tabby' 
+                      ? 'border-black bg-gray-50' 
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                  onClick={() => setSelectedPaymentMethod('tabby')}
+                >
+                  <div className="flex items-center">
+                    <input
+                      type="radio"
+                      id="tabby"
+                      name="paymentMethod"
+                      value="tabby"
+                      checked={selectedPaymentMethod === 'tabby'}
+                      onChange={() => setSelectedPaymentMethod('tabby')}
+                      className="mr-3"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <label htmlFor="tabby" className="text-sm font-medium text-gray-900 cursor-pointer">
+                          {t('tabby_payment', 'Pay in 4 installments with Tabby')}
+                        </label>
+                        <div className="flex flex-col items-end">
+                          <span className="text-xs font-medium bg-green-100 text-green-800 px-2 py-1 rounded mb-1">
+                            0% Interest
+                          </span>
+                          <img 
+                            src="/tabby.png" 
+                            alt="Tabby" 
+                            className="h-4 w-auto"
+                          />
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {t('tabby_description', `Split your ${totalAmount.toFixed(2)} AED into 4 payments of ${(totalAmount / 4).toFixed(2)} AED`)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Apple Pay / Google Pay Button - Only show for Stripe */}
+          {selectedPaymentMethod === 'stripe' && paymentRequest && (
             <div>
               <div className="text-center mb-4">
                 <PaymentRequestButtonElement 
@@ -404,15 +575,17 @@ function CheckoutForm({
             </div>
           )}
 
-          {/* Card Element */}
-          <div>
-            <label className={`block text-sm font-medium text-gray-700 mb-1 ${language === 'ar' ? 'text-right' : ''}`}>
-              {t('card_information', 'Card Information')}*
-            </label>
-            <div className="border border-gray-300 rounded-md shadow-sm p-3 focus-within:ring-black focus-within:border-black">
-              <CardElement options={cardElementOptions} />
+          {/* Card Element - Only show for Stripe */}
+          {selectedPaymentMethod === 'stripe' && (
+            <div>
+              <label className={`block text-sm font-medium text-gray-700 mb-1 ${language === 'ar' ? 'text-right' : ''}`}>
+                {t('card_information', 'Card Information')}*
+              </label>
+              <div className="border border-gray-300 rounded-md shadow-sm p-3 focus-within:ring-black focus-within:border-black">
+                <CardElement options={cardElementOptions} />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Error Display */}
           {error && (
@@ -461,9 +634,18 @@ function CheckoutForm({
             <button
               type="submit"
               className="w-full sm:w-1/2 bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
-              disabled={!stripe || processing || isSubmitting || !clientSecret}
+              disabled={
+                processing || isSubmitting || 
+                (selectedPaymentMethod === 'stripe' && (!stripe || !clientSecret)) ||
+                (selectedPaymentMethod === 'tabby' && !tabbyAvailable)
+              }
             >
-              {processing || isSubmitting ? t('processing', 'Processing...') : `${t('pay_amount', 'Pay')} ${totalAmount.toFixed(2)} AED`}
+              {processing || isSubmitting 
+                ? t('processing', 'Processing...') 
+                : selectedPaymentMethod === 'tabby'
+                  ? t('continue_with_tabby', 'Continue with Tabby')
+                  : `${t('pay_amount', 'Pay')} ${totalAmount.toFixed(2)} AED`
+              }
             </button>
             <button
               type="button"

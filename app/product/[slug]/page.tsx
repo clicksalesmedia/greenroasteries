@@ -176,7 +176,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState(-1);
+  const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [viewCount, setViewCount] = useState(0);
@@ -1281,47 +1281,78 @@ export default function ProductPage() {
       </nav>
       
       {/* Product Detail */}
-      <div className="flex flex-col md:flex-row -mx-4 md:min-h-[600px]">
+      <div className="flex flex-col md:flex-row -mx-4">
         {/* Left Column - Gallery */}
         <div className="md:w-1/2 px-4 mb-8 md:mb-0">
           {/* Main Image with Magnifier */}
-          <div className="relative rounded-lg overflow-hidden mb-4 aspect-square">
+          <div className="relative rounded-lg overflow-hidden mb-4 aspect-[4/3] sm:aspect-square">
             <ProductImageMagnifier 
               src={variationImage || 
-                  (selectedImage >= 0 && product.images && product.images[selectedImage] ? 
-                   getImageUrl(product.images[selectedImage]) : 
-                   product.imageUrl || '/images/placeholder.jpg')} 
+                  (selectedImage === 0 ? (product.imageUrl || '/images/placeholder.jpg') : 
+                   selectedImage > 0 && product.images && product.images[selectedImage - 1] ? 
+                   getImageUrl(product.images[selectedImage - 1]) : 
+                   (product.imageUrl || '/images/placeholder.jpg'))} 
               alt={getProductName()}
             />
           </div>
           
-          {/* Thumbnail Gallery - Only show if there are gallery images */}
-          {product.images && product.images.length > 0 && (
-            <div className="grid grid-cols-5 gap-2 sm:gap-3">
-              {/* Gallery images thumbnails */}
-              {product.images
+          {/* Thumbnail Gallery */}
+          <div className="grid thumbnail-gallery grid-cols-4 sm:grid-cols-5 gap-1 sm:gap-2 md:gap-3">
+            {/* Main Product Image as First Thumbnail */}
+            {product.imageUrl && (
+              <button 
+                onClick={() => {
+                  setSelectedImage(0);
+                  // Clear variation image when selecting main image
+                  if (variationImage) {
+                    setVariationImage(null);
+                  }
+                }}
+                className={`relative aspect-[3/4] sm:aspect-square rounded-md overflow-hidden border-2 ${
+                  !variationImage && selectedImage === 0 ? 'border-black' : 'border-gray-200'
+                } hover:border-gray-400 transition-colors`}
+              >
+                <Image 
+                  src={product.imageUrl || '/images/placeholder.jpg'} 
+                  alt={`${product.name} - main image`} 
+                  fill
+                  sizes="(max-width: 768px) 20vw, 10vw"
+                  className="object-contain"
+                  unoptimized={true}
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1 text-center">
+                  Main
+                </div>
+              </button>
+            )}
+            
+            {/* Gallery Images Thumbnails */}
+            {product.images && product.images.length > 0 && 
+              product.images
                 .map((image, index) => {
                   const imageUrl = getImageUrl(image);
                   // Skip if no valid URL
                   if (!imageUrl || imageUrl === '/images/placeholder.jpg') return null;
                   
+                  const thumbnailIndex = index + 1; // Offset by 1 since main image is at index 0
+                  
                   return (
                     <button 
-                      key={index} 
+                      key={`gallery-${index}`} 
                       onClick={() => {
-                        setSelectedImage(index);
+                        setSelectedImage(thumbnailIndex);
                         // Clear variation image when selecting from gallery
                         if (variationImage) {
                           setVariationImage(null);
                         }
                       }}
-                      className={`relative aspect-square rounded-md overflow-hidden border-2 ${
-                        !variationImage && selectedImage === index ? 'border-black' : 'border-gray-200'
+                      className={`relative aspect-[3/4] sm:aspect-square rounded-md overflow-hidden border-2 ${
+                        !variationImage && selectedImage === thumbnailIndex ? 'border-black' : 'border-gray-200'
                       } hover:border-gray-400 transition-colors`}
                     >
                       <Image 
                         src={imageUrl} 
-                        alt={`${product.name} - view ${index + 1}`} 
+                        alt={`${product.name} - gallery ${index + 1}`} 
                         fill
                         sizes="(max-width: 768px) 20vw, 10vw"
                         className="object-contain"
@@ -1330,33 +1361,9 @@ export default function ProductPage() {
                     </button>
                   );
                 })
-                .filter(Boolean)}
-                
-              {/* Show variation image in thumbnails if available */}
-              {variationImage && (
-                <button 
-                  onClick={() => {
-                    // Keep the variation image selected
-                    setVariationImage(variationImage);
-                    setSelectedImage(-1);
-                  }}
-                  className="relative aspect-square rounded-md overflow-hidden border-2 border-black"
-                >
-                  <Image 
-                    src={variationImage} 
-                    alt={`${product.name} - variation`} 
-                    fill
-                    sizes="(max-width: 768px) 20vw, 10vw"
-                    className="object-contain"
-                    unoptimized={true}
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1 text-center">
-                    Variation
-                  </div>
-                </button>
-              )}
-            </div>
-          )}
+                .filter(Boolean)
+            }
+          </div>
         </div>
         
         {/* Right Column - Product Details */}
@@ -1652,7 +1659,7 @@ export default function ProductPage() {
                     .map((recommendedProduct) => (
                       <Link 
                         key={recommendedProduct.id}
-                        href={`/product/${recommendedProduct.id}`}
+                        href={`/product/${recommendedProduct.slug}`}
                         className="group block cursor-pointer"
                         onClick={() => {
                           // Reset states

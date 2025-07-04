@@ -40,18 +40,44 @@ export async function POST(request: NextRequest) {
       items,
       totalAmount,
       paymentIntentId,
+      tabbyPaymentId,
+      paymentProvider = 'STRIPE',
       subtotal,
       tax,
       shippingCost,
       discount = 0
     } = await request.json();
 
-    // Verify payment with Stripe
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    
-    if (paymentIntent.status !== 'succeeded') {
+    // Verify payment based on provider
+    if (paymentProvider === 'STRIPE') {
+      if (!paymentIntentId) {
+        return NextResponse.json(
+          { error: 'Payment intent ID required for Stripe payments' },
+          { status: 400 }
+        );
+      }
+
+      // Verify payment with Stripe
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (paymentIntent.status !== 'succeeded') {
+        return NextResponse.json(
+          { error: 'Payment not completed' },
+          { status: 400 }
+        );
+      }
+    } else if (paymentProvider === 'TABBY') {
+      // For Tabby payments, we'll create the order in PENDING state
+      // The webhook will update it when payment is confirmed
+      if (!tabbyPaymentId) {
+        return NextResponse.json(
+          { error: 'Tabby payment ID required for Tabby payments' },
+          { status: 400 }
+        );
+      }
+    } else {
       return NextResponse.json(
-        { error: 'Payment not completed' },
+        { error: 'Invalid payment provider' },
         { status: 400 }
       );
     }
@@ -324,32 +350,49 @@ export async function POST(request: NextRequest) {
       return order;
     });
 
-    // Create payment record
-    const charge = paymentIntent.latest_charge;
-    let paymentMethodDetails = null;
-    
-    if (typeof charge === 'string') {
-      const chargeObj = await stripe.charges.retrieve(charge);
-      paymentMethodDetails = chargeObj.payment_method_details;
-    } else if (charge && typeof charge === 'object') {
-      paymentMethodDetails = charge.payment_method_details;
-    }
-
-    await prisma.payment.create({
-      data: {
-        orderId: result.id,
-        userId: user.id,
-        stripePaymentIntentId: paymentIntentId,
-        stripeChargeId: typeof charge === 'string' ? charge : charge?.id,
-        amount: totalAmount,
-        currency: 'aed',
-        status: 'SUCCEEDED',
-        paymentMethod: paymentMethodDetails?.card?.brand || 'card',
-        last4: paymentMethodDetails?.card?.last4,
-        brand: paymentMethodDetails?.card?.brand,
-        receiptUrl: typeof charge === 'string' ? undefined : charge?.receipt_url,
+    // Create payment record based on provider
+    if (paymentProvider === 'STRIPE') {
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      const charge = paymentIntent.latest_charge;
+      let paymentMethodDetails = null;
+      
+      if (typeof charge === 'string') {
+        const chargeObj = await stripe.charges.retrieve(charge);
+        paymentMethodDetails = chargeObj.payment_method_details;
+      } else if (charge && typeof charge === 'object') {
+        paymentMethodDetails = charge.payment_method_details;
       }
-    });
+
+      await prisma.payment.create({
+        data: {
+          orderId: result.id,
+          userId: user.id,
+          paymentProvider: 'STRIPE',
+          stripePaymentIntentId: paymentIntentId,
+          stripeChargeId: typeof charge === 'string' ? charge : charge?.id,
+          amount: totalAmount,
+          currency: 'aed',
+          status: 'SUCCEEDED',
+          paymentMethod: paymentMethodDetails?.card?.brand || 'card',
+          last4: paymentMethodDetails?.card?.last4,
+          brand: paymentMethodDetails?.card?.brand,
+          receiptUrl: typeof charge === 'string' ? undefined : charge?.receipt_url,
+        }
+      });
+    } else if (paymentProvider === 'TABBY') {
+      await prisma.payment.create({
+        data: {
+          orderId: result.id,
+          userId: user.id,
+          paymentProvider: 'TABBY',
+          tabbyPaymentId: tabbyPaymentId,
+          amount: totalAmount,
+          currency: 'aed',
+          status: 'PENDING', // Will be updated by webhook
+          paymentMethod: 'tabby',
+        }
+      });
+    }
 
     // Send appropriate email
     try {

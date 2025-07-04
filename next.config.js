@@ -7,9 +7,11 @@ const nextConfig = {
   
   // Enable experimental features for better performance
   experimental: {
-    // Updated for Next.js 15
-    serverComponentsExternalPackages: ['sharp'],
+    // Other experimental features can go here
   },
+  
+  // External packages for server components (moved from experimental in Next.js 15)
+  serverExternalPackages: ['sharp'],
   
   // Transpile packages that need it
   transpilePackages: ['@stripe/stripe-js', '@stripe/react-stripe-js'],

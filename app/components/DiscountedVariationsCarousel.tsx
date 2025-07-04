@@ -249,7 +249,7 @@ const DiscountedVariationsCarousel: React.FC<DiscountedVariationsCarouselProps> 
                     transition={{ duration: 0.4 }}
                     className="group"
                   >
-                    <Link href={`/product/${product.id}`} className="product-card block bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <Link href={`/product/${product.slug}`} className="product-card block bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                       <div className="product-image-wrapper relative aspect-square overflow-hidden">
                         <Image
                           src={product.imageUrl || '/images/coffee-placeholder.jpg'}
