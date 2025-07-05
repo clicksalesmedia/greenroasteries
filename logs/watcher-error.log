@@ -872,3 +872,19 @@ shell-init: error retrieving current directory: getcwd: cannot access parent dir
 /bin/bash: /Users/mounirbennassar/Documents/clients/greenroasteries/website/scripts/start-file-watcher.sh: Operation not permitted
 shell-init: error retrieving current directory: getcwd: cannot access parent directories: Operation not permitted
 /bin/bash: /Users/mounirbennassar/Documents/clients/greenroasteries/website/scripts/start-file-watcher.sh: Operation not permitted
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: Operation not permitted
+/bin/bash: /Users/mounirbennassar/Documents/clients/greenroasteries/website/scripts/start-file-watcher.sh: Operation not permitted
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: Operation not permitted
+/bin/bash: /Users/mounirbennassar/Documents/clients/greenroasteries/website/scripts/start-file-watcher.sh: Operation not permitted
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: Operation not permitted
+/bin/bash: /Users/mounirbennassar/Documents/clients/greenroasteries/website/scripts/start-file-watcher.sh: Operation not permitted
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: Operation not permitted
+/bin/bash: /Users/mounirbennassar/Documents/clients/greenroasteries/website/scripts/start-file-watcher.sh: Operation not permitted
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: Operation not permitted
+/bin/bash: /Users/mounirbennassar/Documents/clients/greenroasteries/website/scripts/start-file-watcher.sh: Operation not permitted
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: Operation not permitted
+/bin/bash: /Users/mounirbennassar/Documents/clients/greenroasteries/website/scripts/start-file-watcher.sh: Operation not permitted
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: Operation not permitted
+/bin/bash: /Users/mounirbennassar/Documents/clients/greenroasteries/website/scripts/start-file-watcher.sh: Operation not permitted
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: Operation not permitted
+/bin/bash: /Users/mounirbennassar/Documents/clients/greenroasteries/website/scripts/start-file-watcher.sh: Operation not permitted
