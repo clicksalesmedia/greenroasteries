@@ -152,6 +152,15 @@ async function sendToFacebook(pixelId: string, accessToken: string, eventData: F
 // POST - Send conversion event to Facebook
 export async function POST(request: NextRequest) {
   try {
+    // Check if Facebook tracking is disabled
+    if (process.env.DISABLE_FACEBOOK_TRACKING === 'true') {
+      return NextResponse.json({
+        success: true,
+        events_received: 0,
+        messages: ['Facebook tracking is disabled']
+      });
+    }
+
     // Get Facebook credentials from environment or config
     let pixelId = process.env.FACEBOOK_PIXEL_ID;
     let accessToken = process.env.FACEBOOK_ACCESS_TOKEN;
@@ -170,19 +179,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Fallback to hardcoded values if still not found
-    if (!pixelId) {
-      pixelId = '3805848799548541';
-    }
-    if (!accessToken) {
-      accessToken = 'EAAX7Xr0jeMQBO2lCgCyyRhnG1AVnKMdILdHv6gRwomuZBVF4Aoz1beFjoLhzDf3njCZAB2eg3u9bw2EjnlEuyvnaxH7h3gZCtWFBw0QZAxacZCBs3ieR2OP1KUyAevlrMTdCb62pfkJZBoVPkkAvBvoIKWeXVxgUbBnMBm6KuZCAT2d1k1N6DZCRl1I9fwP96T3IZCQZDZD';
-    }
-
+    // Don't use fallback values - if credentials are not provided, skip tracking
     if (!pixelId || !accessToken) {
-      return NextResponse.json(
-        { error: 'Facebook Pixel ID or Access Token not configured' },
-        { status: 400 }
-      );
+      console.log('Facebook tracking skipped: No valid credentials provided');
+      return NextResponse.json({
+        success: true,
+        events_received: 0,
+        messages: ['Facebook tracking not configured']
+      });
     }
 
     const body = await request.json();
@@ -200,10 +204,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (validatedEvents.length === 0) {
-      return NextResponse.json(
-        { error: 'No valid events found' },
-        { status: 400 }
-      );
+      return NextResponse.json({
+        success: true,
+        events_received: 0,
+        messages: ['No valid events to send']
+      });
     }
 
     // Send to Facebook Conversions API
@@ -217,14 +222,14 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Facebook Conversions API error:', error);
-    return NextResponse.json(
-      { 
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
-      },
-      { status: 500 }
-    );
+    // Log the error but return success to prevent breaking the application
+    console.error('Facebook Conversions API error (non-critical):', error);
+    return NextResponse.json({
+      success: true,
+      events_received: 0,
+      messages: ['Facebook tracking failed but continuing'],
+      warning: error instanceof Error ? error.message : 'Unknown error occurred'
+    });
   }
 }
 

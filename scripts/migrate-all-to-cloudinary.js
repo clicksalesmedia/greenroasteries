@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require('../app/generated/prisma');
 const { v2: cloudinary } = require('cloudinary');
 const fs = require('fs');
 const path = require('path');
