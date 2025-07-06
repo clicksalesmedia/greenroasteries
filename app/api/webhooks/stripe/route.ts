@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { PrismaClient } from '@/app/generated/prisma';
+import { emailService } from '@/lib/email';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -163,6 +164,24 @@ export async function handlePaymentIntentSucceeded(paymentIntent: any) {
             emailVerified: false,
           }
         });
+
+        // Add new customer to Brevo automatically (non-blocking)
+        try {
+          await emailService.addCustomerToBrevo({
+            email: user.email,
+            name: user.name || 'Customer',
+            phone: user.phone ? user.phone : undefined,
+            city: user.city ? user.city : undefined,
+            emirate: undefined, // Not available in webhook metadata
+            totalSpent: 0,
+            orderCount: 0,
+            lastPurchaseDate: new Date()
+          });
+          console.log('✅ New customer from webhook added to Brevo:', user.email);
+        } catch (brevoError) {
+          // Don't fail the webhook if Brevo fails
+          console.error('⚠️ Failed to add new webhook customer to Brevo (non-critical):', brevoError);
+        }
       }
 
       // Parse order items from metadata

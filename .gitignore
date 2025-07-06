@@ -55,3 +55,4 @@ remote_schema.sql
 google-service-account.json
 *.json.key
 *service-account*.json
+production-deploy-*.tar.gz

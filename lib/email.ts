@@ -39,6 +39,49 @@ interface OrderStatusEmailData {
   trackingNumber?: string;
 }
 
+// New interfaces for contact management
+interface ContactData {
+  email: string;
+  attributes: {
+    FIRSTNAME?: string;
+    LASTNAME?: string;
+    PHONE?: string;
+    CITY?: string;
+    EMIRATE?: string;
+    CUSTOMER_TYPE?: string;
+    LEAD_STATUS?: string;
+    LEAD_SCORE?: number;
+    SIGNUP_DATE?: string;
+    LAST_PURCHASE_DATE?: string;
+    TOTAL_SPENT?: number;
+    ORDER_COUNT?: number;
+  };
+}
+
+interface ListData {
+  name: string;
+  folderId?: number;
+}
+
+interface BrevoListResponse {
+  id: number;
+  name: string;
+  totalBlacklisted: number;
+  totalSubscribers: number;
+  uniqueSubscribers: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BrevoContactResponse {
+  id: number;
+  email: string;
+  attributes: any;
+  listIds: number[];
+  createdAt: string;
+  modifiedAt: string;
+}
+
 class EmailService {
   private apiKey: string;
   private ordersEmail: string;
@@ -527,6 +570,277 @@ The Green Roasteries Team
       htmlContent,
       textContent
     }, 'support');
+  }
+
+  // Contact Management Methods
+  async createOrUpdateContact(contactData: ContactData): Promise<BrevoContactResponse | null> {
+    try {
+      if (!this.apiKey || this.apiKey === 'mock_brevo_api_key') {
+        console.log('📧 Mock Contact Created (No API Key):', contactData);
+        return null;
+      }
+
+      const response = await fetch('https://api.brevo.com/v3/contacts', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey
+        },
+        body: JSON.stringify({
+          email: contactData.email,
+          attributes: contactData.attributes,
+          updateEnabled: true // This allows updating existing contacts
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Brevo Create Contact Error:', response.status, errorData);
+        return null;
+      }
+
+      // Check if response has content before parsing
+      const responseText = await response.text();
+      if (!responseText.trim()) {
+        console.log('📧 Contact created/updated successfully (empty response)');
+        return { id: 0, email: contactData.email, attributes: {}, listIds: [], createdAt: '', modifiedAt: '' };
+      }
+
+      const result = JSON.parse(responseText);
+      console.log('📧 Contact created/updated successfully:', result);
+      return result;
+
+    } catch (error) {
+      console.error('Contact creation/update failed:', error);
+      return null;
+    }
+  }
+
+  async addContactToList(email: string, listId: number): Promise<boolean> {
+    try {
+      if (!this.apiKey || this.apiKey === 'mock_brevo_api_key') {
+        console.log('📧 Mock Contact Added to List (No API Key):', { email, listId });
+        return true;
+      }
+
+      const response = await fetch(`https://api.brevo.com/v3/contacts/lists/${listId}/contacts/add`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey
+        },
+        body: JSON.stringify({
+          emails: [email]
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Brevo Add Contact to List Error:', response.status, errorData);
+        return false;
+      }
+
+      console.log('📧 Contact added to list successfully');
+      return true;
+
+    } catch (error) {
+      console.error('Adding contact to list failed:', error);
+      return false;
+    }
+  }
+
+  async createList(listData: ListData): Promise<BrevoListResponse | null> {
+    try {
+      if (!this.apiKey || this.apiKey === 'mock_brevo_api_key') {
+        console.log('📧 Mock List Created (No API Key):', listData);
+        return null;
+      }
+
+      // If no folderId is provided, use the default folder (usually 1)
+      const listDataWithFolder = {
+        ...listData,
+        folderId: listData.folderId || 1
+      };
+
+      const response = await fetch('https://api.brevo.com/v3/contacts/lists', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey
+        },
+        body: JSON.stringify(listDataWithFolder)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Brevo Create List Error:', response.status, errorData);
+        return null;
+      }
+
+      const result = await response.json();
+      console.log('📧 List created successfully:', result);
+      return result;
+
+    } catch (error) {
+      console.error('List creation failed:', error);
+      return null;
+    }
+  }
+
+  async getAllLists(): Promise<BrevoListResponse[]> {
+    try {
+      if (!this.apiKey || this.apiKey === 'mock_brevo_api_key') {
+        console.log('📧 Mock Lists Retrieved (No API Key)');
+        return [];
+      }
+
+      const response = await fetch('https://api.brevo.com/v3/contacts/lists', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'api-key': this.apiKey
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Brevo Get Lists Error:', response.status, errorData);
+        return [];
+      }
+
+      const result = await response.json();
+      return result.lists || [];
+
+    } catch (error) {
+      console.error('Getting lists failed:', error);
+      return [];
+    }
+  }
+
+  async getOrCreateList(listName: string): Promise<number | null> {
+    try {
+      // First, try to get existing lists
+      const lists = await this.getAllLists();
+      const existingList = lists.find(list => list.name === listName);
+      
+      if (existingList) {
+        return existingList.id;
+      }
+
+      // If list doesn't exist, create it
+      const newList = await this.createList({ name: listName });
+      return newList ? newList.id : null;
+
+    } catch (error) {
+      console.error('Get or create list failed:', error);
+      return null;
+    }
+  }
+
+  // Helper method to add a customer to Brevo
+  async addCustomerToBrevo(customer: {
+    email: string;
+    name: string;
+    phone?: string;
+    city?: string;
+    emirate?: string;
+    totalSpent?: number;
+    orderCount?: number;
+    lastPurchaseDate?: Date;
+  }): Promise<boolean> {
+    try {
+      const [firstName, ...lastNameParts] = customer.name.split(' ');
+      const lastName = lastNameParts.join(' ');
+
+      const contactData: ContactData = {
+        email: customer.email,
+        attributes: {
+          FIRSTNAME: firstName,
+          LASTNAME: lastName,
+          PHONE: customer.phone,
+          CITY: customer.city,
+          EMIRATE: customer.emirate,
+          CUSTOMER_TYPE: 'CUSTOMER',
+          SIGNUP_DATE: new Date().toISOString(),
+          LAST_PURCHASE_DATE: customer.lastPurchaseDate?.toISOString(),
+          TOTAL_SPENT: customer.totalSpent || 0,
+          ORDER_COUNT: customer.orderCount || 0
+        }
+      };
+
+      // Create/update contact
+      const contact = await this.createOrUpdateContact(contactData);
+      if (!contact) return false;
+
+      // Add to customers list
+      const customersListId = await this.getOrCreateList('Customers');
+      if (customersListId) {
+        await this.addContactToList(customer.email, customersListId);
+      }
+
+      return true;
+
+    } catch (error) {
+      console.error('Adding customer to Brevo failed:', error);
+      return false;
+    }
+  }
+
+  // Helper method to add a lead to Brevo
+  async addLeadToBrevo(lead: {
+    email: string;
+    fullName: string;
+    phone?: string;
+    city?: string;
+    emirate?: string;
+    status: string;
+    leadScore?: number;
+    cartValue?: number;
+  }): Promise<boolean> {
+    try {
+      const [firstName, ...lastNameParts] = lead.fullName.split(' ');
+      const lastName = lastNameParts.join(' ');
+
+      const contactData: ContactData = {
+        email: lead.email,
+        attributes: {
+          FIRSTNAME: firstName,
+          LASTNAME: lastName,
+          PHONE: lead.phone,
+          CITY: lead.city,
+          EMIRATE: lead.emirate,
+          CUSTOMER_TYPE: 'LEAD',
+          LEAD_STATUS: lead.status,
+          LEAD_SCORE: lead.leadScore || 0,
+          SIGNUP_DATE: new Date().toISOString()
+        }
+      };
+
+      // Create/update contact
+      const contact = await this.createOrUpdateContact(contactData);
+      if (!contact) return false;
+
+      // Add to appropriate lists based on lead status
+      const leadsListId = await this.getOrCreateList('Leads');
+      if (leadsListId) {
+        await this.addContactToList(lead.email, leadsListId);
+      }
+
+      // Add to status-specific list
+      const statusListId = await this.getOrCreateList(`Leads - ${lead.status}`);
+      if (statusListId) {
+        await this.addContactToList(lead.email, statusListId);
+      }
+
+      return true;
+
+    } catch (error) {
+      console.error('Adding lead to Brevo failed:', error);
+      return false;
+    }
   }
 }
 

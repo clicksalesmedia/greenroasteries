@@ -37,6 +37,7 @@ export async function POST() {
     const products = [
       {
         name: 'Nicaragua',
+        slug: 'nicaragua',
         description: 'We are proud of the flavor of Emirati Arabic coffee, prepared according to its origins, from selecting green coffee beans and roasting them with love until adding cardamom and saffron. Enjoy a unique experience to learn about our traditions and culture.',
         categoryId: arabicaCategory.id,
         price: 112, // Price for 1KG
@@ -47,6 +48,7 @@ export async function POST() {
       },
       {
         name: 'Colombia',
+        slug: 'colombia',
         description: 'We are proud of the flavor of Emirati Arabic coffee, prepared according to its origins, from selecting green coffee beans and roasting them with love until adding cardamom and saffron. Enjoy a unique experience to learn about our traditions and culture.',
         categoryId: arabicaCategory.id,
         price: 72, // Price for 1KG
@@ -57,6 +59,7 @@ export async function POST() {
       },
       {
         name: 'Ethiopia',
+        slug: 'ethiopia',
         description: 'We are proud of the flavor of Emirati Arabic coffee, prepared according to its origins, from selecting green coffee beans and roasting them with love until adding cardamom and saffron. Enjoy a unique experience to learn about our traditions and culture.',
         categoryId: arabicaCategory.id,
         price: 72, // Price for 1KG
@@ -67,6 +70,7 @@ export async function POST() {
       },
       {
         name: 'Sri Lanka',
+        slug: 'sri-lanka',
         description: 'We are proud of the flavor of Emirati Arabic coffee, prepared according to its origins, from selecting green coffee beans and roasting them with love until adding cardamom and saffron. Enjoy a unique experience to learn about our traditions and culture.',
         categoryId: arabicaCategory.id,
         price: 72, // Price for 1KG
@@ -77,6 +81,7 @@ export async function POST() {
       },
       {
         name: 'Kenya',
+        slug: 'kenya',
         description: 'We are proud of the flavor of Emirati Arabic coffee, prepared according to its origins, from selecting green coffee beans and roasting them with love until adding cardamom and saffron. Enjoy a unique experience to learn about our traditions and culture.',
         categoryId: arabicaCategory.id,
         price: 80, // Price for 1KG
@@ -87,6 +92,7 @@ export async function POST() {
       },
       {
         name: 'Brazil',
+        slug: 'brazil',
         description: 'We are proud of the flavor of Emirati Arabic coffee, prepared according to its origins, from selecting green coffee beans and roasting them with love until adding cardamom and saffron. Enjoy a unique experience to learn about our traditions and culture.',
         categoryId: arabicaCategory.id,
         price: 60, // Price for 1KG
@@ -97,6 +103,7 @@ export async function POST() {
       },
       {
         name: 'Al Dhaid Blend',
+        slug: 'al-dhaid-blend',
         description: 'The smell of fresh Arabic coffee wafts through our cafés, inviting you to taste our distinctive blend that we prepare for you. In each of them, we have selected the finest types of coffee beans for a strong flavor and smooth texture.',
         categoryId: arabicaCategory.id,
         price: 115, // Price for 1KG

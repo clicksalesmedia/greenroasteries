@@ -50,7 +50,7 @@ interface HeroSlide {
   textAnimation: string;
   imageAnimation: string;
   transitionSpeed: string;
-  layout?: 'default' | 'centered' | 'split' | 'fullwidth' | 'minimal';
+  layout?: 'default' | 'text-left' | 'text-right' | 'split-left' | 'split-right' | 'fullwidth' | 'minimal';
   accentColor?: string;
 }
 
@@ -106,6 +106,74 @@ const getSliderVariants = (direction: number) => {
       }
     })
   };
+};
+
+// Helper functions for layout positioning
+const getContentAlignment = (layout?: string) => {
+  switch (layout) {
+    case 'text-left':
+    case 'split-left':
+      return 'flex items-center justify-start';
+    case 'text-right':
+    case 'split-right':
+      return 'flex items-center justify-end';
+    case 'fullwidth':
+      return 'flex items-center justify-center';
+    case 'minimal':
+      return 'flex items-center justify-center';
+    default:
+      return 'flex items-center justify-center';
+  }
+};
+
+const getContentContainer = (layout?: string) => {
+  switch (layout) {
+    case 'split-left':
+    case 'split-right':
+      return 'grid grid-cols-1 lg:grid-cols-2 gap-8 items-center min-h-full';
+    case 'text-left':
+      return 'max-w-2xl';
+    case 'text-right':
+      return 'max-w-2xl ml-auto';
+    case 'fullwidth':
+      return 'max-w-6xl';
+    case 'minimal':
+      return 'max-w-3xl';
+    default:
+      return 'max-w-4xl';
+  }
+};
+
+const getTextAlignment = (layout?: string) => {
+  switch (layout) {
+    case 'text-left':
+    case 'split-left':
+      return 'text-left';
+    case 'text-right':
+    case 'split-right':
+      return 'text-right';
+    case 'fullwidth':
+    case 'minimal':
+    case 'default':
+    default:
+      return 'text-center';
+  }
+};
+
+const getButtonAlignment = (layout?: string) => {
+  switch (layout) {
+    case 'text-left':
+    case 'split-left':
+      return '';
+    case 'text-right':
+    case 'split-right':
+      return 'flex justify-end';
+    case 'fullwidth':
+    case 'minimal':
+    case 'default':
+    default:
+      return 'flex justify-center';
+  }
 };
 
 export default function Home() {
@@ -1966,14 +2034,23 @@ export default function Home() {
                   />
                 )}
 
-                {/* Responsive Centered Content */}
-                <div className="absolute inset-0 flex items-center justify-center z-10 px-4 sm:px-6 lg:px-8">
-                  <div className="text-center w-full max-w-7xl mx-auto">
+                {/* Dynamic Layout Content */}
+                <div className={`
+                  absolute inset-0 z-10 px-4 sm:px-6 lg:px-8
+                  ${getContentAlignment(heroSlides[currentSlide].layout)}
+                `}>
+                  <div className={`
+                    w-full max-w-7xl mx-auto
+                    ${getContentContainer(heroSlides[currentSlide].layout)}
+                  `}>
                     <motion.div
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3, duration: 0.8 }}
-                      className="space-y-4 sm:space-y-6 lg:space-y-8"
+                      className={`
+                        space-y-4 sm:space-y-6 lg:space-y-8
+                        ${getTextAlignment(heroSlides[currentSlide].layout)}
+                      `}
                     >
                       {/* H1 - Main Title - Fully Responsive */}
                       <motion.h1 
@@ -2017,7 +2094,13 @@ export default function Home() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.8, duration: 0.6 }}
-                        className="hero-description-responsive leading-relaxed mx-auto"
+                        className={`
+                          hero-description-responsive leading-relaxed
+                          ${heroSlides[currentSlide].layout?.includes('split') || heroSlides[currentSlide].layout === 'text-left' || heroSlides[currentSlide].layout === 'text-right' 
+                            ? '' 
+                            : 'mx-auto'
+                          }
+                        `}
                         style={{ 
                           color: heroSlides[currentSlide].textColor || '#ffffff',
                           opacity: 0.9,
@@ -2032,7 +2115,10 @@ export default function Home() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 1.0, duration: 0.6 }}
-                        className="pt-2 sm:pt-4"
+                        className={`
+                          pt-2 sm:pt-4
+                          ${getButtonAlignment(heroSlides[currentSlide].layout)}
+                        `}
                       >
                         <Link 
                           href={heroSlides[currentSlide].buttonLink}
@@ -2051,21 +2137,23 @@ export default function Home() {
                       </motion.div>
 
                       {/* Optional: Scroll indicator - Responsive */}
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1.4, duration: 0.6 }}
-                        className="scroll-indicator-responsive pt-8 sm:pt-12 lg:pt-16"
-                      >
-                        <div className="scroll-mouse mx-auto rounded-full flex justify-center" style={{ borderColor: heroSlides[currentSlide].textColor || '#ffffff' }}>
-                          <motion.div
-                            animate={{ y: [0, 8, 0] }}
-                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                            className="w-1 h-3 rounded-full mt-2"
-                            style={{ backgroundColor: heroSlides[currentSlide].textColor || '#ffffff' }}
-                          />
-                        </div>
-                      </motion.div>
+                      {(heroSlides[currentSlide].layout === 'default' || heroSlides[currentSlide].layout === 'fullwidth') && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 1.4, duration: 0.6 }}
+                          className="scroll-indicator-responsive pt-8 sm:pt-12 lg:pt-16"
+                        >
+                          <div className="scroll-mouse mx-auto rounded-full flex justify-center" style={{ borderColor: heroSlides[currentSlide].textColor || '#ffffff' }}>
+                            <motion.div
+                              animate={{ y: [0, 8, 0] }}
+                              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                              className="w-1 h-3 rounded-full mt-2"
+                              style={{ backgroundColor: heroSlides[currentSlide].textColor || '#ffffff' }}
+                            />
+                          </div>
+                        </motion.div>
+                      )}
                     </motion.div>
                   </div>
                 </div>

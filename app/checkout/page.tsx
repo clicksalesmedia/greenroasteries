@@ -137,10 +137,43 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleCustomerInfoSubmit = (data: typeof customerInfo) => {
+  const handleCustomerInfoSubmit = async (data: typeof customerInfo) => {
     try {
       setCustomerInfo(data);
       setError(null);
+      
+      // Create or update lead when customer info is submitted
+      const createLead = async () => {
+        try {
+          await fetch('/api/leads', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              fullName: data.fullName,
+              email: data.email,
+              phone: data.phone,
+              source: 'checkout',
+              cartValue: finalTotal,
+              cartItems: items.map(item => ({
+                id: item.productId,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                total: item.price * item.quantity
+              })),
+              userAgent: navigator.userAgent,
+              referrer: document.referrer || window.location.href
+            }),
+          });
+        } catch (error) {
+          console.warn('Lead creation error (non-critical):', error);
+        }
+      };
+      
+      // Create lead (non-blocking)
+      createLead();
       
       // Track initiate checkout when customer info is submitted (non-blocking)
       // Don't await this to prevent tracking errors from blocking the checkout flow
@@ -171,10 +204,36 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleShippingInfoSubmit = (data: typeof shippingInfo) => {
+  const handleShippingInfoSubmit = async (data: typeof shippingInfo) => {
     try {
       setShippingInfo(data);
       setError(null);
+      
+      // Update lead with shipping info
+      const updateLead = async () => {
+        try {
+          await fetch('/api/leads', {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: customerInfo.email,
+              hasShippingInfo: true,
+              shippingData: {
+                emirate: data.emirate,
+                city: data.city,
+                address: data.address
+              }
+            }),
+          });
+        } catch (error) {
+          console.warn('Lead update error (non-critical):', error);
+        }
+      };
+      
+      // Update lead (non-blocking)
+      updateLead();
       
       // Track add shipping info
       trackAddShippingInfo({

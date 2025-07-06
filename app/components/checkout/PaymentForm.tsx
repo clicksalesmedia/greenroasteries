@@ -306,6 +306,30 @@ function CheckoutForm({
     setProcessing(true);
     setError('');
 
+    // Update lead with payment info
+    const updateLeadPayment = async () => {
+      try {
+        await fetch('/api/leads', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: customerInfo.email,
+            hasPaymentInfo: true,
+            paymentData: {
+              preferredPayment: selectedPaymentMethod
+            }
+          }),
+        });
+      } catch (error) {
+        console.warn('Lead payment update error (non-critical):', error);
+      }
+    };
+    
+    // Update lead (non-blocking)
+    updateLeadPayment();
+    
     // Track add payment info
     trackAddPaymentInfo({
       items: items.map(item => ({
@@ -378,6 +402,28 @@ function CheckoutForm({
         const orderData = await orderResponse.json();
 
         if (orderData.success) {
+          // Convert lead to customer
+          const convertLead = async () => {
+            try {
+              await fetch('/api/leads', {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  email: customerInfo.email,
+                  status: 'CONVERTED',
+                  convertedUserId: orderData.userId // Assuming the order response includes userId
+                }),
+              });
+            } catch (error) {
+              console.warn('Lead conversion error (non-critical):', error);
+            }
+          };
+          
+          // Convert lead (non-blocking)
+          convertLead();
+          
           // Track purchase completion
           trackPurchase({
             orderId: orderData.orderId,

@@ -32,10 +32,19 @@ interface ProductVariation {
     name: string;
     isActive: boolean;
   };
+  beansId?: string;
+  beans?: {
+    id: string;
+    name: string;
+    isActive: boolean;
+  };
   price: number;
+  discount?: number;
+  discountType?: string;
   sku?: string;
   stockQuantity: number;
   isActive: boolean;
+  imageUrl?: string;
 }
 
 export function ProductForm() {
@@ -243,10 +252,20 @@ export function ProductForm() {
     
     try {
       // Validate form
-      if (!name || !slug || !price) {
-        setError(t('required_fields_error', 'Name, slug, and price are required'));
+      if (!name || !price) {
+        setError(t('required_fields_error', 'Name and price are required'));
         setIsSubmitting(false);
         return;
+      }
+      
+      // Ensure slug is not empty
+      if (!slug || slug.trim() === '') {
+        const generatedSlug = name
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .trim();
+        setSlug(generatedSlug || `product-${Date.now()}`);
       }
       
       // Upload images
@@ -280,10 +299,14 @@ export function ProductForm() {
           variations: productVariations.map(v => ({
             sizeId: v.sizeId,
             typeId: v.typeId,
+            beansId: v.beansId,
             price: v.price,
+            discount: v.discount,
+            discountType: v.discountType || 'PERCENTAGE',
             sku: v.sku,
             stockQuantity: v.stockQuantity,
-            isActive: v.isActive
+            isActive: v.isActive,
+            imageUrl: v.imageUrl
           }))
         }),
       });

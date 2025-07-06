@@ -109,6 +109,26 @@ export async function POST(request: NextRequest) {
           emailVerified: false,
         }
       });
+
+      // Add new customer to Brevo automatically (non-blocking)
+      if (isNewCustomer) {
+        try {
+          await emailService.addCustomerToBrevo({
+            email: user.email,
+            name: user.name || customerInfo.fullName,
+            phone: user.phone ? user.phone : undefined,
+            city: user.city ? user.city : undefined,
+            emirate: shippingInfo.emirate || undefined,
+            totalSpent: 0,
+            orderCount: 0,
+            lastPurchaseDate: new Date()
+          });
+          console.log('✅ New customer added to Brevo:', user.email);
+        } catch (brevoError) {
+          // Don't fail the order if Brevo fails
+          console.error('⚠️ Failed to add new customer to Brevo (non-critical):', brevoError);
+        }
+      }
     } else {
       // Update existing user's new customer status
       await prisma.user.update({

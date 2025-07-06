@@ -139,6 +139,40 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CustomerLeadScalarFieldEnum = {
+  id: 'id',
+  fullName: 'fullName',
+  email: 'email',
+  phone: 'phone',
+  status: 'status',
+  source: 'source',
+  hasContactInfo: 'hasContactInfo',
+  hasShippingInfo: 'hasShippingInfo',
+  hasPaymentInfo: 'hasPaymentInfo',
+  contactStep: 'contactStep',
+  shippingStep: 'shippingStep',
+  emirate: 'emirate',
+  city: 'city',
+  address: 'address',
+  paymentStep: 'paymentStep',
+  preferredPayment: 'preferredPayment',
+  convertedAt: 'convertedAt',
+  convertedUserId: 'convertedUserId',
+  cartValue: 'cartValue',
+  cartItems: 'cartItems',
+  leadScore: 'leadScore',
+  notes: 'notes',
+  tags: 'tags',
+  lastContactedAt: 'lastContactedAt',
+  nextFollowUpAt: 'nextFollowUpAt',
+  contactCount: 'contactCount',
+  userAgent: 'userAgent',
+  ipAddress: 'ipAddress',
+  referrer: 'referrer',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.PermissionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -625,6 +659,15 @@ exports.UserRole = exports.$Enums.UserRole = {
   CUSTOMER: 'CUSTOMER'
 };
 
+exports.LeadStatus = exports.$Enums.LeadStatus = {
+  LEAD: 'LEAD',
+  PROSPECT: 'PROSPECT',
+  QUALIFIED: 'QUALIFIED',
+  CONVERTED: 'CONVERTED',
+  ABANDONED: 'ABANDONED',
+  LOST: 'LOST'
+};
+
 exports.OrderStatus = exports.$Enums.OrderStatus = {
   NEW: 'NEW',
   PROCESSING: 'PROCESSING',
@@ -726,6 +769,7 @@ exports.TrackingPlatform = exports.$Enums.TrackingPlatform = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  CustomerLead: 'CustomerLead',
   Permission: 'Permission',
   Category: 'Category',
   Product: 'Product',

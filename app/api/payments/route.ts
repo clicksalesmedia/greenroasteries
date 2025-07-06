@@ -188,6 +188,13 @@ export async function POST(request: NextRequest) {
 
       case 'capture':
         // For payments that were authorized but not captured
+        if (!payment.stripePaymentIntentId) {
+          return NextResponse.json(
+            { error: 'No Stripe payment intent ID found' },
+            { status: 400 }
+          );
+        }
+        
         try {
           const paymentIntent = await stripe.paymentIntents.capture(
             payment.stripePaymentIntentId

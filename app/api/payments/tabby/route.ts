@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     // Prepare Tabby payment request
     const tabbyPaymentData: TabbyPaymentRequest = {
-      amount: Math.round(amount * 100), // Convert to fils (smallest currency unit)
+      amount: amount, // Keep as decimal value
       currency: currency.toUpperCase(),
       description: `Green Roasteries Order - ${items.length} items`,
       buyer: {
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         zip: shippingInfo.zip || '',
       },
       order: {
-        tax_amount: Math.round((tax || 0) * 100),
+        tax_amount: Math.round((tax || 0) * 100), // Keep as fils for internal processing
         shipping_amount: Math.round(shippingCost * 100),
         discount_amount: Math.round(discount * 100),
         updated_at: new Date().toISOString(),
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
             `${item.name} - ${JSON.stringify(item.variation)}` : 
             item.name,
           quantity: item.quantity,
-          unit_price: Math.round(item.price * 100),
+          unit_price: Math.round(item.price * 100), // Keep as fils for internal processing
           discount_amount: 0,
           reference_id: item.id,
           image_url: item.imageUrl || '',
@@ -82,9 +82,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      payment_id: tabbyResponse.id,
+      session_id: tabbyResponse.id, // Session ID from top level
+      payment_id: tabbyResponse.payment.id, // Payment ID from payment object
       checkout_url: tabbyResponse.configuration.available_products.installments[0]?.web_url,
-      expires_at: tabbyResponse.payment.expires_at,
+      qr_code: tabbyResponse.configuration.available_products.installments[0]?.qr_code,
+      expires_at: tabbyResponse.configuration.expires_at, // From configuration object
+      payment_expires_at: tabbyResponse.payment.expires_at, // From payment object
+      is_available: tabbyResponse.configuration.products.installments.is_available,
       tabbyResponse,
     });
 

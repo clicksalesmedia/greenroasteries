@@ -1,0 +1,177 @@
+#!/bin/bash
+
+# Quick Deploy Launcher
+# Simple menu interface for all deployment functions
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to show the menu
+show_menu() {
+    echo -e "${GREEN}========================================${NC}"
+    echo -e "${GREEN}     Green Roasteries Quick Deploy     ${NC}"
+    echo -e "${GREEN}========================================${NC}"
+    echo
+    echo -e "${BLUE}Choose an option:${NC}"
+    echo
+    echo -e "${YELLOW}1)${NC} 🚀 Quick Deploy (Code Only)"
+    echo -e "   ${BLUE}Perfect for: UI changes, bug fixes, styling${NC}"
+    echo
+    echo -e "${YELLOW}2)${NC} 🚀 Deploy with Database"
+    echo -e "   ${BLUE}Perfect for: Schema changes, migrations${NC}"
+    echo
+    echo -e "${YELLOW}3)${NC} 📊 Check Status"
+    echo -e "   ${BLUE}Shows: App status, database, server health${NC}"
+    echo
+    echo -e "${YELLOW}4)${NC} 📖 Help & Documentation"
+    echo -e "   ${BLUE}Shows: Usage examples and troubleshooting${NC}"
+    echo
+    echo -e "${YELLOW}5)${NC} 🚪 Exit"
+    echo
+    echo -e "${BLUE}========================================${NC}"
+    echo -n "Enter your choice (1-5): "
+}
+
+# Function to get commit message
+get_commit_message() {
+    echo -e "${BLUE}Enter your commit message:${NC}"
+    echo -n "> "
+    read -r COMMIT_MESSAGE
+    
+    if [ -z "$COMMIT_MESSAGE" ]; then
+        echo -e "${RED}Error: Commit message cannot be empty${NC}"
+        return 1
+    fi
+    
+    echo "$COMMIT_MESSAGE"
+}
+
+# Function to show help
+show_help() {
+    echo -e "${BLUE}========================================${NC}"
+    echo -e "${BLUE}           Quick Deploy Help           ${NC}"
+    echo -e "${BLUE}========================================${NC}"
+    echo
+    echo -e "${GREEN}Common Usage Examples:${NC}"
+    echo
+    echo -e "${YELLOW}Option 1 - Quick Deploy (Code Only):${NC}"
+    echo -e "  • Fixed header navigation bug"
+    echo -e "  • Updated product carousel styling"
+    echo -e "  • Improved mobile responsive design"
+    echo -e "  • Fixed checkout form validation"
+    echo
+    echo -e "${YELLOW}Option 2 - Deploy with Database:${NC}"
+    echo -e "  • Added customer preferences table"
+    echo -e "  • Updated product schema"
+    echo -e "  • Added user review system"
+    echo -e "  • Fixed database constraints"
+    echo
+    echo -e "${GREEN}When to use each option:${NC}"
+    echo
+    echo -e "${BLUE}Use Quick Deploy (Option 1) when:${NC}"
+    echo -e "  ✓ Making UI/frontend changes"
+    echo -e "  ✓ Fixing bugs in existing code"
+    echo -e "  ✓ Updating styling or components"
+    echo -e "  ✓ No database changes involved"
+    echo
+    echo -e "${BLUE}Use Deploy with Database (Option 2) when:${NC}"
+    echo -e "  ✓ Created new Prisma migrations"
+    echo -e "  ✓ Updated database schema"
+    echo -e "  ✓ Added new models or fields"
+    echo -e "  ✓ Unsure if database changes are needed"
+    echo
+    echo -e "${GREEN}Troubleshooting:${NC}"
+    echo -e "  • If deployment fails, check Option 3 for status"
+    echo -e "  • Use 'git status' to see what changes you have"
+    echo -e "  • Use 'git log --oneline -5' to see recent commits"
+    echo
+    echo -e "${BLUE}Press Enter to continue...${NC}"
+    read -r
+}
+
+# Main script
+echo -e "${BLUE}========================================${NC}"
+echo -e "${BLUE}     Green Roasteries Quick Deploy     ${NC}"
+echo -e "${BLUE}========================================${NC}"
+echo
+
+# Check if we're in the correct directory
+if [ ! -f "package.json" ] || [ ! -d "app" ]; then
+    echo -e "${RED}Error: Please run this script from the Green Roasteries project root${NC}"
+    exit 1
+fi
+
+# Main menu loop
+while true; do
+    show_menu
+    read -r choice
+    
+    case $choice in
+        1)
+            echo -e "${BLUE}========================================${NC}"
+            echo -e "${BLUE}        Quick Deploy (Code Only)       ${NC}"
+            echo -e "${BLUE}========================================${NC}"
+            echo
+            
+            COMMIT_MESSAGE=$(get_commit_message)
+            if [ $? -eq 0 ]; then
+                echo -e "${BLUE}Starting deployment...${NC}"
+                echo
+                ./scripts/quick-deploy/commit-deploy.sh "$COMMIT_MESSAGE"
+                
+                echo
+                echo -e "${BLUE}Press Enter to continue...${NC}"
+                read -r
+            fi
+            ;;
+        2)
+            echo -e "${BLUE}========================================${NC}"
+            echo -e "${BLUE}      Deploy with Database Update      ${NC}"
+            echo -e "${BLUE}========================================${NC}"
+            echo
+            
+            COMMIT_MESSAGE=$(get_commit_message)
+            if [ $? -eq 0 ]; then
+                echo -e "${BLUE}Starting deployment with database check...${NC}"
+                echo
+                ./scripts/quick-deploy/commit-deploy-db.sh "$COMMIT_MESSAGE"
+                
+                echo
+                echo -e "${BLUE}Press Enter to continue...${NC}"
+                read -r
+            fi
+            ;;
+        3)
+            echo -e "${BLUE}========================================${NC}"
+            echo -e "${BLUE}           Status Check                ${NC}"
+            echo -e "${BLUE}========================================${NC}"
+            echo
+            
+            ./scripts/quick-deploy/status.sh
+            
+            echo
+            echo -e "${BLUE}Press Enter to continue...${NC}"
+            read -r
+            ;;
+        4)
+            show_help
+            ;;
+        5)
+            echo -e "${GREEN}Goodbye! 👋${NC}"
+            exit 0
+            ;;
+        *)
+            echo -e "${RED}Invalid choice. Please select 1-5.${NC}"
+            echo
+            echo -e "${BLUE}Press Enter to continue...${NC}"
+            read -r
+            ;;
+    esac
+    
+    # Clear screen for next iteration
+    clear
+done 

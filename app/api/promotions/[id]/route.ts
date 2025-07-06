@@ -39,10 +39,10 @@ async function checkAuth(requiredRoles = ['ADMIN', 'MANAGER']) {
 // Get a specific promotion by ID
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     
     const promotion = await prisma.promotion.findUnique({
       where: { id },
@@ -82,7 +82,7 @@ export async function GET(
 // Update a promotion (requires ADMIN or MANAGER role)
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication and permissions
@@ -94,7 +94,7 @@ export async function PATCH(
       );
     }
     
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     
     // Check if promotion exists
@@ -170,7 +170,7 @@ export async function PATCH(
 // Delete a promotion (requires ADMIN or MANAGER role)
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication and permissions
@@ -182,7 +182,7 @@ export async function DELETE(
       );
     }
     
-    const { id } = params;
+    const { id } = await params;
     
     // Check if promotion exists
     const existingPromotion = await prisma.promotion.findUnique({

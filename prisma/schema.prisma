@@ -35,6 +35,69 @@ model User {
   customEventInstances CustomEventInstance[]
   funnelSessions FunnelSession[]
   userSessions UserSession[]
+  
+  // Lead Relations
+  convertedFromLead CustomerLead?
+}
+
+model CustomerLead {
+  id              String      @id @default(uuid())
+  fullName        String
+  email           String      @unique
+  phone           String?
+  status          LeadStatus  @default(LEAD)
+  source          String?     // e.g., "checkout", "newsletter", "contact"
+  
+  // Checkout progression data
+  hasContactInfo  Boolean     @default(false)
+  hasShippingInfo Boolean     @default(false)
+  hasPaymentInfo  Boolean     @default(false)
+  
+  // Contact information
+  contactStep     DateTime?   // When they filled contact info
+  
+  // Shipping information
+  shippingStep    DateTime?   // When they filled shipping info
+  emirate         String?
+  city            String?
+  address         String?
+  
+  // Payment information
+  paymentStep     DateTime?   // When they reached payment
+  preferredPayment String?    // stripe, tabby, etc.
+  
+  // Conversion tracking
+  convertedAt     DateTime?   // When they became a customer
+  convertedUserId String?     @unique // Reference to User if they converted
+  
+  // Cart data at time of lead capture
+  cartValue       Float?      // Total cart value when lead was captured
+  cartItems       Json?       // Cart items data
+  
+  // Lead scoring and notes
+  leadScore       Int?        @default(0)
+  notes           String?
+  tags            String[]    @default([])
+  
+  // Follow-up tracking
+  lastContactedAt DateTime?
+  nextFollowUpAt  DateTime?
+  contactCount    Int         @default(0)
+  
+  // Metadata
+  userAgent       String?
+  ipAddress       String?
+  referrer        String?
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  // Relations
+  convertedUser   User?       @relation(fields: [convertedUserId], references: [id])
+  
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Permission {
@@ -376,6 +439,15 @@ enum UserRole {
   MANAGER
   TEAM
   CUSTOMER
+}
+
+enum LeadStatus {
+  LEAD          // Initial contact info captured
+  PROSPECT      // Added shipping info
+  QUALIFIED     // Reached payment step
+  CONVERTED     // Became a customer
+  ABANDONED     // Abandoned checkout
+  LOST          // Lost opportunity
 }
 
 enum OrderStatus {

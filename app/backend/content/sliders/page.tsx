@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import BackendLayout from '../../components/BackendLayout';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlusIcon, ArrowPathIcon, CheckIcon, XMarkIcon, TrashIcon, PencilIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ArrowPathIcon, CheckIcon, XMarkIcon, TrashIcon, PencilIcon, EyeIcon, ArrowUpIcon, ArrowDownIcon, Bars3Icon } from '@heroicons/react/24/outline';
 
 interface SliderItem {
   id: string;
@@ -60,13 +60,15 @@ const ANIMATION_PRESETS = {
   ]
 };
 
-// Enhanced layout options
+// Enhanced layout options with descriptions
 const LAYOUT_OPTIONS = [
-  { value: 'default', label: 'Default (Side by Side)' },
-  { value: 'centered', label: 'Centered (Hero Style)' },
-  { value: 'split', label: 'Split Screen' },
-  { value: 'fullwidth', label: 'Full Width' },
-  { value: 'minimal', label: 'Minimal' }
+  { value: 'default', label: 'Default (Text Center)', description: 'Centered text and button' },
+  { value: 'text-left', label: 'Text Left', description: 'Text aligned to left side' },
+  { value: 'text-right', label: 'Text Right', description: 'Text aligned to right side' },
+  { value: 'split-left', label: 'Split Left', description: 'Text on left, image focus right' },
+  { value: 'split-right', label: 'Split Right', description: 'Text on right, image focus left' },
+  { value: 'fullwidth', label: 'Full Width', description: 'Text spans full width' },
+  { value: 'minimal', label: 'Minimal', description: 'Clean minimal design' }
 ];
 
 // Color presets for quick selection
@@ -92,6 +94,10 @@ export default function SlidersPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  
+  // Drag and drop state
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   
   // Form state
   const [editingSlider, setEditingSlider] = useState<Partial<SliderItem>>({
@@ -150,6 +156,96 @@ export default function SlidersPage() {
   const getNextOrderNumber = () => {
     if (sliders.length === 0) return 0;
     return Math.max(...sliders.map(s => s.order)) + 1;
+  };
+
+  // Reorder functions
+  const moveSliderUp = async (index: number) => {
+    if (index === 0) return;
+    
+    const newSliders = [...sliders];
+    [newSliders[index - 1], newSliders[index]] = [newSliders[index], newSliders[index - 1]];
+    
+    // Update order values
+    newSliders.forEach((slider, idx) => {
+      slider.order = idx;
+    });
+    
+    setSliders(newSliders);
+    await updateSliderOrder(newSliders);
+  };
+
+  const moveSliderDown = async (index: number) => {
+    if (index === sliders.length - 1) return;
+    
+    const newSliders = [...sliders];
+    [newSliders[index], newSliders[index + 1]] = [newSliders[index + 1], newSliders[index]];
+    
+    // Update order values
+    newSliders.forEach((slider, idx) => {
+      slider.order = idx;
+    });
+    
+    setSliders(newSliders);
+    await updateSliderOrder(newSliders);
+  };
+
+  const updateSliderOrder = async (updatedSliders: SliderItem[]) => {
+    try {
+      // Update each slider's order in the database
+      const promises = updatedSliders.map((slider, index) => 
+        fetch(`/api/sliders/${slider.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...slider, order: index })
+        })
+      );
+      
+      await Promise.all(promises);
+    } catch (error) {
+      console.error('Error updating slider order:', error);
+      setError('Failed to update slider order');
+    }
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = async (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
+    
+    const newSliders = [...sliders];
+    const draggedSlider = newSliders[draggedIndex];
+    
+    // Remove dragged item
+    newSliders.splice(draggedIndex, 1);
+    
+    // Insert at new position
+    newSliders.splice(dropIndex, 0, draggedSlider);
+    
+    // Update order values
+    newSliders.forEach((slider, idx) => {
+      slider.order = idx;
+    });
+    
+    setSliders(newSliders);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+    
+    await updateSliderOrder(newSliders);
   };
 
   // Generate animation preview settings for modal
@@ -909,88 +1005,165 @@ export default function SlidersPage() {
             </div>
           </div>
 
-          {/* Sliders Table */}
-          <div className="table-modern">
-            <table className="w-full">
-              <thead>
-                <tr>
-                  <th>Order</th>
-                  <th>Preview</th>
-                  <th>Title</th>
-                  <th>Layout</th>
-                  <th>Status</th>
-                  <th>Last Modified</th>
-                  <th className="text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sliders.map((slider) => (
-                  <tr key={slider.id}>
-                    <td className="font-medium">#{slider.order}</td>
-                    <td>
-                      <div className="relative w-32 h-20 rounded-md overflow-hidden bg-gray-100">
-                        {slider.imageUrl ? (
-                          <Image
-                            src={slider.imageUrl}
-                            alt={slider.title}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="flex items-center justify-center h-full text-gray-400">
-                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                          </div>
-                        )}
-                        <div 
-                          className="absolute bottom-0 left-0 right-0 h-3"
-                          style={{ backgroundColor: slider.backgroundColor }}
-                        />
-                      </div>
-                    </td>
-                    <td>
-                      <div>
-                        <p className="font-medium text-gray-900">{slider.title}</p>
-                        <p className="text-sm text-gray-500 truncate max-w-xs">{slider.subtitle}</p>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="text-sm font-medium text-gray-600 capitalize">
-                        {slider.layout || 'default'}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`badge ${slider.isActive ? 'badge-success' : 'badge-danger'}`}>
-                        <span className={`w-2 h-2 rounded-full ${slider.isActive ? 'bg-green-500' : 'bg-red-500'}`} />
-                        {slider.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="text-sm text-gray-500">
-                      {new Date(slider.updatedAt).toLocaleDateString()}
-                    </td>
-                    <td>
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleOpenModal(slider)}
-                          className="btn btn-icon btn-secondary"
-                          title="Edit"
-                        >
-                          <PencilIcon className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteSlider(slider.id)}
-                          className="btn btn-icon btn-danger"
-                          title="Delete"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+          {/* Sliders Table with Drag & Drop */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium text-gray-900">Slider Management</h3>
+                <p className="text-sm text-gray-500">Drag to reorder • Click arrows to move</p>
+              </div>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drag</th>
+                    <th className="w-20 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
+                    <th className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preview</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                    <th className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Layout</th>
+                    <th className="w-20 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="w-28 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated</th>
+                    <th className="w-32 px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {sliders.map((slider, index) => (
+                    <tr 
+                      key={slider.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, index)}
+                      className={`
+                        transition-all duration-200 hover:bg-gray-50 cursor-move
+                        ${draggedIndex === index ? 'opacity-50 bg-blue-50' : ''}
+                        ${dragOverIndex === index && draggedIndex !== index ? 'border-t-2 border-blue-500' : ''}
+                      `}
+                    >
+                      {/* Drag Handle */}
+                      <td className="px-4 py-4">
+                        <div className="flex items-center justify-center">
+                          <Bars3Icon className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                        </div>
+                      </td>
+                      
+                      {/* Order with Move Buttons */}
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium text-sm">#{index + 1}</span>
+                          <div className="flex flex-col">
+                            <button
+                              onClick={() => moveSliderUp(index)}
+                              disabled={index === 0}
+                              className={`p-1 rounded hover:bg-gray-100 ${index === 0 ? 'opacity-25 cursor-not-allowed' : ''}`}
+                              title="Move up"
+                            >
+                              <ArrowUpIcon className="w-3 h-3 text-gray-500" />
+                            </button>
+                            <button
+                              onClick={() => moveSliderDown(index)}
+                              disabled={index === sliders.length - 1}
+                              className={`p-1 rounded hover:bg-gray-100 ${index === sliders.length - 1 ? 'opacity-25 cursor-not-allowed' : ''}`}
+                              title="Move down"
+                            >
+                              <ArrowDownIcon className="w-3 h-3 text-gray-500" />
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                      
+                      {/* Preview */}
+                      <td className="px-4 py-4">
+                        <div className="relative w-20 h-12 rounded-md overflow-hidden bg-gray-100">
+                          {slider.imageUrl ? (
+                            <Image
+                              src={slider.imageUrl}
+                              alt={slider.title}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="flex items-center justify-center h-full text-gray-400">
+                              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                          )}
+                          <div 
+                            className="absolute bottom-0 left-0 right-0 h-2 opacity-75"
+                            style={{ backgroundColor: slider.backgroundColor }}
+                          />
+                        </div>
+                      </td>
+                      
+                      {/* Title & Subtitle */}
+                      <td className="px-4 py-4">
+                        <div>
+                          <p className="font-medium text-gray-900 text-sm">{slider.title}</p>
+                          <p className="text-xs text-gray-500 truncate max-w-xs">{slider.subtitle}</p>
+                        </div>
+                      </td>
+                      
+                      {/* Layout */}
+                      <td className="px-4 py-4">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 capitalize">
+                          {slider.layout?.replace('-', ' ') || 'default'}
+                        </span>
+                      </td>
+                      
+                      {/* Status */}
+                      <td className="px-4 py-4">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          slider.isActive 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                            slider.isActive ? 'bg-green-500' : 'bg-red-500'
+                          }`} />
+                          {slider.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      
+                      {/* Last Modified */}
+                      <td className="px-4 py-4 text-xs text-gray-500">
+                        {new Date(slider.updatedAt).toLocaleDateString()}
+                      </td>
+                      
+                      {/* Actions */}
+                      <td className="px-4 py-4">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => window.open('/', '_blank')}
+                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                            title="Preview on site"
+                          >
+                            <EyeIcon className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleOpenModal(slider)}
+                            className="p-2 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-md transition-colors"
+                            title="Edit slider"
+                          >
+                            <PencilIcon className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteSlider(slider.id)}
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                            title="Delete slider"
+                          >
+                            <TrashIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             
             {sliders.length === 0 && (
               <div className="text-center py-12">
@@ -1243,17 +1416,115 @@ export default function SlidersPage() {
                       
                       <div className="form-group">
                         <label className="form-label">Layout Style</label>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <p className="form-helper mb-4">Choose how text and content should be positioned on the slider</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {LAYOUT_OPTIONS.map((layout) => (
                             <div
                               key={layout.value}
                               onClick={() => setEditingSlider({...editingSlider, layout: layout.value})}
-                              className={`layout-option ${editingSlider.layout === layout.value ? 'selected' : ''}`}
+                              className={`
+                                relative p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md
+                                ${editingSlider.layout === layout.value 
+                                  ? 'border-blue-500 bg-blue-50 shadow-md' 
+                                  : 'border-gray-200 hover:border-gray-300'
+                                }
+                              `}
                             >
-                              <div className="layout-thumbnail mb-2">
-                                {/* Add layout preview thumbnails here */}
+                              {/* Layout Preview Thumbnail */}
+                              <div className="w-full h-20 bg-gray-100 rounded-md mb-3 overflow-hidden relative">
+                                {/* Background representation */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-gray-300 to-gray-400"></div>
+                                
+                                {/* Text content representation based on layout */}
+                                {layout.value === 'default' && (
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="text-center">
+                                      <div className="w-16 h-2 bg-white rounded mb-1 mx-auto"></div>
+                                      <div className="w-12 h-1 bg-white rounded opacity-75 mx-auto"></div>
+                                      <div className="w-8 h-1 bg-blue-500 rounded mt-1 mx-auto"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {layout.value === 'text-left' && (
+                                  <div className="absolute inset-0 flex items-center">
+                                    <div className="ml-2">
+                                      <div className="w-16 h-2 bg-white rounded mb-1"></div>
+                                      <div className="w-12 h-1 bg-white rounded opacity-75"></div>
+                                      <div className="w-8 h-1 bg-blue-500 rounded mt-1"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {layout.value === 'text-right' && (
+                                  <div className="absolute inset-0 flex items-center justify-end">
+                                    <div className="mr-2">
+                                      <div className="w-16 h-2 bg-white rounded mb-1 ml-auto"></div>
+                                      <div className="w-12 h-1 bg-white rounded opacity-75 ml-auto"></div>
+                                      <div className="w-8 h-1 bg-blue-500 rounded mt-1 ml-auto"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {layout.value === 'split-left' && (
+                                  <div className="absolute inset-0 flex">
+                                    <div className="w-1/2 flex items-center pl-2">
+                                      <div>
+                                        <div className="w-12 h-2 bg-white rounded mb-1"></div>
+                                        <div className="w-10 h-1 bg-white rounded opacity-75"></div>
+                                        <div className="w-6 h-1 bg-blue-500 rounded mt-1"></div>
+                                      </div>
+                                    </div>
+                                    <div className="w-1/2 bg-gray-500 opacity-50"></div>
+                                  </div>
+                                )}
+                                
+                                {layout.value === 'split-right' && (
+                                  <div className="absolute inset-0 flex">
+                                    <div className="w-1/2 bg-gray-500 opacity-50"></div>
+                                    <div className="w-1/2 flex items-center justify-end pr-2">
+                                      <div>
+                                        <div className="w-12 h-2 bg-white rounded mb-1 ml-auto"></div>
+                                        <div className="w-10 h-1 bg-white rounded opacity-75 ml-auto"></div>
+                                        <div className="w-6 h-1 bg-blue-500 rounded mt-1 ml-auto"></div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {layout.value === 'fullwidth' && (
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="text-center w-full px-1">
+                                      <div className="w-20 h-2 bg-white rounded mb-1 mx-auto"></div>
+                                      <div className="w-24 h-1 bg-white rounded opacity-75 mx-auto"></div>
+                                      <div className="w-10 h-1 bg-blue-500 rounded mt-1 mx-auto"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {layout.value === 'minimal' && (
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="text-center">
+                                      <div className="w-14 h-2 bg-white rounded mb-2 mx-auto"></div>
+                                      <div className="w-6 h-1 bg-blue-500 rounded mx-auto"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {/* Selected indicator */}
+                                {editingSlider.layout === layout.value && (
+                                  <div className="absolute top-1 right-1">
+                                    <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                                      <CheckIcon className="w-2.5 h-2.5 text-white" />
+                                    </div>
+                                  </div>
+                                )}
                               </div>
-                              <p className="text-xs text-center font-medium">{layout.label}</p>
+                              
+                              <div>
+                                <h4 className="font-medium text-sm text-gray-900">{layout.label}</h4>
+                                <p className="text-xs text-gray-500 mt-1">{layout.description}</p>
+                              </div>
                             </div>
                           ))}
                         </div>

@@ -492,6 +492,23 @@ export async function POST(request: Request) {
       );
     }
     
+    // Generate slug from name if not provided
+    let slug = body.slug || body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    
+    // Ensure slug is not empty or null
+    if (!slug || slug.trim() === '') {
+      slug = `product-${Date.now()}`;
+    }
+    
+    // Check if slug already exists and make it unique
+    const existingProduct = await prisma.product.findFirst({
+      where: { slug }
+    });
+    
+    if (existingProduct) {
+      slug = `${slug}-${Date.now()}`;
+    }
+    
     // Create the product with multilingual support
     const product = await prisma.product.create({
       data: {
@@ -502,6 +519,7 @@ export async function POST(request: Request) {
         price: parseFloat(body.price),
         imageUrl: body.imageUrl,
         categoryId: body.categoryId,
+        slug: slug,
         origin: body.origin,
         inStock: body.inStock ?? true,
         stockQuantity: body.stockQuantity ?? 0,
@@ -550,7 +568,7 @@ export async function POST(request: Request) {
           sku = `${productSku}-${sizeCode}${typeCode}${beansCode}`;
         }
         
-        // Create the variation
+        // Create the variation with discount support
         await prisma.productVariation.create({
           data: {
             productId: product.id,
@@ -558,9 +576,12 @@ export async function POST(request: Request) {
             typeId: variation.typeId || null,
             beansId: variation.beansId || null,
             price: parseFloat(variation.price),
+            discount: variation.discount ? parseFloat(variation.discount) : null,
+            discountType: variation.discountType || 'PERCENTAGE',
             sku,
             stockQuantity: variation.stockQuantity || 0,
             isActive: variation.isActive ?? true,
+            imageUrl: variation.imageUrl || null,
           }
         });
       }

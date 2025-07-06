@@ -31,6 +31,34 @@ interface Customer {
   orders: Order[];
 }
 
+interface CustomerLead {
+  id: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  status: 'LEAD' | 'PROSPECT' | 'QUALIFIED' | 'CONVERTED' | 'ABANDONED' | 'LOST';
+  source?: string;
+  hasContactInfo: boolean;
+  hasShippingInfo: boolean;
+  hasPaymentInfo: boolean;
+  contactStep?: string;
+  shippingStep?: string;
+  paymentStep?: string;
+  emirate?: string;
+  city?: string;
+  address?: string;
+  cartValue?: number;
+  leadScore?: number;
+  createdAt: string;
+  updatedAt: string;
+  convertedAt?: string;
+  convertedUser?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
 type CustomerStatus = 'active' | 'inactive' | 'new' | 'returned' | 'refunded';
 type CustomerStatusFilter = CustomerStatus | 'all';
 
@@ -38,12 +66,14 @@ export default function CustomersPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [leads, setLeads] = useState<CustomerLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<CustomerStatusFilter>('all');
   const [sortBy, setSortBy] = useState<'name' | 'spend' | 'orders' | 'recent'>('recent');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [activeTab, setActiveTab] = useState<'customers' | 'leads'>('customers');
   
   // Stats
   const [stats, setStats] = useState({
@@ -53,11 +83,23 @@ export default function CustomersPage() {
     returningCustomers: 0
   });
   
+  // Lead stats
+  const [leadStats, setLeadStats] = useState({
+    totalLeads: 0,
+    newLeads: 0,
+    prospects: 0,
+    qualified: 0,
+    converted: 0,
+    abandoned: 0
+  });
+  
   useEffect(() => {
-    const fetchCustomers = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         
+        if (activeTab === 'customers') {
+          // Fetch customers
         const params = new URLSearchParams({
           page: '1',
           limit: '50',
@@ -80,22 +122,43 @@ export default function CustomersPage() {
         
         setCustomers(mappedCustomers);
         calculateStats(mappedCustomers);
+        } else {
+          // Fetch leads
+          const params = new URLSearchParams({
+            page: '1',
+            limit: '50',
+            ...(searchQuery && { search: searchQuery }),
+            ...(statusFilter !== 'all' && { status: statusFilter.toUpperCase() })
+          });
+
+          const response = await fetch(`/api/leads?${params}`);
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch leads');
+          }
+          
+          const data = await response.json();
+          setLeads(data.leads || []);
+          calculateLeadStats(data.leads || []);
+        }
         
       } catch (err) {
-        console.error('Error fetching customers:', err);
-        setError('Failed to load customers. Please try again.');
+        console.error('Error fetching data:', err);
+        setError(`Failed to load ${activeTab}. Please try again.`);
         
+        if (activeTab === 'customers') {
         // Create dummy customers for development if API fails
         const dummyData = createDummyCustomers();
         setCustomers(dummyData);
         calculateStats(dummyData);
+        }
       } finally {
         setLoading(false);
       }
     };
     
-    fetchCustomers();
-  }, [searchQuery]);
+    fetchData();
+  }, [searchQuery, activeTab, statusFilter]);
   
   // Calculate customer stats
   const calculateStats = (customerData: Customer[]) => {
@@ -118,6 +181,24 @@ export default function CustomersPage() {
       activeCustomers,
       newCustomers,
       returningCustomers
+    });
+  };
+  
+  // Calculate lead stats
+  const calculateLeadStats = (leadsData: CustomerLead[]) => {
+    const newLeads = leadsData.filter(l => l.status === 'LEAD').length;
+    const prospects = leadsData.filter(l => l.status === 'PROSPECT').length;
+    const qualified = leadsData.filter(l => l.status === 'QUALIFIED').length;
+    const converted = leadsData.filter(l => l.status === 'CONVERTED').length;
+    const abandoned = leadsData.filter(l => l.status === 'ABANDONED').length;
+    
+    setLeadStats({
+      totalLeads: leadsData.length,
+      newLeads,
+      prospects,
+      qualified,
+      converted,
+      abandoned
     });
   };
   
@@ -293,15 +374,50 @@ export default function CustomersPage() {
       <div className="px-4 sm:px-6 lg:px-8 py-8">
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
-            <h1 className="text-2xl font-semibold text-gray-900">{t('customers', 'Customers')}</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              {activeTab === 'customers' ? t('customers', 'Customers') : t('customer_leads', 'Customer Leads')}
+            </h1>
             <p className="mt-2 text-sm text-gray-700">
-              {t('customers_management_description', 'A list of all customers including their name, status, and purchase history.')}
+              {activeTab === 'customers' 
+                ? t('customers_management_description', 'A list of all customers including their name, status, and purchase history.')
+                : t('leads_management_description', 'Track potential customers through the sales funnel.')
+              }
             </p>
+          </div>
+        </div>
+        
+        {/* Tab Navigation */}
+        <div className="mt-6">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+              <button
+                onClick={() => setActiveTab('customers')}
+                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'customers'
+                    ? 'border-black text-black'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {t('customers', 'Customers')} ({stats.totalCustomers})
+              </button>
+              <button
+                onClick={() => setActiveTab('leads')}
+                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'leads'
+                    ? 'border-black text-black'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {t('customer_leads', 'Customer Leads')} ({leadStats.totalLeads})
+              </button>
+            </nav>
           </div>
         </div>
         
         {/* Stats Cards */}
         <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {activeTab === 'customers' ? (
+            <>
           {/* Total Customers */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
@@ -380,6 +496,86 @@ export default function CustomersPage() {
               </div>
             </div>
           </div>
+            </>
+          ) : (
+            <>
+              {/* New Leads */}
+              <div className="bg-white overflow-hidden shadow rounded-lg">
+                <div className="px-4 py-5 sm:p-6">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                      <ChartBarIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
+                    </div>
+                    <div className="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt className="text-sm font-medium text-gray-500 truncate">{t('new_leads', 'New Leads')}</dt>
+                        <dd className="flex items-baseline">
+                          <div className="text-2xl font-semibold text-gray-900">{leadStats.newLeads}</div>
+                        </dd>
+                      </dl>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Prospects */}
+              <div className="bg-white overflow-hidden shadow rounded-lg">
+                <div className="px-4 py-5 sm:p-6">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+                      <ChartBarIcon className="h-6 w-6 text-yellow-600" aria-hidden="true" />
+                    </div>
+                    <div className="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt className="text-sm font-medium text-gray-500 truncate">{t('prospects', 'Prospects')}</dt>
+                        <dd className="flex items-baseline">
+                          <div className="text-2xl font-semibold text-gray-900">{leadStats.prospects}</div>
+                        </dd>
+                      </dl>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Qualified Leads */}
+              <div className="bg-white overflow-hidden shadow rounded-lg">
+                <div className="px-4 py-5 sm:p-6">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 bg-orange-100 rounded-md p-3">
+                      <ChartBarIcon className="h-6 w-6 text-orange-600" aria-hidden="true" />
+                    </div>
+                    <div className="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt className="text-sm font-medium text-gray-500 truncate">{t('qualified_leads', 'Qualified Leads')}</dt>
+                        <dd className="flex items-baseline">
+                          <div className="text-2xl font-semibold text-gray-900">{leadStats.qualified}</div>
+                        </dd>
+                      </dl>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Converted */}
+              <div className="bg-white overflow-hidden shadow rounded-lg">
+                <div className="px-4 py-5 sm:p-6">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 bg-green-100 rounded-md p-3">
+                      <ChartBarIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
+                    </div>
+                    <div className="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt className="text-sm font-medium text-gray-500 truncate">{t('converted', 'Converted')}</dt>
+                        <dd className="flex items-baseline">
+                          <div className="text-2xl font-semibold text-gray-900">{leadStats.converted}</div>
+                        </dd>
+                      </dl>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
         
         {/* Filters and Search */}

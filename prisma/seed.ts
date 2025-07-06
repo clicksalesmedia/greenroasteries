@@ -105,6 +105,7 @@ async function main() {
       update: {},
       create: {
         name: 'Ethiopian Yirgacheffe',
+        slug: 'ethiopian-yirgacheffe',
         description: 'Ethiopian Yirgacheffe is a coffee from the Yirgacheffe region of southern Ethiopia. It has a distinctive floral and fruit tone with a bright acidity.',
         price: 14.99,
         imageUrl: 'https://example.com/images/ethiopian-coffee.jpg',
@@ -122,6 +123,7 @@ async function main() {
       update: {},
       create: {
         name: 'Colombian Supremo',
+        slug: 'colombian-supremo',
         description: 'Colombian Supremo is known for its rich, full body and bright acidity. It has a balanced flavor with caramel sweetness and nutty undertones.',
         price: 12.99,
         imageUrl: 'https://example.com/images/colombian-coffee.jpg',
@@ -139,6 +141,7 @@ async function main() {
       update: {},
       create: {
         name: 'Ugandan Robusta',
+        slug: 'ugandan-robusta',
         description: 'Ugandan Robusta has a strong, full-bodied flavor with earthy notes and a strong caffeine content.',
         price: 10.99,
         imageUrl: 'https://example.com/images/ugandan-coffee.jpg',
@@ -156,6 +159,7 @@ async function main() {
       update: {},
       create: {
         name: 'Organic Almonds',
+        slug: 'organic-almonds',
         description: 'Premium organic almonds, perfect for snacking or baking.',
         price: 8.99,
         imageUrl: 'https://example.com/images/almonds.jpg',
@@ -173,6 +177,7 @@ async function main() {
       update: {},
       create: {
         name: 'Premium Walnuts',
+        slug: 'premium-walnuts',
         description: 'Premium quality walnuts, rich in omega-3 fatty acids.',
         price: 9.99,
         imageUrl: 'https://example.com/images/walnuts.jpg',
