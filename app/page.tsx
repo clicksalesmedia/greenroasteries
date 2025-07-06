@@ -2138,21 +2138,21 @@ export default function Home() {
 
                       {/* Optional: Scroll indicator - Responsive */}
                       {(heroSlides[currentSlide].layout === 'default' || heroSlides[currentSlide].layout === 'fullwidth') && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 1.4, duration: 0.6 }}
-                          className="scroll-indicator-responsive pt-8 sm:pt-12 lg:pt-16"
-                        >
-                          <div className="scroll-mouse mx-auto rounded-full flex justify-center" style={{ borderColor: heroSlides[currentSlide].textColor || '#ffffff' }}>
-                            <motion.div
-                              animate={{ y: [0, 8, 0] }}
-                              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                              className="w-1 h-3 rounded-full mt-2"
-                              style={{ backgroundColor: heroSlides[currentSlide].textColor || '#ffffff' }}
-                            />
-                          </div>
-                        </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.4, duration: 0.6 }}
+                        className="scroll-indicator-responsive pt-8 sm:pt-12 lg:pt-16"
+                      >
+                        <div className="scroll-mouse mx-auto rounded-full flex justify-center" style={{ borderColor: heroSlides[currentSlide].textColor || '#ffffff' }}>
+                          <motion.div
+                            animate={{ y: [0, 8, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                            className="w-1 h-3 rounded-full mt-2"
+                            style={{ backgroundColor: heroSlides[currentSlide].textColor || '#ffffff' }}
+                          />
+                        </div>
+                      </motion.div>
                       )}
                     </motion.div>
                   </div>

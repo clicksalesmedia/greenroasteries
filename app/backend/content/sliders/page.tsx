@@ -191,6 +191,9 @@ export default function SlidersPage() {
 
   const updateSliderOrder = async (updatedSliders: SliderItem[]) => {
     try {
+      setIsSubmitting(true);
+      setSubmitError(null);
+      
       // Update each slider's order in the database
       const promises = updatedSliders.map((slider, index) => 
         fetch(`/api/sliders/${slider.id}`, {
@@ -200,10 +203,38 @@ export default function SlidersPage() {
         })
       );
       
-      await Promise.all(promises);
+      const responses = await Promise.all(promises);
+      
+      // Check if all requests were successful
+      const failedResponses = responses.filter(response => !response.ok);
+      if (failedResponses.length > 0) {
+        throw new Error(`Failed to update ${failedResponses.length} sliders`);
+      }
+      
+      // Show success feedback
+      setSubmitSuccess(true);
+      setTimeout(() => setSubmitSuccess(false), 2000);
+      
     } catch (error) {
       console.error('Error updating slider order:', error);
-      setError('Failed to update slider order');
+      setSubmitError('Failed to update slider order. Please try again.');
+      
+      // Revert the local state by fetching fresh data
+      const fetchSliders = async () => {
+        try {
+          const response = await fetch('/api/sliders?admin=true');
+          if (response.ok) {
+            const data = await response.json();
+            const sortedSliders = [...data].sort((a, b) => a.order - b.order);
+            setSliders(sortedSliders);
+          }
+        } catch (err) {
+          console.error('Error refetching sliders:', err);
+        }
+      };
+      fetchSliders();
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1004,6 +1035,39 @@ export default function SlidersPage() {
               </div>
             </div>
           </div>
+
+          {/* Success/Error Notifications */}
+          {submitSuccess && (
+            <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md flex items-center gap-2">
+              <CheckIcon className="w-5 h-5 text-green-500" />
+              <span className="font-medium">Slider order updated successfully!</span>
+            </div>
+          )}
+          
+          {submitError && (
+            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-center gap-2">
+              <XMarkIcon className="w-5 h-5 text-red-500" />
+              <div>
+                <span className="font-medium">Error updating slider order</span>
+                <p className="text-sm mt-1">{submitError}</p>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-center gap-2">
+              <XMarkIcon className="w-5 h-5 text-red-500" />
+              <span className="font-medium">{error}</span>
+            </div>
+          )}
+
+          {/* Loading overlay for reordering operations */}
+          {isSubmitting && (
+            <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md flex items-center gap-2">
+              <ArrowPathIcon className="w-5 h-5 text-blue-500 animate-spin" />
+              <span className="font-medium">Updating slider order...</span>
+            </div>
+          )}
 
           {/* Sliders Table with Drag & Drop */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">

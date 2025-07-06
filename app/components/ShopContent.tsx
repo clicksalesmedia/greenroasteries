@@ -104,6 +104,13 @@ export default function ShopContent() {
       ? product.category 
       : product.category?.name || '';
     
+    // Check if it's GREEN ROASTER'S PICKS category
+    const isGreenRoastersPicks = categoryName === 'GREEN ROASTER\'S PICKS' || 
+                                categoryName === 'GREEN ROASTERS PICKS' ||
+                                categoryName === 'Green Roaster\'s Picks' ||
+                                categoryName === 'اختيارات الحمص الأخضر' ||
+                                categoryName.toLowerCase().includes('green roaster');
+    
     // Check if it's NUTS & DRIED FRUITS category in English or Arabic
     const isNutsCategory = categoryName === 'NUTS & DRIED FRUITS' || 
                           categoryName === 'المكسرات والفواكه المجففة' ||
@@ -115,10 +122,12 @@ export default function ShopContent() {
                                categoryName === 'شوكولاتة' ||
                                categoryName === 'الشوكولاتة';
     
-    // No background for chocolate category since images will cover the entire area
-    if (isChocolateCategory) return 'transparent';
+    // Return specific background colors
+    if (isGreenRoastersPicks) return '#F6F6F6';
+    if (isChocolateCategory) return 'transparent'; // No background for chocolate category since images will cover the entire area
+    if (isNutsCategory) return '#f6f6f6';
     
-    return isNutsCategory ? '#f6f6f6' : '#e9e9e9';
+    return '#e9e9e9'; // Default background color
   };
 
   // Function to get the object fit style for product images
