@@ -216,6 +216,35 @@ function CheckoutForm({
               phone: customerInfo.phone
             }
           });
+
+          // Track Google Ads Purchase conversion
+          if (typeof window !== 'undefined' && (window as any).trackGoogleAdsPurchase) {
+            (window as any).trackGoogleAdsPurchase(orderData.orderId, totalAmount, 'AED');
+          }
+
+          // Track GA4 Enhanced Purchase
+          if (typeof window !== 'undefined' && (window as any).trackGA4Purchase) {
+            const itemsData = items.map(item => ({
+              id: item.id,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              category: 'Coffee',
+              variation: `${item.variation?.weight || ''} ${item.variation?.beans || ''} ${item.variation?.additions || ''}`.trim()
+            }));
+            (window as any).trackGA4Purchase(orderData.orderId, itemsData, totalAmount, 'AED', shippingCost, tax);
+          }
+
+          // Track Facebook Purchase (Pixel + Conversions API) - For Apple Pay/Google Pay
+          if (typeof window !== 'undefined' && (window as any).trackFacebookPurchase) {
+            const itemsData = items.map(item => ({
+              id: item.id,
+              name: item.name,
+              price: item.price,
+              category: 'Coffee'
+            }));
+            (window as any).trackFacebookPurchase(orderData.orderId, itemsData, totalAmount, 'AED', customerInfo.email);
+          }
           
           event.complete('success');
           onSuccess(orderData.orderId, orderData.isNewCustomer);
@@ -255,6 +284,11 @@ function CheckoutForm({
           phone: customerInfo.phone
         }
       });
+
+      // Track Facebook Add Payment Info for Tabby (Pixel + Conversions API)
+      if (typeof window !== 'undefined' && (window as any).trackFacebookAddPaymentInfo) {
+        (window as any).trackFacebookAddPaymentInfo(totalAmount, 'AED');
+      }
 
       // Create Tabby payment session
       const response = await fetch('/api/payments/tabby', {
@@ -347,6 +381,11 @@ function CheckoutForm({
         phone: customerInfo.phone
       }
     });
+
+    // Track Facebook Add Payment Info (Pixel + Conversions API)
+    if (typeof window !== 'undefined' && (window as any).trackFacebookAddPaymentInfo) {
+      (window as any).trackFacebookAddPaymentInfo(totalAmount, 'AED');
+    }
 
     const cardElement = elements.getElement(CardElement);
 
@@ -446,6 +485,35 @@ function CheckoutForm({
               phone: customerInfo.phone
             }
           });
+
+          // Track Google Ads Purchase conversion  
+          if (typeof window !== 'undefined' && (window as any).trackGoogleAdsPurchase) {
+            (window as any).trackGoogleAdsPurchase(orderData.orderId, totalAmount, 'AED');
+          }
+
+          // Track GA4 Enhanced Purchase
+          if (typeof window !== 'undefined' && (window as any).trackGA4Purchase) {
+            const itemsData = items.map(item => ({
+              id: item.id,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              category: 'Coffee',
+              variation: `${item.variation?.weight || ''} ${item.variation?.beans || ''} ${item.variation?.additions || ''}`.trim()
+            }));
+            (window as any).trackGA4Purchase(orderData.orderId, itemsData, totalAmount, 'AED', shippingCost, tax);
+          }
+
+          // Track Facebook Purchase (Pixel + Conversions API) - For Stripe Card Payment
+          if (typeof window !== 'undefined' && (window as any).trackFacebookPurchase) {
+            const itemsData = items.map(item => ({
+              id: item.id,
+              name: item.name,
+              price: item.price,
+              category: 'Coffee'
+            }));
+            (window as any).trackFacebookPurchase(orderData.orderId, itemsData, totalAmount, 'AED', customerInfo.email);
+          }
           
           onSuccess(orderData.orderId, orderData.isNewCustomer);
         } else {
@@ -497,7 +565,11 @@ function CheckoutForm({
             <img 
               src="/images/creditvcard.webp" 
               alt="Accepted payment methods: Visa, MasterCard, American Express, Apple Pay, Google Pay" 
-              className="h-8 w-auto"
+              className="h-8 w-auto max-w-[150px]"
+              style={{ height: '32px', maxWidth: '150px' }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
             />
           </div>
         </div>
@@ -542,7 +614,11 @@ function CheckoutForm({
                         <img 
                           src="/images/creditvcard.webp" 
                           alt="Visa, MasterCard, American Express" 
-                          className="h-6 w-auto"
+                          className="h-6 w-auto max-w-[120px]"
+                          style={{ height: '24px', maxWidth: '120px' }}
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
                         />
                       </div>
                     </div>
@@ -585,7 +661,11 @@ function CheckoutForm({
                           <img 
                             src="/tabby.png" 
                             alt="Tabby" 
-                            className="h-4 w-auto"
+                            className="h-4 w-auto max-w-[40px]"
+                            style={{ height: '16px', maxWidth: '40px' }}
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
                           />
                         </div>
                       </div>
