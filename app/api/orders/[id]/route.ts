@@ -186,7 +186,10 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ order });
+    return NextResponse.json({ 
+      success: true,
+      order 
+    });
 
   } catch (error) {
     console.error('Error fetching order:', error);

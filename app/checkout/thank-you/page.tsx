@@ -27,67 +27,92 @@ export default function ThankYouPage() {
       if (paymentType === 'tabby' && sessionId) {
         // Handle Tabby payment redirect
         try {
-          // Retrieve payment details from Tabby
-          const response = await fetch(`/api/payments/tabby?payment_id=${sessionId}`);
-          const data = await response.json();
+          // Find the order associated with this payment
+          const ordersResponse = await fetch('/api/orders');
+          const ordersData = await ordersResponse.json();
           
-          if (data.success) {
-            // Find the order associated with this payment
-            const ordersResponse = await fetch('/api/orders');
-            const ordersData = await ordersResponse.json();
+          // Find order with matching Tabby payment ID
+          const matchingOrder = ordersData.orders?.find((order: any) => 
+            order.payment?.tabbyPaymentId === sessionId
+          );
+          
+          if (matchingOrder) {
+            // Get complete order details by order ID
+            const orderDetailResponse = await fetch(`/api/orders/${matchingOrder.id}`);
+            const orderDetailData = await orderDetailResponse.json();
             
-            // Find order with matching Tabby payment ID
-            const matchingOrder = ordersData.orders?.find((order: any) => 
-              order.payment?.tabbyPaymentId === sessionId
-            );
-            
-            if (matchingOrder) {
+            if (orderDetailData.success) {
+              const fullOrderData = orderDetailData.order;
+              
+              // Format the data to match the expected structure
               const orderData = {
-                orderId: matchingOrder.id,
-                isNewCustomer: matchingOrder.user?.isNewCustomer || false,
+                orderId: fullOrderData.id,
+                orderDate: fullOrderData.createdAt,
+                customerInfo: {
+                  fullName: fullOrderData.customerInfo?.fullName || `${fullOrderData.user.firstName || ''} ${fullOrderData.user.lastName || ''}`.trim(),
+                  email: fullOrderData.customerInfo?.email || fullOrderData.user.email,
+                  phone: fullOrderData.customerInfo?.phone || fullOrderData.user.phone || 'N/A'
+                },
+                shippingInfo: {
+                  address: fullOrderData.shippingInfo?.address || fullOrderData.address || 'N/A',
+                  city: fullOrderData.shippingInfo?.city || fullOrderData.city || 'N/A'
+                },
+                items: fullOrderData.items?.map((item: any) => ({
+                  id: item.id,
+                  name: item.product?.name || item.name || 'Product',
+                  price: item.unitPrice || item.price || 0,
+                  quantity: item.quantity || 1,
+                  image: item.product?.imageUrl || item.image || '/images/coffee-placeholder.jpg',
+                  variation: item.variation ? {
+                    size: item.variation.size || '',
+                    grind: item.variation.grind || '',
+                    roast: item.variation.roast || ''
+                  } : {}
+                })) || [],
+                totalAmount: fullOrderData.total || fullOrderData.totalAmount || 0,
+                subtotal: fullOrderData.subtotal || 0,
+                tax: fullOrderData.tax || 0,
+                shippingCost: fullOrderData.shippingCost || 0,
+                discount: fullOrderData.discount || 0,
+                isNewCustomer: fullOrderData.user?.isNewCustomer || false,
                 paymentProvider: 'TABBY',
-                paymentStatus: data.payment?.status || 'PENDING'
+                paymentStatus: fullOrderData.payment?.status || 'PENDING'
               };
+              
               setOrderDetails(orderData);
 
               // Track Google Ads Purchase conversion for Tabby orders
               if (typeof window !== 'undefined' && (window as any).trackGoogleAdsPurchase) {
-                const orderTotal = matchingOrder.total || 0;
-                (window as any).trackGoogleAdsPurchase(matchingOrder.id, orderTotal, 'AED');
+                (window as any).trackGoogleAdsPurchase(orderData.orderId, orderData.totalAmount, 'AED');
               }
 
               // Track GA4 Enhanced Purchase for Tabby orders
-              if (typeof window !== 'undefined' && (window as any).trackGA4Purchase && matchingOrder.items) {
-                const itemsData = matchingOrder.items.map((item: any) => ({
-                  id: item.productId || item.id,
+              if (typeof window !== 'undefined' && (window as any).trackGA4Purchase && orderData.items) {
+                const itemsData = orderData.items.map((item: any) => ({
+                  id: item.id,
                   name: item.name,
                   price: item.price,
                   quantity: item.quantity || 1,
                   category: 'Coffee',
                   variation: 'Standard'
                 }));
-                const orderTotal = matchingOrder.total || 0;
-                const shipping = matchingOrder.shipping || 0;
-                const tax = matchingOrder.tax || 0;
-                (window as any).trackGA4Purchase(matchingOrder.id, itemsData, orderTotal, 'AED', shipping, tax);
+                (window as any).trackGA4Purchase(orderData.orderId, itemsData, orderData.totalAmount, 'AED', orderData.shippingCost, orderData.tax);
               }
 
               // Track Facebook Purchase for Tabby orders (Pixel + Conversions API)
-              if (typeof window !== 'undefined' && (window as any).trackFacebookPurchase && matchingOrder.items) {
-                const itemsData = matchingOrder.items.map((item: any) => ({
-                  id: item.productId || item.id,
+              if (typeof window !== 'undefined' && (window as any).trackFacebookPurchase && orderData.items) {
+                const itemsData = orderData.items.map((item: any) => ({
+                  id: item.id,
                   name: item.name,
                   price: item.price,
                   category: 'Coffee'
                 }));
-                const orderTotal = matchingOrder.total || 0;
-                const userEmail = matchingOrder.user?.email || matchingOrder.customerInfo?.email;
-                (window as any).trackFacebookPurchase(matchingOrder.id, itemsData, orderTotal, 'AED', userEmail);
+                (window as any).trackFacebookPurchase(orderData.orderId, itemsData, orderData.totalAmount, 'AED', orderData.customerInfo.email);
               }
             }
           }
         } catch (error) {
-          console.error('Failed to retrieve Tabby payment details:', error);
+          console.error('Failed to retrieve Tabby order details:', error);
         }
       } else {
         // Standard flow - retrieve from localStorage
@@ -398,7 +423,12 @@ export default function ThankYouPage() {
                         <CreditCardIcon className="w-4 h-4" />
                         {t('payment_method', 'Payment Method')}:
                       </span>
-                      <span className="font-medium">{t('stripe_payment', 'Stripe Payment')}</span>
+                      <span className="font-medium">
+                        {orderDetails?.paymentProvider === 'TABBY' 
+                          ? t('tabby_payment', 'Tabby Payment')
+                          : t('stripe_payment', 'Stripe Payment')
+                        }
+                      </span>
                     </div>
                   </div>
 
