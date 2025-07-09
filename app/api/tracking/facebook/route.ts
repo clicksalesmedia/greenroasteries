@@ -127,14 +127,20 @@ async function sendToFacebook(pixelId: string, accessToken: string, eventData: F
   };
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
 
     const result = await response.json();
     
@@ -143,7 +149,13 @@ async function sendToFacebook(pixelId: string, accessToken: string, eventData: F
     }
 
     return result;
-  } catch (error) {
+  } catch (error: any) {
+    // Handle all types of network errors gracefully
+    if (error.name === 'AbortError' || error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') {
+      console.warn('Facebook API network error (non-critical):', error.message || error.code);
+      throw new Error('Network timeout or connection reset');
+    }
+    
     console.error('Error sending to Facebook Conversions API:', error);
     throw error;
   }

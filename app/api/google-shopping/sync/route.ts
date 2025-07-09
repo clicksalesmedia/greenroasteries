@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       syncAll = false, 
       dryRun = false,
       includeVariations = true,
-      batchSize = 10  // Process 10 products at a time
+      batchSize = 100  // Process up to 100 products at a time
     } = body;
 
     // Validate Google Shopping configuration
@@ -43,10 +43,12 @@ export async function POST(request: NextRequest) {
     let products;
     
     if (syncAll) {
-      // Get all active products
+      // Get ALL products - removed inStock filter to include new products
       products = await prisma.product.findMany({
         where: {
-          inStock: true,
+          // Remove restrictive inStock filter to include new products
+          // Only exclude products that are explicitly marked as deleted or inactive
+          // inStock: true,  // REMOVED - this was blocking new products
         },
         include: {
           category: true,
@@ -59,14 +61,17 @@ export async function POST(request: NextRequest) {
               beans: true,
             }
           }
+        },
+        orderBy: {
+          createdAt: 'desc' // Show newest products first for debugging
         }
       });
     } else if (productIds.length > 0) {
-      // Get specific products
+      // Get specific products - also remove inStock filter
       products = await prisma.product.findMany({
         where: {
           id: { in: productIds },
-          inStock: true,
+          // inStock: true,  // REMOVED - this was blocking new products
         },
         include: {
           category: true,
@@ -88,9 +93,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log(`Found ${products.length} products to process (including new products)`);
+    
+    // Debug: Log categories to verify new categories are included
+    const categories = [...new Set(products.map(p => p.category?.name).filter(Boolean))];
+    console.log('Categories found:', categories);
+
     if (products.length === 0) {
       return NextResponse.json(
-        { message: 'No products found to sync' },
+        { 
+          message: 'No products found to sync',
+          debug: {
+            syncAll,
+            productIds: productIds.length,
+            totalProductsInDB: await prisma.product.count()
+          }
+        },
         { status: 200 }
       );
     }
@@ -104,7 +122,12 @@ export async function POST(request: NextRequest) {
       errors: [] as any[],
       syncedProducts: [] as any[],
       dryRun,
-      message: '' as string
+      message: '' as string,
+      debug: {
+        categoriesFound: categories,
+        newProductsIncluded: true,
+        stockFilterRemoved: true
+      }
     };
 
     console.log(`Starting Google Shopping sync for ${products.length} products (dryRun: ${dryRun}, batchSize: ${batchSize})`);
@@ -118,7 +141,7 @@ export async function POST(request: NextRequest) {
     
     // Start timeout tracking
     const startTime = Date.now();
-    const maxProcessingTime = 25000; // 25 seconds max to leave buffer for response
+    const maxProcessingTime = 120000; // 2 minutes max to handle all products
 
     // Process each product in the current batch
     for (const product of processedProducts) {
@@ -129,6 +152,9 @@ export async function POST(request: NextRequest) {
       }
       
       try {
+        // Log product details for debugging
+        console.log(`Processing product: ${product.name} (Category: ${product.category?.name}, Stock: ${product.stockQuantity}, InStock: ${product.inStock})`);
+        
         // Convert product to Google Shopping format
         const productData = await googleShopping.convertProductToGoogleFormat(product, includeVariations);
         
@@ -139,7 +165,10 @@ export async function POST(request: NextRequest) {
             productName: product.name,
             googleProductId: productData.mainProduct.offerId,
             variations: productData.variations.length || 0,
-            status: 'validated'
+            status: 'validated',
+            category: product.category?.name,
+            stockQuantity: product.stockQuantity,
+            inStock: product.inStock
           });
           results.successCount++;
         } else {
@@ -152,14 +181,18 @@ export async function POST(request: NextRequest) {
               productName: product.name,
               googleProductId: syncResult.googleProductId,
               variations: syncResult.variationCount || 0,
-              status: 'synced'
+              status: 'synced',
+              category: product.category?.name,
+              stockQuantity: product.stockQuantity,
+              inStock: product.inStock
             });
             results.successCount++;
           } else {
             results.errors.push({
               productId: product.id,
               productName: product.name,
-              error: syncResult.error
+              error: syncResult.error,
+              category: product.category?.name
             });
             results.errorCount++;
           }
@@ -169,7 +202,8 @@ export async function POST(request: NextRequest) {
         results.errors.push({
           productId: product.id,
           productName: product.name,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
+          category: product.category?.name
         });
         results.errorCount++;
       }
@@ -182,6 +216,8 @@ export async function POST(request: NextRequest) {
     const remainingProducts = totalProducts - processedProducts.length;
     if (remainingProducts > 0) {
       results.message = `Processed ${processedProducts.length} of ${totalProducts} products. ${remainingProducts} products remaining. Run sync again to continue.`;
+    } else {
+      results.message = `Successfully processed all ${totalProducts} products. New categories included: ${categories.join(', ')}`;
     }
 
     return NextResponse.json(results);

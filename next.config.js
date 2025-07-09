@@ -27,14 +27,21 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'thegreenroasteries.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
       },
       {
         protocol: 'http',
-        hostname: '**',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'http',
+        hostname: '167.235.137.52',
       }
     ],
-    domains: ['thegreenroasteries.com', '167.235.137.52', 'localhost', 'res.cloudinary.com'],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],

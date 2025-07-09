@@ -72,7 +72,7 @@ export default function GoogleShoppingPage() {
 
   const checkConfiguration = async () => {
     try {
-      const response = await fetch('/api/google-shopping/test');
+      const response = await fetch('/api/google-shopping/status');
       const data = await response.json();
       setConfiguration(data);
     } catch (error) {
@@ -102,7 +102,7 @@ export default function GoogleShoppingPage() {
         productIds: syncAll ? [] : selectedProducts,
         includeVariations,
         dryRun,
-        batchSize: 10
+        batchSize: 100  // Increased to handle all products at once
       };
 
       console.log('Sync payload:', payload);
@@ -112,6 +112,7 @@ export default function GoogleShoppingPage() {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'same-origin',
         body: JSON.stringify(payload)
       });
 
@@ -149,6 +150,7 @@ export default function GoogleShoppingPage() {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'same-origin',
         body: JSON.stringify({
           includeVariations,
           dryRun
@@ -171,7 +173,9 @@ export default function GoogleShoppingPage() {
   const testConfiguration = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/google-shopping/test');
+      const response = await fetch('/api/google-shopping/status', {
+        credentials: 'same-origin'
+      });
       const data = await response.json();
       
       if (data.isConfigured) {

@@ -42,12 +42,48 @@ export default function ThankYouPage() {
             );
             
             if (matchingOrder) {
-              setOrderDetails({
+              const orderData = {
                 orderId: matchingOrder.id,
                 isNewCustomer: matchingOrder.user?.isNewCustomer || false,
                 paymentProvider: 'TABBY',
                 paymentStatus: data.payment?.status || 'PENDING'
-              });
+              };
+              setOrderDetails(orderData);
+
+              // Track Google Ads Purchase conversion for Tabby orders
+              if (typeof window !== 'undefined' && (window as any).trackGoogleAdsPurchase) {
+                const orderTotal = matchingOrder.total || 0;
+                (window as any).trackGoogleAdsPurchase(matchingOrder.id, orderTotal, 'AED');
+              }
+
+              // Track GA4 Enhanced Purchase for Tabby orders
+              if (typeof window !== 'undefined' && (window as any).trackGA4Purchase && matchingOrder.items) {
+                const itemsData = matchingOrder.items.map((item: any) => ({
+                  id: item.productId || item.id,
+                  name: item.name,
+                  price: item.price,
+                  quantity: item.quantity || 1,
+                  category: 'Coffee',
+                  variation: 'Standard'
+                }));
+                const orderTotal = matchingOrder.total || 0;
+                const shipping = matchingOrder.shipping || 0;
+                const tax = matchingOrder.tax || 0;
+                (window as any).trackGA4Purchase(matchingOrder.id, itemsData, orderTotal, 'AED', shipping, tax);
+              }
+
+              // Track Facebook Purchase for Tabby orders (Pixel + Conversions API)
+              if (typeof window !== 'undefined' && (window as any).trackFacebookPurchase && matchingOrder.items) {
+                const itemsData = matchingOrder.items.map((item: any) => ({
+                  id: item.productId || item.id,
+                  name: item.name,
+                  price: item.price,
+                  category: 'Coffee'
+                }));
+                const orderTotal = matchingOrder.total || 0;
+                const userEmail = matchingOrder.user?.email || matchingOrder.customerInfo?.email;
+                (window as any).trackFacebookPurchase(matchingOrder.id, itemsData, orderTotal, 'AED', userEmail);
+              }
             }
           }
         } catch (error) {
@@ -60,6 +96,41 @@ export default function ThankYouPage() {
           try {
             const orderData = JSON.parse(savedOrder);
             setOrderDetails(orderData);
+
+            // Track Google Ads Purchase conversion for standard orders
+            if (typeof window !== 'undefined' && (window as any).trackGoogleAdsPurchase) {
+              const orderTotal = orderData.total || orderData.orderTotal || 0;
+              (window as any).trackGoogleAdsPurchase(orderData.orderId, orderTotal, 'AED');
+            }
+
+            // Track GA4 Enhanced Purchase for standard orders
+            if (typeof window !== 'undefined' && (window as any).trackGA4Purchase && orderData.items) {
+              const itemsData = orderData.items.map((item: any) => ({
+                id: item.productId || item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity || 1,
+                category: 'Coffee',
+                variation: 'Standard'
+              }));
+              const orderTotal = orderData.total || orderData.orderTotal || 0;
+              const shipping = orderData.shipping || 0;
+              const tax = orderData.tax || 0;
+              (window as any).trackGA4Purchase(orderData.orderId, itemsData, orderTotal, 'AED', shipping, tax);
+            }
+
+            // Track Facebook Purchase for standard orders (Pixel + Conversions API)
+            if (typeof window !== 'undefined' && (window as any).trackFacebookPurchase && orderData.items) {
+              const itemsData = orderData.items.map((item: any) => ({
+                id: item.productId || item.id,
+                name: item.name,
+                price: item.price,
+                category: 'Coffee'
+              }));
+              const orderTotal = orderData.total || orderData.orderTotal || 0;
+              const userEmail = orderData.customerInfo?.email;
+              (window as any).trackFacebookPurchase(orderData.orderId, itemsData, orderTotal, 'AED', userEmail);
+            }
           } catch (error) {
             console.error('Failed to parse order details:', error);
           }

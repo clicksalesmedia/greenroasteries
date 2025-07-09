@@ -12,18 +12,18 @@
   "metaAds": {
     "enabled": true,
     "pixelId": "3805848799548541",
-    "accessToken": "EAAX7Xr0jeMQBO2lCgCyyRhnG1AVnKMdILdHv6gRwomuZBVF4Aoz1beFjoLhzDf3njCZAB2eg3u9bw2EjnlEuyvnaxH7h3gZCtWFBw0QZAxacZCBs3ieR2OP1KUyAevlrMTdCb62pfkJZBoVPkkAvBvoIKWeXVxgUbBnMBm6KuZCAT2d1k1N6DZCRl1I9fwP96T3IZCQZDZD",
+    "accessToken": "EAAX7Xr0jeMQBPKlPE7qzNjNNnFZBilfc36OBvZCz8aN2O9H8NHPkXiZAcHrH6g3dWStgfuObHvzJj52uHqGmX8ivTr2BnfH12jdCCaTnM2H5t7UOHHbDrUkMa2ZCfq3lE6rsswL9KYAowaIssHZCKxXA1o465Q9RQ5P2Bnh3LWGxyqcKUnxrurYy6n3hmzQZDZD",
     "status": "active"
   },
   "googleAds": {
     "enabled": true,
-    "conversionId": "AW-123456789",
-    "conversionLabel": "abcdefghijk",
+    "conversionId": "AW-17214709280",
+    "conversionLabel": "rRb1CIv4r-waEKC8zpBA",
     "status": "active"
   },
   "serverSideTracking": {
     "enabled": true,
-    "facebookConversionsApi": false,
+    "facebookConversionsApi": true,
     "googleConversionsApi": true,
     "status": "active"
   }

@@ -33,11 +33,19 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        
+        {/* Optimized font loading - hydration safe */}
+        <link 
+          rel="preload" 
+          as="style" 
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap"
+        />
         <link 
           href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" 
           rel="stylesheet" 
-          media="all" 
+          media="all"
         />
+        
         <style 
           dangerouslySetInnerHTML={{
             __html: `
@@ -46,9 +54,28 @@ export default async function RootLayout({
               .product-image-wrapper { aspect-ratio: 1; min-height: 200px; background: #f3f4f6; }
               .hero-slider { min-height: 70vh; }
               .grid:not(.thumbnail-gallery) { min-height: 400px; }
+              
+              /* Fallback font while Google Fonts load */
+              body { 
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-display: swap;
+              }
+              
+              /* Performance: Reduce layout shifts */
+              img { height: auto; }
+              .loading-placeholder { 
+                background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                background-size: 200% 100%;
+                animation: loading 1.5s infinite;
+              }
+              @keyframes loading {
+                0% { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+              }
             `
           }}
         />
+        
         <noscript>
           <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
         </noscript>

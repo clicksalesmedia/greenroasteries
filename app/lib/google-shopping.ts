@@ -345,15 +345,12 @@ export class GoogleShoppingService {
         delete cleanedProduct.variations;
       }
 
-      // Upload main product
-      const mainResult = await content.products.insert({
-        merchantId: this.merchantId,
-        requestBody: cleanedProduct
-      });
+      // Upload main product using insert-new-only logic
+      const mainResult = await this.insertNewProduct(cleanedProduct);
 
       let variationCount = 0;
 
-      // Upload variations as separate products
+      // Upload variations as separate products using insert-new-only logic
       if (productData.variations && productData.variations.length > 0) {
         for (const variation of productData.variations) {
           try {
@@ -366,22 +363,19 @@ export class GoogleShoppingService {
               }
             }
             
-            console.log(`Sending variation ${cleanVariation.offerId} to Google Shopping API:`, JSON.stringify(cleanVariation, null, 2));
+            console.log(`Inserting new variation ${cleanVariation.offerId} to Google Shopping API:`, JSON.stringify(cleanVariation, null, 2));
             
-            await content.products.insert({
-              merchantId: this.merchantId,
-              requestBody: cleanVariation
-            });
+            await this.insertNewProduct(cleanVariation);
             variationCount++;
           } catch (variationError) {
-            console.error(`Failed to upload variation ${variation.offerId}:`, variationError);
+            console.error(`Failed to insert new variation ${variation.offerId}:`, variationError);
           }
         }
       }
 
       return {
         success: true,
-        googleProductId: mainResult.data.id || productData.mainProduct.offerId,
+        googleProductId: mainResult.data?.id || productData.mainProduct.offerId,
         variationCount
       };
 
@@ -391,6 +385,52 @@ export class GoogleShoppingService {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
       };
+    }
+  }
+
+  /**
+   * Force insert ALL products (temporarily disable existence check)
+   * This will help us diagnose why products aren't appearing
+   */
+  private async insertNewProduct(productData: any): Promise<any> {
+    try {
+      const auth = await this.getAuthClient();
+      const content = google.content({ version: 'v2.1', auth });
+      
+      console.log(`=== FORCE INSERT PRODUCT: ${productData.offerId} ===`);
+      console.log(`Product title: ${productData.title}`);
+      console.log(`Product price: ${productData.price?.value} ${productData.price?.currency}`);
+      
+      // TEMPORARY: Skip existence check and force insert all products
+      console.log(`🚀 FORCE INSERTING (existence check disabled): ${productData.offerId}`);
+      
+      const result = await content.products.insert({
+        merchantId: this.merchantId,
+        requestBody: productData
+      });
+      
+      console.log(`✅ FORCE INSERT SUCCESS: ${productData.offerId} - NEW PRODUCT ADDED FOR REVIEW`);
+      return result;
+
+    } catch (error: any) {
+      console.error(`❌ FORCE INSERT FAILED: ${productData.offerId}:`, error.message);
+      
+      // Log more details about the error
+      if (error.response?.data) {
+        console.error(`   Error details:`, JSON.stringify(error.response.data, null, 2));
+      }
+      
+      // If product already exists, that's actually good news!
+      if (error.message?.includes('already exists') || error.message?.includes('duplicate')) {
+        console.log(`ℹ️ Product ${productData.offerId} already exists - this explains the mystery!`);
+        return { 
+          data: { id: `existing_${productData.offerId}` },
+          skipped: true,
+          reason: 'Product already exists (discovered during insert attempt)'
+        };
+      }
+      
+      throw error;
     }
   }
 

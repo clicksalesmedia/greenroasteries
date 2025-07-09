@@ -1079,9 +1079,9 @@ export default function SlidersPage() {
             </div>
             
             <div className="overflow-x-auto">
-              <table className="w-full">
+            <table className="w-full">
                 <thead className="bg-gray-50">
-                  <tr>
+                <tr>
                     <th className="w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drag</th>
                     <th className="w-20 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
                     <th className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preview</th>
@@ -1090,8 +1090,8 @@ export default function SlidersPage() {
                     <th className="w-20 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th className="w-28 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated</th>
                     <th className="w-32 px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
+                </tr>
+              </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {sliders.map((slider, index) => (
                     <tr 
@@ -1142,41 +1142,41 @@ export default function SlidersPage() {
                       {/* Preview */}
                       <td className="px-4 py-4">
                         <div className="relative w-20 h-12 rounded-md overflow-hidden bg-gray-100">
-                          {slider.imageUrl ? (
-                            <Image
-                              src={slider.imageUrl}
-                              alt={slider.title}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="flex items-center justify-center h-full text-gray-400">
-                              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                            </div>
-                          )}
-                          <div 
-                            className="absolute bottom-0 left-0 right-0 h-2 opacity-75"
-                            style={{ backgroundColor: slider.backgroundColor }}
+                        {slider.imageUrl ? (
+                          <Image
+                            src={slider.imageUrl}
+                            alt={slider.title}
+                            fill
+                            className="object-cover"
                           />
-                        </div>
-                      </td>
+                        ) : (
+                          <div className="flex items-center justify-center h-full text-gray-400">
+                              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                        )}
+                        <div 
+                            className="absolute bottom-0 left-0 right-0 h-2 opacity-75"
+                          style={{ backgroundColor: slider.backgroundColor }}
+                        />
+                      </div>
+                    </td>
                       
                       {/* Title & Subtitle */}
                       <td className="px-4 py-4">
-                        <div>
+                      <div>
                           <p className="font-medium text-gray-900 text-sm">{slider.title}</p>
                           <p className="text-xs text-gray-500 truncate max-w-xs">{slider.subtitle}</p>
-                        </div>
-                      </td>
+                      </div>
+                    </td>
                       
                       {/* Layout */}
                       <td className="px-4 py-4">
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 capitalize">
                           {slider.layout?.replace('-', ' ') || 'default'}
-                        </span>
-                      </td>
+                      </span>
+                    </td>
                       
                       {/* Status */}
                       <td className="px-4 py-4">
@@ -1188,14 +1188,14 @@ export default function SlidersPage() {
                           <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
                             slider.isActive ? 'bg-green-500' : 'bg-red-500'
                           }`} />
-                          {slider.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
+                        {slider.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
                       
                       {/* Last Modified */}
                       <td className="px-4 py-4 text-xs text-gray-500">
-                        {new Date(slider.updatedAt).toLocaleDateString()}
-                      </td>
+                      {new Date(slider.updatedAt).toLocaleDateString()}
+                    </td>
                       
                       {/* Actions */}
                       <td className="px-4 py-4">
@@ -1207,26 +1207,26 @@ export default function SlidersPage() {
                           >
                             <EyeIcon className="w-4 h-4" />
                           </button>
-                          <button
-                            onClick={() => handleOpenModal(slider)}
+                        <button
+                          onClick={() => handleOpenModal(slider)}
                             className="p-2 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-md transition-colors"
                             title="Edit slider"
-                          >
-                            <PencilIcon className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteSlider(slider.id)}
+                        >
+                          <PencilIcon className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteSlider(slider.id)}
                             className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
                             title="Delete slider"
-                          >
-                            <TrashIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             </div>
             
             {sliders.length === 0 && (
@@ -1506,7 +1506,7 @@ export default function SlidersPage() {
                                       <div className="w-16 h-2 bg-white rounded mb-1 mx-auto"></div>
                                       <div className="w-12 h-1 bg-white rounded opacity-75 mx-auto"></div>
                                       <div className="w-8 h-1 bg-blue-500 rounded mt-1 mx-auto"></div>
-                                    </div>
+                              </div>
                                   </div>
                                 )}
                                 

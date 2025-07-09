@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import BackendLayout from '../components/BackendLayout';
+import BackendLayout from '@/app/backend/components/BackendLayout';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 
 interface LogEntry {

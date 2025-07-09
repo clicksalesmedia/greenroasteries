@@ -59,14 +59,23 @@ else
     exit 1
 fi
 
-# Restart PM2 processes
-echo -e "${BLUE}🔄 Restarting PM2 processes...${NC}"
-ssh "$SERVER_USER@$SERVER_HOST" "pm2 restart all"
+# Restart PM2 processes in production mode
+echo -e "${BLUE}🔄 Restarting PM2 in production mode...${NC}"
+ssh "$SERVER_USER@$SERVER_HOST" "cd $SERVER_PATH && pm2 delete all && NODE_ENV=production pm2 start 'npm start' --name greenroasteries && pm2 save"
 
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ PM2 processes restarted${NC}"
+    echo -e "${GREEN}✓ PM2 started in production mode${NC}"
 else
     echo -e "${YELLOW}⚠ PM2 restart may have issues, but deployment continued${NC}"
+fi
+
+# Wait a moment and verify the deployment
+echo -e "${BLUE}🔍 Verifying deployment...${NC}"
+sleep 5
+if ssh "$SERVER_USER@$SERVER_HOST" "curl -s -o /dev/null -w '%{http_code}' http://localhost:3000" | grep -q "200"; then
+    echo -e "${GREEN}✓ Website is responding correctly${NC}"
+else
+    echo -e "${YELLOW}⚠ Website may not be responding correctly${NC}"
 fi
 
 echo -e "${BLUE}========================================${NC}"

@@ -434,7 +434,8 @@ export default function Header() {
                   <img 
                     src="/tabby.png" 
                     alt="Tabby" 
-                    className="h-5 w-auto"
+                    className="h-5 w-auto max-w-[50px]"
+                    style={{ height: '20px', maxWidth: '50px' }}
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
                     }}

@@ -93,6 +93,38 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         cartItem.variation.additions === newItem.variation.additions
       );
 
+      // Track Google Ads Add to Cart conversion
+      if (typeof window !== 'undefined' && (window as any).trackGoogleAdsAddToCart) {
+        const cartValue = newItem.price * newItem.quantity;
+        (window as any).trackGoogleAdsAddToCart(cartValue, 'AED');
+      }
+
+      // Track GA4 Enhanced Add to Cart
+      if (typeof window !== 'undefined' && (window as any).trackGA4AddToCart) {
+        const itemData = {
+          id: newItem.productId,
+          name: newItem.name,
+          price: newItem.price,
+          quantity: newItem.quantity,
+          category: 'Coffee',
+          variation: `${newItem.variation.weight || ''} ${newItem.variation.beans || ''} ${newItem.variation.additions || ''}`.trim()
+        };
+        const cartValue = newItem.price * newItem.quantity;
+        (window as any).trackGA4AddToCart(itemData, cartValue, 'AED');
+      }
+
+      // Track Facebook Add to Cart (Pixel + Conversions API)
+      if (typeof window !== 'undefined' && (window as any).trackFacebookAddToCart) {
+        const itemData = {
+          id: newItem.productId,
+          name: newItem.name,
+          price: newItem.price,
+          category: 'Coffee'
+        };
+        const cartValue = newItem.price * newItem.quantity;
+        (window as any).trackFacebookAddToCart(itemData, cartValue, 'AED');
+      }
+
       // If item exists, update quantity, otherwise add new item
       if (existingItemIndex >= 0) {
         const updatedItems = [...currentItems];

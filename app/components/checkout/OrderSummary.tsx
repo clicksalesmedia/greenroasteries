@@ -222,15 +222,20 @@ export default function OrderSummary() {
           <img 
             src="/images/creditvcard.webp" 
             alt="Accepted payment methods: Visa, MasterCard, American Express, Apple Pay, Google Pay" 
-            className="h-6 w-auto" 
+            className="h-6 w-auto max-w-[120px]"
+            style={{ height: '24px', maxWidth: '120px' }}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
           />
-          <Image
-            src="/tabby.png"
-            alt="Tabby - Pay in 4 installments"
-            width={60}
-            height={24}
-            className="h-6 w-auto"
-            priority
+          <img 
+            src="/tabby.png" 
+            alt="Tabby - Pay in 4 installments" 
+            className="h-6 w-auto max-w-[60px]"
+            style={{ height: '24px', maxWidth: '60px' }}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
           />
         </div>
         <p className={`text-xs text-center text-gray-500 ${language === 'ar' ? 'text-center' : ''}`}>

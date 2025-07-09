@@ -196,6 +196,35 @@ export default function CheckoutPage() {
         // Silently handle tracking errors to prevent checkout interruption
         console.warn('Tracking error (non-critical):', error);
       });
+
+      // Track Google Ads Begin Checkout conversion
+      if (typeof window !== 'undefined' && (window as any).trackGoogleAdsBeginCheckout) {
+        (window as any).trackGoogleAdsBeginCheckout(finalTotal, 'AED');
+      }
+
+      // Track GA4 Enhanced Begin Checkout
+      if (typeof window !== 'undefined' && (window as any).trackGA4BeginCheckout) {
+        const itemsData = items.map(item => ({
+          id: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          category: 'Coffee',
+          variation: `${item.variation.weight || ''} ${item.variation.beans || ''} ${item.variation.additions || ''}`.trim()
+        }));
+        (window as any).trackGA4BeginCheckout(itemsData, finalTotal, 'AED');
+      }
+
+      // Track Facebook Begin Checkout (Pixel + Conversions API)
+      if (typeof window !== 'undefined' && (window as any).trackFacebookBeginCheckout) {
+        const itemsData = items.map(item => ({
+          id: item.productId,
+          name: item.name,
+          price: item.price,
+          category: 'Coffee'
+        }));
+        (window as any).trackFacebookBeginCheckout(itemsData, finalTotal, 'AED');
+      }
       
       handleNextStep();
     } catch (error) {
