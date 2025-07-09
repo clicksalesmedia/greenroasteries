@@ -209,7 +209,7 @@ class TabbyService {
           currency: paymentData.currency,
           description: paymentData.description,
           buyer: {
-            phone: paymentData.buyer.phone,
+            phone: paymentData.buyer.phone.replace(/^\+971/, '').replace(/^971/, ''), // Remove country code to match API format
             email: paymentData.buyer.email, // Use actual email for both test and live mode
             name: paymentData.buyer.name,
             dob: "1990-01-01T00:00:00.000Z" // Default DOB
@@ -259,9 +259,9 @@ class TabbyService {
             purchased_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
             amount: (paymentData.amount * 0.8).toFixed(2), // Previous order was 80% of current
             payment_method: "card",
-            status: "completed",
+            status: "new",
             buyer: {
-              phone: paymentData.buyer.phone,
+              phone: paymentData.buyer.phone.replace(/^\+971/, '').replace(/^971/, ''), // Remove country code to match API format
               email: paymentData.buyer.email, // Use actual email for both test and live mode
               name: paymentData.buyer.name,
               dob: "1990-01-01T00:00:00.000Z"
@@ -299,7 +299,7 @@ class TabbyService {
           },
           attachment: {
             body: "{}",
-            content_type: "application/json"
+            content_type: "application/vnd.tabby.v1+json"
           }
         },
         lang: paymentData.lang,
@@ -319,6 +319,10 @@ class TabbyService {
           payment: {
             amount: tabbyPayload.payment.amount,
             currency: tabbyPayload.payment.currency,
+            buyer: {
+              phone: tabbyPayload.payment.buyer.phone,
+              email: tabbyPayload.payment.buyer.email
+            },
             merchant_code: tabbyPayload.merchant_code,
             itemsCount: tabbyPayload.payment.order.items.length
           }
