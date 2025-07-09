@@ -210,7 +210,7 @@ class TabbyService {
           description: paymentData.description,
           buyer: {
             phone: paymentData.buyer.phone,
-            email: this.secretKey.startsWith('sk_test_') ? "test" : paymentData.buyer.email, // Use "test" for test mode, real email for live
+            email: paymentData.buyer.email, // Use actual email for both test and live mode
             name: paymentData.buyer.name,
             dob: "1990-01-01T00:00:00.000Z" // Default DOB
           },
@@ -262,7 +262,7 @@ class TabbyService {
             status: "completed",
             buyer: {
               phone: paymentData.buyer.phone,
-              email: this.secretKey.startsWith('sk_test_') ? "test" : paymentData.buyer.email, // Use "test" for test mode, real email for live
+              email: paymentData.buyer.email, // Use actual email for both test and live mode
               name: paymentData.buyer.name,
               dob: "1990-01-01T00:00:00.000Z"
             },
@@ -295,7 +295,7 @@ class TabbyService {
           }],
           meta: {
             order_id: paymentData.order.reference_id,
-            customer: this.secretKey.startsWith('sk_test_') ? "test" : paymentData.buyer.email // Use "test" for test mode, real email for live
+            customer: paymentData.buyer.email // Use actual email for both test and live mode
           },
           attachment: {
             body: "{}",
