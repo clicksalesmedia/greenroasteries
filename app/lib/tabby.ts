@@ -313,7 +313,7 @@ class TabbyService {
         url: `${this.baseUrl}/api/v2/checkout`,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.secretKey.substring(0, 10)}...`,
+          'Authorization': `Basic ${Buffer.from(this.secretKey.substring(0, 10) + '...').toString('base64')}`,
         },
         payloadSample: {
           payment: {
@@ -329,7 +329,7 @@ class TabbyService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.secretKey}`,
+          'Authorization': `Basic ${Buffer.from(this.secretKey + ':').toString('base64')}`,
         },
         body: JSON.stringify(tabbyPayload),
       });
@@ -369,7 +369,7 @@ class TabbyService {
     try {
       const response = await fetch(`${this.baseUrl}/api/v2/payments/${paymentId}`, {
         headers: {
-          'Authorization': `Bearer ${this.secretKey}`,
+          'Authorization': `Basic ${Buffer.from(this.secretKey + ':').toString('base64')}`,
         },
       });
 
@@ -391,7 +391,7 @@ class TabbyService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.secretKey}`,
+          'Authorization': `Basic ${Buffer.from(this.secretKey + ':').toString('base64')}`,
         },
         body: JSON.stringify({
           amount: amount,
@@ -416,7 +416,7 @@ class TabbyService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.secretKey}`,
+          'Authorization': `Basic ${Buffer.from(this.secretKey + ':').toString('base64')}`,
         },
         body: JSON.stringify({
           amount: amount,
