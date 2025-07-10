@@ -3,32 +3,37 @@ import { PrismaClient } from '@/app/generated/prisma';
 
 const prisma = new PrismaClient();
 
-// Meta Catalog Required Fields
+// Meta Catalog Fields (exact Meta Commerce format)
 const META_FIELDS = [
-  'id',              // Required: Unique product ID
-  'title',           // Required: Product title
-  'description',     // Required: Product description  
-  'availability',    // Required: in stock/out of stock
-  'condition',       // Required: new/refurbished/used
-  'price',           // Required: Price with currency
-  'link',            // Required: Product page URL
-  'image_link',      // Required: Main product image
-  'brand',           // Brand name
-  'google_product_category', // Google product category
-  'product_type',    // Your product category
-  'additional_image_link', // Additional images (comma separated)
-  'sale_price',      // Sale price if on sale
-  'item_group_id',   // For product variations
-  'color',           // Product color
-  'size',            // Product size
-  'material',        // Product material
-  'gender',          // Target gender
-  'age_group',       // Target age group
-  'custom_label_0',  // Custom field for language
-  'custom_label_1',  // Custom field for origin
-  'custom_label_2',  // Custom field for category AR
-  'custom_label_3',  // Custom field for roast type
-  'custom_label_4'   // Custom field for beans type
+  'id',                           // Required: Unique content ID
+  'title',                        // Required: Product title
+  'description',                  // Required: Product description
+  'availability',                 // Required: in stock/out of stock
+  'condition',                    // Required: new/used
+  'price',                        // Required: Price with currency
+  'link',                         // Required: Product page URL
+  'image_link',                   // Required: Main product image
+  'brand',                        // Required: Brand name
+  'google_product_category',      // Optional: Google product category
+  'fb_product_category',          // Optional: Facebook product category
+  'quantity_to_sell_on_facebook', // Optional: Quantity available
+  'sale_price',                   // Optional: Sale price if on sale
+  'sale_price_effective_date',    // Optional: Sale period
+  'item_group_id',                // Optional: Group ID for variants
+  'gender',                       // Optional: Target gender
+  'color',                        // Optional: Product color
+  'size',                         // Optional: Product size
+  'age_group',                    // Optional: Target age group
+  'material',                     // Optional: Product material
+  'pattern',                      // Optional: Pattern/design
+  'shipping',                     // Optional: Shipping details
+  'shipping_weight',              // Optional: Shipping weight
+  'gtin',                         // Optional: Global Trade Item Number
+  'video[0].url',                 // Optional: Video URL
+  'video[0].tag[0]',              // Optional: Video tag
+  'product_tags[0]',              // Optional: Product tag 1
+  'product_tags[1]',              // Optional: Product tag 2
+  'style[0]'                      // Optional: Style/fashion
 ];
 
 class MetaCatalogAPI {
@@ -97,16 +102,11 @@ class MetaCatalogAPI {
     const link = `${this.baseUrl}/product/${slug}${isArabic ? '?lang=ar' : ''}`;
 
     const mainImage = this.makeAbsoluteUrl(product.imageUrl || (product.images[0]?.url || ''));
-    const additionalImages = product.images
-      .slice(1, 11)
-      .map((img: any) => this.makeAbsoluteUrl(img.url))
-      .filter((url: string) => url && url !== mainImage)
-      .join(',');
 
     return {
       id: `${product.id}_${language}`,
-      title: this.cleanText(title, 150),
-      description: this.cleanText(description, 5000),
+      title: this.cleanText(title, 200),
+      description: this.cleanText(description, 9999),
       availability: product.inStock && product.stockQuantity > 0 ? 'in stock' : 'out of stock',
       condition: 'new',
       price: `${product.price.toFixed(2)} ${this.currency}`,
@@ -114,20 +114,25 @@ class MetaCatalogAPI {
       image_link: mainImage,
       brand: brand,
       google_product_category: this.mapToGoogleCategory(categoryName),
-      product_type: categoryName,
-      additional_image_link: additionalImages || '',
+      fb_product_category: 'Food, Beverages & Tobacco > Beverages > Coffee',
+      quantity_to_sell_on_facebook: product.stockQuantity || 0,
       sale_price: '',
+      sale_price_effective_date: '',
       item_group_id: product.id,
+      gender: 'unisex',
       color: 'Brown',
       size: '',
-      material: isArabic ? 'قهوة' : 'Coffee',
-      gender: 'unisex',
       age_group: 'adult',
-      custom_label_0: language,
-      custom_label_1: product.origin || (isArabic ? 'أصل مميز' : 'Premium Origin'),
-      custom_label_2: categoryName,
-      custom_label_3: isArabic ? 'تحميص متوسط' : 'Medium Roast',
-      custom_label_4: isArabic ? 'حبوب عربية' : 'Arabica Beans'
+      material: isArabic ? 'قهوة' : 'Coffee',
+      pattern: '',
+      shipping: 'AE::Standard:0.00 AED',
+      shipping_weight: '1000g',
+      gtin: '',
+      'video[0].url': '',
+      'video[0].tag[0]': '',
+      'product_tags[0]': isArabic ? 'قهوة عربية' : 'Arabic Coffee',
+      'product_tags[1]': categoryName,
+      'style[0]': ''
     };
   }
 
@@ -151,13 +156,15 @@ class MetaCatalogAPI {
     return {
       ...baseProduct,
       id: `${variation.id}_${language}`,
-      title: this.cleanText(variationTitle, 150),
+      title: this.cleanText(variationTitle, 200),
       price: `${variation.price.toFixed(2)} ${this.currency}`,
       availability: variation.stockQuantity > 0 ? 'in stock' : 'out of stock',
+      quantity_to_sell_on_facebook: variation.stockQuantity || 0,
       size: sizeDisplay,
       image_link: this.makeAbsoluteUrl(variation.imageUrl) || baseProduct.image_link,
-      custom_label_3: isArabic && variation.type?.arabicName ? variation.type.arabicName : (variation.type?.name || baseProduct.custom_label_3),
-      custom_label_4: isArabic && variation.beans?.arabicName ? variation.beans.arabicName : (variation.beans?.name || baseProduct.custom_label_4)
+      shipping_weight: sizeDisplay,
+      'product_tags[0]': isArabic && variation.type?.arabicName ? variation.type.arabicName : (variation.type?.name || baseProduct['product_tags[0]']),
+      'product_tags[1]': isArabic && variation.beans?.arabicName ? variation.beans.arabicName : (variation.beans?.name || baseProduct['product_tags[1]'])
     };
   }
 
