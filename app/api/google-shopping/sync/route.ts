@@ -400,15 +400,19 @@ export async function GET(_request: NextRequest) {
     
     const productsWithArabicNames = await prisma.product.count({
       where: { 
-        nameAr: { not: null },
-        nameAr: { not: '' }
+        AND: [
+          { nameAr: { not: null } },
+          { nameAr: { not: '' } }
+        ]
       }
     });
     
     const productsWithArabicDescriptions = await prisma.product.count({
       where: { 
-        descriptionAr: { not: null },
-        descriptionAr: { not: '' }
+        AND: [
+          { descriptionAr: { not: null } },
+          { descriptionAr: { not: '' } }
+        ]
       }
     });
     
