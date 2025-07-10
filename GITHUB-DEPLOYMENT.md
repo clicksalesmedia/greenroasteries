@@ -1,6 +1,6 @@
 # GitHub-Based Deployment Guide for Green Roasteries
 
-This guide explains how to set up and use GitHub Actions for automated deployment of the Green Roasteries website.
+This guide explains how to set up and use GitHub Actions for automated deployment of the Green Roasteries website using PM2 (without Docker).
 
 ## Setup Instructions
 
@@ -62,9 +62,10 @@ git push origin main
 The deployment workflow works as follows:
 
 1. When you push to the main branch, GitHub Actions automatically triggers the deployment
-2. It creates a deployment package (excluding node_modules, .next, etc.)
-3. It uploads this package to your server using SSH
-4. It extracts the package and restarts the Docker containers
+2. GitHub builds the Next.js application (with plenty of memory available)
+3. It creates a deployment package (including the built .next directory)
+4. It uploads this package to your server using SSH
+5. It extracts the package, installs dependencies, and restarts the PM2 process
 
 ## Manual Deployment
 
@@ -83,9 +84,10 @@ If deployment fails:
 1. Check the GitHub Actions logs for detailed error messages
 2. Verify that the SSH key has been added correctly to both GitHub Secrets and the server
 3. Check that the server IP and file paths in the workflow file are correct
-4. SSH to the server manually and check Docker logs:
+4. SSH to the server manually and check PM2 status and logs:
    ```bash
    ssh root@167.235.137.52
    cd /var/www/greenroasteries
-   docker-compose logs
+   pm2 status
+   pm2 logs greenroasteries
    ``` 

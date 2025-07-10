@@ -12,6 +12,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Next.js application
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -25,48 +39,68 @@ jobs:
       - name: Create deployment package
         run: |
           tar --exclude="node_modules" \
-              --exclude=".next" \
               --exclude=".git" \
               --exclude=".github" \
               --exclude="*.tar.gz" \
-              -czf update.tar.gz .
+              --exclude="backups" \
+              -czf deployment.tar.gz .
               
       - name: Upload to server
         run: |
-          scp update.tar.gz root@167.235.137.52:/var/www/greenroasteries/
+          scp deployment.tar.gz root@167.235.137.52:/tmp/
           
       - name: Deploy on server
         run: |
           ssh root@167.235.137.52 << 'EOF'
             cd /var/www/greenroasteries
             
-            # Backup important files
-            mkdir -p backups
-            cp -f docker-compose.yml backups/docker-compose.yml.bak 2>/dev/null || true
-            cp -f Dockerfile backups/Dockerfile.bak 2>/dev/null || true
-            cp -f .env backups/.env.bak 2>/dev/null || true
+            # Stop the application
+            pm2 stop greenroasteries || true
             
-            # Extract the package
-            tar -xzf update.tar.gz
+            # Backup current version
+            if [ -d "backup-$(date +%Y%m%d)" ]; then
+              rm -rf "backup-$(date +%Y%m%d)"
+            fi
+            mkdir -p "backup-$(date +%Y%m%d)"
+            cp -r app lib prisma package*.json next.config.js "backup-$(date +%Y%m%d)/" 2>/dev/null || true
             
-            # Ensure Docker configuration is correct
-            # The Dockerfile is included in the repository so we don't need to create it here
+            # Extract new version
+            tar -xzf /tmp/deployment.tar.gz
             
-            # Ensure environment variables are set
-            cat > .env << 'ENVFILE'
-            DATABASE_URL=postgresql://postgres:postgres@db:5432/greenroasteries
-            POSTGRES_USER=postgres
-            POSTGRES_PASSWORD=postgres
-            POSTGRES_DB=greenroasteries
-            JWT_SECRET=8Vgq2eXQ4XYwfvXf19GKrOdnw22Y69P71A9ceb6e24k=
-            NODE_ENV=production
-            NEXT_TELEMETRY_DISABLED=1
-            ENVFILE
+            # Install/update dependencies
+            npm install --production
             
-            # Restart containers
-            docker-compose down
-            docker-compose up --build -d
+            # Ensure .env is properly configured
+            if [ ! -f .env ]; then
+              echo "Creating .env file..."
+              cat > .env << 'ENVFILE'
+DATABASE_URL=postgresql://greenroasteries:your_password@localhost:5432/greenroasteries
+JWT_SECRET=8Vgq2eXQ4XYwfvXf19GKrOdnw22Y69P71A9ceb6e24k=
+NODE_ENV=production
+NEXT_TELEMETRY_DISABLED=1
+CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_cloudinary_key
+CLOUDINARY_API_SECRET=your_cloudinary_secret
+NEXT_PUBLIC_SITE_URL=https://thegreenroasteries.com
+STRIPE_PUBLIC_KEY=your_stripe_public_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+TABBY_PUBLIC_KEY=pk_test_0197c11f-299d-d003-8b0c-5fe3dd87682c
+TABBY_SECRET_KEY=sk_test_0197c11f-299d-d003-8b0c-5fe496e87300
+TABBY_MERCHANT_CODE=GR
+TABBY_WEBHOOK_ID=3d82921e-0e94-4815-b91e-dc201ee3f043
+TABBY_WEBHOOK_SECRET=your_webhook_secret_here
+TABBY_AUTO_CAPTURE=true
+NEXT_PUBLIC_TABBY_PUBLIC_KEY=pk_test_0197c11f-299d-d003-8b0c-5fe3dd87682c
+ENVFILE
+            fi
+            
+            # Start the application
+            pm2 start ecosystem.config.js || pm2 start npm --name "greenroasteries" -- start
             
             # Clean up
-            rm -f update.tar.gz
+            rm -f /tmp/deployment.tar.gz
+            
+            # Show status
+            pm2 status
           EOF 
