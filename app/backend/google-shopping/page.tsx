@@ -182,7 +182,7 @@ export default function GoogleShoppingPage() {
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Sync failed');
-      }
+    }
 
       const results = await response.json();
       setSyncResults(results);
@@ -253,7 +253,7 @@ export default function GoogleShoppingPage() {
             </div>
           </div>
         </div>
-      </div>
+        </div>
 
       {/* Arabic Content Analysis */}
       {configStatus?.arabicContent && (
@@ -272,8 +272,8 @@ export default function GoogleShoppingPage() {
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">{configStatus.arabicContent.arabicReadiness}%</div>
               <div className="text-sm text-gray-500">Arabic Ready</div>
-            </div>
-          </div>
+              </div>
+              </div>
 
           <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
             <div className="flex items-center">
@@ -293,21 +293,21 @@ export default function GoogleShoppingPage() {
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Language Support</h3>
           
-          <div className="space-y-3">
+                <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Multi-language Support</span>
               <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Enabled</span>
-            </div>
+                  </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Available Languages</span>
               <div className="flex space-x-2">
                 {configStatus.features.availableLanguages.map(lang => (
                   <span key={lang} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
                     {lang.toUpperCase()}
-                  </span>
+                    </span>
                 ))}
-              </div>
-            </div>
+                  </div>
+                  </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Arabic Support</span>
               <span className={`px-2 py-1 text-xs font-medium rounded ${
@@ -316,8 +316,8 @@ export default function GoogleShoppingPage() {
                   : 'bg-gray-100 text-gray-800'
               }`}>
                 {configStatus.features.arabicSupport ? 'Enabled' : 'Disabled'}
-              </span>
-            </div>
+                    </span>
+                  </div>
           </div>
         </div>
       )}
@@ -334,21 +334,21 @@ export default function GoogleShoppingPage() {
               <h3 className="text-sm font-medium text-yellow-800">Configuration Required</h3>
               <div className="mt-2 text-sm text-yellow-700">
                 <p>Please configure your Google Shopping integration by setting up the required environment variables.</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 
   const renderSyncControls = () => (
-    <div className="space-y-6">
+          <div className="space-y-6">
       {/* Sync Mode Selection */}
-      <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Sync Mode</h3>
         
-        <div className="space-y-4">
+              <div className="space-y-4">
           <div className="flex space-x-4">
             <label className="flex items-center">
               <input
@@ -426,9 +426,9 @@ export default function GoogleShoppingPage() {
                     />
                     <span className="text-sm">Arabic (العربية)</span>
                   </label>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
           </div>
         </div>
       </div>
@@ -460,33 +460,33 @@ export default function GoogleShoppingPage() {
                 />
                 <span className="text-sm">Include Variations</span>
               </label>
+              </div>
             </div>
-          </div>
 
           <div className="flex items-center">
-            <input
-              type="checkbox"
+                              <input
+                                type="checkbox"
               id="dryRun"
               checked={dryRun}
               onChange={(e) => setDryRun(e.target.checked)}
               className="mr-2"
-            />
+                              />
             <label htmlFor="dryRun" className="text-sm text-gray-700">
               Dry Run (Test mode - doesn't actually sync to Google)
             </label>
-          </div>
+                              </div>
 
           <div className="flex space-x-4 pt-4">
-            <button
+                              <button
               onClick={handleSyncAll}
               disabled={loading || !configStatus?.configured}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+                              >
               {loading ? 'Processing...' : (dryRun ? 'Test Sync' : 'Sync Products')}
-            </button>
-          </div>
-        </div>
-      </div>
+                              </button>
+                  </div>
+                </div>
+              </div>
 
       {/* Selected Products Sync */}
       <div className="bg-white rounded-lg shadow p-6">
@@ -531,23 +531,23 @@ export default function GoogleShoppingPage() {
           {syncResults.message && (
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
               <p className="text-sm text-blue-700">{syncResults.message}</p>
-            </div>
-          )}
-          
+          </div>
+        )}
+
           <div className="grid grid-cols-4 gap-4 mb-6">
-            <div className="text-center">
+                <div className="text-center">
               <div className="text-2xl font-bold text-gray-900">{syncResults.totalProducts}</div>
               <div className="text-sm text-gray-500">Total</div>
-            </div>
-            <div className="text-center">
+                </div>
+                <div className="text-center">
               <div className="text-2xl font-bold text-green-600">{syncResults.successCount}</div>
               <div className="text-sm text-gray-500">Success</div>
-            </div>
-            <div className="text-center">
+                </div>
+                <div className="text-center">
               <div className="text-2xl font-bold text-red-600">{syncResults.errorCount}</div>
               <div className="text-sm text-gray-500">Errors</div>
-            </div>
-            <div className="text-center">
+                </div>
+                <div className="text-center">
               <div className="text-2xl font-bold text-yellow-600">{syncResults.skippedCount || 0}</div>
               <div className="text-sm text-gray-500">Skipped</div>
             </div>
@@ -581,21 +581,21 @@ export default function GoogleShoppingPage() {
           {syncResults.syncedProducts.length > 0 && (
             <div className="mb-6">
               <h4 className="text-md font-medium text-gray-900 mb-3">Successfully Processed Products</h4>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Google ID</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Language</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variations</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
                     {syncResults.syncedProducts.map((product, index) => (
                       <tr key={index}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {product.productName}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
@@ -606,30 +606,30 @@ export default function GoogleShoppingPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {product.variations}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                             product.status === 'synced' 
                               ? 'bg-green-100 text-green-800'
                               : 'bg-blue-100 text-blue-800'
-                          }`}>
+                              }`}>
                             {product.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Errors */}
+            {/* Errors */}
           {syncResults.errors.length > 0 && (
             <div>
               <h4 className="text-md font-medium text-gray-900 mb-3">Errors</h4>
               <div className="space-y-2">
-                {syncResults.errors.map((error, index) => (
+                    {syncResults.errors.map((error, index) => (
                   <div key={index} className="p-3 bg-red-50 border border-red-200 rounded-md">
                     <div className="flex justify-between items-start">
                       <div>
@@ -645,10 +645,10 @@ export default function GoogleShoppingPage() {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
+    </div>
     );
   };
 

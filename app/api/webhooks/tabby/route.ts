@@ -234,11 +234,11 @@ async function handlePaymentAuthorized(payment: any) {
     // Update payment record to authorized
     await prisma.payment.updateMany({
       where: { tabbyPaymentId: payment.id },
-      data: {
-        status: 'PROCESSING',
-        updatedAt: new Date()
-      }
-    });
+          data: {
+            status: 'PROCESSING',
+            updatedAt: new Date()
+          }
+        });
 
     // ✅ STEP 3: Capture the payment (required to move from NEW → AUTHORIZED → CAPTURED)
     // 📝 NOTE: Per Tabby documentation, if not captured within 21 days, Tabby auto-captures
@@ -256,7 +256,7 @@ async function handlePaymentAuthorized(payment: any) {
           discount_amount: paymentDetails.order?.discount_amount || "0.00",
           items: paymentDetails.order?.items || []
         };
-        
+
         console.log('📋 Capture request details:', {
           amount: captureData.amount,
           reference_id: captureData.reference_id,
@@ -336,11 +336,11 @@ async function handlePaymentCaptured(payment: any) {
       // Update payment record to final successful status
       await prisma.payment.updateMany({
         where: { tabbyPaymentId: payment.id },
-        data: {
+          data: { 
           status: 'SUCCEEDED',
-          updatedAt: new Date()
-        }
-      });
+            updatedAt: new Date()
+          }
+        });
 
       // Update order status to processing
       await prisma.order.updateMany({
@@ -375,11 +375,11 @@ async function handlePaymentFailed(payment: any) {
     // Update payment record
     await prisma.payment.updateMany({
       where: { tabbyPaymentId: payment.id },
-      data: {
-        status: 'FAILED',
-        updatedAt: new Date()
-      }
-    });
+          data: {
+            status: 'FAILED',
+            updatedAt: new Date()
+          }
+        });
 
          // Update order status
      await prisma.order.updateMany({
@@ -388,11 +388,11 @@ async function handlePaymentFailed(payment: any) {
            tabbyPaymentId: payment.id
          }
        },
-       data: {
-         status: 'CANCELLED',
-         updatedAt: new Date()
-       }
-     });
+          data: { 
+            status: 'CANCELLED',
+            updatedAt: new Date()
+          }
+        });
 
     console.log('Tabby payment failed, order marked as failed:', payment.id);
 
@@ -409,11 +409,11 @@ async function handlePaymentCancelled(payment: any) {
     // Update payment record
     await prisma.payment.updateMany({
       where: { tabbyPaymentId: payment.id },
-      data: {
-        status: 'CANCELLED',
-        updatedAt: new Date()
-      }
-    });
+          data: {
+            status: 'CANCELLED',
+            updatedAt: new Date()
+          }
+        });
 
     // Update order status
     await prisma.order.updateMany({
@@ -422,11 +422,11 @@ async function handlePaymentCancelled(payment: any) {
           tabbyPaymentId: payment.id
         }
       },
-      data: {
-        status: 'CANCELLED',
-        updatedAt: new Date()
-      }
-    });
+          data: { 
+            status: 'CANCELLED',
+            updatedAt: new Date()
+          }
+        });
 
     console.log('Tabby payment cancelled, order marked as cancelled:', payment.id);
 
@@ -456,11 +456,11 @@ async function handlePaymentClosed(payment: any) {
           tabbyPaymentId: payment.id
         }
       },
-      data: {
+          data: {
         status: 'PROCESSING',
-        updatedAt: new Date()
-      }
-    });
+            updatedAt: new Date()
+          }
+        });
 
     console.log('✅ Payment closed - order fully confirmed:', payment.id);
 
@@ -477,11 +477,11 @@ async function handlePaymentExpired(payment: any) {
     // Update payment record
     await prisma.payment.updateMany({
       where: { tabbyPaymentId: payment.id },
-      data: {
+            data: { 
         status: 'CANCELLED',
-        updatedAt: new Date()
-      }
-    });
+              updatedAt: new Date()
+            }
+          });
 
     // Update order status
     await prisma.order.updateMany({
@@ -544,4 +544,4 @@ export async function GET(request: NextRequest) {
     message: 'Tabby webhook endpoint is active',
     timestamp: new Date().toISOString()
   });
-} 
+}

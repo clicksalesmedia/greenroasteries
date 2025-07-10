@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`Found ${products.length} products to process`);
-    
+
     if (products.length === 0) {
       return NextResponse.json(
         { 
@@ -191,15 +191,15 @@ export async function POST(request: NextRequest) {
             if (langResult.success) {
               langStats.successCount++;
               langStats.syncedProducts.push({
-                productId: product.id,
-                productName: product.name,
+            productId: product.id,
+            productName: product.name,
                 googleProductId: langResult.googleProductId,
                 variations: langResult.variationCount || 0,
                 status: dryRun ? 'validated' : 'synced',
                 language: langResult.language,
                 category: product.category?.name
-              });
-              results.successCount++;
+          });
+          results.successCount++;
             } else {
               langStats.errorCount++;
               langStats.errors.push({
@@ -257,12 +257,12 @@ export async function POST(request: NextRequest) {
                  // Add error to all language results
          validLanguages.forEach((lang: string) => {
            results.languageResults[lang].errors.push({
-            productId: product.id,
-            productName: product.name,
+          productId: product.id,
+          productName: product.name,
             error: errorMessage,
             language: lang,
-            category: product.category?.name
-          });
+          category: product.category?.name
+        });
         });
         
         results.errorCount += validLanguages.length;

@@ -171,7 +171,7 @@ export class GoogleShoppingService {
    */
   isConfigured(): boolean {
     return !!(
-      this.merchantId && 
+      this.merchantId &&
       this.serviceAccountKey &&
       this.serviceAccountKey.client_email &&
       this.serviceAccountKey.private_key
@@ -213,16 +213,16 @@ export class GoogleShoppingService {
       // Generate main product with language-specific content
       const mainProduct = await this.convertSingleProduct(product, currentLanguage);
 
-      // Generate variation products if requested and available
-      const variations: GoogleShoppingProduct[] = [];
-      if (includeVariations && product.variations.length > 0) {
-        for (const variation of product.variations) {
+    // Generate variation products if requested and available
+    const variations: GoogleShoppingProduct[] = [];
+    if (includeVariations && product.variations.length > 0) {
+      for (const variation of product.variations) {
           const variationProduct = await this.convertVariationToProduct(product, variation, currentLanguage);
-          variations.push(variationProduct);
-        }
+        variations.push(variationProduct);
       }
+    }
 
-      return { mainProduct, variations };
+    return { mainProduct, variations };
     } finally {
       // Restore original language
       if (targetLanguage) {

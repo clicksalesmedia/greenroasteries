@@ -31,8 +31,8 @@ export default function ThankYouPage() {
           
           // Find the order associated with this payment - get more orders and search thoroughly
           const ordersResponse = await fetch('/api/orders?limit=100');
-          const ordersData = await ordersResponse.json();
-          
+            const ordersData = await ordersResponse.json();
+            
           console.log('Total orders found:', ordersData.orders?.length);
           
           // Find order with matching Tabby payment ID - improved search
@@ -43,11 +43,11 @@ export default function ThankYouPage() {
           });
           
           console.log('Matching order found:', matchingOrder?.id);
-          
-          if (matchingOrder) {
+            
+            if (matchingOrder) {
             // Use the order data directly since we already have complete data from the orders endpoint
-            const orderData = {
-              orderId: matchingOrder.id,
+              const orderData = {
+                orderId: matchingOrder.id,
               orderDate: matchingOrder.createdAt,
               customerInfo: {
                 fullName: matchingOrder.customerName || matchingOrder.user?.name || 'Customer',
@@ -75,40 +75,40 @@ export default function ThankYouPage() {
               tax: matchingOrder.tax || 0,
               shippingCost: matchingOrder.shippingCost || 0,
               discount: matchingOrder.discount || 0,
-              isNewCustomer: matchingOrder.user?.isNewCustomer || false,
-              paymentProvider: 'TABBY',
+                isNewCustomer: matchingOrder.user?.isNewCustomer || false,
+                paymentProvider: 'TABBY',
               paymentStatus: matchingOrder.payment?.status || 'PENDING'
-            };
+              };
             
             console.log('Order data formatted:', orderData);
-            setOrderDetails(orderData);
+              setOrderDetails(orderData);
 
-            // Track Google Ads Purchase conversion for Tabby orders
-            if (typeof window !== 'undefined' && (window as any).trackGoogleAdsPurchase) {
+              // Track Google Ads Purchase conversion for Tabby orders
+              if (typeof window !== 'undefined' && (window as any).trackGoogleAdsPurchase) {
               (window as any).trackGoogleAdsPurchase(orderData.orderId, orderData.totalAmount, 'AED');
-            }
+              }
 
-            // Track GA4 Enhanced Purchase for Tabby orders
+              // Track GA4 Enhanced Purchase for Tabby orders
             if (typeof window !== 'undefined' && (window as any).trackGA4Purchase && orderData.items) {
               const itemsData = orderData.items.map((item: any) => ({
                 id: item.id,
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity || 1,
-                category: 'Coffee',
-                variation: 'Standard'
-              }));
+                  name: item.name,
+                  price: item.price,
+                  quantity: item.quantity || 1,
+                  category: 'Coffee',
+                  variation: 'Standard'
+                }));
               (window as any).trackGA4Purchase(orderData.orderId, itemsData, orderData.totalAmount, 'AED', orderData.shippingCost, orderData.tax);
-            }
+              }
 
-            // Track Facebook Purchase for Tabby orders (Pixel + Conversions API)
+              // Track Facebook Purchase for Tabby orders (Pixel + Conversions API)
             if (typeof window !== 'undefined' && (window as any).trackFacebookPurchase && orderData.items) {
               const itemsData = orderData.items.map((item: any) => ({
                 id: item.id,
-                name: item.name,
-                price: item.price,
-                category: 'Coffee'
-              }));
+                  name: item.name,
+                  price: item.price,
+                  category: 'Coffee'
+                }));
               (window as any).trackFacebookPurchase(orderData.orderId, itemsData, orderData.totalAmount, 'AED', orderData.customerInfo.email);
             }
           } else {

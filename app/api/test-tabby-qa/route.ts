@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TabbyCustomerDataService } from '@/app/lib/tabby-customer-data';
-import { TabbyService } from '@/app/lib/tabby';
+import TabbyService from '@/app/lib/tabby';
 
 export async function GET(request: NextRequest) {
   try {
@@ -79,7 +79,14 @@ export async function GET(request: NextRequest) {
       };
 
       // Test that the service initializes correctly
-      const serviceInitialized = tabbyService && tabbyService.createPayment;
+      let tabbyServiceInstance: any = null;
+      try {
+        tabbyServiceInstance = new TabbyService();
+      } catch (e) {
+        // Service failed to initialize
+      }
+      
+      const serviceInitialized = tabbyServiceInstance !== null;
       
       results.tests.tabbyServiceIntegration = {
         status: serviceInitialized ? 'PASSED' : 'FAILED',
@@ -87,8 +94,8 @@ export async function GET(request: NextRequest) {
           ? '✅ Tabby service initialized correctly'
           : '❌ Tabby service initialization failed',
         data: {
-          serviceExists: !!tabbyService,
-          createPaymentExists: !!tabbyService?.createPayment,
+          serviceExists: !!tabbyServiceInstance,
+          createPaymentMethod: tabbyServiceInstance ? 'createPayment' in tabbyServiceInstance : false,
           testPaymentDataValid: !!(testPaymentData.buyer && testPaymentData.order)
         }
       };

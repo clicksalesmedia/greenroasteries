@@ -344,8 +344,8 @@ function CheckoutForm({
           setTabbyAvailable(false);
           setSelectedPaymentMethod('stripe');
           setError(rejectionMessage);
-        } else {
-          setError(data.error || 'Failed to create Tabby payment session');
+      } else {
+        setError(data.error || 'Failed to create Tabby payment session');
         }
       }
     } catch (err) {
@@ -685,14 +685,14 @@ function CheckoutForm({
                         <label htmlFor="tabby" className="text-sm font-medium text-gray-900 cursor-pointer">
                           {t('tabby_payment', 'Pay later with Tabby')}
                         </label>
-                        <img 
-                          src="/tabby.png" 
-                          alt="Tabby" 
+                          <img 
+                            src="/tabby.png" 
+                            alt="Tabby" 
                           className="h-4 w-auto max-w-[60px]"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
                         {t('pay_in_4_installments', 'Pay in 4 interest-free installments')}

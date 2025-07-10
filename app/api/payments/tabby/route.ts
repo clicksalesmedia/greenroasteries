@@ -81,14 +81,14 @@ export async function POST(request: NextRequest) {
           }
           
           return {
-            title: item.name,
-            description: item.variation ? 
+          title: item.name,
+          description: item.variation ? 
               Object.values(item.variation).filter(Boolean).join(', ') : 
-              item.name,
-            quantity: item.quantity,
-            unit_price: Math.round(item.price * 100), // Keep as fils for internal processing
-            discount_amount: 0,
-            reference_id: item.id,
+            item.name,
+          quantity: item.quantity,
+          unit_price: Math.round(item.price * 100), // Keep as fils for internal processing
+          discount_amount: 0,
+          reference_id: item.id,
             image_url: imageUrl,
             product_url: `${process.env.NEXT_PUBLIC_SITE_URL}/shop`,
             category: 'Coffee',

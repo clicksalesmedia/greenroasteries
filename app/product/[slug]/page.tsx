@@ -1592,7 +1592,7 @@ export default function ProductPage() {
               source="product"
             />
           </div>
-
+          
           {/* Action Buttons - Positioned at the bottom */}
           <div className="mt-auto">
             <div className="flex flex-col sm:flex-row gap-3">

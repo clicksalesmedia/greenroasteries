@@ -73,11 +73,11 @@ jobs:
             # Ensure .env is properly configured
             if [ ! -f .env ]; then
               echo "Creating .env file..."
-              cat > .env << 'ENVFILE'
+            cat > .env << 'ENVFILE'
 DATABASE_URL=postgresql://greenroasteries:your_password@localhost:5432/greenroasteries
-JWT_SECRET=8Vgq2eXQ4XYwfvXf19GKrOdnw22Y69P71A9ceb6e24k=
-NODE_ENV=production
-NEXT_TELEMETRY_DISABLED=1
+            JWT_SECRET=8Vgq2eXQ4XYwfvXf19GKrOdnw22Y69P71A9ceb6e24k=
+            NODE_ENV=production
+            NEXT_TELEMETRY_DISABLED=1
 CLOUDINARY_CLOUD_NAME=your_cloudinary_name
 CLOUDINARY_API_KEY=your_cloudinary_key
 CLOUDINARY_API_SECRET=your_cloudinary_secret
@@ -92,7 +92,7 @@ TABBY_WEBHOOK_ID=3d82921e-0e94-4815-b91e-dc201ee3f043
 TABBY_WEBHOOK_SECRET=your_webhook_secret_here
 TABBY_AUTO_CAPTURE=true
 NEXT_PUBLIC_TABBY_PUBLIC_KEY=pk_test_0197c11f-299d-d003-8b0c-5fe3dd87682c
-ENVFILE
+            ENVFILE
             fi
             
             # ✅ CRITICAL: Verify .next directory is complete
