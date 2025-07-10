@@ -1,864 +1,722 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
-
-interface Product {
-  id: string;
-  name: string;
-  nameAr?: string;
-  price: number;
-  sku: string;
-  inStock: boolean;
-  stockQuantity: number;
-  category: {
-    name: string;
-    nameAr?: string;
-  };
-}
+import { toast } from 'react-hot-toast';
+import BackendLayout from '../components/BackendLayout';
+import Link from 'next/link';
 
 interface SyncResult {
-  success?: boolean;
-  totalProducts?: number;
-  totalLanguages?: number;
-  syncMode?: string;
-  languages?: string[];
-  successCount?: number;
-  errorCount?: number;
-  skippedCount?: number;
-  dryRun?: boolean;
+  totalProducts: number;
+  successCount: number;
+  errorCount: number;
+  skippedCount: number;
   message?: string;
-  errors?: Array<{
+  languageResults?: Record<string, any>;
+  errors: Array<{
     productId: string;
     productName: string;
     error: string;
     language?: string;
   }>;
-  syncedProducts?: Array<{
+  syncedProducts: Array<{
     productId: string;
     productName: string;
-    googleProductId?: string;
-    variations?: number;
+    googleProductId: string;
+    variations: number;
     status: string;
     language?: string;
   }>;
-  languageResults?: Record<string, {
-    successCount: number;
-    errorCount: number;
-    syncedProducts: any[];
-    errors: any[];
-  }>;
+  dryRun: boolean;
 }
 
-interface LanguageConfig {
-  code: string;
-  country: string;
-  currency: string;
-  name: string;
+interface ConfigStatus {
   configured: boolean;
+  totalProducts: number;
+  inStockProducts: number;
+  productsWithVariations: number;
+  arabicContent?: {
+    productsWithArabicNames: number;
+    productsWithArabicDescriptions: number;
+    arabicReadiness: number;
+  };
+  supportedLanguages?: Record<string, any>;
+  features?: {
+    multiLanguageSupport: boolean;
+    availableLanguages: string[];
+    arabicSupport: boolean;
+  };
+  configuration?: {
+    merchantId: string;
+    serviceAccount: string;
+    baseUrl: string;
+  };
 }
 
 export default function GoogleShoppingPage() {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [configStatus, setConfigStatus] = useState<ConfigStatus | null>(null);
   const [syncResults, setSyncResults] = useState<SyncResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const [configuration, setConfiguration] = useState({
-    isConfigured: false,
-    merchantId: '',
-    baseUrl: '',
-    supportedLanguages: {} as Record<string, LanguageConfig>,
-    arabicContent: {
-      productsWithArabicNames: 0,
-      productsWithArabicDescriptions: 0,
-      arabicReadiness: 0
-    }
-  });
-
-  // Enhanced form states with language support
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [includeVariations, setIncludeVariations] = useState(true);
-  const [dryRun, setDryRun] = useState(true);
-  const [syncAll, setSyncAll] = useState(true);
-  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['en']);
+  const [activeTab, setActiveTab] = useState<'overview' | 'sync' | 'results'>('overview');
+  
+  // New language support states
   const [syncMode, setSyncMode] = useState<'single' | 'multi'>('single');
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['en']);
+  const [dryRun, setDryRun] = useState(true);
+  const [productsToSync, setProductsToSync] = useState(10);
 
   useEffect(() => {
-    checkConfiguration();
-    fetchProducts();
+    fetchConfigStatus();
   }, []);
 
-  const checkConfiguration = async () => {
+  const fetchConfigStatus = async () => {
     try {
       const response = await fetch('/api/google-shopping/sync');
+      if (!response.ok) throw new Error('Failed to fetch config status');
       const data = await response.json();
-      setConfiguration({
-        isConfigured: data.configured || false,
-        merchantId: data.configuration?.merchantId || '',
-        baseUrl: data.configuration?.baseUrl || '',
-        supportedLanguages: data.supportedLanguages || {},
-        arabicContent: data.arabicContent || {
-          productsWithArabicNames: 0,
-          productsWithArabicDescriptions: 0,
-          arabicReadiness: 0
-        }
-      });
-
-      // Set default selected languages based on available languages
-      const availableLanguages = Object.keys(data.supportedLanguages || {});
-      if (availableLanguages.length > 0) {
-        setSelectedLanguages([availableLanguages[0]]);
-      }
+      setConfigStatus(data);
     } catch (error) {
-      console.error('Failed to check configuration:', error);
-      toast.error('Failed to check Google Shopping configuration');
+      toast.error('Failed to load Google Shopping configuration');
+      console.error('Config fetch error:', error);
     }
   };
 
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch('/api/products');
-      const data = await response.json();
-      setProducts(data.products || []);
-    } catch (error) {
-      console.error('Failed to fetch products:', error);
-      toast.error('Failed to fetch products');
-    }
-  };
-
-  const syncProducts = async () => {
-    setLoading(true);
-    setSyncResults(null);
-
-    try {
-      const payload = {
-        syncAll,
-        productIds: syncAll ? [] : selectedProducts,
-        includeVariations,
-        dryRun,
-        batchSize: 50,
-        languages: selectedLanguages,
-        syncMode
-      };
-
-      console.log('🚀 Enhanced Sync payload:', payload);
-
-      const response = await fetch('/api/google-shopping/sync', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify(payload)
-      });
-
-      const data = await response.json();
-      console.log('📊 Enhanced Sync response:', data);
-      setSyncResults(data);
-
-      if (data.successCount > 0) {
-        const languageInfo = data.languages ? ` in ${data.languages.join(', ').toUpperCase()}` : '';
-        const message = data.message || 
-          `${dryRun ? 'Validated' : 'Synced'} ${data.successCount} products successfully${languageInfo}!`;
-        toast.success(message);
-      } else if (data.errorCount > 0) {
-        toast.error(`Sync failed with ${data.errorCount} errors across ${data.totalLanguages || 1} language(s)`);
-      } else {
-        toast.success('No products were processed');
-      }
-    } catch (error) {
-      console.error('Sync error:', error);
-      toast.error('Failed to sync products');
-      setSyncResults({
-        success: false,
-        totalProducts: 0,
-        successCount: 0,
-        errorCount: 1,
-        errors: [{ productId: 'unknown', productName: 'Unknown', error: 'Network error' }]
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const syncIndividualProduct = async (productId: string) => {
-    try {
-      const primaryLanguage = selectedLanguages[0] || 'en';
-      const response = await fetch(`/api/google-shopping/product/${productId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          includeVariations,
-          dryRun,
-          language: primaryLanguage
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast.success(`Product ${data.productName} ${dryRun ? 'validated' : 'synced'} successfully in ${primaryLanguage.toUpperCase()}!`);
-      } else {
-        toast.error(`Failed to sync ${data.productName}: ${data.error}`);
-      }
-    } catch (error) {
-      console.error('Individual sync error:', error);
-      toast.error('Failed to sync product');
-    }
-  };
-
-  const testConfiguration = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/google-shopping/sync', {
-        credentials: 'same-origin'
-      });
-      const data = await response.json();
-      
-      if (data.configured) {
-        const configuredLanguages = Object.entries(data.supportedLanguages || {})
-          .filter(([_, config]: [string, any]) => config.configured)
-          .map(([code]) => code.toUpperCase());
-          
-        toast.success(`Google Shopping configuration is valid for: ${configuredLanguages.join(', ')}!`);
-      } else {
-        toast.error('Google Shopping configuration is incomplete');
-      }
-      
-      setConfiguration(prev => ({
-        ...prev,
-        isConfigured: data.configured,
-        supportedLanguages: data.supportedLanguages || {}
-      }));
-    } catch (error) {
-      console.error('Test error:', error);
-      toast.error('Failed to test configuration');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleLanguageSelection = (language: string) => {
+  const handleLanguageToggle = (language: string) => {
     if (syncMode === 'single') {
-      setSelectedLanguages([language]);
+      setSelectedLanguage(language);
     } else {
-      setSelectedLanguages(prev =>
-        prev.includes(language)
-          ? prev.filter(lang => lang !== language)
+      setSelectedLanguages(prev => 
+        prev.includes(language) 
+          ? prev.filter(l => l !== language)
           : [...prev, language]
       );
     }
   };
 
-  const selectAllLanguages = () => {
-    const availableLanguages = Object.keys(configuration.supportedLanguages);
-    setSelectedLanguages(availableLanguages);
-  };
+  const handleSyncAll = async () => {
+    if (!configStatus?.configured) {
+      toast.error('Google Shopping not configured');
+      return;
+    }
 
-  const clearLanguageSelection = () => {
-    const firstLanguage = Object.keys(configuration.supportedLanguages)[0];
-    setSelectedLanguages(firstLanguage ? [firstLanguage] : []);
-  };
-
-  const toggleProductSelection = (productId: string) => {
-    setSelectedProducts(prev =>
-      prev.includes(productId)
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
-  };
-
-  const selectAllProducts = () => {
-    setSelectedProducts(products.map(p => p.id));
-  };
-
-  const clearSelection = () => {
-    setSelectedProducts([]);
-  };
-
-  // Get language statistics for display
-  const getLanguageStats = () => {
-    if (!syncResults?.languageResults) return null;
+    const languages = syncMode === 'single' ? [selectedLanguage] : selectedLanguages;
     
-    return Object.entries(syncResults.languageResults).map(([lang, stats]) => ({
-      language: lang,
-      name: configuration.supportedLanguages[lang]?.name || lang,
-      ...stats
-    }));
+    if (languages.length === 0) {
+      toast.error('Please select at least one language');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const requestBody = {
+        syncAll: true,
+        includeVariations,
+        dryRun,
+        languages,
+        syncMode,
+        limit: productsToSync
+      };
+
+      console.log('Sending sync request:', requestBody);
+
+      const response = await fetch('/api/google-shopping/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Sync failed');
+      }
+
+      const results = await response.json();
+      console.log('Sync results:', results);
+      
+      setSyncResults(results);
+      setActiveTab('results');
+
+      const languagesList = languages.join(', ');
+      if (dryRun) {
+        toast.success(`Validation completed for ${languagesList}! ${results.successCount} products validated successfully`);
+      } else {
+        toast.success(`Sync completed for ${languagesList}! ${results.successCount} products synced successfully`);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Sync failed');
+      console.error('Sync error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Enhanced Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Google Shopping Integration</h1>
-          <p className="text-gray-600 mt-2">
-            Manage your products on Google Shopping Merchant Center with multi-language support
-          </p>
-          {configuration.arabicContent.arabicReadiness > 0 && (
-            <div className="mt-3 inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-              🌐 Arabic Content: {configuration.arabicContent.arabicReadiness}% ready
-            </div>
-          )}
-        </div>
+  const handleSyncSelected = async () => {
+    if (!configStatus?.configured) {
+      toast.error('Google Shopping not configured');
+      return;
+    }
 
-        {/* Enhanced Configuration Status */}
-        <div className="bg-white rounded-lg shadow mb-6 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">Configuration Status</h2>
-              <div className="flex items-center mt-2">
-                <div className={`w-3 h-3 rounded-full mr-2 ${configuration.isConfigured ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <span className={`font-medium ${configuration.isConfigured ? 'text-green-700' : 'text-red-700'}`}>
-                  {configuration.isConfigured ? 'Connected' : 'Not Configured'}
-                </span>
-              </div>
+    if (selectedProducts.length === 0) {
+      toast.error('Please select products to sync');
+      return;
+    }
+
+    const languages = syncMode === 'single' ? [selectedLanguage] : selectedLanguages;
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/google-shopping/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productIds: selectedProducts,
+          includeVariations,
+          dryRun,
+          languages,
+          syncMode
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Sync failed');
+      }
+
+      const results = await response.json();
+      setSyncResults(results);
+      setActiveTab('results');
+
+      const languagesList = languages.join(', ');
+      if (dryRun) {
+        toast.success(`Validation completed for ${languagesList}! ${results.successCount} products validated successfully`);
+      } else {
+        toast.success(`Sync completed for ${languagesList}! ${results.successCount} products synced successfully`);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Sync failed');
+      console.error('Sync error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderConfigurationStatus = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration Status</h3>
+        
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">Status</span>
+            <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+              configStatus?.configured 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-red-100 text-red-800'
+            }`}>
+              {configStatus?.configured ? 'Configured' : 'Not Configured'}
             </div>
-            <button
-              onClick={testConfiguration}
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? 'Testing...' : 'Test Connection'}
-            </button>
           </div>
 
-          {/* Language Support Status */}
-          {Object.keys(configuration.supportedLanguages).length > 0 && (
-            <div className="border-t pt-4">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Supported Languages</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {Object.entries(configuration.supportedLanguages).map(([code, config]) => (
-                  <div key={code} className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${config.configured ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                    <span className="text-sm">
-                      {config.name} ({code.toUpperCase()})
-                    </span>
+          {configStatus?.configuration && (
+            <>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">Merchant Center ID</span>
+                <span className="text-sm text-gray-900">{configStatus.configuration.merchantId}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">Service Account</span>
+                <span className="text-sm text-gray-900">{configStatus.configuration.serviceAccount}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">Base URL</span>
+                <span className="text-sm text-gray-900">{configStatus.configuration.baseUrl}</span>
+              </div>
+            </>
+          )}
+
+          <div className="pt-4 border-t border-gray-200">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">{configStatus?.totalProducts || 0}</div>
+                <div className="text-sm text-gray-500">Total Products</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">{configStatus?.inStockProducts || 0}</div>
+                <div className="text-sm text-gray-500">In Stock</div>
+              </div>
+            </div>
+            <div className="mt-4 text-center">
+              <div className="text-lg font-bold text-green-600">{configStatus?.productsWithVariations || 0}</div>
+              <div className="text-sm text-gray-500">Products with Variations</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Arabic Content Analysis */}
+      {configStatus?.arabicContent && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Arabic Content Analysis</h3>
+          
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-amber-600">{configStatus.arabicContent.productsWithArabicNames}</div>
+              <div className="text-sm text-gray-500">Arabic Names</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-amber-600">{configStatus.arabicContent.productsWithArabicDescriptions}</div>
+              <div className="text-sm text-gray-500">Arabic Descriptions</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">{configStatus.arabicContent.arabicReadiness}%</div>
+              <div className="text-sm text-gray-500">Arabic Ready</div>
+            </div>
+          </div>
+
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+            <div className="flex items-center">
+              <svg className="h-5 w-5 text-amber-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <div className="text-sm text-amber-800">
+                <strong>{configStatus.arabicContent.productsWithArabicNames}</strong> products have Arabic content and are ready for Arabic Google Shopping sync
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Multi-Language Support */}
+      {configStatus?.features?.multiLanguageSupport && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Language Support</h3>
+          
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700">Multi-language Support</span>
+              <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Enabled</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700">Available Languages</span>
+              <div className="flex space-x-2">
+                {configStatus.features.availableLanguages.map(lang => (
+                  <span key={lang} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
+                    {lang.toUpperCase()}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700">Arabic Support</span>
+              <span className={`px-2 py-1 text-xs font-medium rounded ${
+                configStatus.features.arabicSupport 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-gray-100 text-gray-800'
+              }`}>
+                {configStatus.features.arabicSupport ? 'Enabled' : 'Disabled'}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!configStatus?.configured && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-yellow-800">Configuration Required</h3>
+              <div className="mt-2 text-sm text-yellow-700">
+                <p>Please configure your Google Shopping integration by setting up the required environment variables.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderSyncControls = () => (
+    <div className="space-y-6">
+      {/* Sync Mode Selection */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Sync Mode</h3>
+        
+        <div className="space-y-4">
+          <div className="flex space-x-4">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="syncMode"
+                value="single"
+                checked={syncMode === 'single'}
+                onChange={(e) => setSyncMode(e.target.value as 'single' | 'multi')}
+                className="mr-2"
+              />
+              <span className="text-sm font-medium">Single Language Mode</span>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="syncMode"
+                value="multi"
+                checked={syncMode === 'multi'}
+                onChange={(e) => setSyncMode(e.target.value as 'single' | 'multi')}
+                className="mr-2"
+              />
+              <span className="text-sm font-medium">Multi-Language Mode</span>
+            </label>
+          </div>
+
+          {/* Language Selection */}
+          <div className="border-t pt-4">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">
+              {syncMode === 'single' ? 'Select Language' : 'Select Languages'}
+            </h4>
+            
+            <div className="space-y-2">
+              {syncMode === 'single' ? (
+                <div className="flex space-x-4">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="language"
+                      value="en"
+                      checked={selectedLanguage === 'en'}
+                      onChange={(e) => setSelectedLanguage(e.target.value)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">English</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="language"
+                      value="ar"
+                      checked={selectedLanguage === 'ar'}
+                      onChange={(e) => setSelectedLanguage(e.target.value)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">Arabic (العربية)</span>
+                  </label>
+                </div>
+              ) : (
+                <div className="flex space-x-4">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedLanguages.includes('en')}
+                      onChange={() => handleLanguageToggle('en')}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">English</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedLanguages.includes('ar')}
+                      onChange={() => handleLanguageToggle('ar')}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">Arabic (العربية)</span>
+                  </label>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sync Options */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Sync Options</h3>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Products to Sync</label>
+              <input
+                type="number"
+                value={productsToSync}
+                onChange={(e) => setProductsToSync(parseInt(e.target.value) || 10)}
+                min="1"
+                max="100"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              />
+            </div>
+            <div className="flex items-end">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={includeVariations}
+                  onChange={(e) => setIncludeVariations(e.target.checked)}
+                  className="mr-2"
+                />
+                <span className="text-sm">Include Variations</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="dryRun"
+              checked={dryRun}
+              onChange={(e) => setDryRun(e.target.checked)}
+              className="mr-2"
+            />
+            <label htmlFor="dryRun" className="text-sm text-gray-700">
+              Dry Run (Test mode - doesn't actually sync to Google)
+            </label>
+          </div>
+
+          <div className="flex space-x-4 pt-4">
+            <button
+              onClick={handleSyncAll}
+              disabled={loading || !configStatus?.configured}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Processing...' : (dryRun ? 'Test Sync' : 'Sync Products')}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Selected Products Sync */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Sync Specific Products</h3>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Product IDs (comma-separated)
+            </label>
+            <textarea
+              value={selectedProducts.join(', ')}
+              onChange={(e) => setSelectedProducts(e.target.value.split(',').map(id => id.trim()).filter(Boolean))}
+              placeholder="Enter product IDs separated by commas"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              rows={3}
+            />
+          </div>
+          
+          <button
+            onClick={handleSyncSelected}
+            disabled={loading || !configStatus?.configured || selectedProducts.length === 0}
+            className="w-full px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Processing...' : (dryRun ? 'Test Selected' : 'Sync Selected')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSyncResults = () => {
+    if (!syncResults) return null;
+
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Sync Results {syncResults.dryRun && '(Test Mode)'}
+          </h3>
+          
+          {syncResults.message && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-sm text-blue-700">{syncResults.message}</p>
+            </div>
+          )}
+          
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">{syncResults.totalProducts}</div>
+              <div className="text-sm text-gray-500">Total</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">{syncResults.successCount}</div>
+              <div className="text-sm text-gray-500">Success</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-red-600">{syncResults.errorCount}</div>
+              <div className="text-sm text-gray-500">Errors</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-yellow-600">{syncResults.skippedCount || 0}</div>
+              <div className="text-sm text-gray-500">Skipped</div>
+            </div>
+          </div>
+
+          {/* Language-specific results */}
+          {syncResults.languageResults && (
+            <div className="mb-6">
+              <h4 className="text-md font-medium text-gray-900 mb-3">Results by Language</h4>
+              <div className="space-y-3">
+                {Object.entries(syncResults.languageResults).map(([lang, results]: [string, any]) => (
+                  <div key={lang} className="p-3 border border-gray-200 rounded-md">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium text-gray-900">
+                        {lang === 'en' ? 'English' : lang === 'ar' ? 'Arabic (العربية)' : lang.toUpperCase()}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {results.successCount} success, {results.errorCount} errors
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      {results.syncedProducts?.length || 0} products processed
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Arabic Content Statistics */}
-          {configuration.arabicContent.arabicReadiness > 0 && (
-            <div className="border-t pt-4 mt-4">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Arabic Content Analysis</h3>
-              <div className="grid grid-cols-3 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-500">Products with Arabic Names:</span>
-                  <p className="font-medium text-blue-600">{configuration.arabicContent.productsWithArabicNames}</p>
-                </div>
-                <div>
-                  <span className="text-gray-500">Products with Arabic Descriptions:</span>
-                  <p className="font-medium text-blue-600">{configuration.arabicContent.productsWithArabicDescriptions}</p>
-                </div>
-                <div>
-                  <span className="text-gray-500">Arabic Readiness:</span>
-                  <p className="font-medium text-green-600">{configuration.arabicContent.arabicReadiness}%</p>
-                </div>
+          {/* Successful products */}
+          {syncResults.syncedProducts.length > 0 && (
+            <div className="mb-6">
+              <h4 className="text-md font-medium text-gray-900 mb-3">Successfully Processed Products</h4>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Google ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Language</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variations</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {syncResults.syncedProducts.map((product, index) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {product.productName}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                          {product.googleProductId}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {product.language === 'ar' ? 'Arabic' : 'English'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {product.variations}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            product.status === 'synced' 
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {product.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Errors */}
+          {syncResults.errors.length > 0 && (
+            <div>
+              <h4 className="text-md font-medium text-gray-900 mb-3">Errors</h4>
+              <div className="space-y-2">
+                {syncResults.errors.map((error, index) => (
+                  <div key={index} className="p-3 bg-red-50 border border-red-200 rounded-md">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="text-sm font-medium text-red-800">{error.productName}</div>
+                        <div className="text-sm text-red-600">{error.error}</div>
+                      </div>
+                      {error.language && (
+                        <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
+                          {error.language === 'ar' ? 'Arabic' : 'English'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
         </div>
+      </div>
+    );
+  };
 
-        {/* Enhanced Tabs */}
-        <div className="border-b border-gray-200 mb-6">
-          <nav className="-mb-px flex space-x-8">
-            {['overview', 'sync', 'results'].map((tab) => (
+  return (
+         <BackendLayout activePage="settings">
+      <div className="space-y-6">
+        {/* Breadcrumbs */}
+        <nav className="flex" aria-label="Breadcrumb">
+          <ol className="flex items-center space-x-4">
+            <li>
+              <div>
+                <Link href="/backend" className="text-gray-400 hover:text-gray-500">
+                  <svg className="flex-shrink-0 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 10v8a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H8a1 1 0 00-1 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-8a1 1 0 01.293-.707l7-7z" clipRule="evenodd" />
+                  </svg>
+                  <span className="sr-only">Dashboard</span>
+                </Link>
+              </div>
+            </li>
+            <li>
+              <div className="flex items-center">
+                <svg className="flex-shrink-0 h-5 w-5 text-gray-300" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                </svg>
+                <span className="ml-4 text-sm font-medium text-gray-900">Google Shopping</span>
+              </div>
+            </li>
+          </ol>
+        </nav>
+
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Google Shopping Management</h1>
+          <p className="mt-2 text-gray-600">
+            Sync your products to Google Shopping Merchant Center in multiple languages
+          </p>
+        </div>
+
+        {/* Tabs Navigation */}
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8">
+            {[
+              { id: 'overview', label: 'Overview' },
+              { id: 'sync', label: 'Sync Products' },
+              { id: 'results', label: 'Results' }
+            ].map((tab) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab
+                  activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab.label}
               </button>
             ))}
           </nav>
         </div>
 
         {/* Tab Content */}
-        {activeTab === 'overview' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold text-gray-900">Total Products</h3>
-                <p className="text-3xl font-bold text-blue-600 mt-2">{products.length}</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold text-gray-900">In Stock</h3>
-                <p className="text-3xl font-bold text-green-600 mt-2">
-                  {products.filter(p => p.inStock && p.stockQuantity > 0).length}
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold text-gray-900">Arabic Ready</h3>
-                <p className="text-3xl font-bold text-purple-600 mt-2">
-                  {products.filter(p => p.nameAr || p.category.nameAr).length}
-                </p>
-                <p className="text-sm text-gray-500 mt-1">Products with Arabic content</p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Multi-Language Features</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">English Support</span>
-                    <span className="px-2 py-1 rounded text-sm bg-green-100 text-green-800">
-                      ✓ Available
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Arabic Support</span>
-                    <span className="px-2 py-1 rounded text-sm bg-green-100 text-green-800">
-                      ✓ Available
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Multi-Language Sync</span>
-                    <span className="px-2 py-1 rounded text-sm bg-blue-100 text-blue-800">
-                      Enhanced
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Language-Specific SKUs</span>
-                    <span className="px-2 py-1 rounded text-sm bg-blue-100 text-blue-800">
-                      Automatic
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'sync' && (
-          <div className="space-y-6">
-            {/* Enhanced Sync Options */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Enhanced Sync Options</h3>
-              
-              {/* Language Selection */}
-              <div className="mb-6 border-b pb-4">
-                <h4 className="text-md font-medium text-gray-900 mb-3">Language Configuration</h4>
-                
-                {/* Sync Mode Selection */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Sync Mode</label>
-                  <div className="flex space-x-4">
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        value="single"
-                        checked={syncMode === 'single'}
-                        onChange={(e) => setSyncMode(e.target.value as 'single' | 'multi')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      />
-                      <span className="ml-2 text-gray-700">Single Language</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        value="multi"
-                        checked={syncMode === 'multi'}
-                        onChange={(e) => setSyncMode(e.target.value as 'single' | 'multi')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      />
-                      <span className="ml-2 text-gray-700">Multi-Language</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Language Selection */}
-                <div className="mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-medium text-gray-700">
-                      Select Languages {syncMode === 'single' ? '(Choose One)' : '(Choose Multiple)'}
-                    </label>
-                    {syncMode === 'multi' && (
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={selectAllLanguages}
-                          className="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50"
-                        >
-                          Select All
-                        </button>
-                        <button
-                          onClick={clearLanguageSelection}
-                          className="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50"
-                        >
-                          Clear
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {Object.entries(configuration.supportedLanguages).map(([code, config]) => (
-                      <label key={code} className="flex items-center">
-                        <input
-                          type={syncMode === 'single' ? 'radio' : 'checkbox'}
-                          name={syncMode === 'single' ? 'language' : undefined}
-                          checked={selectedLanguages.includes(code)}
-                          onChange={() => toggleLanguageSelection(code)}
-                          disabled={!config.configured}
-                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <span className={`ml-2 text-sm ${!config.configured ? 'text-gray-400' : 'text-gray-700'}`}>
-                          {config.name} ({code.toUpperCase()})
-                          {!config.configured && ' - Not configured'}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                  
-                  {selectedLanguages.length > 0 && (
-                    <p className="text-sm text-gray-600 mt-2">
-                      Selected: {selectedLanguages.map(lang => 
-                        configuration.supportedLanguages[lang]?.name || lang
-                      ).join(', ')}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Standard Options */}
-              <div className="space-y-4">
-                <div className="flex items-center space-x-6">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={syncAll}
-                      onChange={(e) => setSyncAll(e.target.checked)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                    <span className="ml-2 text-gray-700">Sync all products</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={includeVariations}
-                      onChange={(e) => setIncludeVariations(e.target.checked)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                    <span className="ml-2 text-gray-700">Include variations</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={dryRun}
-                      onChange={(e) => setDryRun(e.target.checked)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                    <span className="ml-2 text-gray-700">Validation mode (dry run)</span>
-                  </label>
-                </div>
-
-                <div className="flex space-x-4">
-                  <button
-                    onClick={syncProducts}
-                    disabled={loading || !configuration.isConfigured || selectedLanguages.length === 0 || (!syncAll && selectedProducts.length === 0)}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? 'Processing...' : 
-                      `${dryRun ? 'Validate' : 'Sync'} Products ${syncMode === 'multi' ? `(${selectedLanguages.length} Languages)` : ''}`
-                    }
-                  </button>
-                  
-                  {!syncAll && (
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={selectAllProducts}
-                        className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                      >
-                        Select All Products
-                      </button>
-                      <button
-                        onClick={clearSelection}
-                        className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                      >
-                        Clear Selection
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {!syncAll && (
-                  <p className="text-sm text-gray-600">
-                    {selectedProducts.length} of {products.length} products selected
-                  </p>
-                )}
-                
-                {selectedLanguages.length > 1 && syncMode === 'multi' && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <p className="text-sm text-blue-800">
-                      <strong>Multi-Language Mode:</strong> Each product will be synced in {selectedLanguages.length} languages with language-specific SKUs and content.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Enhanced Product List */}
-            {!syncAll && (
-              <div className="bg-white rounded-lg shadow">
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Products</h3>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Select
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Product
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Arabic Content
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            SKU
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Price
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Stock
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {products.map((product) => (
-                          <tr key={product.id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <input
-                                type="checkbox"
-                                checked={selectedProducts.includes(product.id)}
-                                onChange={() => toggleProductSelection(product.id)}
-                                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                              />
-                            </td>
-                            <td className="px-6 py-4">
-                              <div>
-                                <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                                {product.nameAr && (
-                                  <div className="text-sm text-gray-600 mt-1" dir="rtl">{product.nameAr}</div>
-                                )}
-                                <div className="text-sm text-gray-500">{product.category.name}</div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex space-x-1">
-                                {product.nameAr && (
-                                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
-                                    AR Name
-                                  </span>
-                                )}
-                                {product.category.nameAr && (
-                                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                    AR Category
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {product.sku || 'N/A'}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {product.price} AED
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                product.inStock && product.stockQuantity > 0
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-red-100 text-red-800'
-                              }`}>
-                                {product.inStock && product.stockQuantity > 0 ? 'In Stock' : 'Out of Stock'}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <button
-                                onClick={() => syncIndividualProduct(product.id)}
-                                disabled={loading || !configuration.isConfigured || selectedLanguages.length === 0}
-                                className="text-blue-600 hover:text-blue-900 disabled:opacity-50"
-                              >
-                                {dryRun ? 'Validate' : 'Sync'}
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'results' && syncResults && (
-          <div className="space-y-6">
-            {/* Enhanced Summary */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Sync Results Summary 
-                {syncResults.syncMode === 'multi' && ` (Multi-Language)`}
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">{syncResults.totalProducts || 0}</div>
-                  <div className="text-sm text-gray-600">Total Products</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">{syncResults.totalLanguages || 1}</div>
-                  <div className="text-sm text-gray-600">Languages</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{syncResults.successCount || 0}</div>
-                  <div className="text-sm text-gray-600">Successful</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-red-600">{syncResults.errorCount || 0}</div>
-                  <div className="text-sm text-gray-600">Errors</div>
-                </div>
-                <div className="text-center">
-                  <div className={`text-2xl font-bold ${syncResults.success !== false ? 'text-green-600' : 'text-red-600'}`}>
-                    {syncResults.success !== false ? 'Success' : 'Failed'}
-                  </div>
-                  <div className="text-sm text-gray-600">Overall Status</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Language-Specific Results */}
-            {getLanguageStats() && (
-              <div className="bg-white rounded-lg shadow">
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Results by Language</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {getLanguageStats()!.map((langStat) => (
-                      <div key={langStat.language} className="border rounded-lg p-4">
-                        <h4 className="font-medium text-gray-900 mb-2">
-                          {langStat.name} ({langStat.language.toUpperCase()})
-                        </h4>
-                        <div className="space-y-1 text-sm">
-                          <div className="flex justify-between">
-                            <span>Success:</span>
-                            <span className="font-medium text-green-600">{langStat.successCount}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Errors:</span>
-                            <span className="font-medium text-red-600">{langStat.errorCount}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Detailed Results Table (existing functionality enhanced) */}
-            {syncResults.syncedProducts && syncResults.syncedProducts.length > 0 && (
-              <div className="bg-white rounded-lg shadow">
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Detailed Results</h3>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Product
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Language
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Google Product ID
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Variations
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {syncResults.syncedProducts.map((result, index) => (
-                          <tr key={index} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {result.productName}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                {(result.language || 'EN').toUpperCase()}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                {result.status || 'Success'}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {result.googleProductId || 'N/A'}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {result.variations || 0}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Enhanced Errors Section */}
-            {syncResults.errors && syncResults.errors.length > 0 && (
-              <div className="bg-white rounded-lg shadow">
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 text-red-600">Errors by Language</h3>
-                  <div className="space-y-3">
-                    {syncResults.errors.map((error, index) => (
-                      <div key={index} className="border-l-4 border-red-500 bg-red-50 p-4">
-                        <div className="flex">
-                          <div className="flex-1">
-                            <div className="font-medium text-red-800">
-                              {error.productName}
-                              {error.language && (
-                                <span className="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                  {error.language.toUpperCase()}
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-red-700 text-sm mt-1">{error.error}</div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+        <div>
+          {activeTab === 'overview' && renderConfigurationStatus()}
+          {activeTab === 'sync' && renderSyncControls()}
+          {activeTab === 'results' && renderSyncResults()}
+        </div>
       </div>
-    </div>
+    </BackendLayout>
   );
 } 

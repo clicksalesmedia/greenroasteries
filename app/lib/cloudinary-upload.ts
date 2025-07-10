@@ -202,7 +202,7 @@ export const getOptimizedImageUrl = (
 
   const baseUrl = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload`;
   
-  let transformations = [];
+  const transformations = [];
   
   if (options?.width) transformations.push(`w_${options.width}`);
   if (options?.height) transformations.push(`h_${options.height}`);
