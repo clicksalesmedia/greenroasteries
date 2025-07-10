@@ -95,12 +95,40 @@ NEXT_PUBLIC_TABBY_PUBLIC_KEY=pk_test_0197c11f-299d-d003-8b0c-5fe3dd87682c
 ENVFILE
             fi
             
+            # ✅ CRITICAL: Verify .next directory is complete
+            if [ ! -f .next/BUILD_ID ] || [ ! -d .next/server ] || [ ! -f .next/prerender-manifest.json ]; then
+              echo "❌ ERROR: Incomplete .next build detected!"
+              echo "Missing files:"
+              [ ! -f .next/BUILD_ID ] && echo "  - .next/BUILD_ID"
+              [ ! -d .next/server ] && echo "  - .next/server directory" 
+              [ ! -f .next/prerender-manifest.json ] && echo "  - .next/prerender-manifest.json"
+              exit 1
+            fi
+            
+            echo "✅ Build verification successful - all required files present"
+            
             # Start the application
             pm2 start ecosystem.config.js || pm2 start npm --name "greenroasteries" -- start
+            
+            # Verify deployment success
+            sleep 5
+            if pm2 show greenroasteries | grep -q "online"; then
+              echo "🎉 Deployment successful!"
+            else
+              echo "❌ Deployment failed - rolling back"
+              pm2 stop greenroasteries || true
+              if [ -d "backup-$(date +%Y%m%d)" ]; then
+                cp -r "backup-$(date +%Y%m%d)"/* .
+                pm2 start ecosystem.config.js
+              fi
+              exit 1
+            fi
             
             # Clean up
             rm -f /tmp/deployment.tar.gz
             
-            # Show status
+            # Show final status
+            echo "📊 Final Status:"
             pm2 status
+            curl -I https://thegreenroasteries.com || echo "Website check failed"
           EOF 
