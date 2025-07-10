@@ -1,4 +1,6 @@
 // Tabby payment service utility
+import { TabbyCustomerDataService } from './tabby-customer-data';
+
 export interface TabbyPaymentRequest {
   amount: number;
   currency: string;
@@ -202,6 +204,13 @@ class TabbyService {
   // Create a Tabby payment session
   async createPayment(paymentData: TabbyPaymentRequest): Promise<TabbyPaymentResponse> {
     try {
+      // ✅ TABBY QA FIX: Get real customer data instead of dummy data
+      console.log('🔍 Fetching real customer data for Tabby integration...');
+      const customerData = await TabbyCustomerDataService.getCustomerData(
+        paymentData.buyer.email,
+        paymentData.order.reference_id
+      );
+      
       // Format the payload according to Tabby's API requirements
       const tabbyPayload = {
         payment: {
@@ -247,52 +256,9 @@ class TabbyService {
               seller: "Green Roasteries"
             }))
           },
-          buyer_history: {
-            registered_since: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year ago
-            loyalty_level: 1,
-            wishlist_count: 2,
-            is_social_networks_connected: true,
-            is_phone_number_verified: true,
-            is_email_verified: true
-          },
-          order_history: [{
-            purchased_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
-            amount: (paymentData.amount * 0.8).toFixed(2), // Previous order was 80% of current
-            payment_method: "card",
-            status: "new",
-            buyer: {
-              phone: paymentData.buyer.phone, // Already formatted in the route
-              email: paymentData.buyer.email, // Use actual email for both test and live mode
-              name: paymentData.buyer.name,
-              dob: "1990-01-01T00:00:00.000Z"
-            },
-            shipping_address: {
-              city: paymentData.shipping_address.city,
-              address: paymentData.shipping_address.address,
-              zip: paymentData.shipping_address.zip || "1111"
-            },
-            items: paymentData.order.items.map(item => ({
-              title: item.title,
-              description: item.description,
-              quantity: item.quantity,
-              unit_price: (item.unit_price / 100).toFixed(2),
-              discount_amount: "0.00",
-              reference_id: item.reference_id,
-              image_url: item.image_url || "https://example.com/",
-              product_url: item.product_url || "https://example.com/",
-              ordered: 0,
-              captured: 0,
-              shipped: 0,
-              refunded: 0,
-              gender: "Other",
-              category: item.category || "Coffee",
-              color: "brown",
-              product_material: "organic",
-              size_type: "weight",
-              size: "M",
-              brand: "Green Roasteries"
-            }))
-          }],
+          // ✅ TABBY QA FIX: Use REAL customer data instead of dummy data
+          buyer_history: customerData.buyer_history,
+          order_history: customerData.order_history,
           meta: {
             order_id: paymentData.order.reference_id,
             customer: paymentData.buyer.email // Use actual email for both test and live mode
@@ -308,8 +274,8 @@ class TabbyService {
         token: null
       };
 
-      // Log the request for debugging
-      console.log('Tabby API Request:', {
+      // Log the request for debugging (with real customer data)
+      console.log('✅ Tabby API Request with REAL customer data:', {
         url: `${this.baseUrl}/api/v2/checkout`,
         headers: {
           'Content-Type': 'application/json',
@@ -323,6 +289,11 @@ class TabbyService {
               phone: tabbyPayload.payment.buyer.phone,
               email: tabbyPayload.payment.buyer.email
             },
+            buyer_history: {
+              loyalty_level: customerData.buyer_history.loyalty_level,
+              registered_since: customerData.buyer_history.registered_since
+            },
+            order_history_count: customerData.order_history.length,
             merchant_code: tabbyPayload.merchant_code,
             itemsCount: tabbyPayload.payment.order.items.length
           }
