@@ -9,7 +9,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import UAEDirhamSymbol from '../components/UAEDirhamSymbol';
 import OptimizedImage from '../components/OptimizedImage';
 import ShopErrorBoundary from '../components/ShopErrorBoundary';
-import TabbySnippet from '../components/TabbySnippet';
+import TabbyOfficialSnippet from '../components/TabbyOfficialSnippet';
 
 export default function CartPage() {
   const { items, totalItems, totalPrice, removeItem, updateItemQuantity } = useCart();
@@ -312,10 +312,11 @@ export default function CartPage() {
               <span className="text-lg font-bold flex items-center">{formatPrice(finalTotal)}</span>
             </div>
             
-            {/* Tabby Snippet */}
-            <TabbySnippet 
-              amount={finalTotal} 
-              type="cart"
+            {/* Tabby Official Snippet */}
+            <TabbyOfficialSnippet 
+              price={finalTotal} 
+              source="cart"
+              className="mb-4"
             />
             
             {/* Checkout Button */}

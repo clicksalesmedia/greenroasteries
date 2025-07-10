@@ -33,20 +33,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Format phone number for Tabby (remove country code if present)
+    let formattedPhone = customerInfo.phone;
+    if (formattedPhone.startsWith('+971')) {
+      formattedPhone = formattedPhone.substring(4);
+    } else if (formattedPhone.startsWith('971')) {
+      formattedPhone = formattedPhone.substring(3);
+    }
+    // Remove any non-digit characters except the leading +
+    formattedPhone = formattedPhone.replace(/[^\d]/g, '');
+    
+    // Ensure phone is at least 9 digits
+    if (formattedPhone.length < 9) {
+      formattedPhone = '500000001'; // Default test phone for Tabby
+    }
+
     // Prepare Tabby payment request
     const tabbyPaymentData: TabbyPaymentRequest = {
       amount: amount, // Keep as decimal value
       currency: currency.toUpperCase(),
       description: `Green Roasteries Order - ${items.length} items`,
       buyer: {
-        phone: customerInfo.phone,
+        phone: formattedPhone,
         email: customerInfo.email,
         name: customerInfo.fullName,
       },
       shipping_address: {
         city: shippingInfo.city,
         address: shippingInfo.address,
-        zip: shippingInfo.zip || '',
+        zip: shippingInfo.zip || '1111',
       },
       order: {
         tax_amount: Math.round((tax || 0) * 100), // Keep as fils for internal processing
@@ -54,21 +69,33 @@ export async function POST(request: NextRequest) {
         discount_amount: Math.round(discount * 100),
         updated_at: new Date().toISOString(),
         reference_id: orderId || `order_${Date.now()}`,
-        items: items.map((item: any) => ({
-          title: item.name,
-          description: item.variation ? 
-            `${item.name} - ${JSON.stringify(item.variation)}` : 
-            item.name,
-          quantity: item.quantity,
-          unit_price: Math.round(item.price * 100), // Keep as fils for internal processing
-          discount_amount: 0,
-          reference_id: item.id,
-          image_url: item.imageUrl || '',
-          product_url: `${process.env.NEXT_PUBLIC_SITE_URL}/product/${item.id}`,
-          category: item.category || 'Coffee',
-        })),
+        items: items.map((item: any) => {
+          // Limit image URL to 255 characters to avoid Tabby API issues
+          const fallbackImage = `${process.env.NEXT_PUBLIC_SITE_URL}/images/placeholder.jpg`;
+          let imageUrl = item.image || fallbackImage;
+          
+          // If image URL is too long (Tabby limit), use fallback
+          if (imageUrl.length > 255) {
+            console.warn(`Image URL too long for item ${item.name}, using fallback`);
+            imageUrl = fallbackImage;
+          }
+          
+          return {
+            title: item.name,
+            description: item.variation ? 
+              Object.values(item.variation).filter(Boolean).join(', ') : 
+              item.name,
+            quantity: item.quantity,
+            unit_price: Math.round(item.price * 100), // Keep as fils for internal processing
+            discount_amount: 0,
+            reference_id: item.id,
+            image_url: imageUrl,
+            product_url: `${process.env.NEXT_PUBLIC_SITE_URL}/shop`,
+            category: 'Coffee',
+          };
+        }),
       },
-      merchant_code: process.env.TABBY_MERCHANT_CODE || 'GREEN ROASTERIES',
+      merchant_code: process.env.TABBY_MERCHANT_CODE || 'GR',
       lang: 'en',
       merchant_urls: {
         success: `${process.env.NEXT_PUBLIC_SITE_URL}/checkout/thank-you?payment=tabby&session_id={payment.id}`,
@@ -94,12 +121,35 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Tabby payment creation error:', error);
+    
+    // Extract more specific error information
+    let errorMessage = 'Failed to create Tabby payment';
+    let statusCode = 500;
+    let errorType = 'GENERAL_ERROR';
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      
+      // Check if this is a Tabby rejection error
+      if ((error as any).type === 'TABBY_REJECTION') {
+        statusCode = 400;
+        errorType = 'TABBY_REJECTION';
+        errorMessage = error.message; // Use the specific rejection message
+      } else if (error.message.includes('(400)')) {
+        statusCode = 400;
+        errorMessage = 'Invalid payment information. Please check your details and try again.';
+      }
+    }
+    
     return NextResponse.json(
       { 
-        error: error instanceof Error ? error.message : 'Failed to create Tabby payment',
-        details: error instanceof Error ? error.stack : 'Unknown error'
+        error: errorMessage,
+        details: `${errorType}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        type: errorType,
+        rejectionReason: (error as any).rejectionReason || null,
+        sessionId: (error as any).sessionId || null
       },
-      { status: 500 }
+      { status: statusCode }
     );
   }
 }

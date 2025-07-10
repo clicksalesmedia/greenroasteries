@@ -13,6 +13,7 @@ import {
 import { useLanguage } from '../../contexts/LanguageContext';
 import { trackAddPaymentInfo, trackPurchase } from '../../lib/tracking-integration';
 
+
 // Payment method types
 type PaymentMethod = 'stripe' | 'tabby';
 
@@ -315,7 +316,37 @@ function CheckoutForm({
         // Redirect to Tabby checkout
         window.location.href = data.checkout_url;
       } else {
-        setError(data.error || 'Failed to create Tabby payment session');
+        // Handle Tabby-specific rejections per documentation
+        if (data.type === 'TABBY_REJECTION') {
+          console.log('Tabby rejection detected:', {
+            reason: data.rejectionReason,
+            sessionId: data.sessionId
+          });
+          
+          // Use Tabby's exact rejection messages based on rejection reason
+          let rejectionMessage = '';
+          switch (data.rejectionReason) {
+            case 'not_available':
+            case 'customer_not_eligible':
+              rejectionMessage = t('tabby_general_rejection', 'Sorry, Tabby is unable to approve this purchase. Please use an alternative payment method for your order.');
+              break;
+            case 'order_amount_too_high':
+              rejectionMessage = t('tabby_amount_too_high', 'This purchase is above your current spending limit with Tabby, try a smaller cart or use another payment method');
+              break;
+            case 'order_amount_too_low':
+              rejectionMessage = t('tabby_amount_too_low', 'The purchase amount is below the minimum amount required to use Tabby, try adding more items or use another payment method');
+              break;
+            default:
+              rejectionMessage = t('tabby_general_rejection', 'Sorry, Tabby is unable to approve this purchase. Please use an alternative payment method for your order.');
+          }
+          
+          // Hide Tabby option and switch to card payment
+          setTabbyAvailable(false);
+          setSelectedPaymentMethod('stripe');
+          setError(rejectionMessage);
+        } else {
+          setError(data.error || 'Failed to create Tabby payment session');
+        }
       }
     } catch (err) {
       setError('Failed to initialize Tabby payment');
@@ -629,7 +660,7 @@ function CheckoutForm({
                 </div>
               </div>
 
-              {/* Tabby Payment Option */}
+              {/* Tabby Payment Option - Simplified Design */}
               {tabbyAvailable && (
                 <div 
                   className={`border rounded-lg p-4 cursor-pointer transition-all ${
@@ -652,25 +683,19 @@ function CheckoutForm({
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <label htmlFor="tabby" className="text-sm font-medium text-gray-900 cursor-pointer">
-                          {t('tabby_payment', 'Pay in 4 installments with Tabby')}
+                          {t('tabby_payment', 'Pay later with Tabby')}
                         </label>
-                        <div className="flex flex-col items-end">
-                          <span className="text-xs font-medium bg-green-100 text-green-800 px-2 py-1 rounded mb-1">
-                            0% Interest
-                          </span>
-                          <img 
-                            src="/tabby.png" 
-                            alt="Tabby" 
-                            className="h-4 w-auto max-w-[40px]"
-                            style={{ height: '16px', maxWidth: '40px' }}
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                        </div>
+                        <img 
+                          src="/tabby.png" 
+                          alt="Tabby" 
+                          className="h-4 w-auto max-w-[60px]"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        {t('tabby_description', `Split your ${totalAmount.toFixed(2)} AED into 4 payments of ${(totalAmount / 4).toFixed(2)} AED`)}
+                        {t('pay_in_4_installments', 'Pay in 4 interest-free installments')}
                       </p>
                     </div>
                   </div>
@@ -784,6 +809,8 @@ function CheckoutForm({
           </div>
         </div>
       </form>
+      
+
     </div>
   );
 }

@@ -205,11 +205,11 @@ class TabbyService {
       // Format the payload according to Tabby's API requirements
       const tabbyPayload = {
         payment: {
-          amount: paymentData.amount.toString(), // Amount as string
+          amount: paymentData.amount.toFixed(2), // Format to exactly 2 decimal places
           currency: paymentData.currency,
           description: paymentData.description,
           buyer: {
-            phone: paymentData.buyer.phone.replace(/^\+971/, '').replace(/^971/, ''), // Remove country code to match API format
+            phone: paymentData.buyer.phone, // Already formatted in the route
             email: paymentData.buyer.email, // Use actual email for both test and live mode
             name: paymentData.buyer.name,
             dob: "1990-01-01T00:00:00.000Z" // Default DOB
@@ -261,7 +261,7 @@ class TabbyService {
             payment_method: "card",
             status: "new",
             buyer: {
-              phone: paymentData.buyer.phone.replace(/^\+971/, '').replace(/^971/, ''), // Remove country code to match API format
+              phone: paymentData.buyer.phone, // Already formatted in the route
               email: paymentData.buyer.email, // Use actual email for both test and live mode
               name: paymentData.buyer.name,
               dob: "1990-01-01T00:00:00.000Z"
@@ -351,14 +351,44 @@ class TabbyService {
 
       const result = await response.json();
       
-      // Check if payment was rejected
+      // Enhanced rejection handling per Tabby documentation
+      const installmentProduct = result.configuration?.products?.installments;
+      
+      // Check if installments are not available (background pre-scoring rejection)
+      if (!installmentProduct?.is_available || installmentProduct?.rejection_reason) {
+        console.warn('Tabby background pre-scoring rejection detected:', {
+          rejection_reason: installmentProduct?.rejection_reason,
+          is_available: installmentProduct?.is_available,
+          session_id: result.id,
+          payment_id: result.payment?.id,
+          buyer_email: result.payment?.buyer?.email
+        });
+        
+        // Pass rejection reason to frontend for proper localization
+        const rejectionReason = installmentProduct?.rejection_reason || 'not_available';
+        
+        // Create rejection error with specific type for frontend handling
+        const rejectionError = new Error('TABBY_REJECTION');
+        (rejectionError as any).type = 'TABBY_REJECTION';
+        (rejectionError as any).rejectionReason = rejectionReason;
+        (rejectionError as any).sessionId = result.id;
+        throw rejectionError;
+      }
+      
+      // Check for explicit rejection status
       if (result.status === 'rejected') {
-        console.error('Tabby payment rejected:', {
+        console.error('Tabby payment session rejected:', {
+          status: result.status,
           rejection_reason_code: result.rejection_reason_code,
           warnings: result.warnings,
-          configuration: result.configuration?.products?.installments
+          session_id: result.id
         });
-        throw new Error(`Tabby payment rejected: ${result.rejection_reason_code}. Installments are ${result.configuration?.products?.installments?.is_available ? 'available' : 'not available'} - ${result.configuration?.products?.installments?.rejection_reason || 'unknown reason'}`);
+        
+        const rejectionError = new Error('Your payment could not be processed with Tabby. Please choose another payment method.');
+        (rejectionError as any).type = 'TABBY_REJECTION';
+        (rejectionError as any).rejectionReason = result.rejection_reason_code || 'session_rejected';
+        (rejectionError as any).sessionId = result.id;
+        throw rejectionError;
       }
       
       return result;
@@ -388,27 +418,105 @@ class TabbyService {
     }
   }
 
-  // Capture payment (for authorized payments)
-  async capturePayment(paymentId: string, amount?: number): Promise<any> {
+  // Capture payment (for authorized payments) - Full API compliance
+  async capturePayment(paymentId: string, captureData?: {
+    amount?: string;
+    reference_id?: string;
+    tax_amount?: string;
+    shipping_amount?: string;
+    discount_amount?: string;
+    items?: Array<any>;
+  }): Promise<any> {
     try {
+      // If no capture data provided, retrieve the original payment to get full details
+      let paymentDetails: any = null;
+      if (!captureData) {
+        console.log('🔍 Retrieving original payment details for full capture...');
+        paymentDetails = await this.getPayment(paymentId);
+      }
+
+      // Build complete capture request per Tabby API specification
+      const capturePayload = {
+        // Required: Total payment amount captured (full capture by default)
+        amount: captureData?.amount || paymentDetails?.amount || "0.00",
+        
+        // Idempotency key to avoid duplicate captures
+        reference_id: captureData?.reference_id || `capture_${paymentId}_${Date.now()}`,
+        
+        // Breakdown amounts from original payment
+        tax_amount: captureData?.tax_amount || paymentDetails?.order?.tax_amount || "0.00",
+        shipping_amount: captureData?.shipping_amount || paymentDetails?.order?.shipping_amount || "0.00", 
+        discount_amount: captureData?.discount_amount || paymentDetails?.order?.discount_amount || "0.00",
+        
+        // Timestamp in ISO format
+        created_at: new Date().toISOString(),
+        
+        // Order items being captured (all items by default for full capture)
+        items: captureData?.items || paymentDetails?.order?.items?.map((item: any) => ({
+          title: item.title,
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          discount_amount: item.discount_amount || "0.00",
+          reference_id: item.reference_id,
+          image_url: item.image_url,
+          product_url: item.product_url,
+          ordered: item.quantity,
+          captured: item.quantity, // Capturing full quantity
+          shipped: 0,
+          refunded: 0,
+          gender: item.gender || "Other",
+          category: item.category,
+          color: item.color || "brown",
+          product_material: item.product_material || "organic",
+          size_type: item.size_type || "weight",
+          size: item.size || "M",
+          brand: item.brand || "Green Roasteries"
+        })) || []
+      };
+
+      console.log('📞 Making capture request to Tabby API:', {
+        paymentId,
+        url: `${this.baseUrl}/api/v2/payments/${paymentId}/captures`,
+        payload: {
+          amount: capturePayload.amount,
+          reference_id: capturePayload.reference_id,
+          tax_amount: capturePayload.tax_amount,
+          shipping_amount: capturePayload.shipping_amount,
+          discount_amount: capturePayload.discount_amount,
+          itemsCount: capturePayload.items.length
+        }
+      });
+
       const response = await fetch(`${this.baseUrl}/api/v2/payments/${paymentId}/captures`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.secretKey}`,
         },
-        body: JSON.stringify({
-          amount: amount,
-        }),
+        body: JSON.stringify(capturePayload),
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to capture payment: ${response.statusText}`);
+        const errorData = await response.json().catch(() => null);
+        console.error('❌ Tabby capture API error:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData: errorData
+        });
+        throw new Error(`Failed to capture payment: ${errorData?.message || response.statusText} (${response.status})`);
       }
 
-      return await response.json();
+      const result = await response.json();
+      console.log('✅ Capture successful:', {
+        captureId: result.id,
+        amount: result.amount,
+        created_at: result.created_at
+      });
+
+      return result;
     } catch (error) {
-      console.error('Tabby payment capture error:', error);
+      console.error('❌ Tabby payment capture error:', error);
       throw error;
     }
   }

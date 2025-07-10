@@ -13,7 +13,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import UAEDirhamSymbol from '../../components/UAEDirhamSymbol';
 import { trackViewContent, trackAddToCart } from '../../lib/tracking-integration';
-import TabbySnippet from '../../components/TabbySnippet';
+import TabbyOfficialSnippet from '../../components/TabbyOfficialSnippet';
 
 interface ProductVariation {
   id: string;
@@ -1409,12 +1409,6 @@ export default function ProductPage() {
                 <UAEDirhamSymbol size={18} />
               </span>
             )}
-            
-            {/* Tabby Snippet */}
-            <TabbySnippet 
-              amount={getCurrentPrice()} 
-              type="product"
-            />
           </div>
           
           {/* Rating */}
@@ -1591,6 +1585,14 @@ export default function ProductPage() {
             )}
           </div>
           
+          {/* Tabby Official Snippet - Above action buttons */}
+          <div className="mb-6">
+            <TabbyOfficialSnippet 
+              price={getCurrentPrice()} 
+              source="product"
+            />
+          </div>
+
           {/* Action Buttons - Positioned at the bottom */}
           <div className="mt-auto">
             <div className="flex flex-col sm:flex-row gap-3">

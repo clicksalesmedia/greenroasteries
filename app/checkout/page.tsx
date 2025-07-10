@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '../contexts/CartContext';
@@ -19,6 +19,7 @@ import OrderSummary from '../components/checkout/OrderSummary';
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { items, totalPrice, clearCart } = useCart();
   const { showToast } = useToast();
   const { t, language } = useLanguage();
@@ -56,6 +57,25 @@ export default function CheckoutPage() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Handle Tabby redirect messages
+  useEffect(() => {
+    if (!isClient || !searchParams) return;
+
+    const paymentStatus = searchParams.get('payment');
+    
+    if (paymentStatus === 'cancelled') {
+      // Customer cancelled payment willingly (status: EXPIRED)
+      setError(t('tabby_payment_cancelled', 'You cancelled the payment with Tabby. You can try again or choose a different payment method.'));
+      // Clear the URL parameter after showing message
+      setTimeout(() => router.replace('/checkout', { scroll: false }), 100);
+    } else if (paymentStatus === 'failed') {
+      // Payment was rejected by Tabby (status: REJECTED) - show General Rejection Message
+      setError(t('tabby_payment_failed', 'Sorry, Tabby is unable to approve this purchase. Please use an alternative payment method for your order.'));
+      // Clear the URL parameter after showing message  
+      setTimeout(() => router.replace('/checkout', { scroll: false }), 100);
+    }
+  }, [isClient, searchParams, router, t]);
 
   // Redirect if cart is empty (but not during order completion)
   useEffect(() => {
@@ -374,15 +394,36 @@ export default function CheckoutPage() {
       {/* Error Message */}
       {error && (
         <div className="mb-6 max-w-4xl mx-auto">
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="flex items-center">
-              <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          <div className={`border rounded-md p-4 ${
+            error.includes('Tabby') 
+              ? 'bg-orange-50 border-orange-200' 
+              : 'bg-red-50 border-red-200'
+          }`}>
+            <div className="flex items-start">
+              <svg className={`w-5 h-5 mr-3 mt-0.5 flex-shrink-0 ${
+                error.includes('Tabby') ? 'text-orange-400' : 'text-red-400'
+              }`} fill="currentColor" viewBox="0 0 20 20">
+                {error.includes('Tabby') ? (
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                ) : (
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                )}
               </svg>
-              <span className="text-red-800 text-sm font-medium">{error}</span>
+              <div className="flex-1">
+                <span className={`text-sm font-medium ${
+                  error.includes('Tabby') ? 'text-orange-800' : 'text-red-800'
+                }`}>{error}</span>
+                {error.includes('Tabby') && (
+                  <p className="text-orange-700 text-xs mt-1">
+                    {t('try_card_payment', 'You can continue with your credit/debit card below.')}
+                  </p>
+                )}
+              </div>
               <button 
                 onClick={() => setError(null)}
-                className="ml-auto text-red-600 hover:text-red-800"
+                className={`ml-3 flex-shrink-0 ${
+                  error.includes('Tabby') ? 'text-orange-600 hover:text-orange-800' : 'text-red-600 hover:text-red-800'
+                }`}
               >
                 ×
               </button>

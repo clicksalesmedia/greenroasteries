@@ -20,35 +20,52 @@ export async function POST(request: NextRequest) {
       syncAll = false, 
       dryRun = false,
       includeVariations = true,
-      batchSize = 100  // Process up to 100 products at a time
+      batchSize = 50,  // Reduced for better performance with multi-language
+      languages = ['en'], // New: Support multiple languages
+      syncMode = 'single' // New: 'single' or 'multi' language mode
     } = body;
 
-    // Validate Google Shopping configuration
-    const googleShopping = new GoogleShoppingService();
-    if (!googleShopping.isConfigured()) {
+    console.log(`=== Google Shopping Sync Started ===`);
+    console.log(`Mode: ${syncMode}, Languages: ${languages.join(', ')}, Dry Run: ${dryRun}`);
+
+    // Validate languages
+    const supportedLanguages = GoogleShoppingService.getSupportedLanguages();
+    const validLanguages = languages.filter((lang: string) => supportedLanguages[lang]);
+    
+    if (validLanguages.length === 0) {
       return NextResponse.json(
         { 
-          error: 'Google Shopping API not configured. Please add required environment variables.',
-          required: [
-            'GOOGLE_MERCHANT_CENTER_ID',
-            'GOOGLE_SERVICE_ACCOUNT_KEY',
-            'GOOGLE_SHOPPING_COUNTRY',
-            'GOOGLE_SHOPPING_LANGUAGE'
-          ]
+          error: 'No valid languages specified. Supported: ' + Object.keys(supportedLanguages).join(', '),
+          supportedLanguages: Object.keys(supportedLanguages)
         },
         { status: 400 }
       );
     }
 
+    // For single language mode, validate Google Shopping configuration
+    if (syncMode === 'single') {
+      const googleShopping = new GoogleShoppingService(validLanguages[0]);
+      if (!googleShopping.isConfigured()) {
+        return NextResponse.json(
+          { 
+            error: 'Google Shopping API not configured. Please add required environment variables.',
+            required: [
+              'GOOGLE_MERCHANT_CENTER_ID',
+              'GOOGLE_SERVICE_ACCOUNT_KEY'
+            ]
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     let products;
     
     if (syncAll) {
-      // Get ALL products - removed inStock filter to include new products
+      // Get ALL products with Arabic fields
       products = await prisma.product.findMany({
         where: {
-          // Remove restrictive inStock filter to include new products
-          // Only exclude products that are explicitly marked as deleted or inactive
-          // inStock: true,  // REMOVED - this was blocking new products
+          // Only exclude explicitly deleted products
         },
         include: {
           category: true,
@@ -63,15 +80,14 @@ export async function POST(request: NextRequest) {
           }
         },
         orderBy: {
-          createdAt: 'desc' // Show newest products first for debugging
+          createdAt: 'desc'
         }
       });
     } else if (productIds.length > 0) {
-      // Get specific products - also remove inStock filter
+      // Get specific products with Arabic fields
       products = await prisma.product.findMany({
         where: {
-          id: { in: productIds },
-          // inStock: true,  // REMOVED - this was blocking new products
+          id: { in: productIds }
         },
         include: {
           category: true,
@@ -93,12 +109,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`Found ${products.length} products to process (including new products)`);
+    console.log(`Found ${products.length} products to process`);
     
-    // Debug: Log categories to verify new categories are included
-    const categories = [...new Set(products.map(p => p.category?.name).filter(Boolean))];
-    console.log('Categories found:', categories);
-
     if (products.length === 0) {
       return NextResponse.json(
         { 
@@ -113,9 +125,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Prepare sync results
+    // Prepare sync results with multi-language support
     const results = {
       totalProducts: products.length,
+      totalLanguages: validLanguages.length,
+      syncMode,
+      languages: validLanguages,
       successCount: 0,
       errorCount: 0,
       skippedCount: 0,
@@ -123,102 +138,162 @@ export async function POST(request: NextRequest) {
       syncedProducts: [] as any[],
       dryRun,
       message: '' as string,
-      debug: {
-        categoriesFound: categories,
-        newProductsIncluded: true,
-        stockFilterRemoved: true
-      }
+      languageResults: {} as Record<string, any>
     };
 
-    console.log(`Starting Google Shopping sync for ${products.length} products (dryRun: ${dryRun}, batchSize: ${batchSize})`);
+    // Initialize language-specific results
+    validLanguages.forEach((lang: string) => {
+      results.languageResults[lang] = {
+        successCount: 0,
+        errorCount: 0,
+        syncedProducts: [],
+        errors: []
+      };
+    });
 
-    // Process products in batches to prevent timeouts
+    // Process products in batches
     const totalProducts = products.length;
     const processBatch = Math.min(batchSize, totalProducts);
     const processedProducts = products.slice(0, processBatch);
     
-    console.log(`Processing batch of ${processedProducts.length} products (total: ${totalProducts})`);
+    console.log(`Processing batch of ${processedProducts.length} products in ${validLanguages.length} language(s)`);
     
-    // Start timeout tracking
     const startTime = Date.now();
-    const maxProcessingTime = 120000; // 2 minutes max to handle all products
+    const maxProcessingTime = 180000; // 3 minutes for multi-language
 
-    // Process each product in the current batch
+    // Process each product
     for (const product of processedProducts) {
-      // Check if we're approaching timeout
+      // Check timeout
       if (Date.now() - startTime > maxProcessingTime) {
         console.log('Approaching timeout, stopping batch processing');
         break;
       }
       
       try {
-        // Log product details for debugging
-        console.log(`Processing product: ${product.name} (Category: ${product.category?.name}, Stock: ${product.stockQuantity}, InStock: ${product.inStock})`);
-        
-        // Convert product to Google Shopping format
-        const productData = await googleShopping.convertProductToGoogleFormat(product, includeVariations);
-        
-        if (dryRun) {
-          // Just validate the conversion
-          results.syncedProducts.push({
-            productId: product.id,
-            productName: product.name,
-            googleProductId: productData.mainProduct.offerId,
-            variations: productData.variations.length || 0,
-            status: 'validated',
-            category: product.category?.name,
-            stockQuantity: product.stockQuantity,
-            inStock: product.inStock
-          });
-          results.successCount++;
-        } else {
-          // Actually sync to Google Shopping
-          const syncResult = await googleShopping.syncProduct(productData);
+        console.log(`\n📦 Processing: ${product.name} (${product.category?.name})`);
+        console.log(`   Stock: ${product.stockQuantity}, InStock: ${product.inStock}`);
+        console.log(`   Has Arabic name: ${!!product.nameAr}`);
+        console.log(`   Has Arabic description: ${!!product.descriptionAr}`);
+
+        if (syncMode === 'multi') {
+          // Multi-language sync: Process all languages for this product
+          const multiLangResult = await syncProductMultiLanguage(
+            product, 
+            includeVariations, 
+            validLanguages,
+            dryRun
+          );
           
-          if (syncResult.success) {
-            results.syncedProducts.push({
+          // Aggregate results
+          for (const langResult of multiLangResult.results) {
+            const langStats = results.languageResults[langResult.language];
+            
+            if (langResult.success) {
+              langStats.successCount++;
+              langStats.syncedProducts.push({
+                productId: product.id,
+                productName: product.name,
+                googleProductId: langResult.googleProductId,
+                variations: langResult.variationCount || 0,
+                status: dryRun ? 'validated' : 'synced',
+                language: langResult.language,
+                category: product.category?.name
+              });
+              results.successCount++;
+            } else {
+              langStats.errorCount++;
+              langStats.errors.push({
+                productId: product.id,
+                productName: product.name,
+                error: langResult.error,
+                language: langResult.language,
+                category: product.category?.name
+              });
+              results.errorCount++;
+            }
+          }
+          
+        } else {
+          // Single language sync: Process with primary language only
+          const primaryLanguage = validLanguages[0];
+          const singleLangResult = await syncProductSingleLanguage(
+            product,
+            includeVariations,
+            primaryLanguage,
+            dryRun
+          );
+          
+          const langStats = results.languageResults[primaryLanguage];
+          
+          if (singleLangResult.success) {
+            langStats.successCount++;
+            langStats.syncedProducts.push({
               productId: product.id,
               productName: product.name,
-              googleProductId: syncResult.googleProductId,
-              variations: syncResult.variationCount || 0,
-              status: 'synced',
-              category: product.category?.name,
-              stockQuantity: product.stockQuantity,
-              inStock: product.inStock
+              googleProductId: singleLangResult.googleProductId,
+              variations: singleLangResult.variationCount || 0,
+              status: dryRun ? 'validated' : 'synced',
+              language: primaryLanguage,
+              category: product.category?.name
             });
             results.successCount++;
           } else {
-            results.errors.push({
+            langStats.errorCount++;
+            langStats.errors.push({
               productId: product.id,
               productName: product.name,
-              error: syncResult.error,
+              error: singleLangResult.error,
+              language: primaryLanguage,
               category: product.category?.name
             });
             results.errorCount++;
           }
         }
+
       } catch (error) {
         console.error(`Error processing product ${product.id}:`, error);
-        results.errors.push({
-          productId: product.id,
-          productName: product.name,
-          error: error instanceof Error ? error.message : 'Unknown error',
-          category: product.category?.name
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        
+                 // Add error to all language results
+         validLanguages.forEach((lang: string) => {
+           results.languageResults[lang].errors.push({
+            productId: product.id,
+            productName: product.name,
+            error: errorMessage,
+            language: lang,
+            category: product.category?.name
+          });
         });
-        results.errorCount++;
+        
+        results.errorCount += validLanguages.length;
       }
     }
 
-    // Log the sync operation
-    console.log(`Google Shopping sync completed. Success: ${results.successCount}, Errors: ${results.errorCount}, Skipped: ${results.skippedCount}`);
+    // Aggregate all language-specific results for backward compatibility
+    results.syncedProducts = [];
+    results.errors = [];
+    
+    Object.entries(results.languageResults).forEach(([lang, langResult]: [string, any]) => {
+      results.syncedProducts.push(...langResult.syncedProducts);
+      results.errors.push(...langResult.errors);
+    });
 
-    // Add information about remaining products
+    // Generate summary message
     const remainingProducts = totalProducts - processedProducts.length;
     if (remainingProducts > 0) {
-      results.message = `Processed ${processedProducts.length} of ${totalProducts} products. ${remainingProducts} products remaining. Run sync again to continue.`;
+      results.message = `Processed ${processedProducts.length} of ${totalProducts} products in ${validLanguages.length} language(s). ${remainingProducts} products remaining.`;
     } else {
-      results.message = `Successfully processed all ${totalProducts} products. New categories included: ${categories.join(', ')}`;
+      const langSummary = validLanguages.map((lang: string) => {
+        const langStats = results.languageResults[lang];
+        return `${lang.toUpperCase()}: ${langStats.successCount} synced, ${langStats.errorCount} errors`;
+      }).join(' | ');
+      
+      results.message = `✅ Completed processing ${totalProducts} products. ${langSummary}`;
     }
+
+    console.log(`\n=== Google Shopping Sync Completed ===`);
+    console.log(`Total Success: ${results.successCount}, Total Errors: ${results.errorCount}`);
+    console.log(`Languages processed: ${validLanguages.join(', ')}`);
 
     return NextResponse.json(results);
 
@@ -234,6 +309,66 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Helper function for multi-language sync
+async function syncProductMultiLanguage(
+  product: any,
+  includeVariations: boolean,
+  languages: string[],
+  dryRun: boolean
+) {
+  const googleShopping = new GoogleShoppingService();
+  
+  if (!googleShopping.isConfigured()) {
+    throw new Error('Google Shopping not configured');
+  }
+  
+  return await googleShopping.syncProductMultiLanguage(
+    product,
+    includeVariations,
+    languages
+  );
+}
+
+// Helper function for single language sync
+async function syncProductSingleLanguage(
+  product: any,
+  includeVariations: boolean,
+  language: string,
+  dryRun: boolean
+) {
+  const googleShopping = new GoogleShoppingService(language);
+  
+  if (!googleShopping.isConfigured()) {
+    throw new Error('Google Shopping not configured');
+  }
+  
+  try {
+    const productData = await googleShopping.convertProductToGoogleFormat(
+      product, 
+      includeVariations, 
+      language
+    );
+    
+    if (dryRun) {
+      return {
+        success: true,
+        googleProductId: productData.mainProduct.offerId,
+        variationCount: productData.variations.length,
+        language
+      };
+    }
+    
+    return await googleShopping.syncProduct(productData, language);
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      language
+    };
+  }
+}
+
+// Enhanced GET endpoint with language support
 export async function GET(_request: NextRequest) {
   try {
     // Check admin authentication - ADMIN only
@@ -245,13 +380,36 @@ export async function GET(_request: NextRequest) {
       );
     }
 
-    // Get sync status and configuration
-    const googleShopping = new GoogleShoppingService();
-    const isConfigured = googleShopping.isConfigured();
+    // Get configuration for all supported languages
+    const supportedLanguages = GoogleShoppingService.getSupportedLanguages();
+    const languageConfigs: Record<string, any> = {};
     
-    // Get product counts
-    const totalProducts = await prisma.product.count({
+    for (const [langCode, langConfig] of Object.entries(supportedLanguages)) {
+      const googleShopping = new GoogleShoppingService(langCode);
+      languageConfigs[langCode] = {
+        ...langConfig,
+        configured: googleShopping.isConfigured()
+      };
+    }
+    
+    // Get product counts with Arabic content analysis
+    const totalProducts = await prisma.product.count();
+    const inStockProducts = await prisma.product.count({
       where: { inStock: true }
+    });
+    
+    const productsWithArabicNames = await prisma.product.count({
+      where: { 
+        nameAr: { not: null },
+        nameAr: { not: '' }
+      }
+    });
+    
+    const productsWithArabicDescriptions = await prisma.product.count({
+      where: { 
+        descriptionAr: { not: null },
+        descriptionAr: { not: '' }
+      }
     });
     
     const productsWithVariations = await prisma.product.count({
@@ -263,17 +421,32 @@ export async function GET(_request: NextRequest) {
       }
     });
 
+    // Check overall configuration status
+    const isAnyLanguageConfigured = Object.values(languageConfigs).some(
+      (config: any) => config.configured
+    );
+
     return NextResponse.json({
-      configured: isConfigured,
+      configured: isAnyLanguageConfigured,
       totalProducts,
+      inStockProducts,
       productsWithVariations,
-      configuration: isConfigured ? {
+      arabicContent: {
+        productsWithArabicNames,
+        productsWithArabicDescriptions,
+        arabicReadiness: Math.round((productsWithArabicNames / Math.max(totalProducts, 1)) * 100)
+      },
+      supportedLanguages: languageConfigs,
+      configuration: isAnyLanguageConfigured ? {
         merchantId: process.env.GOOGLE_MERCHANT_CENTER_ID ? 'configured' : 'missing',
         serviceAccount: process.env.GOOGLE_SERVICE_ACCOUNT_KEY ? 'configured' : 'missing',
-        country: process.env.GOOGLE_SHOPPING_COUNTRY || 'AE',
-        language: process.env.GOOGLE_SHOPPING_LANGUAGE || 'en',
-        currency: process.env.GOOGLE_SHOPPING_CURRENCY || 'AED'
-      } : null
+        baseUrl: process.env.NEXT_PUBLIC_APP_URL || 'https://thegreenroasteries.com'
+      } : null,
+      features: {
+        multiLanguageSupport: true,
+        availableLanguages: Object.keys(supportedLanguages),
+        arabicSupport: true
+      }
     });
 
   } catch (error) {
