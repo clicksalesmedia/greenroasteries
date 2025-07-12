@@ -83,34 +83,8 @@ export default function ThankYouPage() {
             console.log('Order data formatted:', orderData);
               setOrderDetails(orderData);
 
-              // Track Google Ads Purchase conversion for Tabby orders
-              if (typeof window !== 'undefined' && (window as any).trackGoogleAdsPurchase) {
-              (window as any).trackGoogleAdsPurchase(orderData.orderId, orderData.totalAmount, 'AED');
-              }
-
-              // Track GA4 Enhanced Purchase for Tabby orders
-            if (typeof window !== 'undefined' && (window as any).trackGA4Purchase && orderData.items) {
-              const itemsData = orderData.items.map((item: any) => ({
-                id: item.id,
-                  name: item.name,
-                  price: item.price,
-                  quantity: item.quantity || 1,
-                  category: 'Coffee',
-                  variation: 'Standard'
-                }));
-              (window as any).trackGA4Purchase(orderData.orderId, itemsData, orderData.totalAmount, 'AED', orderData.shippingCost, orderData.tax);
-              }
-
-              // Track Facebook Purchase for Tabby orders (Pixel + Conversions API)
-            if (typeof window !== 'undefined' && (window as any).trackFacebookPurchase && orderData.items) {
-              const itemsData = orderData.items.map((item: any) => ({
-                id: item.id,
-                  name: item.name,
-                  price: item.price,
-                  category: 'Coffee'
-                }));
-              (window as any).trackFacebookPurchase(orderData.orderId, itemsData, orderData.totalAmount, 'AED', orderData.customerInfo.email);
-            }
+              // NOTE: Purchase tracking moved to server-side webhooks for accurate payment confirmation
+              // This ensures events are only fired when payments are actually successful and avoids duplicates
           } else {
             console.error('No matching Tabby order found for session ID:', sessionId);
           }
@@ -125,40 +99,8 @@ export default function ThankYouPage() {
             const orderData = JSON.parse(savedOrder);
             setOrderDetails(orderData);
 
-            // Track Google Ads Purchase conversion for standard orders
-            if (typeof window !== 'undefined' && (window as any).trackGoogleAdsPurchase) {
-              const orderTotal = orderData.total || orderData.orderTotal || 0;
-              (window as any).trackGoogleAdsPurchase(orderData.orderId, orderTotal, 'AED');
-            }
-
-            // Track GA4 Enhanced Purchase for standard orders
-            if (typeof window !== 'undefined' && (window as any).trackGA4Purchase && orderData.items) {
-              const itemsData = orderData.items.map((item: any) => ({
-                id: item.productId || item.id,
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity || 1,
-                category: 'Coffee',
-                variation: 'Standard'
-              }));
-              const orderTotal = orderData.total || orderData.orderTotal || 0;
-              const shipping = orderData.shipping || 0;
-              const tax = orderData.tax || 0;
-              (window as any).trackGA4Purchase(orderData.orderId, itemsData, orderTotal, 'AED', shipping, tax);
-            }
-
-            // Track Facebook Purchase for standard orders (Pixel + Conversions API)
-            if (typeof window !== 'undefined' && (window as any).trackFacebookPurchase && orderData.items) {
-              const itemsData = orderData.items.map((item: any) => ({
-                id: item.productId || item.id,
-                name: item.name,
-                price: item.price,
-                category: 'Coffee'
-              }));
-              const orderTotal = orderData.total || orderData.orderTotal || 0;
-              const userEmail = orderData.customerInfo?.email;
-              (window as any).trackFacebookPurchase(orderData.orderId, itemsData, orderTotal, 'AED', userEmail);
-            }
+            // NOTE: Purchase tracking moved to server-side webhooks for accurate payment confirmation
+            // This ensures events are only fired when payments are actually successful and avoids duplicates
           } catch (error) {
             console.error('Failed to parse order details:', error);
           }

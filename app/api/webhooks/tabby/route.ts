@@ -27,6 +27,114 @@ import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
+// Helper function to track purchase events from webhooks
+async function trackPurchaseFromWebhook(order: any, user: any, orderItems: any[], total: number) {
+  try {
+    // Track with Facebook Pixel (Server-side via API)
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/facebook`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_name: 'Purchase',
+        event_time: Math.floor(Date.now() / 1000),
+        action_source: 'system_api',
+        user_data: {
+          email: user.email,
+          first_name: user.name?.split(' ')[0],
+          last_name: user.name?.split(' ').slice(1).join(' '),
+          phone: user.phone,
+        },
+        custom_data: {
+          value: total,
+          currency: 'AED',
+          content_ids: orderItems.map(item => item.productId),
+          content_type: 'product',
+          order_id: order.id,
+          num_items: orderItems.length
+        },
+        event_id: 'purchase_webhook_tabby_' + order.id + '_' + Date.now()
+      })
+    });
+
+    // Track with Google Ads (Server-side)
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        method: 'ads',
+        conversion_action: 'purchase',
+        conversion_date_time: new Date().toISOString(),
+        conversion_value: total,
+        currency_code: 'AED',
+        order_id: order.id,
+        user_data: {
+          email: user.email,
+          phone: user.phone,
+          first_name: user.name?.split(' ')[0],
+          last_name: user.name?.split(' ').slice(1).join(' ')
+        }
+      })
+    });
+
+    // Track with GA4 Measurement Protocol (Server-side)
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        method: 'ga4',
+        conversion_action: 'purchase',
+        conversion_date_time: new Date().toISOString(),
+        conversion_value: total,
+        currency_code: 'AED',
+        order_id: order.id,
+        items: orderItems.map(item => ({
+          item_id: item.productId,
+          item_name: 'Product',
+          category: 'Coffee',
+          quantity: item.quantity,
+          price: item.unitPrice
+        })),
+        user_data: {
+          email: user.email,
+          phone: user.phone,
+          first_name: user.name?.split(' ')[0],
+          last_name: user.name?.split(' ').slice(1).join(' ')
+        }
+      })
+    });
+
+    // Track with Google Analytics (Internal tracking system)
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'webhook_session_tabby_' + Date.now(),
+        userId: user.id,
+        eventName: 'purchase',
+        eventType: 'PURCHASE',
+        platform: 'SERVER_SIDE',
+        transactionId: order.id,
+        value: total,
+        currency: 'AED',
+        items: orderItems.map(item => ({
+          item_id: item.productId,
+          item_name: 'Product', // We don't have product names in webhook context
+          quantity: item.quantity,
+          price: item.unitPrice
+        })),
+        userAgent: 'Webhook/Server',
+        pageUrl: 'webhook://tabby-payment-confirmed',
+        pageTitle: 'Payment Confirmed'
+      })
+    });
+
+    console.log(`[Tabby Webhook] Purchase tracking completed for order ${order.id}`);
+  } catch (error) {
+    console.error('[Tabby Webhook] Purchase tracking error:', error);
+    throw error; // Re-throw so it can be caught and logged as non-critical
+  }
+}
+
 export async function POST(request: NextRequest) {
   // Return 200 immediately to acknowledge receipt (Tabby recommendation)
   const acknowledgeResponse = () => NextResponse.json({ 
@@ -358,6 +466,31 @@ async function handlePaymentCaptured(payment: any) {
       console.log('✅ Order confirmed and ready for fulfillment');
       console.log('📊 Dashboard Status: CAPTURED (Tabby) → PROCESSING (Our System)');
       
+      // Track purchase completion since Tabby payment is confirmed and captured
+      try {
+        const paymentRecord = await prisma.payment.findFirst({
+          where: { tabbyPaymentId: payment.id },
+          include: { order: { include: { user: true } } }
+        });
+        
+        if (paymentRecord?.order) {
+          const orderItems = await prisma.orderItem.findMany({ 
+            where: { orderId: paymentRecord.order.id } 
+          });
+          
+          if (orderItems.length > 0) {
+            await trackPurchaseFromWebhook(
+              paymentRecord.order, 
+              paymentRecord.order.user, 
+              orderItems, 
+              paymentRecord.amount
+            );
+          }
+        }
+      } catch (trackingError) {
+        console.error('[Tabby Webhook] Purchase tracking failed (non-critical):', trackingError);
+      }
+      
     } else {
       console.warn(`⚠️ Unexpected status in captured webhook: ${paymentDetails.status}`);
     }
@@ -463,6 +596,31 @@ async function handlePaymentClosed(payment: any) {
         });
 
     console.log('✅ Payment closed - order fully confirmed:', payment.id);
+
+    // Track purchase completion since Tabby payment is fully closed
+    try {
+      const paymentRecord = await prisma.payment.findFirst({
+        where: { tabbyPaymentId: payment.id },
+        include: { order: { include: { user: true } } }
+      });
+      
+      if (paymentRecord?.order) {
+        const orderItems = await prisma.orderItem.findMany({ 
+          where: { orderId: paymentRecord.order.id } 
+        });
+        
+        if (orderItems.length > 0) {
+          await trackPurchaseFromWebhook(
+            paymentRecord.order, 
+            paymentRecord.order.user, 
+            orderItems, 
+            paymentRecord.amount
+          );
+        }
+      }
+    } catch (trackingError) {
+      console.error('[Tabby Webhook] Purchase tracking failed for closed payment (non-critical):', trackingError);
+    }
 
   } catch (error) {
     console.error('Error processing payment.closed:', error);

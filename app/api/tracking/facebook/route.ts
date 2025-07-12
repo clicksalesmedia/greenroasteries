@@ -51,11 +51,45 @@ function hashData(data: string): string {
 // Validate and sanitize event data
 function validateEventData(eventData: any): FacebookEventData | null {
   try {
+    // Check if eventData exists and is an object
+    if (!eventData || typeof eventData !== 'object') {
+      console.warn('Invalid event data: not an object');
+      return null;
+    }
+
     const requiredFields = ['event_name', 'event_time', 'action_source'];
     for (const field of requiredFields) {
       if (!eventData[field]) {
-        throw new Error(`Missing required field: ${field}`);
+        console.warn(`Missing required field: ${field}`);
+        return null;
       }
+    }
+
+    // Validate event_name
+    const validEventNames = [
+      'Purchase', 'AddToCart', 'InitiateCheckout', 'AddPaymentInfo', 
+      'Lead', 'CompleteRegistration', 'ViewContent', 'Search', 
+      'AddToWishlist', 'PageView', 'Contact', 'Subscribe'
+    ];
+    if (!validEventNames.includes(eventData.event_name)) {
+      console.warn(`Invalid event_name: ${eventData.event_name}`);
+      return null;
+    }
+
+    // Validate action_source
+    const validActionSources = ['website', 'email', 'app', 'phone_call', 'chat', 'physical_store', 'system_generated', 'other'];
+    if (!validActionSources.includes(eventData.action_source)) {
+      console.warn(`Invalid action_source: ${eventData.action_source}`);
+      return null;
+    }
+
+    // Validate event_time (should be within reasonable range)
+    const eventTime = parseInt(eventData.event_time);
+    const now = Math.floor(Date.now() / 1000);
+    const oneWeekAgo = now - (7 * 24 * 60 * 60);
+    if (isNaN(eventTime) || eventTime < oneWeekAgo || eventTime > now + 300) {
+      console.warn(`Invalid event_time: ${eventData.event_time}`);
+      return null;
     }
 
     // Hash PII data in user_data
@@ -103,7 +137,7 @@ function validateEventData(eventData: any): FacebookEventData | null {
 
     return {
       event_name: eventData.event_name,
-      event_time: eventData.event_time,
+      event_time: eventTime,
       action_source: eventData.action_source,
       event_source_url: eventData.event_source_url,
       user_data: hashedUserData,
@@ -111,7 +145,7 @@ function validateEventData(eventData: any): FacebookEventData | null {
       event_id: eventData.event_id || crypto.randomUUID()
     };
   } catch (error) {
-    console.error('Error validating event data:', error);
+    console.warn('Error validating event data (non-critical):', error instanceof Error ? error.message : 'Unknown error');
     return null;
   }
 }
@@ -120,15 +154,21 @@ function validateEventData(eventData: any): FacebookEventData | null {
 async function sendToFacebook(pixelId: string, accessToken: string, eventData: FacebookEventData[]): Promise<any> {
   const url = `https://graph.facebook.com/v18.0/${pixelId}/events`;
   
+  // Build payload with better validation
   const payload: FacebookConversionEvent = {
     pixel_id: pixelId,
-    data: eventData,
-    test_event_code: process.env.FACEBOOK_TEST_EVENT_CODE // Optional for testing
+    data: eventData
   };
+
+  // Only add test_event_code if it's properly configured and valid
+  const testEventCode = process.env.FACEBOOK_TEST_EVENT_CODE;
+  if (testEventCode && testEventCode.length > 5 && testEventCode !== 'your_test_event_code') {
+    payload.test_event_code = testEventCode;
+  }
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // Reduced timeout
 
     const response = await fetch(url, {
       method: 'POST',
@@ -145,19 +185,24 @@ async function sendToFacebook(pixelId: string, accessToken: string, eventData: F
     const result = await response.json();
     
     if (!response.ok) {
-      throw new Error(`Facebook API Error: ${result.error?.message || 'Unknown error'}`);
+      const errorMsg = result.error?.message || `HTTP ${response.status}`;
+      console.warn(`Facebook API returned error: ${errorMsg}`);
+      throw new Error(`Facebook API Error: ${errorMsg}`);
     }
 
     return result;
   } catch (error: any) {
-    // Handle all types of network errors gracefully
+    // Handle all errors gracefully - don't let them crash the app
+    const errorMessage = error.message || error.code || 'Unknown error';
+    
     if (error.name === 'AbortError' || error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') {
-      console.warn('Facebook API network error (non-critical):', error.message || error.code);
-      throw new Error('Network timeout or connection reset');
+      console.warn('Facebook API network timeout (non-critical):', errorMessage);
+    } else {
+      console.warn('Facebook API error (non-critical):', errorMessage);
     }
     
-    console.error('Error sending to Facebook Conversions API:', error);
-    throw error;
+    // Always throw the same type of error to be caught by the main handler
+    throw new Error(`Non-critical Facebook API issue: ${errorMessage}`);
   }
 }
 
@@ -235,13 +280,15 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     // Log the error but return success to prevent breaking the application
-    console.error('Facebook Conversions API error (non-critical):', error);
+    console.warn('Facebook Conversions API error (non-critical):', error instanceof Error ? error.message : 'Unknown error');
+    
+    // Always return success response to prevent app crashes
     return NextResponse.json({
       success: true,
       events_received: 0,
-      messages: ['Facebook tracking failed but continuing'],
-      warning: error instanceof Error ? error.message : 'Unknown error occurred'
-    });
+      messages: ['Facebook tracking temporarily unavailable'],
+      warning: 'Non-critical tracking error - continuing operation'
+    }, { status: 200 });
   }
 }
 

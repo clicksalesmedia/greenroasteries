@@ -6,6 +6,114 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+// Helper function to track purchase events from webhooks
+async function trackPurchaseFromWebhook(order: any, user: any, orderItems: any[], total: number) {
+  try {
+    // Track with Facebook Pixel (Server-side via API)
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/facebook`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_name: 'Purchase',
+        event_time: Math.floor(Date.now() / 1000),
+        action_source: 'system_api',
+        user_data: {
+          email: user.email,
+          first_name: user.name?.split(' ')[0],
+          last_name: user.name?.split(' ').slice(1).join(' '),
+          phone: user.phone,
+        },
+        custom_data: {
+          value: total,
+          currency: 'AED',
+          content_ids: orderItems.map(item => item.productId),
+          content_type: 'product',
+          order_id: order.id,
+          num_items: orderItems.length
+        },
+        event_id: 'purchase_webhook_' + order.id + '_' + Date.now()
+      })
+    });
+
+    // Track with Google Ads (Server-side)
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        method: 'ads',
+        conversion_action: 'purchase',
+        conversion_date_time: new Date().toISOString(),
+        conversion_value: total,
+        currency_code: 'AED',
+        order_id: order.id,
+        user_data: {
+          email: user.email,
+          phone: user.phone,
+          first_name: user.name?.split(' ')[0],
+          last_name: user.name?.split(' ').slice(1).join(' ')
+        }
+      })
+    });
+
+    // Track with GA4 Measurement Protocol (Server-side)
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        method: 'ga4',
+        conversion_action: 'purchase',
+        conversion_date_time: new Date().toISOString(),
+        conversion_value: total,
+        currency_code: 'AED',
+        order_id: order.id,
+        items: orderItems.map(item => ({
+          item_id: item.productId,
+          item_name: 'Product',
+          category: 'Coffee',
+          quantity: item.quantity,
+          price: item.unitPrice
+        })),
+        user_data: {
+          email: user.email,
+          phone: user.phone,
+          first_name: user.name?.split(' ')[0],
+          last_name: user.name?.split(' ').slice(1).join(' ')
+        }
+      })
+    });
+
+    // Track with Google Analytics (Internal tracking system)
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'webhook_session_' + Date.now(),
+        userId: user.id,
+        eventName: 'purchase',
+        eventType: 'PURCHASE',
+        platform: 'SERVER_SIDE',
+        transactionId: order.id,
+        value: total,
+        currency: 'AED',
+        items: orderItems.map(item => ({
+          item_id: item.productId,
+          item_name: 'Product', // We don't have product names in webhook context
+          quantity: item.quantity,
+          price: item.unitPrice
+        })),
+        userAgent: 'Webhook/Server',
+        pageUrl: 'webhook://stripe-payment-confirmed',
+        pageTitle: 'Payment Confirmed'
+      })
+    });
+
+    console.log(`[Stripe Webhook] Purchase tracking completed for order ${order.id}`);
+  } catch (error) {
+    console.error('[Stripe Webhook] Purchase tracking error:', error);
+    throw error; // Re-throw so it can be caught and logged as non-critical
+  }
+}
+
 export async function POST(request: NextRequest) {
   const body = await request.text();
   const signature = request.headers.get('stripe-signature');
@@ -116,6 +224,17 @@ export async function handlePaymentIntentSucceeded(paymentIntent: any) {
           updatedAt: new Date()
         }
       });
+
+      // Track purchase completion for existing order since payment is now confirmed
+      try {
+        const user = await prisma.user.findUnique({ where: { id: payment.order.userId } });
+        const orderItems = await prisma.orderItem.findMany({ where: { orderId: payment.order.id } });
+        if (user && orderItems.length > 0) {
+          await trackPurchaseFromWebhook(payment.order, user, orderItems, payment.amount);
+        }
+      } catch (trackingError) {
+        console.error('[Stripe Webhook] Purchase tracking failed for existing order (non-critical):', trackingError);
+      }
     } else {
       // Payment/Order doesn't exist - this is the race condition case
       // We need to create the order from the payment intent metadata
@@ -297,6 +416,14 @@ export async function handlePaymentIntentSucceeded(paymentIntent: any) {
 
       console.log(`✅ Created order ${result.order.id} from webhook for ${customerEmail}`);
       console.log(`[Stripe Webhook] Order details - Items: ${orderItems.length}, Subtotal: ${subtotal}, Tax: ${tax}, Shipping: ${shippingCost}, Total: ${total}`);
+      
+      // Track purchase completion since payment is confirmed
+      try {
+        await trackPurchaseFromWebhook(result.order, user, orderItems, total);
+      } catch (trackingError) {
+        // Don't fail webhook processing if tracking fails
+        console.error('[Stripe Webhook] Purchase tracking failed (non-critical):', trackingError);
+      }
     }
 
     console.log(`Payment intent ${paymentIntent.id} succeeded`);

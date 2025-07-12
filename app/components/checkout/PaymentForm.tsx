@@ -195,57 +195,30 @@ function CheckoutForm({
           const orderData = await orderResponse.json();
 
                   if (orderData.success) {
-          // Track purchase completion
-          trackPurchase({
-            orderId: orderData.orderId,
-            items: items.map(item => ({
-              id: item.id,
-              name: item.name,
-              price: item.price,
-              quantity: item.quantity,
-              category: 'Unknown'
-            })),
-            total: totalAmount,
-            subtotal: subtotal,
-            shipping: shippingCost,
-            tax: tax,
-            discount: discount,
-            customer: {
-              email: customerInfo.email,
-              firstName: customerInfo.fullName.split(' ')[0],
-              lastName: customerInfo.fullName.split(' ').slice(1).join(' '),
-              phone: customerInfo.phone
+          // Convert lead to customer
+          const convertLead = async () => {
+            try {
+              await fetch('/api/leads', {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  email: customerInfo.email,
+                  status: 'CONVERTED',
+                  convertedUserId: orderData.userId // Assuming the order response includes userId
+                }),
+              });
+            } catch (error) {
+              console.warn('Lead conversion error (non-critical):', error);
             }
-          });
-
-          // Track Google Ads Purchase conversion
-          if (typeof window !== 'undefined' && (window as any).trackGoogleAdsPurchase) {
-            (window as any).trackGoogleAdsPurchase(orderData.orderId, totalAmount, 'AED');
-          }
-
-          // Track GA4 Enhanced Purchase
-          if (typeof window !== 'undefined' && (window as any).trackGA4Purchase) {
-            const itemsData = items.map(item => ({
-              id: item.id,
-              name: item.name,
-              price: item.price,
-              quantity: item.quantity,
-              category: 'Coffee',
-              variation: `${item.variation?.weight || ''} ${item.variation?.beans || ''} ${item.variation?.additions || ''}`.trim()
-            }));
-            (window as any).trackGA4Purchase(orderData.orderId, itemsData, totalAmount, 'AED', shippingCost, tax);
-          }
-
-          // Track Facebook Purchase (Pixel + Conversions API) - For Apple Pay/Google Pay
-          if (typeof window !== 'undefined' && (window as any).trackFacebookPurchase) {
-            const itemsData = items.map(item => ({
-              id: item.id,
-              name: item.name,
-              price: item.price,
-              category: 'Coffee'
-            }));
-            (window as any).trackFacebookPurchase(orderData.orderId, itemsData, totalAmount, 'AED', customerInfo.email);
-          }
+          };
+          
+          // Convert lead (non-blocking)
+          convertLead();
+          
+          // NOTE: Purchase tracking moved to server-side webhooks for accurate payment confirmation
+          // This ensures events are only fired when payments are actually successful
           
           event.complete('success');
           onSuccess(orderData.orderId, orderData.isNewCustomer);
@@ -494,57 +467,8 @@ function CheckoutForm({
           // Convert lead (non-blocking)
           convertLead();
           
-          // Track purchase completion
-          trackPurchase({
-            orderId: orderData.orderId,
-            items: items.map(item => ({
-              id: item.id,
-              name: item.name,
-              price: item.price,
-              quantity: item.quantity,
-              category: 'Unknown'
-            })),
-            total: totalAmount,
-            subtotal: subtotal,
-            shipping: shippingCost,
-            tax: tax,
-            discount: discount,
-            customer: {
-              email: customerInfo.email,
-              firstName: customerInfo.fullName.split(' ')[0],
-              lastName: customerInfo.fullName.split(' ').slice(1).join(' '),
-              phone: customerInfo.phone
-            }
-          });
-
-          // Track Google Ads Purchase conversion  
-          if (typeof window !== 'undefined' && (window as any).trackGoogleAdsPurchase) {
-            (window as any).trackGoogleAdsPurchase(orderData.orderId, totalAmount, 'AED');
-          }
-
-          // Track GA4 Enhanced Purchase
-          if (typeof window !== 'undefined' && (window as any).trackGA4Purchase) {
-            const itemsData = items.map(item => ({
-              id: item.id,
-              name: item.name,
-              price: item.price,
-              quantity: item.quantity,
-              category: 'Coffee',
-              variation: `${item.variation?.weight || ''} ${item.variation?.beans || ''} ${item.variation?.additions || ''}`.trim()
-            }));
-            (window as any).trackGA4Purchase(orderData.orderId, itemsData, totalAmount, 'AED', shippingCost, tax);
-          }
-
-          // Track Facebook Purchase (Pixel + Conversions API) - For Stripe Card Payment
-          if (typeof window !== 'undefined' && (window as any).trackFacebookPurchase) {
-            const itemsData = items.map(item => ({
-              id: item.id,
-              name: item.name,
-              price: item.price,
-              category: 'Coffee'
-            }));
-            (window as any).trackFacebookPurchase(orderData.orderId, itemsData, totalAmount, 'AED', customerInfo.email);
-          }
+          // NOTE: Purchase tracking moved to server-side webhooks for accurate payment confirmation
+          // This ensures events are only fired when payments are actually successful
           
           onSuccess(orderData.orderId, orderData.isNewCustomer);
         } else {
