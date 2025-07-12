@@ -151,17 +151,17 @@ function generateCSVFeed(items: any[]) {
     'product_type', 'google_product_category', 'image_link', 'link', 'gtin', 'mpn',
     'age_group', 'gender', 'size', 'custom_label_0', 'custom_label_1', 'custom_label_2',
     'custom_label_3', 'custom_label_4'
-  ].join(',');
+  ].join('\t');
 
   const csvRows = items.map(item => [
     item.id,
-    `"${item.title.replace(/"/g, '""')}"`,
-    `"${item.description.replace(/"/g, '""')}"`,
+    item.title.replace(/\t/g, ' ').replace(/\n/g, ' '),
+    item.description.replace(/\t/g, ' ').replace(/\n/g, ' '),
     item.price,
     item.availability,
     item.condition,
-    `"${item.brand}"`,
-    `"${item.product_category.replace(/"/g, '""')}"`,
+    item.brand.replace(/\t/g, ' '),
+    item.product_category.replace(/\t/g, ' ').replace(/\n/g, ' '),
     item.google_product_category,
     item.image_link,
     item.link,
@@ -169,13 +169,13 @@ function generateCSVFeed(items: any[]) {
     item.mpn,
     item.age_group,
     item.gender,
-    `"${item.size.replace(/"/g, '""')}"`,
-    `"${item.custom_label_0}"`,
-    `"${item.custom_label_1.replace(/"/g, '""')}"`,
-    `"${item.custom_label_2.replace(/"/g, '""')}"`,
-    `"${item.custom_label_3.replace(/"/g, '""')}"`,
-    `"${item.custom_label_4}"`
-  ].join(','));
+    item.size.replace(/\t/g, ' '),
+    item.custom_label_0,
+    item.custom_label_1.replace(/\t/g, ' '),
+    item.custom_label_2.replace(/\t/g, ' '),
+    item.custom_label_3.replace(/\t/g, ' '),
+    item.custom_label_4
+  ].join('\t'));
 
   return csvHeader + '\n' + csvRows.join('\n');
 } 
