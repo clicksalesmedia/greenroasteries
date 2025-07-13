@@ -16,42 +16,43 @@ interface FOMOData {
 // Get FOMO settings
 export async function GET() {
   try {
-    // Check if we have a FOMOSettings table in our schema
-    // If not, we'll use a more generic approach with a settings table
-    
-    // For now, let's try to find an existing FOMO setting
-    // We can use a ContentPage model or create a simple JSON storage approach
-    
-    const settings = await prisma.$queryRaw`
-      SELECT * FROM "ContentPage" 
-      WHERE "type" = 'fomo_settings' 
-      ORDER BY "updatedAt" DESC 
-      LIMIT 1
-    ` as any[];
+    // Find FOMO settings in PageContent table
+    const fomoPage = await prisma.pageContent.findUnique({
+      where: {
+        pageType: 'FOMO_SETTINGS'
+      }
+    });
 
-    if (settings.length === 0) {
-      return NextResponse.json(
-        { message: 'No FOMO settings found' },
-        { status: 404 }
-      );
+    if (!fomoPage) {
+      // Return default settings if none exist
+      return NextResponse.json({
+        id: null,
+        isActive: false,
+        title: 'Limited Time Offers',
+        titleAr: 'عروض محدودة الوقت',
+        hours: 24,
+        message: 'Hurry up! Offer ends in',
+        messageAr: 'أسرع! العرض ينتهي خلال',
+        endTime: null,
+        createdAt: null,
+        updatedAt: null
+      });
     }
 
-    const setting = settings[0];
-    const content = typeof setting.content === 'string' 
-      ? JSON.parse(setting.content) 
-      : setting.content;
-
+    // Parse the metadata which contains our FOMO settings
+    const metadata = fomoPage.metadata as any;
+    
     return NextResponse.json({
-      id: setting.id,
-      isActive: content.isActive || false,
-      title: content.title || 'Limited Time Offer',
-      titleAr: content.titleAr || 'عرض لفترة محدودة',
-      hours: content.hours || 18,
-      message: content.message || 'Hurry up! Offer ends in',
-      messageAr: content.messageAr || 'أسرع! العرض ينتهي خلال',
-      endTime: content.endTime || null,
-      createdAt: setting.createdAt,
-      updatedAt: setting.updatedAt
+      id: fomoPage.id,
+      isActive: metadata?.isActive || false,
+      title: fomoPage.title,
+      titleAr: fomoPage.titleAr || fomoPage.title,
+      hours: metadata?.hours || 24,
+      message: fomoPage.content,
+      messageAr: fomoPage.contentAr || fomoPage.content,
+      endTime: metadata?.endTime || null,
+      createdAt: fomoPage.createdAt,
+      updatedAt: fomoPage.updatedAt
     });
 
   } catch (error) {
@@ -83,67 +84,53 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if FOMO settings already exist
-    const existingSettings = await prisma.$queryRaw`
-      SELECT * FROM "ContentPage" 
-      WHERE "type" = 'fomo_settings' 
-      ORDER BY "updatedAt" DESC 
-      LIMIT 1
-    ` as any[];
+    // Calculate end time if FOMO is being activated
+    const endTime = data.isActive ? 
+      new Date(Date.now() + data.hours * 60 * 60 * 1000).toISOString() : 
+      null;
 
-    const settingsContent = {
+    // Prepare metadata
+    const metadata = {
       isActive: data.isActive,
-      title: data.title,
-      titleAr: data.titleAr,
       hours: data.hours,
-      message: data.message,
-      messageAr: data.messageAr,
-      endTime: data.endTime || null
+      endTime: endTime
     };
 
-    let savedSettings;
+    // Use upsert to create or update
+    const savedSettings = await prisma.pageContent.upsert({
+      where: {
+        pageType: 'FOMO_SETTINGS'
+      },
+      update: {
+        title: data.title,
+        titleAr: data.titleAr,
+        content: data.message,
+        contentAr: data.messageAr,
+        metadata: metadata,
+        lastUpdated: new Date()
+      },
+      create: {
+        pageType: 'FOMO_SETTINGS',
+        title: data.title,
+        titleAr: data.titleAr,
+        content: data.message,
+        contentAr: data.messageAr,
+        metadata: metadata
+      }
+    });
 
-    if (existingSettings.length > 0) {
-      // Update existing settings
-      const existingId = existingSettings[0].id;
-      
-      savedSettings = await prisma.$executeRaw`
-        UPDATE "ContentPage" 
-        SET "content" = ${JSON.stringify(settingsContent)}, 
-            "updatedAt" = NOW()
-        WHERE "id" = ${existingId}
-      `;
-
-      // Fetch the updated record
-      const updatedRecord = await prisma.$queryRaw`
-        SELECT * FROM "ContentPage" WHERE "id" = ${existingId}
-      ` as any[];
-
-      savedSettings = updatedRecord[0];
-    } else {
-      // Create new settings
-      savedSettings = await prisma.$queryRaw`
-        INSERT INTO "ContentPage" ("type", "title", "content", "createdAt", "updatedAt")
-        VALUES ('fomo_settings', 'FOMO Timer Settings', ${JSON.stringify(settingsContent)}, NOW(), NOW())
-        RETURNING *
-      ` as any[];
-
-      savedSettings = Array.isArray(savedSettings) ? savedSettings[0] : savedSettings;
-    }
-
-    const content = typeof savedSettings.content === 'string' 
-      ? JSON.parse(savedSettings.content) 
-      : savedSettings.content;
-
+    // Return the formatted response
+    const savedMetadata = savedSettings.metadata as any;
+    
     return NextResponse.json({
       id: savedSettings.id,
-      isActive: content.isActive,
-      title: content.title,
-      titleAr: content.titleAr,
-      hours: content.hours,
-      message: content.message,
-      messageAr: content.messageAr,
-      endTime: content.endTime,
+      isActive: savedMetadata?.isActive || false,
+      title: savedSettings.title,
+      titleAr: savedSettings.titleAr || savedSettings.title,
+      hours: savedMetadata?.hours || data.hours,
+      message: savedSettings.content,
+      messageAr: savedSettings.contentAr || savedSettings.content,
+      endTime: savedMetadata?.endTime || null,
       createdAt: savedSettings.createdAt,
       updatedAt: savedSettings.updatedAt
     });
@@ -151,7 +138,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error saving FOMO settings:', error);
     return NextResponse.json(
-      { error: 'Failed to save FOMO settings' },
+      { error: 'Failed to save FOMO settings', details: error.message },
       { status: 500 }
     );
   }

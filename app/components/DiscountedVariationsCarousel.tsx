@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeftIcon, ChevronRightIcon, ShoppingCartIcon, SparklesIcon, PlayIcon, PauseIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../contexts/LanguageContext';
 import UAEDirhamSymbol from './UAEDirhamSymbol';
+import FOMOCountdown, { useFOMOSettings } from './FOMOCountdown';
 
 interface Product {
   id: string;
@@ -29,6 +30,7 @@ interface DiscountedVariationsCarouselProps {
 
 const DiscountedVariationsCarousel: React.FC<DiscountedVariationsCarouselProps> = ({ onOpenVariationModal }) => {
   const { language, t, contentByLang } = useLanguage();
+  const { settings: fomoSettings } = useFOMOSettings();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -308,14 +310,17 @@ const DiscountedVariationsCarousel: React.FC<DiscountedVariationsCarouselProps> 
           viewport={{ once: true }}
           className="section-header text-center"
         >
-          <h2 className="section-title flex items-center justify-center gap-2 text-red-700">
-            <SparklesIcon className="w-8 h-8 text-red-500" />
-            {t('variation_deals', 'Variation Deals')}
-            <SparklesIcon className="w-8 h-8 text-red-500" />
+          <h2 className="section-title text-red-700">
+            {fomoSettings?.isActive ? contentByLang(fomoSettings.title, fomoSettings.titleAr) : t('limited_offers', 'عروض محدودة')}
           </h2>
-          <p className="section-description text-red-600">
-            {t('discounted_variations_desc', 'Discover amazing deals on different sizes and types')}
-          </p>
+          <div className="flex flex-col items-center gap-3">
+            <p className="section-description text-red-600">
+              {t('discounted_variations_desc', 'Discover amazing deals on different sizes and types')}
+            </p>
+            {fomoSettings?.isActive && (
+              <FOMOCountdown size="medium" className="mb-2" />
+            )}
+          </div>
         </motion.div>
 
         <div 

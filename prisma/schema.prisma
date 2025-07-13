@@ -472,6 +472,7 @@ enum PageType {
   REFUND_POLICY
   TERMS_CONDITIONS
   ABOUT_US
+  FOMO_SETTINGS
 }
 
 enum PaymentStatus {

@@ -217,7 +217,8 @@ export const PageType: {
   PRIVACY_POLICY: 'PRIVACY_POLICY',
   REFUND_POLICY: 'REFUND_POLICY',
   TERMS_CONDITIONS: 'TERMS_CONDITIONS',
-  ABOUT_US: 'ABOUT_US'
+  ABOUT_US: 'ABOUT_US',
+  FOMO_SETTINGS: 'FOMO_SETTINGS'
 };
 
 export type PageType = (typeof PageType)[keyof typeof PageType]
