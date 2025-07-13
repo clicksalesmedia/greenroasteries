@@ -27,6 +27,29 @@ export default function WebsiteContentPage() {
       href: '/backend/content/sliders'
     },
     {
+      id: 'fomo-offers',
+      title: t('fomo_offers', 'Limited Time Offers'),
+      description: t('fomo_offers_description', 'Manage FOMO timing and special offers countdown'),
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      href: '/backend/content/fomo-offers'
+    },
+    {
+      id: 'eid-banner',
+      title: t('eid_banner', 'EID Banner'),
+      description: t('eid_banner_description', 'Manage special EID celebration banner content'),
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
+        </svg>
+      ),
+      href: '/backend/content/eid-banner'
+    },
+    {
       id: 'offer-banner',
       title: t('home_offer_banner', 'Home Offer Banner'),
       description: t('offer_banner_description', 'Manage the promotional banner that appears on the homepage'),
@@ -37,17 +60,6 @@ export default function WebsiteContentPage() {
         </svg>
       ),
       href: '/backend/content/offer-banner'
-    },
-    {
-      id: 'eid-banner',
-      title: t('eid_banner', 'EID AL ADHA Banner'),
-      description: t('eid_banner_description', 'Manage the EID AL ADHA category banner image and content'),
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.87c1.355 0 2.697.055 4.024.165C17.155 8.51 18 9.473 18 10.608v2.513m-3-4.87v-1.5m-6 1.5v-1.5m12 9.75l-1.5-1.5M3 20.25l1.5-1.5m15-3.75l-1.5-1.5m-12 0l1.5 1.5m9-1.5h.008v.008H15V15zm0-6h.008v.008H15V9zm-6 0h.008v.008H9V9z" />
-        </svg>
-      ),
-      href: '/backend/content/eid-banner'
     },
     {
       id: 'privacy',

@@ -29,8 +29,15 @@ export default async function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#c9a961" />
         <meta name="x-language" content={detectedLanguage} />
-        <link rel="icon" type="image/png" href="/favicon.png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        
+        {/* Comprehensive Favicon Configuration */}
+        <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico?v=2" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png?v=2" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png?v=2" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png?v=2" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon/android-chrome-192x192.png?v=2" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/favicon/android-chrome-512x512.png?v=2" />
+        <link rel="manifest" href="/favicon/site.webmanifest?v=2" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         

@@ -35,22 +35,26 @@ async function trackPurchaseFromWebhook(order: any, user: any, orderItems: any[]
       })
     });
 
-    // Track with Google Ads (Server-side)
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/google`, {
+    // Track with Google Ads Enhanced Conversions (Server-side)
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/google-ads-enhanced`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        method: 'ads',
-        conversion_action: 'purchase',
-        conversion_date_time: new Date().toISOString(),
-        conversion_value: total,
-        currency_code: 'AED',
-        order_id: order.id,
+        event_name: 'conversion',
+        send_to: 'AW-17214709280/rRb1CIv4r-waEKC8zpBA',
+        value: total,
+        currency: 'AED',
+        transaction_id: order.id,
         user_data: {
           email: user.email,
           phone: user.phone,
           first_name: user.name?.split(' ')[0],
           last_name: user.name?.split(' ').slice(1).join(' ')
+        },
+        custom_data: {
+          content_ids: orderItems.map(item => item.productId),
+          content_type: 'product',
+          num_items: orderItems.length
         }
       })
     });

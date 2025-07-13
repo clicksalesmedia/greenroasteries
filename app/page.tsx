@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic';
 import UAEDirhamSymbol from './components/UAEDirhamSymbol';
 import CategoryBanner from './components/CategoryBanner';
 import DiscountedVariationsCarousel from './components/DiscountedVariationsCarousel';
+import FOMOCountdown, { useFOMOSettings } from './components/FOMOCountdown';
 import { addCacheBuster, getOptimizedImageUrl, handleImageError } from './utils/image-cache';
 
 interface Product {
@@ -202,6 +203,9 @@ export default function Home() {
   // Add state for discounted products
   const [discountedProducts, setDiscountedProducts] = useState<Product[]>([]);
   const [discountedLoading, setDiscountedLoading] = useState(true);
+
+  // Add FOMO settings hook
+  const { settings: fomoSettings } = useFOMOSettings();
 
   // State for the variation modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -2365,10 +2369,14 @@ export default function Home() {
               className="section-header"
             >
               <h2 className="section-title">
-                <SparklesIcon className="inline-block w-8 h-8 mr-2 text-yellow-500" />
-                {t('special_offers', 'Special Offers')}
+                {fomoSettings?.isActive ? contentByLang(fomoSettings.title, fomoSettings.titleAr) : t('special_offers', 'Special Offers')}
               </h2>
-              <p className="section-description">{t('limited_time_deals', 'Don\'t miss out on these limited-time deals')}</p>
+              <div className="flex flex-col items-center gap-3">
+                <p className="section-description">{t('limited_time_deals', 'Don\'t miss out on these limited-time deals')}</p>
+                {fomoSettings?.isActive && (
+                  <FOMOCountdown size="large" className="mb-2" />
+                )}
+              </div>
             </motion.div>
             
             <div className="modern-carousel">

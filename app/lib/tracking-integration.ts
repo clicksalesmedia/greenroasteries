@@ -53,6 +53,18 @@ export class UnifiedTracking {
       if (typeof window !== 'undefined') {
         FacebookPixel.pageView();
         GA4.pageView();
+        
+        // Google Ads Remarketing Page View
+        if ((window as any).trackGoogleAdsPageView) {
+          // Determine page type for remarketing
+          const pageType = window.location.pathname.includes('/product/') ? 'product' :
+                          window.location.pathname.includes('/shop') ? 'category' :
+                          window.location.pathname.includes('/cart') ? 'cart' :
+                          window.location.pathname.includes('/checkout') ? 'checkout' :
+                          window.location.pathname === '/' ? 'home' : 'other';
+          
+          (window as any).trackGoogleAdsPageView(pageType);
+        }
       }
       
       // Server-side tracking
@@ -97,6 +109,20 @@ export class UnifiedTracking {
           quantity: 1,
           price: product.price
         }, 'AED');
+        
+        // Google Ads Remarketing
+        if ((window as any).trackGoogleAdsViewItem) {
+          (window as any).trackGoogleAdsViewItem(
+            {
+              id: product.id,
+              name: product.name,
+              category: product.category || 'Coffee',
+              price: product.price
+            },
+            product.price,
+            'AED'
+          );
+        }
       }
 
       // Server-side tracking
@@ -161,6 +187,23 @@ export class UnifiedTracking {
           quantity,
           price: product.price
         }, value);
+        
+        // Google Ads Enhanced Conversions + Remarketing
+        if ((window as any).trackGoogleAdsAddToCart) {
+          await (window as any).trackGoogleAdsAddToCart(
+            {
+              id: product.id,
+              name: product.name,
+              category: product.category || 'Coffee'
+            },
+            value,
+            'AED',
+            customer?.email,
+            customer?.phone,
+            customer?.firstName,
+            customer?.lastName
+          );
+        }
       }
 
       // Server-side tracking with correct Facebook event name
@@ -268,6 +311,23 @@ export class UnifiedTracking {
           value,
           'AED'
         );
+        
+        // Google Ads Enhanced Conversions + Remarketing
+        if ((window as any).trackGoogleAdsBeginCheckout) {
+          await (window as any).trackGoogleAdsBeginCheckout(
+            items.map(item => ({
+              id: item.id,
+              name: item.name,
+              category: item.category || 'Coffee'
+            })),
+            value,
+            'AED',
+            order.customer?.email,
+            order.customer?.phone,
+            order.customer?.firstName,
+            order.customer?.lastName
+          );
+        }
       }
 
       // Server-side tracking with correct Facebook event name
@@ -471,6 +531,24 @@ export class UnifiedTracking {
           shipping: order.shipping || 0,
           tax: order.tax || 0
         });
+        
+        // Google Ads Enhanced Conversions + Remarketing
+        if ((window as any).trackGoogleAdsPurchase) {
+          await (window as any).trackGoogleAdsPurchase(
+            order.orderId,
+            items.map(item => ({
+              id: item.id,
+              name: item.name,
+              category: item.category || 'Coffee'
+            })),
+            value,
+            'AED',
+            order.customer?.email,
+            order.customer?.phone,
+            order.customer?.firstName,
+            order.customer?.lastName
+          );
+        }
       }
 
       // Server-side tracking

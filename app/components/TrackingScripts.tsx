@@ -123,8 +123,14 @@ export default function TrackingScripts() {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'AW-17214709280');
-            console.log('Google Ads script loaded: AW-17214709280');
+            
+            // Configure Google Ads with Enhanced Conversions
+            gtag('config', 'AW-17214709280', {
+              allow_enhanced_conversions: true,
+              currency: 'AED'
+            });
+            
+            console.log('Google Ads Enhanced Conversions loaded: AW-17214709280');
           `,
         }}
       />
@@ -228,45 +234,276 @@ export default function TrackingScripts() {
             window.trackingConfig = ${JSON.stringify(trackingConfig)};
             console.log('All tracking scripts initialized:', window.trackingConfig);
             
-            // Google Ads Conversion Tracking Functions
-            window.trackGoogleAdsAddToCart = function(value, currency) {
+            // SHA-256 hashing utility for user data
+            async function sha256(message) {
+              const msgBuffer = new TextEncoder().encode(message);
+              const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+              const hashArray = Array.from(new Uint8Array(hashBuffer));
+              const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+              return hashHex;
+            }
+
+            // ENHANCED GOOGLE ADS CONVERSIONS with User Data
+            window.trackGoogleAdsEnhanced = async function(eventName, value, currency, userEmail, userPhone, userFirstName, userLastName) {
               if (typeof gtag !== 'undefined') {
-                gtag('event', 'conversion_event_add_to_cart', {
-                  'send_to': 'AW-17214709280/rRb1CIv4r-waEKC8zpBA',
-                  'value': value || 1.0,
-                  'currency': currency || 'AED'
-                });
-                console.log('Google Ads Add to Cart conversion tracked:', value, currency);
+                try {
+                  // Prepare enhanced conversion data
+                  const enhancedData = {
+                    'send_to': 'AW-17214709280/rRb1CIv4r-waEKC8zpBA',
+                    'value': value || 1.0,
+                    'currency': currency || 'AED'
+                  };
+
+                  // Add user data if provided (for Enhanced Conversions)
+                  if (userEmail || userPhone || userFirstName || userLastName) {
+                    const userData = {};
+                    
+                    if (userEmail) {
+                      userData.email = await sha256(userEmail.toLowerCase().trim());
+                    }
+                    if (userPhone) {
+                      // Clean phone number (remove spaces, dashes, etc.)
+                      const cleanPhone = userPhone.replace(/[^+\\d]/g, '');
+                      userData.phone_number = await sha256(cleanPhone);
+                    }
+                    if (userFirstName) {
+                      userData.first_name = await sha256(userFirstName.toLowerCase().trim());
+                    }
+                    if (userLastName) {
+                      userData.last_name = await sha256(userLastName.toLowerCase().trim());
+                    }
+
+                    enhancedData.user_data = userData;
+                  }
+
+                  // Send enhanced conversion
+                  gtag('event', 'conversion', enhancedData);
+                  console.log('Google Ads Enhanced Conversion tracked:', eventName, enhancedData);
+                } catch (error) {
+                  console.warn('Google Ads Enhanced Conversion error:', error);
+                  // Fallback to regular conversion
+                  gtag('event', 'conversion', {
+                    'send_to': 'AW-17214709280/rRb1CIv4r-waEKC8zpBA',
+                    'value': value || 1.0,
+                    'currency': currency || 'AED'
+                  });
+                }
               } else {
-                console.warn('gtag not available for Google Ads Add to Cart conversion');
+                console.warn('gtag not available for Google Ads Enhanced Conversion');
               }
             };
-            
-            window.trackGoogleAdsBeginCheckout = function(value, currency) {
+
+            // Google Ads Remarketing Events
+            window.trackGoogleAdsRemarketing = function(eventName, customParameters = {}) {
               if (typeof gtag !== 'undefined') {
-                gtag('event', 'conversion_event_begin_checkout', {
-                  'send_to': 'AW-17214709280/rRb1CIv4r-waEKC8zpBA',
-                  'value': value || 1.0,
-                  'currency': currency || 'AED'
+                gtag('event', eventName, {
+                  'send_to': 'AW-17214709280',
+                  'custom_parameters': {
+                    ...customParameters,
+                    'ecomm_pagetype': eventName,
+                    'ecomm_prodid': customParameters.product_id || '',
+                    'ecomm_totalvalue': customParameters.value || 0
+                  }
                 });
-                console.log('Google Ads Begin Checkout conversion tracked:', value, currency);
-              } else {
-                console.warn('gtag not available for Google Ads Begin Checkout conversion');
+                console.log('Google Ads Remarketing tracked:', eventName, customParameters);
               }
             };
-            
-            window.trackGoogleAdsPurchase = function(transactionId, value, currency) {
+
+            // UNIFIED Google Ads Tracking Functions
+            window.trackGoogleAdsAddToCart = async function(item, value, currency, userEmail, userPhone, firstName, lastName) {
               if (typeof gtag !== 'undefined') {
-                gtag('event', 'conversion', {
-                  'send_to': 'AW-17214709280/rRb1CIv4r-waEKC8zpBA',
-                  'value': value || 1.0,
+                try {
+                  // Prepare enhanced conversion data for Add to Cart
+                  const enhancedData = {
+                    'value': value || 1.0,
+                    'currency': currency || 'AED'
+                  };
+
+                  // Add user data if provided (for Enhanced Conversions)
+                  if (userEmail || userPhone || firstName || lastName) {
+                    const userData = {};
+                    
+                    if (userEmail) {
+                      userData.email = await sha256(userEmail.toLowerCase().trim());
+                    }
+                    if (userPhone) {
+                      const cleanPhone = userPhone.replace(/[^+\\d]/g, '');
+                      userData.phone_number = await sha256(cleanPhone);
+                    }
+                    if (firstName) {
+                      userData.first_name = await sha256(firstName.toLowerCase().trim());
+                    }
+                    if (lastName) {
+                      userData.last_name = await sha256(lastName.toLowerCase().trim());
+                    }
+
+                    enhancedData.user_data = userData;
+                  }
+
+                  // Use exact Google Ads event name for Add to Cart
+                  gtag('event', 'conversion_event_add_to_cart', enhancedData);
+                  console.log('Google Ads Add to Cart conversion tracked:', enhancedData);
+                } catch (error) {
+                  console.warn('Google Ads Add to Cart error:', error);
+                  // Fallback to simple event
+                  gtag('event', 'conversion_event_add_to_cart', {
+                    'value': value || 1.0,
+                    'currency': currency || 'AED'
+                  });
+                }
+                
+                // Remarketing
+                window.trackGoogleAdsRemarketing('add_to_cart', {
+                  'product_id': item.id,
+                  'product_name': item.name,
+                  'category': item.category || 'Coffee',
+                  'value': value,
+                  'currency': currency || 'AED'
+                });
+              }
+            };
+
+            window.trackGoogleAdsBeginCheckout = async function(items, value, currency, userEmail, userPhone, firstName, lastName) {
+              if (typeof gtag !== 'undefined') {
+                try {
+                  // Prepare enhanced conversion data for Begin Checkout
+                  const enhancedData = {
+                    'value': value || 1.0,
+                    'currency': currency || 'AED'
+                  };
+
+                  // Add user data if provided (for Enhanced Conversions)
+                  if (userEmail || userPhone || firstName || lastName) {
+                    const userData = {};
+                    
+                    if (userEmail) {
+                      userData.email = await sha256(userEmail.toLowerCase().trim());
+                    }
+                    if (userPhone) {
+                      const cleanPhone = userPhone.replace(/[^+\\d]/g, '');
+                      userData.phone_number = await sha256(cleanPhone);
+                    }
+                    if (firstName) {
+                      userData.first_name = await sha256(firstName.toLowerCase().trim());
+                    }
+                    if (lastName) {
+                      userData.last_name = await sha256(lastName.toLowerCase().trim());
+                    }
+
+                    enhancedData.user_data = userData;
+                  }
+
+                  // Use exact Google Ads event name for Begin Checkout
+                  gtag('event', 'conversion_event_begin_checkout', enhancedData);
+                  console.log('Google Ads Begin Checkout conversion tracked:', enhancedData);
+                } catch (error) {
+                  console.warn('Google Ads Begin Checkout error:', error);
+                  // Fallback to simple event
+                  gtag('event', 'conversion_event_begin_checkout', {
+                    'value': value || 1.0,
+                    'currency': currency || 'AED'
+                  });
+                }
+                
+                // Remarketing
+                window.trackGoogleAdsRemarketing('begin_checkout', {
+                  'product_id': items.map(item => item.id).join(','),
+                  'value': value,
                   'currency': currency || 'AED',
-                  'transaction_id': transactionId || ''
+                  'num_items': items.length
                 });
-                console.log('Google Ads Purchase conversion tracked:', transactionId, value, currency);
-              } else {
-                console.warn('gtag not available for Google Ads Purchase conversion');
               }
+            };
+
+            window.trackGoogleAdsPurchase = async function(transactionId, items, value, currency, userEmail, userPhone, firstName, lastName) {
+              if (typeof gtag !== 'undefined') {
+                try {
+                  // Prepare enhanced conversion data for Purchase with exact Google Ads format
+                  const enhancedData = {
+                    'send_to': 'AW-17214709280/rRb1CIv4r-waEKC8zpBA',
+                    'value': value,
+                    'currency': currency || 'AED',
+                    'transaction_id': transactionId
+                  };
+
+                  // Add user data if provided (for Enhanced Conversions)
+                  if (userEmail || userPhone || firstName || lastName) {
+                    const userData = {};
+                    
+                    if (userEmail) {
+                      userData.email = await sha256(userEmail.toLowerCase().trim());
+                    }
+                    if (userPhone) {
+                      const cleanPhone = userPhone.replace(/[^+\\d]/g, '');
+                      userData.phone_number = await sha256(cleanPhone);
+                    }
+                    if (firstName) {
+                      userData.first_name = await sha256(firstName.toLowerCase().trim());
+                    }
+                    if (lastName) {
+                      userData.last_name = await sha256(lastName.toLowerCase().trim());
+                    }
+
+                    enhancedData.user_data = userData;
+                  }
+
+                  // Use exact Google Ads conversion event for Purchase
+                  gtag('event', 'conversion', enhancedData);
+                  console.log('Google Ads Purchase conversion tracked:', enhancedData);
+                } catch (error) {
+                  console.warn('Google Ads Purchase error:', error);
+                  // Fallback to simple purchase conversion
+                  gtag('event', 'conversion', {
+                    'send_to': 'AW-17214709280/rRb1CIv4r-waEKC8zpBA',
+                    'value': value,
+                    'currency': currency || 'AED',
+                    'transaction_id': transactionId
+                  });
+                }
+                
+                // Remarketing
+                window.trackGoogleAdsRemarketing('purchase', {
+                  'product_id': items.map(item => item.id).join(','),
+                  'value': value,
+                  'currency': currency || 'AED',
+                  'transaction_id': transactionId,
+                  'num_items': items.length
+                });
+              }
+            };
+
+            // Helper function for delayed navigation (as provided by Google Ads)
+            window.gtagSendEvent = function(url) {
+              var callback = function () {
+                if (typeof url === 'string') {
+                  window.location = url;
+                }
+              };
+              gtag('event', 'conversion_event_add_to_cart', {
+                'event_callback': callback,
+                'event_timeout': 2000
+              });
+              return false;
+            };
+
+            // Google Ads View Item for Remarketing
+            window.trackGoogleAdsViewItem = function(item, value, currency) {
+              window.trackGoogleAdsRemarketing('view_item', {
+                'product_id': item.id,
+                'product_name': item.name,
+                'category': item.category || 'Coffee',
+                'value': value || item.price,
+                'currency': currency || 'AED'
+              });
+            };
+
+            // Google Ads Page View for Remarketing
+            window.trackGoogleAdsPageView = function(pageType = 'other') {
+              window.trackGoogleAdsRemarketing('page_view', {
+                'ecomm_pagetype': pageType,
+                'page_url': window.location.href,
+                'page_title': document.title
+              });
             };
 
             // Enhanced GA4 Ecommerce Tracking Functions

@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import UAEDirhamSymbol from '../../components/UAEDirhamSymbol';
 import { trackViewContent, trackAddToCart } from '../../lib/tracking-integration';
 import TabbyOfficialSnippet from '../../components/TabbyOfficialSnippet';
+import FOMOCountdown from '../../components/FOMOCountdown';
 
 interface ProductVariation {
   id: string;
@@ -1409,6 +1410,11 @@ export default function ProductPage() {
                 <UAEDirhamSymbol size={18} />
               </span>
             )}
+          </div>
+
+          {/* FOMO Countdown */}
+          <div className="mb-4">
+            <FOMOCountdown size="medium" />
           </div>
           
           {/* Rating */}
