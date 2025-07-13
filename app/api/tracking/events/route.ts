@@ -82,6 +82,76 @@ function parseUserAgent(userAgent: string) {
   return { device, browser, os };
 }
 
+// Map internal event names to Facebook's expected event names
+function mapEventNameForFacebook(eventName: string): string {
+  const eventMap: { [key: string]: string } = {
+    // E-commerce events
+    'add_to_cart': 'AddToCart',
+    'remove_from_cart': 'AddToCart', // Facebook doesn't have RemoveFromCart, use AddToCart with negative value
+    'begin_checkout': 'InitiateCheckout',
+    'initiate_checkout': 'InitiateCheckout',
+    'add_payment_info': 'AddPaymentInfo',
+    'add_shipping_info': 'AddPaymentInfo', // Facebook doesn't have AddShippingInfo, use AddPaymentInfo
+    'purchase': 'Purchase',
+    'view_item': 'ViewContent',
+    'view_content': 'ViewContent',
+    'add_to_wishlist': 'AddToWishlist',
+    
+    // User engagement events
+    'page_view': 'PageView',
+    'search': 'Search',
+    'sign_up': 'CompleteRegistration',
+    'complete_registration': 'CompleteRegistration',
+    'login': 'PageView', // Facebook doesn't have Login, use PageView
+    'contact': 'Contact',
+    'subscribe': 'Subscribe',
+    'lead': 'Lead',
+    
+    // Custom events that map to closest Facebook equivalent
+    'form_submit': 'Lead',
+    'click': 'PageView',
+    'share': 'PageView',
+    'download': 'PageView',
+    'video_play': 'PageView',
+    'video_complete': 'PageView'
+  };
+
+  return eventMap[eventName.toLowerCase()] || 'PageView';
+}
+
+// Map internal event names to Google's expected event names
+function mapEventNameForGoogle(eventName: string): string {
+  const eventMap: { [key: string]: string } = {
+    // E-commerce events (Google uses snake_case)
+    'add_to_cart': 'add_to_cart',
+    'remove_from_cart': 'remove_from_cart',
+    'begin_checkout': 'begin_checkout',
+    'initiate_checkout': 'begin_checkout',
+    'add_payment_info': 'add_payment_info',
+    'add_shipping_info': 'add_shipping_info',
+    'purchase': 'purchase',
+    'view_item': 'view_item',
+    'view_content': 'view_item',
+    'add_to_wishlist': 'add_to_wishlist',
+    
+    // User engagement events
+    'page_view': 'page_view',
+    'search': 'search',
+    'sign_up': 'sign_up',
+    'complete_registration': 'sign_up',
+    'login': 'login',
+    'share': 'share',
+    
+    // Custom events
+    'form_submit': 'generate_lead',
+    'contact': 'generate_lead',
+    'subscribe': 'sign_up',
+    'lead': 'generate_lead'
+  };
+
+  return eventMap[eventName.toLowerCase()] || 'custom_event';
+}
+
 // Send to external tracking platforms
 async function sendToExternalPlatforms(event: any, config: any) {
   const results: {
@@ -98,11 +168,14 @@ async function sendToExternalPlatforms(event: any, config: any) {
     // Send to Facebook if enabled
     if (config.metaEnabled && config.metaPixelId) {
       try {
+        const facebookEventName = mapEventNameForFacebook(event.eventName);
+        console.log(`[Facebook Tracking] Converting '${event.eventName}' to '${facebookEventName}'`);
+        
         const facebookResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/facebook`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            event_name: event.eventName,
+            event_name: facebookEventName,
             event_time: Math.floor(Date.now() / 1000),
             action_source: 'website',
             event_source_url: event.pageUrl,
@@ -114,7 +187,9 @@ async function sendToExternalPlatforms(event: any, config: any) {
               value: event.value,
               currency: event.currency,
               content_ids: event.items?.map((item: any) => item.item_id),
-              order_id: event.transactionId
+              order_id: event.transactionId,
+              content_type: 'product',
+              num_items: event.items?.length || 1
             },
             event_id: crypto.randomUUID()
           })
@@ -131,12 +206,15 @@ async function sendToExternalPlatforms(event: any, config: any) {
     // Send to Google if enabled
     if (config.ga4Enabled && config.ga4MeasurementId) {
       try {
+        const googleEventName = mapEventNameForGoogle(event.eventName);
+        console.log(`[Google Tracking] Converting '${event.eventName}' to '${googleEventName}'`);
+        
         const googleResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             method: 'ga4',
-            conversion_action: event.eventName,
+            conversion_action: googleEventName,
             conversion_value: event.value,
             currency_code: event.currency,
             order_id: event.transactionId,

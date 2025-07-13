@@ -572,22 +572,49 @@ export const ServerSideTracking = {
       }
     }
 
+    // Map internal event names to Facebook's expected event names
+    function mapEventNameForFacebook(eventName: string): string {
+      const eventMap: { [key: string]: string } = {
+        // E-commerce events
+        'add_to_cart': 'AddToCart',
+        'remove_from_cart': 'AddToCart', // Facebook doesn't have RemoveFromCart, use AddToCart with negative value
+        'begin_checkout': 'InitiateCheckout',
+        'initiate_checkout': 'InitiateCheckout',
+        'add_payment_info': 'AddPaymentInfo',
+        'add_shipping_info': 'AddPaymentInfo', // Facebook doesn't have AddShippingInfo, use AddPaymentInfo
+        'purchase': 'Purchase',
+        'view_item': 'ViewContent',
+        'view_content': 'ViewContent',
+        'add_to_wishlist': 'AddToWishlist',
+        
+        // User engagement events
+        'page_view': 'PageView',
+        'search': 'Search',
+        'sign_up': 'CompleteRegistration',
+        'complete_registration': 'CompleteRegistration',
+        'login': 'PageView', // Facebook doesn't have Login, use PageView
+        'contact': 'Contact',
+        'subscribe': 'Subscribe',
+        'lead': 'Lead',
+        
+        // Custom events that map to closest Facebook equivalent
+        'form_submit': 'Lead',
+        'click': 'PageView',
+        'share': 'PageView',
+        'download': 'PageView',
+        'video_play': 'PageView',
+        'video_complete': 'PageView'
+      };
+
+      return eventMap[eventName.toLowerCase()] || 'PageView';
+    }
+
     // Server-side tracking (non-blocking with extra error handling)
     if (eventData.enableServerSide) {
       // Facebook Conversions API - wrapped with extra error handling to prevent UI crashes
       promises.push(
         ServerSideTracking.sendFacebookEvent({
-          event_name: eventName === 'initiate_checkout' ? 'InitiateCheckout' :
-                     eventName === 'add_to_cart' ? 'AddToCart' :
-                     eventName === 'add_payment_info' ? 'AddPaymentInfo' :
-                     eventName === 'purchase' ? 'Purchase' :
-                     eventName === 'view_content' ? 'ViewContent' :
-                     eventName === 'add_to_wishlist' ? 'AddToWishlist' :
-                     eventName === 'search' ? 'Search' :
-                     eventName === 'complete_registration' ? 'CompleteRegistration' :
-                     eventName === 'contact' ? 'Contact' :
-                     eventName === 'subscribe' ? 'Subscribe' :
-                     'PageView',
+          event_name: mapEventNameForFacebook(eventName),
           user_data: eventData.user_data,
           custom_data: {
             value: eventData.value,
