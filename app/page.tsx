@@ -2221,7 +2221,7 @@ export default function Home() {
             className="section-header"
           >
             <h2 className="section-title">{t('shop_by_category', 'Shop by Category')}</h2>
-            <p className="section-description">{t('explore_categories', 'Explore our carefully curated collection of premium products')}</p>
+            <p className="section-description">{t('category_description', 'Explore our carefully curated collection of premium products')}</p>
           </motion.div>
           
           <div className="category-grid">
@@ -2272,7 +2272,7 @@ export default function Home() {
             className="section-header"
           >
             <h2 className="section-title">{t('featured_products', 'Featured Products')}</h2>
-            <p className="section-description">{t('handpicked_selection', 'Handpicked selection of our finest coffee beans and products')}</p>
+            <p className="section-description">{t('featured_description', 'Handpicked selection of our finest coffee beans and products')}</p>
           </motion.div>
           
           {loading ? (
@@ -2351,7 +2351,7 @@ export default function Home() {
               href="/shop" 
               className="inline-flex items-center gap-2 px-8 py-4 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-all duration-300 hover:gap-3"
             >
-              {t('view_all_products', 'View All Products')}
+              {t('explore_all_deals', 'Explore All Deals')}
               <ArrowRightIcon className="w-5 h-5" />
             </Link>
           </motion.div>

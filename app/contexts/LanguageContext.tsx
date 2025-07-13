@@ -267,6 +267,14 @@ const translations: Record<Language, Record<string, string>> = {
     'checkout': 'إتمام الشراء',
     'open_user_menu': 'فتح قائمة المستخدم',
     
+    // Homepage translations
+    'shop_by_category': 'تسوق حسب التصنيف',
+    'category_description': 'اكتشف مجموعتنا المنسقة بعناية من المنتجات المتميزة',
+    'featured_products': 'المنتجات المميزة',
+    'featured_description': 'تشكيلة مختارة بعناية من أفضل حبوب القهوة والمنتجات لدينا',
+    'explore_all_deals': 'استكشف جميع العروض',
+    'discounted_variations_desc': 'اكتشف عروض مذهلة على أحجام وأنواع مختلفة',
+    
     // Product page translations
     'description': 'الوصف',
     'no_description': 'لا يوجد وصف متاح',
@@ -283,6 +291,25 @@ const translations: Record<Language, Record<string, string>> = {
     'views': 'مشاهدات',
     'reviews': 'تقييمات',
     'off': 'خصم',
+    
+    // Footer translations
+    'company_name': 'جرين روستريز',
+    'company_description': 'نحن نستورد أفضل حبوب القهوة في العالم ونحمصها بعناية، ونقدم لك تجربة ومنتجات عالية الجودة مصنوعة بحب لعشاق القهوة.',
+    'quick_links': 'روابط سريعة',
+    'about_us': 'من نحن',
+    'contact_us': 'اتصل بنا',
+    'all_coffee': 'جميع القهوة',
+    'arabic_coffee': 'القهوة العربية',
+    'medium_coffee': 'القهوة متوسطة التحميص',
+    'espresso_coffee': 'قهوة إسبريسو',
+    'turkish_coffee': 'القهوة التركية',
+    'nuts_dried_fruits': 'المكسرات والفواكه المجففة',
+    'address': '7VQP+55 الذيد، الشارقة',
+    'business_hours': 'الإثنين-السبت: 9:00 صباحاً - 7:00 مساءً',
+    'copyright': '© 2025 جرين روستريز. جميع الحقوق محفوظة.',
+    'terms_conditions': 'الشروط والأحكام',
+    'privacy_policy': 'سياسة الخصوصية',
+    'refund_policy': 'سياسة الاسترداد',
     
     // Cart page translations
     'continue_shopping': 'مواصلة التسوق',
@@ -431,7 +458,6 @@ const translations: Record<Language, Record<string, string>> = {
     
     // Category header translations
     'category_header': 'التصنيف',
-    'nuts_dried_fruits': 'المكسرات والفواكه المجففة',
     'coffee_beans': 'حبوب القهوة',
     'coffee_grounds': 'القهوة المطحونة',
     'coffee_capsules': 'كبسولات القهوة',

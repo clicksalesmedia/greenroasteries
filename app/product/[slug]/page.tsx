@@ -1040,6 +1040,23 @@ export default function ProductPage() {
     return 0;
   };
   
+  // Check if product has any discounted variations or is discounted itself
+  const hasDiscounts = () => {
+    // Check if product itself has a discount
+    if (product?.discount && product.discount > 0) {
+      return true;
+    }
+    
+    // Check if any variation has a discount
+    if (product?.variations && product.variations.length > 0) {
+      return product.variations.some(variation => 
+        variation.discount && variation.discount > 0
+      );
+    }
+    
+    return false;
+  };
+
   const handleAddToCart = () => {
     if (!selectedVariation || !product) {
       showToast(t('select_variation', 'Please select a variation'), 'error');
@@ -1412,10 +1429,12 @@ export default function ProductPage() {
             )}
           </div>
 
-          {/* FOMO Countdown */}
-          <div className="mb-4">
-            <FOMOCountdown size="medium" />
-          </div>
+          {/* FOMO Countdown - Only show if product has discounts */}
+          {hasDiscounts() && (
+            <div className="mb-4">
+              <FOMOCountdown size="medium" />
+            </div>
+          )}
           
           {/* Rating */}
           {product.rating && (
