@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error saving FOMO settings:', error);
     return NextResponse.json(
-      { error: 'Failed to save FOMO settings', details: error.message },
+      { error: 'Failed to save FOMO settings', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
