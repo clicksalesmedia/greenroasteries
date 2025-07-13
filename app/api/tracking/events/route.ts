@@ -165,17 +165,16 @@ async function sendToExternalPlatforms(event: any, config: any) {
   };
 
   try {
-    // Send to Facebook if enabled
+    // Send to Facebook if enabled (event names already in correct PascalCase)
     if (config.metaEnabled && config.metaPixelId) {
       try {
-        const facebookEventName = mapEventNameForFacebook(event.eventName);
-        console.log(`[Facebook Tracking] Converting '${event.eventName}' to '${facebookEventName}'`);
+        console.log(`[Facebook Tracking] Sending event: ${event.eventName}`);
         
         const facebookResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/facebook`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            event_name: facebookEventName,
+            event_name: event.eventName, // Already in correct PascalCase (AddToCart, InitiateCheckout)
             event_time: Math.floor(Date.now() / 1000),
             action_source: 'website',
             event_source_url: event.pageUrl,
@@ -203,7 +202,7 @@ async function sendToExternalPlatforms(event: any, config: any) {
       }
     }
 
-    // Send to Google if enabled
+    // Send to Google if enabled (convert to snake_case for Google)
     if (config.ga4Enabled && config.ga4MeasurementId) {
       try {
         const googleEventName = mapEventNameForGoogle(event.eventName);

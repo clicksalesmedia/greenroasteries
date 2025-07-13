@@ -163,8 +163,8 @@ export class UnifiedTracking {
         }, value);
       }
 
-      // Server-side tracking
-      await ServerSideTracking.trackEvent('add_to_cart', {
+      // Server-side tracking with correct Facebook event name
+      await ServerSideTracking.trackEvent('AddToCart', {
         items: [{
           item_id: product.id,
           item_name: product.name,
@@ -270,15 +270,15 @@ export class UnifiedTracking {
         );
       }
 
-             // Server-side tracking
-       await ServerSideTracking.trackEvent('initiate_checkout', {
-         items: items.map(item => ({
-           item_id: item.id,
-           item_name: item.name,
-           category: item.category,
-           price: item.price,
-           quantity: item.quantity || 1
-         })),
+      // Server-side tracking with correct Facebook event name
+      await ServerSideTracking.trackEvent('InitiateCheckout', {
+        items: items.map(item => ({
+          item_id: item.id,
+          item_name: item.name,
+          category: item.category,
+          price: item.price,
+          quantity: item.quantity || 1
+        })),
         value,
         currency: 'AED',
         user_data: order.customer ? {

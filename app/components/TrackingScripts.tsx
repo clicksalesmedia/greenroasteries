@@ -355,140 +355,70 @@ export default function TrackingScripts() {
               }
             };
 
-            // Enhanced Facebook/Meta Tracking Functions (Pixel + Conversions API)
+            // UNIFIED Facebook Tracking Functions (Pixel + Conversions API)
+            window.trackFacebookEvent = function(eventName, eventData = {}) {
+              // Facebook Pixel (Client-side)
+              if (typeof fbq !== 'undefined') {
+                fbq('track', eventName, eventData);
+                console.log('Facebook Pixel tracked:', eventName, eventData);
+              }
+
+              // Facebook Conversions API (Server-side)
+              fetch('/api/tracking/facebook', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  event_name: eventName, // Already in correct PascalCase
+                  event_time: Math.floor(Date.now() / 1000),
+                  action_source: 'website',
+                  event_source_url: window.location.href,
+                  user_data: {
+                    client_ip_address: undefined, // Will be set server-side
+                    client_user_agent: navigator.userAgent,
+                    fbp: document.cookie.match(/_fbp=([^;]*)/)?.[1],
+                    fbc: document.cookie.match(/_fbc=([^;]*)/)?.[1]
+                  },
+                  custom_data: eventData,
+                  event_id: eventName.toLowerCase() + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+                })
+              }).then(response => response.json())
+                .then(result => console.log('Facebook Conversions API tracked:', eventName, result))
+                .catch(error => console.warn('Facebook Conversions API error:', error));
+            };
+
+            // Simplified Facebook Add to Cart
             window.trackFacebookAddToCart = function(item, value, currency) {
-              // Facebook Pixel
-              if (typeof fbq !== 'undefined') {
-                fbq('track', 'AddToCart', {
-                  value: value || item.price,
-                  currency: currency || 'AED',
-                  content_ids: [item.id],
-                  content_name: item.name,
-                  content_type: 'product',
-                  content_category: item.category || 'Coffee'
-                });
-                console.log('Facebook Pixel Add to Cart tracked:', item.name, value);
-              }
-
-              // Facebook Conversions API (Server-side)
-              fetch('/api/tracking/facebook', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  event_name: 'AddToCart',
-                  event_time: Math.floor(Date.now() / 1000),
-                  action_source: 'website',
-                  event_source_url: window.location.href,
-                  user_data: {
-                    client_ip_address: undefined, // Will be set server-side
-                    client_user_agent: navigator.userAgent,
-                    fbp: document.cookie.match(/_fbp=([^;]*)/)?.[1],
-                    fbc: document.cookie.match(/_fbc=([^;]*)/)?.[1]
-                  },
-                  custom_data: {
-                    value: value || item.price,
-                    currency: currency || 'AED',
-                    content_ids: [item.id],
-                    content_name: item.name,
-                    content_type: 'product',
-                    content_category: item.category || 'Coffee'
-                  },
-                  event_id: 'add_to_cart_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
-                })
-              }).then(response => response.json())
-                .then(result => console.log('Facebook Conversions API Add to Cart:', result))
-                .catch(error => console.warn('Facebook Conversions API error:', error));
+              window.trackFacebookEvent('AddToCart', {
+                value: value || item.price,
+                currency: currency || 'AED',
+                content_ids: [item.id],
+                content_name: item.name,
+                content_type: 'product',
+                content_category: item.category || 'Coffee'
+              });
             };
 
+            // Simplified Facebook Begin Checkout
             window.trackFacebookBeginCheckout = function(items, value, currency) {
-              const content_ids = items.map(item => item.id);
-              
-              // Facebook Pixel
-              if (typeof fbq !== 'undefined') {
-                fbq('track', 'InitiateCheckout', {
-                  value: value,
-                  currency: currency || 'AED',
-                  content_ids: content_ids,
-                  content_type: 'product',
-                  num_items: items.length
-                });
-                console.log('Facebook Pixel Begin Checkout tracked:', items.length, 'items, value:', value);
-              }
-
-              // Facebook Conversions API (Server-side)
-              fetch('/api/tracking/facebook', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  event_name: 'InitiateCheckout',
-                  event_time: Math.floor(Date.now() / 1000),
-                  action_source: 'website',
-                  event_source_url: window.location.href,
-                  user_data: {
-                    client_ip_address: undefined, // Will be set server-side
-                    client_user_agent: navigator.userAgent,
-                    fbp: document.cookie.match(/_fbp=([^;]*)/)?.[1],
-                    fbc: document.cookie.match(/_fbc=([^;]*)/)?.[1]
-                  },
-                  custom_data: {
-                    value: value,
-                    currency: currency || 'AED',
-                    content_ids: content_ids,
-                    content_type: 'product',
-                    num_items: items.length
-                  },
-                  event_id: 'begin_checkout_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
-                })
-              }).then(response => response.json())
-                .then(result => console.log('Facebook Conversions API Begin Checkout:', result))
-                .catch(error => console.warn('Facebook Conversions API error:', error));
+              window.trackFacebookEvent('InitiateCheckout', {
+                value: value,
+                currency: currency || 'AED',
+                content_ids: items.map(item => item.id),
+                content_type: 'product',
+                num_items: items.length
+              });
             };
 
+            // Simplified Facebook Purchase
             window.trackFacebookPurchase = function(transactionId, items, value, currency, userEmail) {
-              const content_ids = items.map(item => item.id);
-              
-              // Facebook Pixel
-              if (typeof fbq !== 'undefined') {
-                fbq('track', 'Purchase', {
-                  value: value,
-                  currency: currency || 'AED',
-                  content_ids: content_ids,
-                  content_type: 'product',
-                  order_id: transactionId,
-                  num_items: items.length
-                });
-                console.log('Facebook Pixel Purchase tracked:', transactionId, 'Value:', value);
-              }
-
-              // Facebook Conversions API (Server-side) - CRITICAL FOR MISSING PURCHASE EVENTS
-              fetch('/api/tracking/facebook', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  event_name: 'Purchase',
-                  event_time: Math.floor(Date.now() / 1000),
-                  action_source: 'website',
-                  event_source_url: window.location.href,
-                  user_data: {
-                    email: userEmail, // Will be hashed server-side
-                    client_ip_address: undefined, // Will be set server-side
-                    client_user_agent: navigator.userAgent,
-                    fbp: document.cookie.match(/_fbp=([^;]*)/)?.[1],
-                    fbc: document.cookie.match(/_fbc=([^;]*)/)?.[1]
-                  },
-                  custom_data: {
-                    value: value,
-                    currency: currency || 'AED',
-                    content_ids: content_ids,
-                    content_type: 'product',
-                    order_id: transactionId,
-                    num_items: items.length
-                  },
-                  event_id: 'purchase_' + transactionId + '_' + Date.now()
-                })
-              }).then(response => response.json())
-                .then(result => console.log('Facebook Conversions API Purchase:', result))
-                .catch(error => console.warn('Facebook Conversions API error:', error));
+              window.trackFacebookEvent('Purchase', {
+                value: value,
+                currency: currency || 'AED',
+                content_ids: items.map(item => item.id),
+                content_type: 'product',
+                order_id: transactionId,
+                num_items: items.length
+              });
             };
 
             window.trackFacebookAddPaymentInfo = function(value, currency) {
