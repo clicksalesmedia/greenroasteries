@@ -26,6 +26,7 @@
     "bcryptjs": "^3.0.2",
     "chart.js": "^4.4.9",
     "cloudinary": "^2.7.0",
+    "dotenv": "^17.2.0",
     "form-data": "^4.0.3",
     "framer-motion": "^12.11.0",
     "googleapis": "^150.0.1",

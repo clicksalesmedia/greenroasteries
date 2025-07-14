@@ -33,19 +33,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Format phone number for Tabby (remove country code if present)
-    let formattedPhone = customerInfo.phone;
-    if (formattedPhone.startsWith('+971')) {
-      formattedPhone = formattedPhone.substring(4);
-    } else if (formattedPhone.startsWith('971')) {
-      formattedPhone = formattedPhone.substring(3);
-    }
-    // Remove any non-digit characters except the leading +
-    formattedPhone = formattedPhone.replace(/[^\d]/g, '');
+    // Format phone number per Tabby documentation
+    // Accepts: "+971500000001", "971500000001", "500000001", "0500000001"
+    let formattedPhone = customerInfo.phone || '';
     
-    // Ensure phone is at least 9 digits
-    if (formattedPhone.length < 9) {
-      formattedPhone = '500000001'; // Default test phone for Tabby
+    // Clean and validate phone number
+    const cleanPhone = formattedPhone.replace(/[^\d]/g, '');
+    
+    // Validate and format according to Tabby standards
+    if (cleanPhone.startsWith('971') && cleanPhone.length === 12) {
+      // Format: 971500000001 -> keep as is (Tabby accepts this)
+      formattedPhone = cleanPhone;
+    } else if (cleanPhone.startsWith('00971') && cleanPhone.length === 14) {
+      // Format: 00971500000001 -> 971500000001
+      formattedPhone = cleanPhone.substring(2);
+    } else if (cleanPhone.startsWith('0') && cleanPhone.length === 10) {
+      // Format: 0500000001 -> 971500000001 
+      formattedPhone = '971' + cleanPhone.substring(1);
+    } else if (cleanPhone.length === 9 && cleanPhone.startsWith('5')) {
+      // Format: 500000001 -> 971500000001
+      formattedPhone = '971' + cleanPhone;
+    } else {
+      // Invalid format - use default test number
+      formattedPhone = '971500000001'; // Tabby's preferred format with country code
     }
 
     // Prepare Tabby payment request

@@ -214,45 +214,45 @@ class TabbyService {
       // Format the payload according to Tabby's API requirements
       const tabbyPayload = {
         payment: {
-          amount: paymentData.amount.toFixed(2), // Format to exactly 2 decimal places
-          currency: paymentData.currency,
-          description: paymentData.description,
+          amount: parseFloat(paymentData.amount.toString()).toFixed(2), // Ensure proper decimal formatting
+          currency: paymentData.currency.toUpperCase(), // Ensure uppercase currency
+          description: paymentData.description || 'Green Roasteries Order',
           buyer: {
-            phone: paymentData.buyer.phone, // Already formatted in the route
-            email: paymentData.buyer.email, // Use actual email for both test and live mode
-            name: paymentData.buyer.name,
-            dob: "1990-01-01T00:00:00.000Z" // Default DOB
+            phone: paymentData.buyer.phone, // Already formatted in the route (9 digits, no country code)
+            email: paymentData.buyer.email.toLowerCase().trim(), // Normalize email
+            name: paymentData.buyer.name.trim() || 'Customer', // Ensure name is not empty
+            dob: "1990-01-01T00:00:00.000Z" // Default DOB in correct ISO format
           },
           shipping_address: {
-            city: paymentData.shipping_address.city,
-            address: paymentData.shipping_address.address,
-            zip: paymentData.shipping_address.zip || "1111"
+            city: paymentData.shipping_address.city.trim() || 'Dubai',
+            address: paymentData.shipping_address.address.trim() || 'Dubai, UAE',
+            zip: paymentData.shipping_address.zip?.trim() || "1111"
           },
           order: {
-            tax_amount: (paymentData.order.tax_amount / 100).toFixed(2), // Convert back to decimal string
-            shipping_amount: (paymentData.order.shipping_amount / 100).toFixed(2),
-            discount_amount: (paymentData.order.discount_amount / 100).toFixed(2),
+            tax_amount: parseFloat((paymentData.order.tax_amount / 100).toString()).toFixed(2),
+            shipping_amount: parseFloat((paymentData.order.shipping_amount / 100).toString()).toFixed(2),
+            discount_amount: parseFloat((paymentData.order.discount_amount / 100).toString()).toFixed(2),
             updated_at: paymentData.order.updated_at,
-            reference_id: paymentData.order.reference_id,
-            items: paymentData.order.items.map(item => ({
-              title: item.title,
-              description: item.description,
-              quantity: item.quantity,
-              unit_price: (item.unit_price / 100).toFixed(2), // Convert back to decimal string
-              discount_amount: "0.00",
-              reference_id: item.reference_id,
-              image_url: item.image_url || "https://example.com/",
-              product_url: item.product_url || "https://example.com/",
+            reference_id: paymentData.order.reference_id.toString(),
+            items: paymentData.order.items.map((item, index) => ({
+              title: this.truncateString(item.title?.trim() || `Product ${index + 1}`, 255),
+              description: this.truncateString(item.description?.trim() || item.title?.trim() || `Product ${index + 1}`, 255),
+              quantity: parseInt(item.quantity.toString()),
+              unit_price: parseFloat((item.unit_price / 100).toString()).toFixed(2),
+              discount_amount: item.discount_amount ? parseFloat((item.discount_amount / 100).toString()).toFixed(2) : "0.00",
+              reference_id: this.truncateString(item.reference_id?.toString() || `item_${index + 1}`, 255),
+              image_url: this.truncateString(item.image_url || `${process.env.NEXT_PUBLIC_SITE_URL || 'https://thegreenroasteries.com'}/images/placeholder.jpg`, 255),
+              product_url: this.truncateString(item.product_url || `${process.env.NEXT_PUBLIC_SITE_URL || 'https://thegreenroasteries.com'}/shop`, 255),
               gender: "Other",
-              category: item.category || "Coffee",
+              category: this.truncateString(item.category?.trim() || "Coffee", 255),
               color: "brown",
               product_material: "organic",
               size_type: "weight",
               size: "M",
               brand: "Green Roasteries",
               is_refundable: true,
-              barcode: "12345678",
-              ppn: "GR-" + item.reference_id,
+              barcode: this.truncateString(`GR${Date.now()}${index}`, 255),
+              ppn: this.truncateString(`GR-${item.reference_id || index}`, 255),
               seller: "Green Roasteries"
             }))
           },
@@ -531,6 +531,14 @@ class TabbyService {
       merchantCode: this.merchantCode,
       baseUrl: this.baseUrl,
     };
+  }
+
+  /**
+   * Truncate string to comply with Tabby's 255 character limit
+   */
+  private truncateString(str: string, maxLength: number = 255): string {
+    if (!str) return '';
+    return str.length > maxLength ? str.substring(0, maxLength - 3) + '...' : str;
   }
 }
 

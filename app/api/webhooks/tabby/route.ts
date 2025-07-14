@@ -152,20 +152,36 @@ export async function POST(request: NextRequest) {
     const signature = request.headers.get('x-tabby-signature');
     const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
     
-    // 🛡️ TODO: Consider implementing IP whitelisting for production security
-    // Tabby server IPs: 34.166.36.90, 34.166.35.211, 34.166.34.222, 34.166.37.207, 34.93.76.191
+    // 🛡️ IP Whitelisting for Tabby webhook security
+    const tabbyIPs = [
+      '34.166.36.90',
+      '34.166.35.211', 
+      '34.166.34.222',
+      '34.166.37.207',
+      '34.93.76.191'
+    ];
     
-    // Verify webhook signature for security (skip in development if secret not set)
-    // TEMPORARILY DISABLED FOR TESTING - WEBHOOK SECRET ISSUE
-    /*
-    if (process.env.TABBY_WEBHOOK_SECRET && !verifyTabbySignature(body, signature)) {
-      console.error('Invalid Tabby webhook signature from IP:', clientIP);
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-    } else if (!process.env.TABBY_WEBHOOK_SECRET) {
-      console.warn('TABBY_WEBHOOK_SECRET not set - skipping signature verification (not recommended for production)');
+    // Check if request is from Tabby's whitelisted IPs
+    const requestIP = clientIP.split(',')[0].trim(); // Get first IP if multiple
+    const isFromTabby = tabbyIPs.includes(requestIP) || requestIP === 'unknown' || process.env.NODE_ENV === 'development';
+    
+    if (!isFromTabby) {
+      console.error(`🚫 Webhook rejected - IP ${requestIP} not in Tabby whitelist`, { tabbyIPs });
+      return NextResponse.json({ error: 'Unauthorized IP address' }, { status: 403 });
     }
-    */
-    console.warn('⚠️ TABBY WEBHOOK: Signature verification temporarily disabled for testing');
+    
+    console.log(`✅ IP verification passed: ${requestIP}`);
+    
+    // Verify webhook signature for security
+    if (process.env.TABBY_WEBHOOK_SECRET) {
+      if (!verifyTabbySignature(body, signature)) {
+        console.error('Invalid Tabby webhook signature from IP:', clientIP);
+        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+      }
+      console.log('✅ Webhook signature verified');
+    } else {
+      console.warn('⚠️ TABBY_WEBHOOK_SECRET not set - skipping signature verification (not recommended for production)');
+    }
 
     const webhookData = JSON.parse(body);
     
@@ -204,8 +220,28 @@ export async function POST(request: NextRequest) {
     setImmediate(async () => {
       try {
         await processWebhookEvent(webhookData, webhookId);
+        console.log(`✅ Webhook ${webhookId} processed successfully`);
       } catch (error) {
-        console.error('❌ Async webhook processing failed:', error);
+        console.error('❌ Async webhook processing failed:', {
+          webhookId,
+          event: webhookData.event,
+          paymentId: webhookData.payment?.id || webhookData.id,
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        });
+        
+        // Log to database for investigation if possible
+        try {
+          await prisma.payment.updateMany({
+            where: { tabbyPaymentId: webhookData.payment?.id || webhookData.id },
+            data: { 
+              status: 'FAILED',
+              updatedAt: new Date()
+            }
+          });
+        } catch (dbError) {
+          console.error('Failed to log webhook error to database:', dbError);
+        }
       }
     });
 
