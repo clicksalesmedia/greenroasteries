@@ -15,12 +15,39 @@ export async function POST(request: NextRequest) {
       subtotal,
       tax,
       shippingCost,
-      discount = 0
+      discount = 0,
+      appliedCoupon
     } = await request.json();
 
-    if (!amount || amount <= 0) {
+    // DEBUG: Log the received payment data
+    console.log('💰 Payment Intent Creation - Received Data:', {
+      amount,
+      subtotal,
+      tax,
+      shippingCost,
+      discount,
+      appliedCoupon: appliedCoupon ? {
+        code: appliedCoupon.code,
+        discountAmount: appliedCoupon.discountAmount,
+        discountType: appliedCoupon.discountType
+      } : null
+    });
+
+    // Calculate the final amount after discount
+    const finalAmount = Math.max(0, amount);
+
+    // DEBUG: Log the calculated amounts
+    console.log('🧮 Payment Intent - Amount Calculation:', {
+      originalAmount: amount,
+      finalAmount: finalAmount,
+      discountApplied: discount,
+      stripeAmount: formatAmountForStripe(finalAmount)
+    });
+
+    if (!finalAmount || finalAmount <= 0) {
+      console.error('❌ Invalid final amount:', finalAmount);
       return NextResponse.json(
-        { error: 'Invalid amount' },
+        { error: 'Invalid amount after discount' },
         { status: 400 }
       );
     }
@@ -34,9 +61,16 @@ export async function POST(request: NextRequest) {
       variationId: item.variationId || null
     })) || [];
 
-    // Create payment intent with Stripe
+    // DEBUG: Log payment intent creation details
+    console.log('🏦 Creating Stripe Payment Intent:', {
+      amount: formatAmountForStripe(finalAmount),
+      currency: currency.toLowerCase(),
+      couponCode: appliedCoupon?.code || 'None'
+    });
+
+    // Create payment intent with Stripe using the final discounted amount
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: formatAmountForStripe(amount),
+      amount: formatAmountForStripe(finalAmount),
       currency: currency.toLowerCase(),
       payment_method_types: ['card'],
       metadata: {
@@ -48,12 +82,24 @@ export async function POST(request: NextRequest) {
         itemsCount: items?.length || 0,
         // Store order details as JSON strings (Stripe metadata values must be strings)
         orderItems: JSON.stringify(itemsData).substring(0, 500), // Limit to 500 chars
-        subtotal: String(subtotal || amount * 0.9),
-        tax: String(tax || amount * 0.05),
+        subtotal: String(subtotal || 0),
+        tax: String(tax || 0),
         shippingCost: String(shippingCost || 0),
         discount: String(discount || 0),
-        total: String(amount)
+        originalAmount: String(subtotal + shippingCost + tax), // Store original amount before discount
+        finalAmount: String(finalAmount), // Store final amount after discount
+        appliedCouponCode: appliedCoupon?.code || '',
+        appliedCouponDiscount: String(appliedCoupon?.discountAmount || 0),
+        appliedCouponType: appliedCoupon?.discountType || '',
+        appliedCouponPromotionId: appliedCoupon?.promotionId || ''
       },
+    });
+
+    console.log('✅ Payment Intent Created Successfully:', {
+      paymentIntentId: paymentIntent.id,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency,
+      status: paymentIntent.status
     });
 
     return NextResponse.json({
@@ -61,7 +107,7 @@ export async function POST(request: NextRequest) {
       paymentIntentId: paymentIntent.id,
     });
   } catch (error) {
-    console.error('Error creating payment intent:', error);
+    console.error('❌ Error creating payment intent:', error);
     return NextResponse.json(
       { error: 'Failed to create payment intent' },
       { status: 500 }

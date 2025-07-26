@@ -450,6 +450,7 @@ export const ServerSideTracking = {
           FacebookPixel.pageView();
           break;
         case 'view_content':
+        case 'ViewContent':
           FacebookPixel.viewContent(
             eventData.items?.[0]?.item_id,
             'product',
@@ -458,6 +459,7 @@ export const ServerSideTracking = {
           );
           break;
         case 'add_to_cart':
+        case 'AddToCart':
           FacebookPixel.addToCart(
             eventData.value || 0,
             eventData.currency,
@@ -465,6 +467,7 @@ export const ServerSideTracking = {
           );
           break;
         case 'add_to_wishlist':
+        case 'AddToWishlist':
           FacebookPixel.addToWishlist(
             eventData.items?.[0]?.item_id,
             eventData.value,
@@ -472,6 +475,8 @@ export const ServerSideTracking = {
           );
           break;
         case 'initiate_checkout':
+        case 'InitiateCheckout':
+        case 'begin_checkout':
           FacebookPixel.initiateCheckout(
             eventData.value || 0,
             eventData.currency,
@@ -479,9 +484,11 @@ export const ServerSideTracking = {
           );
           break;
         case 'add_payment_info':
+        case 'AddPaymentInfo':
           FacebookPixel.addPaymentInfo(eventData.value, eventData.currency);
           break;
         case 'purchase':
+        case 'Purchase':
           FacebookPixel.purchase(
             eventData.value || 0,
             eventData.currency,
@@ -490,16 +497,42 @@ export const ServerSideTracking = {
           );
           break;
         case 'search':
+        case 'Search':
           FacebookPixel.search(eventData.search_term || '');
           break;
         case 'complete_registration':
+        case 'CompleteRegistration':
           FacebookPixel.completeRegistration(eventData.value, eventData.currency);
           break;
         case 'contact':
+        case 'Contact':
           FacebookPixel.contact();
           break;
         case 'subscribe':
+        case 'Subscribe':
           FacebookPixel.subscribe(eventData.value, eventData.currency);
+          break;
+        case 'add_shipping_info':
+        case 'AddShippingInfo':
+          // Facebook doesn't have a standard AddShippingInfo event, so we'll track it as a custom event
+          if (typeof window !== 'undefined' && window.fbq) {
+            window.fbq('trackCustom', 'AddShippingInfo', {
+              value: eventData.value,
+              currency: eventData.currency,
+              content_ids: eventData.items?.map(item => item.item_id)
+            });
+          }
+          break;
+        case 'remove_from_cart':
+        case 'RemoveFromCart':
+          // Facebook doesn't have a standard RemoveFromCart event, so we'll track it as a custom event
+          if (typeof window !== 'undefined' && window.fbq) {
+            window.fbq('trackCustom', 'RemoveFromCart', {
+              value: eventData.value,
+              currency: eventData.currency,
+              content_ids: eventData.items?.map(item => item.item_id)
+            });
+          }
           break;
       }
 
@@ -577,7 +610,7 @@ export const ServerSideTracking = {
       // Facebook Conversions API - wrapped with extra error handling to prevent UI crashes
       promises.push(
         ServerSideTracking.sendFacebookEvent({
-          event_name: eventName, // Use eventName directly (should already be correct PascalCase)
+          event_name: convertToFacebookEventName(eventName), // Convert to Facebook PascalCase format
           user_data: eventData.user_data,
           custom_data: {
             value: eventData.value,
@@ -1026,4 +1059,52 @@ declare global {
     fbq?: (...args: any[]) => void;
     dataLayer?: any[];
   }
+} 
+
+// Hash function for PII data (note: crypto is available in Node.js environment)
+function hashData(data: string): string {
+  if (typeof window !== 'undefined') {
+    // Browser environment - use Web Crypto API or return unhashed for client-side
+    return data; // For client-side, we don't hash as it's handled server-side
+  }
+  
+  // Node.js environment
+  const crypto = require('crypto');
+  return crypto.createHash('sha256').update(data.toLowerCase().trim()).digest('hex');
+}
+
+// Convert snake_case or camelCase event names to Facebook PascalCase format
+function convertToFacebookEventName(eventName: string): string {
+  const eventMapping: { [key: string]: string } = {
+    'page_view': 'PageView',
+    'view_content': 'ViewContent',
+    'add_to_cart': 'AddToCart',
+    'add_to_wishlist': 'AddToWishlist',
+    'initiate_checkout': 'InitiateCheckout',
+    'begin_checkout': 'InitiateCheckout',
+    'add_payment_info': 'AddPaymentInfo',
+    'purchase': 'Purchase',
+    'search': 'Search',
+    'complete_registration': 'CompleteRegistration',
+    'contact': 'Contact',
+    'subscribe': 'Subscribe',
+    'lead': 'Lead',
+    'add_shipping_info': 'AddShippingInfo', // Custom event
+    'remove_from_cart': 'RemoveFromCart', // Custom event
+    // Handle already correct PascalCase names
+    'PageView': 'PageView',
+    'ViewContent': 'ViewContent',
+    'AddToCart': 'AddToCart',
+    'AddToWishlist': 'AddToWishlist',
+    'InitiateCheckout': 'InitiateCheckout',
+    'AddPaymentInfo': 'AddPaymentInfo',
+    'Purchase': 'Purchase',
+    'Search': 'Search',
+    'CompleteRegistration': 'CompleteRegistration',
+    'Contact': 'Contact',
+    'Subscribe': 'Subscribe',
+    'Lead': 'Lead'
+  };
+  
+  return eventMapping[eventName] || eventName;
 } 

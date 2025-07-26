@@ -172,7 +172,9 @@ export default function CartPage() {
                   <div className="ml-4 flex-1">
                     <h3 className="text-lg font-medium text-gray-900">{item.name}</h3>
                     <p className="mt-1 text-sm text-gray-500">
-                      {Object.values(item.variation).filter(Boolean).join(', ')}
+                      {item.variation && typeof item.variation === 'object' && !Array.isArray(item.variation) && item.variation !== null 
+                        ? Object.values(item.variation).filter(Boolean).join(', ') 
+                        : ''}
                     </p>
                     
                     {/* Mobile Price */}

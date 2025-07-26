@@ -9,9 +9,11 @@ import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import UAEDirhamSymbol from '../../components/UAEDirhamSymbol';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useCart } from '../../contexts/CartContext';
 
 export default function ThankYouPage() {
   const { t, language, contentByLang } = useLanguage();
+  const { clearCart } = useCart();
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const searchParams = useSearchParams();
   const [showConfetti, setShowConfetti] = useState(true);
@@ -20,29 +22,85 @@ export default function ThankYouPage() {
     if (typeof window === 'undefined') return;
     
     const handleOrderRetrieval = async () => {
-      // Check if this is a Tabby redirect
-      const paymentType = searchParams.get('payment');
+      // Check if this is a Tabby redirect - support both parameter formats
+      const paymentType = searchParams.get('payment') || searchParams.get('payment_provider');
       const sessionId = searchParams.get('session_id');
+      const orderId = searchParams.get('order_id'); // ✅ NEW: Direct order ID from URL
       
-      if (paymentType === 'tabby' && sessionId) {
-        // Handle Tabby payment redirect
+      console.log('🔍 URL Parameters:', {
+        payment: searchParams.get('payment'),
+        payment_provider: searchParams.get('payment_provider'), 
+        session_id: sessionId,
+        order_id: orderId, // ✅ NEW: Log order ID
+        resolved_payment_type: paymentType
+      });
+      
+      if ((paymentType === 'tabby' || paymentType === 'TABBY') && (sessionId || orderId)) {
+        // Handle Tabby payment redirect - make it work like Stripe
         try {
-          console.log('Looking for Tabby order with session ID:', sessionId);
+                    console.log('🔵 Tabby redirect detected:', { sessionId, orderId });
           
-          // Find the order associated with this payment - get more orders and search thoroughly
-          const ordersResponse = await fetch('/api/orders?limit=100');
-            const ordersData = await ordersResponse.json();
+          let matchingOrder = null;
+          
+          // ✅ PRIORITY 1: If we have direct order_id, fetch it directly (new flow)
+          if (orderId) {
+            console.log('🎯 DIRECT ORDER LOOKUP: Using order_id from URL:', orderId);
             
-          console.log('Total orders found:', ordersData.orders?.length);
+            try {
+              const orderResponse = await fetch(`/api/orders/${orderId}`);
+              if (orderResponse.ok) {
+                const orderData = await orderResponse.json();
+                matchingOrder = orderData.order;
+                console.log('✅ Direct order found:', matchingOrder.id);
+              } else {
+                console.warn('⚠️ Direct order lookup failed, falling back to search');
+              }
+            } catch (error) {
+              console.warn('⚠️ Direct order API error, falling back to search:', error);
+            }
+          }
           
-          // Find order with matching Tabby payment ID - improved search
-          const matchingOrder = ordersData.orders?.find((order: any) => {
-            const tabbyMatch = order.payment?.tabbyPaymentId === sessionId;
-            console.log(`Order ${order.id}: Payment ID ${order.payment?.tabbyPaymentId}, Provider: ${order.payment?.paymentProvider}, Match: ${tabbyMatch}`);
-            return tabbyMatch;
-          });
+          // ✅ FALLBACK: Search by session_id if direct lookup failed (legacy flow)
+          if (!matchingOrder && sessionId) {
+            console.log('🔍 FALLBACK SEARCH: Looking for order by session_id:', sessionId);
+            
+            // Wait a bit for webhook to process the order (similar to Stripe delay)
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Find the order associated with this payment - get more orders and search thoroughly
+            const ordersResponse = await fetch('/api/orders?limit=100');
+            if (!ordersResponse.ok) {
+              throw new Error('Failed to fetch orders');
+            }
+            
+            const ordersData = await ordersResponse.json();
+            console.log('📊 Total orders found:', ordersData.orders?.length);
+            
+            // Find order with matching Tabby payment ID - enhanced search with multiple methods
+            matchingOrder = ordersData.orders?.find((order: any) => {
+              const tabbyMatch = order.payment?.tabbyPaymentId === sessionId;
+              const metaMatch = order.payment?.metadata?.tabby_payment_id === sessionId;
+              const orderRefMatch = order.orderNumber === sessionId || order.id === sessionId;
+              console.log(`🔍 Order ${order.id}: Payment ID ${order.payment?.tabbyPaymentId}, Meta: ${order.payment?.metadata?.tabby_payment_id}, Ref: ${order.orderNumber}, Match: ${tabbyMatch || metaMatch || orderRefMatch}`);
+              return tabbyMatch || metaMatch || orderRefMatch;
+            });
+            
+            // If no exact match, try to find the most recent Tabby order
+            if (!matchingOrder) {
+              console.log('🔍 No exact match found, searching for recent Tabby orders...');
+              const recentTabbyOrders = ordersData.orders?.filter((order: any) =>
+                order.payment?.paymentProvider === 'TABBY' || order.payment?.provider === 'tabby'
+              ).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+              console.log(`🔍 Found ${recentTabbyOrders?.length || 0} recent Tabby orders`);
+              if (recentTabbyOrders && recentTabbyOrders.length > 0) {
+                matchingOrder = recentTabbyOrders[0]; // Use the most recent one
+                console.log(`🎯 Using most recent Tabby order: ${matchingOrder.id}`);
+              }
+            }
+          }
           
-          console.log('Matching order found:', matchingOrder?.id);
+          console.log('🎯 Matching order found:', matchingOrder?.id);
             
             if (matchingOrder) {
             // Use the order data directly since we already have complete data from the orders endpoint
@@ -60,33 +118,181 @@ export default function ThankYouPage() {
               },
               items: matchingOrder.items?.map((item: any) => ({
                 id: item.product?.id || item.productId,
-                name: item.product?.name || 'Product',
-                price: item.unitPrice || 0,
-                quantity: item.quantity || 1,
-                image: item.product?.imageUrl || '/images/coffee-placeholder.jpg',
+                name: item.product?.name || item.name || 'Product',
+                price: parseFloat(item.unitPrice || item.price) || 0,
+                quantity: parseInt(item.quantity) || 1,
+                image: item.product?.imageUrl || item.product?.image || '/images/coffee-placeholder.jpg',
                 variation: item.variation ? {
                   size: item.variation.size?.displayName || item.variation.size?.name || '',
-                  grind: item.variation.type?.name || '',
-                  roast: item.variation.beans?.name || ''
+                  grind: item.variation.type?.displayName || item.variation.type?.name || '',
+                  roast: item.variation.beans?.displayName || item.variation.beans?.name || ''
                 } : {}
               })) || [],
-              totalAmount: matchingOrder.total || 0,
-              subtotal: matchingOrder.subtotal || 0,
-              tax: matchingOrder.tax || 0,
-              shippingCost: matchingOrder.shippingCost || 0,
-              discount: matchingOrder.discount || 0,
+              totalAmount: parseFloat(matchingOrder.total || matchingOrder.totalAmount) || 0,
+              subtotal: parseFloat(matchingOrder.subtotal) || 0,
+              tax: parseFloat(matchingOrder.tax || matchingOrder.taxAmount) || 0,
+              shippingCost: parseFloat(matchingOrder.shippingCost || matchingOrder.shipping) || 0,
+              discount: parseFloat(matchingOrder.discount || matchingOrder.discountAmount) || 0,
                 isNewCustomer: matchingOrder.user?.isNewCustomer || false,
                 paymentProvider: 'TABBY',
               paymentStatus: matchingOrder.payment?.status || 'PENDING'
               };
             
-            console.log('Order data formatted:', orderData);
-              setOrderDetails(orderData);
+            console.log('💰 Enhanced order data with prices:', {
+              orderId: orderData.orderId,
+              totalAmount: orderData.totalAmount,
+              subtotal: orderData.subtotal,
+              rawOrderData: {
+                total: matchingOrder.total,
+                subtotal: matchingOrder.subtotal,
+                items: matchingOrder.items?.map((item: any) => ({
+                  name: item.product?.name || item.name,
+                  unitPrice: item.unitPrice,
+                  price: item.price,
+                  quantity: item.quantity
+                }))
+              },
+              processedItems: orderData.items.map((item: any) => ({ 
+                name: item.name, 
+                price: item.price, 
+                quantity: item.quantity 
+              }))
+            });
+            
+            setOrderDetails(orderData);
 
-              // NOTE: Purchase tracking moved to server-side webhooks for accurate payment confirmation
-              // This ensures events are only fired when payments are actually successful and avoids duplicates
+              // Clear the cart since Tabby payment was successful
+              console.log('Clearing cart for successful Tabby payment');
+              clearCart();
+
+              // ✅ TABBY CLIENT-SIDE TRACKING: Fire Purchase events for confirmed order
+              try {
+                console.log('🎯 Firing client-side tracking for confirmed Tabby order:', orderData.orderId);
+                
+                // Facebook Pixel Purchase
+                if (typeof window !== 'undefined' && (window as any).trackFacebookPurchase) {
+                  (window as any).trackFacebookPurchase(
+                    orderData.orderId,
+                    orderData.items || [],
+                    orderData.totalAmount || 0,
+                    'AED',
+                    orderData.customerInfo?.email
+                  );
+                }
+
+                // Google Ads Purchase Conversion  
+                if (typeof window !== 'undefined' && (window as any).trackGoogleAdsPurchase) {
+                  await (window as any).trackGoogleAdsPurchase(
+                    orderData.orderId,
+                    orderData.items?.map((item: any) => ({
+                      id: item.id || item.productId || 'unknown_product',  // ✅ Fallback for id
+                      name: item.name || item.product?.name || 'Unknown Product',  // ✅ Fallback for name
+                      category: item.category || 'Coffee'
+                    })) || [],
+                    orderData.totalAmount || 0,
+                    'AED',
+                    orderData.customerInfo?.email,
+                    orderData.customerInfo?.phone,
+                    orderData.customerInfo?.fullName?.split(' ')[0],
+                    orderData.customerInfo?.fullName?.split(' ').slice(1).join(' ')
+                  );
+                }
+
+                // GA4 Enhanced Ecommerce Purchase
+                if (typeof window !== 'undefined' && (window as any).trackGA4Purchase) {
+                  // ✅ DEBUG: Log items data for Tabby tracking
+                  console.log('🔍 Tabby GA4 Items Debug:', {
+                    rawItems: orderData.items,
+                    mappedItems: orderData.items?.map((item: any) => ({
+                      id: item.id,
+                      name: item.name,
+                      category: item.category || 'Coffee',
+                      quantity: item.quantity || 1,
+                      price: item.price || 0
+                    }))
+                  });
+                  
+                  (window as any).trackGA4Purchase(
+                    orderData.orderId,
+                    orderData.items?.map((item: any) => ({
+                      id: item.id || item.productId || 'unknown_product',  // ✅ Fallback for id
+                      name: item.name || item.product?.name || 'Unknown Product',  // ✅ Fallback for name
+                      category: item.category || 'Coffee',
+                      quantity: item.quantity || 1,
+                      price: item.price || 0,
+                      variation: item.variation || 'Standard'  // ✅ Add variation
+                    })) || [],
+                    orderData.totalAmount || 0,
+                    'AED',
+                    orderData.shippingCost || 0,
+                    orderData.tax || 0
+                  );
+                }
+
+                console.log('✅ Tabby client-side Purchase tracking completed for order:', orderData.orderId);
+              } catch (trackingError) {
+                console.error('⚠️ Tabby client-side tracking error (non-critical):', trackingError);
+              }
           } else {
-            console.error('No matching Tabby order found for session ID:', sessionId);
+            console.error('❌ No matching Tabby order found for session ID:', sessionId);
+            
+            // Fallback: Create a basic order display while webhook processes
+            console.log('🔄 Creating fallback order display for Tabby payment');
+            const fallbackOrderData = {
+              orderId: sessionId,
+              orderDate: new Date().toISOString(),
+              customerInfo: {
+                fullName: 'Customer',
+                email: 'Processing...',
+                phone: 'Processing...'
+              },
+              shippingInfo: {
+                address: 'Processing...',
+                city: 'Processing...'
+              },
+              items: [{
+                id: 'processing',
+                name: 'Order Processing...',
+                price: 0,
+                quantity: 1,
+                image: '/images/coffee-placeholder.jpg',
+                variation: {}
+              }],
+              totalAmount: 0,
+              subtotal: 0,
+              tax: 0,
+              shippingCost: 0,
+              discount: 0,
+              isNewCustomer: false,
+              paymentProvider: 'TABBY',
+              paymentStatus: 'PROCESSING'
+            };
+            
+            setOrderDetails(fallbackOrderData);
+            
+            // Clear cart since payment was initiated
+            console.log('🧹 Clearing cart for Tabby payment (fallback)');
+            clearCart();
+            
+            // Try to find the order again after a delay
+            setTimeout(async () => {
+              try {
+                console.log('🔄 Retrying order lookup for Tabby payment');
+                const retryResponse = await fetch('/api/orders?limit=50');
+                const retryData = await retryResponse.json();
+                const retryMatch = retryData.orders?.find((order: any) => 
+                  order.payment?.tabbyPaymentId === sessionId
+                );
+                
+                if (retryMatch) {
+                  console.log('✅ Found order on retry:', retryMatch.id);
+                  // Refresh the page to load the actual order data
+                  window.location.reload();
+                }
+              } catch (error) {
+                console.warn('⚠️ Retry order lookup failed:', error);
+              }
+            }, 5000);
           }
         } catch (error) {
           console.error('Failed to retrieve Tabby order details:', error);
@@ -99,8 +305,77 @@ export default function ThankYouPage() {
             const orderData = JSON.parse(savedOrder);
             setOrderDetails(orderData);
 
-            // NOTE: Purchase tracking moved to server-side webhooks for accurate payment confirmation
-            // This ensures events are only fired when payments are actually successful and avoids duplicates
+            // ✅ DUAL TRACKING APPROACH:
+            // 1. Server-side webhook tracking (accuracy + fraud prevention) 
+            // 2. Client-side thank you page tracking (immediate feedback + remarketing)
+            console.log('🎯 Firing client-side tracking for confirmed order:', orderData.orderId);
+            
+            // Track Purchase completion (client-side)
+            try {
+              // Facebook Pixel Purchase
+              if (typeof window !== 'undefined' && (window as any).trackFacebookPurchase) {
+                (window as any).trackFacebookPurchase(
+                  orderData.orderId,
+                  orderData.items || [],
+                  orderData.totalAmount || 0,
+                  'AED',
+                  orderData.customerInfo?.email
+                );
+              }
+
+                              // Google Ads Purchase Conversion  
+                if (typeof window !== 'undefined' && (window as any).trackGoogleAdsPurchase) {
+                  await (window as any).trackGoogleAdsPurchase(
+                    orderData.orderId,
+                    orderData.items?.map((item: any) => ({
+                      id: item.id || item.productId || 'unknown_product',  // ✅ Fallback for id
+                      name: item.name || item.product?.name || 'Unknown Product',  // ✅ Fallback for name
+                      category: item.category || 'Coffee'
+                    })) || [],
+                    orderData.totalAmount || 0,
+                    'AED',
+                    orderData.customerInfo?.email,
+                    orderData.customerInfo?.phone,
+                    orderData.customerInfo?.fullName?.split(' ')[0],
+                    orderData.customerInfo?.fullName?.split(' ').slice(1).join(' ')
+                  );
+                }
+
+              // GA4 Enhanced Ecommerce Purchase
+              if (typeof window !== 'undefined' && (window as any).trackGA4Purchase) {
+                // ✅ DEBUG: Log items data to see what's being passed
+                console.log('🔍 GA4 Items Debug:', {
+                  rawItems: orderData.items,
+                  mappedItems: orderData.items?.map((item: any) => ({
+                    id: item.id,
+                    name: item.name,
+                    category: item.category || 'Coffee',
+                    quantity: item.quantity || 1,
+                    price: item.price || 0
+                  }))
+                });
+                
+                (window as any).trackGA4Purchase(
+                  orderData.orderId,
+                  orderData.items?.map((item: any) => ({
+                    id: item.id || item.productId || 'unknown_product',  // ✅ Fallback for id
+                    name: item.name || item.product?.name || 'Unknown Product',  // ✅ Fallback for name
+                    category: item.category || 'Coffee',
+                    quantity: item.quantity || 1,
+                    price: item.price || 0,
+                    variation: item.variation || 'Standard'  // ✅ Add variation
+                  })) || [],
+                  orderData.totalAmount || 0,
+                  'AED',
+                  orderData.shippingCost || 0,
+                  orderData.tax || 0
+                );
+              }
+
+              console.log('✅ Client-side Purchase tracking completed for order:', orderData.orderId);
+            } catch (trackingError) {
+              console.error('⚠️ Client-side tracking error (non-critical):', trackingError);
+            }
           } catch (error) {
             console.error('Failed to parse order details:', error);
           }
@@ -434,7 +709,9 @@ export default function ThankYouPage() {
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-900 text-sm">{item.name}</h4>
                           <p className="text-xs text-gray-600 mt-1">
-                            {Object.values(item.variation).filter(Boolean).join(', ')}
+                            {item.variation && typeof item.variation === 'object' && !Array.isArray(item.variation) && item.variation !== null 
+                              ? Object.values(item.variation).filter(Boolean).join(', ') 
+                              : ''}
                           </p>
                           <div className="flex justify-between items-center mt-2">
                             <span className="text-sm text-gray-600">{t('qty', 'Qty')}: {item.quantity}</span>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/app/generated/prisma';
+import { PrismaClient, LeadStatus } from '@/app/generated/prisma';
 import { emailService } from '../../../lib/email';
 
 const prisma = new PrismaClient();
@@ -98,12 +98,17 @@ export async function POST(request: NextRequest) {
       fullName,
       email,
       phone,
-      source = 'checkout',
+      city,
+      emirate,
+      address,
+      source = 'unknown',
       cartValue,
       cartItems,
       userAgent,
       ipAddress,
-      referrer
+      referrer,
+      notes,
+      contactInfo // Optional: additional contact details
     } = body;
     
     // Validate required fields
@@ -113,29 +118,93 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      );
+    }
+    
+    // Get IP address from headers if not provided
+    const clientIpAddress = ipAddress || 
+      request.headers.get('x-forwarded-for') || 
+      request.headers.get('x-real-ip') || 
+      'unknown';
+    
+    // Get user agent from headers if not provided
+    const clientUserAgent = userAgent || 
+      request.headers.get('user-agent') || 
+      'unknown';
+    
+    // Get referrer from headers if not provided
+    const clientReferrer = referrer || 
+      request.headers.get('referer') || 
+      undefined;
     
     // Check if lead already exists
     const existingLead = await prisma.customerLead.findUnique({
-      where: { email }
+      where: { email: email.toLowerCase() }
     });
     
     if (existingLead) {
       // Update existing lead if it's not converted
-      if (existingLead.status !== 'CONVERTED') {
-        const updatedLead = await prisma.customerLead.update({
-          where: { email },
-          data: {
-            fullName,
-            phone,
-            hasContactInfo: true,
-            contactStep: new Date(),
-            cartValue,
-            cartItems,
-            userAgent,
-            ipAddress,
-            referrer,
-            updatedAt: new Date()
+      if (existingLead.status !== LeadStatus.CONVERTED) {
+        const updateData: any = {
+          fullName: fullName.trim(),
+          phone: phone?.trim() || existingLead.phone,
+          city: city?.trim() || existingLead.city,
+          emirate: emirate?.trim() || existingLead.emirate,
+          address: address?.trim() || existingLead.address,
+          hasContactInfo: true,
+          contactStep: new Date(),
+          cartValue: cartValue || existingLead.cartValue,
+          cartItems: cartItems || existingLead.cartItems,
+          userAgent: clientUserAgent,
+          ipAddress: clientIpAddress,
+          referrer: clientReferrer,
+          updatedAt: new Date()
+        };
+
+        // Update source if current source is less specific
+        if (existingLead.source === 'unknown' || !existingLead.source) {
+          updateData.source = source;
+        }
+
+        // Add notes if provided
+        if (notes) {
+          updateData.notes = existingLead.notes 
+            ? `${existingLead.notes}\n\n${new Date().toISOString()}: ${notes}`
+            : notes;
+        }
+
+        // Update shipping info if address is provided
+        if (address || city || emirate) {
+          updateData.hasShippingInfo = true;
+          updateData.shippingStep = new Date();
+          
+          // Advance status if providing shipping info
+          if (existingLead.status === LeadStatus.LEAD) {
+            updateData.status = LeadStatus.PROSPECT;
+            updateData.leadScore = (existingLead.leadScore || 0) + 15;
           }
+        }
+
+        // Update lead score based on source
+        const sourceScores: { [key: string]: number } = {
+          'contact_form': 5,
+          'newsletter': 3,
+          'checkout': 10,
+          'unknown': 1
+        };
+        
+        updateData.leadScore = (existingLead.leadScore || 0) + (sourceScores[source] || 1);
+        
+        const updatedLead = await prisma.customerLead.update({
+          where: { email: email.toLowerCase() },
+          data: updateData
         });
         
         // Update lead in Brevo automatically (non-blocking)
@@ -156,7 +225,10 @@ export async function POST(request: NextRequest) {
           console.error('⚠️ Failed to update lead in Brevo (non-critical):', brevoError);
         }
         
-        return NextResponse.json(updatedLead, { status: 200 });
+        return NextResponse.json({
+          ...updatedLead,
+          message: 'Lead updated successfully'
+        }, { status: 200 });
       } else {
         return NextResponse.json(
           { error: 'Lead already converted to customer' },
@@ -165,22 +237,51 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    // Determine initial lead score based on source
+    const sourceScores: { [key: string]: number } = {
+      'contact_form': 5,
+      'newsletter': 3,
+      'checkout': 10,
+      'unknown': 1
+    };
+    
+    const initialScore = sourceScores[source] || 1;
+    
+    // Determine initial status based on information provided
+    let initialStatus: LeadStatus = LeadStatus.LEAD;
+    let hasShippingInfo = false;
+    let shippingStep: Date | undefined = undefined;
+    let finalScore = initialScore;
+    
+    if (address || city || emirate) {
+      hasShippingInfo = true;
+      shippingStep = new Date();
+      initialStatus = LeadStatus.PROSPECT;
+      finalScore += 15;
+    }
+    
     // Create new lead
     const lead = await prisma.customerLead.create({
       data: {
-        fullName,
-        email,
-        phone,
+        fullName: fullName.trim(),
+        email: email.toLowerCase(),
+        phone: phone?.trim() || null,
+        city: city?.trim() || null,
+        emirate: emirate?.trim() || null,
+        address: address?.trim() || null,
         source,
-        status: 'LEAD',
+        status: initialStatus,
         hasContactInfo: true,
+        hasShippingInfo,
         contactStep: new Date(),
+        shippingStep,
         cartValue,
         cartItems,
-        userAgent,
-        ipAddress,
-        referrer,
-        leadScore: 10 // Initial score for providing contact info
+        userAgent: clientUserAgent,
+        ipAddress: clientIpAddress,
+        referrer: clientReferrer,
+        leadScore: finalScore,
+        notes: notes || undefined
       }
     });
 
@@ -202,7 +303,10 @@ export async function POST(request: NextRequest) {
       console.error('⚠️ Failed to add lead to Brevo (non-critical):', brevoError);
     }
 
-    return NextResponse.json(lead, { status: 201 });
+    return NextResponse.json({
+      ...lead,
+      message: 'Lead created successfully'
+    }, { status: 201 });
     
   } catch (error) {
     console.error('Error creating lead:', error);

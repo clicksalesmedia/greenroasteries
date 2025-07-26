@@ -246,7 +246,8 @@ export async function GET(request: Request) {
                 select: {
                   id: true,
                   type: true,
-                  value: true
+                  value: true,
+                  code: true
                 }
               }
             },
@@ -286,7 +287,8 @@ export async function GET(request: Request) {
                 select: {
                   id: true,
                   type: true,
-                  value: true
+                  value: true,
+                  code: true
                 }
               }
             }

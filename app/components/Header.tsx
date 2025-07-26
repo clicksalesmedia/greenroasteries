@@ -118,7 +118,7 @@ export default function Header() {
       const variations = await variationsRes.json();
       
       setSearchResults({
-        products: products.slice(0, 5), // Limit to 5 results for display
+        products: Array.isArray(products) ? products.filter(p => p && p.id && p.slug).slice(0, 5) : [], // Limit to 5 valid results
         categories: Array.isArray(categories) ? categories.slice(0, 3) : [],
         variations: variations || {},
         isLoading: false
@@ -308,6 +308,24 @@ export default function Header() {
     );
   };
 
+  // Helper function to safely extract variation info
+  const getVariationDisplay = (variation: any) => {
+    try {
+      if (!variation) return '';
+      if (typeof variation === 'string') return variation;
+      if (typeof variation === 'object' && variation !== null && !Array.isArray(variation)) {
+        const values = Object.values(variation);
+        if (values && values.length > 0) {
+          return values.filter(Boolean).join(', ');
+        }
+      }
+      return '';
+    } catch (error) {
+      console.error('Error processing variation:', error);
+      return '';
+    }
+  };
+
   // Add the new function to sort categories in the specific order
   const sortCategoriesInCustomOrder = (categories: {id: string, name: string}[]) => {
     // Define the exact priority order
@@ -398,9 +416,9 @@ export default function Header() {
               <div 
                 className="absolute top-0 left-0 w-full flex items-center gap-2 transition-all duration-1000 ease-in-out whitespace-nowrap"
                 style={{
-                  opacity: currentTopBarMessage === 0 ? 1 : 0,
-                  transform: currentTopBarMessage === 0 ? 'translateY(0px)' : 'translateY(-28px)',
-                  pointerEvents: currentTopBarMessage === 0 ? 'auto' : 'none'
+                  opacity: !isClient || currentTopBarMessage === 0 ? 1 : 0,
+                  transform: !isClient || currentTopBarMessage === 0 ? 'translateY(0px)' : 'translateY(-28px)',
+                  pointerEvents: !isClient || currentTopBarMessage === 0 ? 'auto' : 'none'
                 }}
               >
                 <span className="text-yellow-400">🚚</span>
@@ -424,9 +442,9 @@ export default function Header() {
               <div 
                 className="absolute top-0 left-0 w-full flex items-center gap-2 transition-all duration-1000 ease-in-out whitespace-nowrap"
                 style={{
-                  opacity: currentTopBarMessage === 1 ? 1 : 0,
-                  transform: currentTopBarMessage === 1 ? 'translateY(0px)' : 'translateY(28px)',
-                  pointerEvents: currentTopBarMessage === 1 ? 'auto' : 'none'
+                  opacity: isClient && currentTopBarMessage === 1 ? 1 : 0,
+                  transform: isClient && currentTopBarMessage === 1 ? 'translateY(0px)' : 'translateY(28px)',
+                  pointerEvents: isClient && currentTopBarMessage === 1 ? 'auto' : 'none'
                 }}
               >
                 <span className="font-medium flex items-center gap-2">
@@ -697,7 +715,7 @@ export default function Header() {
                       {searchResults.products.length > 0 && (
                         <div>
                           <h4 className="font-medium text-gray-700 mb-2">{t('products', 'Products')}</h4>
-                          {searchResults.products.map((product: any) => (
+                          {searchResults.products.filter(product => product && product.id && product.slug).map((product: any) => (
                             <Link 
                               key={product.id}
                               href={`/product/${product.slug}`}
@@ -716,8 +734,8 @@ export default function Header() {
                                 </div>
                               )}
                               <div className="flex-1">
-                                <p className="font-medium">{product.name}</p>
-                                <p className="text-gray-500 text-xs">{formatPrice(product.price)}</p>
+                                <p className="font-medium">{product.name || 'Unnamed Product'}</p>
+                                <p className="text-gray-500 text-xs">{product.price ? formatPrice(product.price) : 'Price not available'}</p>
                               </div>
                             </Link>
                           ))}
@@ -804,7 +822,7 @@ export default function Header() {
                                 </button>
                               </div>
                               <div className="mt-1 text-xs text-gray-500">
-                                {Object.values(item.variation).filter(Boolean).join(', ')}
+                                {getVariationDisplay(item.variation)}
                               </div>
                               <div className="mt-1 flex justify-between">
                                 <span className="text-xs text-gray-500">Qty: {item.quantity}</span>

@@ -11,6 +11,7 @@ import {
   useElements
 } from '@stripe/react-stripe-js';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useClarity } from '../../hooks/useClarity';
 import { trackAddPaymentInfo, trackPurchase } from '../../lib/tracking-integration';
 
 
@@ -48,10 +49,56 @@ interface PaymentFormProps {
   tax: number;
   shippingCost: number;
   discount?: number;
+  appliedCoupon?: {
+    code: string;
+    discountAmount: number;
+    discountType: string;
+    promotionId: string;
+    name: string;
+    description?: string;
+  } | null;
   onSuccess: (orderId: string, isNewCustomer: boolean) => void;
   onBack: () => void;
   isSubmitting: boolean;
 }
+
+// Helper function to track lead conversions
+const trackLeadConversion = async (data: {
+  email: string;
+  name: string;
+  phone: string;
+  value: number;
+  currency: string;
+  items: Array<{
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+  }>;
+}) => {
+  try {
+    await fetch('/api/leads', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: data.email,
+        status: 'CONVERTED',
+        convertedData: {
+          name: data.name,
+          phone: data.phone,
+          value: data.value,
+          currency: data.currency,
+          items: data.items
+        }
+      }),
+    });
+    console.log('✅ Lead conversion tracked for:', data.email);
+  } catch (error) {
+    console.warn('⚠️ Lead conversion tracking failed (non-critical):', error);
+  }
+};
 
 function CheckoutForm({ 
   customerInfo, 
@@ -62,6 +109,7 @@ function CheckoutForm({
   tax, 
   shippingCost, 
   discount = 0,
+  appliedCoupon,
   onSuccess, 
   onBack, 
   isSubmitting 
@@ -69,6 +117,7 @@ function CheckoutForm({
   const { t, language } = useLanguage();
   const stripe = useStripe();
   const elements = useElements();
+  const clarity = useClarity();
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('stripe');
   const [clientSecret, setClientSecret] = useState<string>('');
   const [paymentIntentId, setPaymentIntentId] = useState<string>('');
@@ -98,17 +147,18 @@ function CheckoutForm({
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            amount: totalAmount,
-            currency: 'aed',
-            customerInfo,
-            shippingInfo,
-            items,
-            subtotal,
-            tax,
-            shippingCost,
-            discount
-          }),
+                  body: JSON.stringify({
+          amount: totalAmount,
+          currency: 'aed',
+          customerInfo,
+          shippingInfo,
+          items,
+          subtotal,
+          tax,
+          shippingCost,
+          discount,
+          appliedCoupon
+        }),
         });
 
         const data = await response.json();
@@ -125,18 +175,29 @@ function CheckoutForm({
     };
 
     createPaymentIntent();
-  }, [totalAmount, customerInfo, shippingInfo, items, subtotal, tax, shippingCost, discount, selectedPaymentMethod]);
+  }, [totalAmount, customerInfo, shippingInfo, items, subtotal, tax, shippingCost, discount, appliedCoupon, selectedPaymentMethod]);
 
   // Set up payment request for Apple Pay / Google Pay
   useEffect(() => {
+    // Wait for stripe to be available, but don't wait for clientSecret to avoid blocking initial setup
     if (!stripe || typeof window === 'undefined') return;
+
+    // DEBUG: Log payment request setup
+    console.log('🍎 Setting up Apple Pay/Google Pay with amount:', {
+      totalAmount,
+      discountedAmount: totalAmount,
+      stripeAmount: Math.round(totalAmount * 100),
+      appliedCoupon: appliedCoupon ? appliedCoupon.code : 'None',
+      discount: discount,
+      clientSecret: clientSecret ? 'Present' : 'Missing'
+    });
 
     const pr = stripe.paymentRequest({
       country: 'AE',
       currency: 'aed',
       total: {
         label: 'Green Roasteries Order',
-        amount: Math.round(totalAmount * 100),
+        amount: Math.round(totalAmount * 100), // totalAmount is already the discounted amount
       },
       requestPayerName: true,
       requestPayerEmail: true,
@@ -150,8 +211,29 @@ function CheckoutForm({
       }
     });
 
+    // Update existing payment request if amount changes
+    if (paymentRequest) {
+      console.log('🍎 Updating existing payment request with new amount:', Math.round(totalAmount * 100));
+      paymentRequest.update({
+        total: {
+          label: 'Green Roasteries Order',
+          amount: Math.round(totalAmount * 100),
+        },
+      });
+    }
+
     pr.on('paymentmethod', async (event) => {
+      // DEBUG: Log Apple Pay/Google Pay payment attempt
+      console.log('🍎 Apple Pay/Google Pay payment method triggered:', {
+        paymentMethodId: event.paymentMethod.id,
+        clientSecret: clientSecret ? 'Present' : 'Missing',
+        totalAmount: totalAmount,
+        appliedCoupon: appliedCoupon ? appliedCoupon.code : 'None'
+      });
+
       if (!clientSecret) {
+        console.error('🍎 No clientSecret available for Apple Pay/Google Pay - payment intent not ready');
+        setError('Payment not ready. Please try again or use card payment.');
         event.complete('fail');
         return;
       }
@@ -179,17 +261,18 @@ function CheckoutForm({
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              customerInfo,
-              shippingInfo,
-              items,
-              totalAmount,
-              subtotal,
-              tax,
-              shippingCost,
-              discount,
-              paymentIntentId: paymentIntent.id,
-            }),
+                      body: JSON.stringify({
+            customerInfo,
+            shippingInfo,
+            items,
+            totalAmount,
+            subtotal,
+            tax,
+            shippingCost,
+            discount,
+            appliedCoupon,
+            paymentIntentId: paymentIntent.id,
+          }),
           });
 
           const orderData = await orderResponse.json();
@@ -234,11 +317,62 @@ function CheckoutForm({
 
       setProcessing(false);
     });
-  }, [stripe, totalAmount, clientSecret, customerInfo, shippingInfo, items, subtotal, tax, shippingCost, discount, onSuccess]);
+  }, [stripe, clientSecret, totalAmount, customerInfo, shippingInfo, items, subtotal, tax, shippingCost, discount, appliedCoupon, onSuccess]);
+
+  // 🔮 Track checkout initialization and page view
+  useEffect(() => {
+    // Identify user for Clarity tracking
+    clarity.identifyUser(
+      customerInfo.email,
+      `checkout_${Date.now()}`,
+      'checkout_payment',
+      customerInfo.fullName
+    );
+
+    // Set initial checkout tags
+    clarity.setTag('checkout_step', 'payment_form');
+    clarity.setTag('checkout_step_number', '3');
+    clarity.setTag('checkout_total_amount', totalAmount.toString());
+    clarity.setTag('checkout_items_count', items.length.toString());
+    clarity.setTag('checkout_shipping_cost', shippingCost.toString());
+    clarity.setTag('checkout_has_discount', discount ? 'yes' : 'no');
+    if (appliedCoupon) {
+      clarity.setTag('checkout_coupon_code', appliedCoupon.code);
+      clarity.setTag('checkout_discount_amount', appliedCoupon.discountAmount.toString());
+    }
+
+    // Track checkout step
+    clarity.trackCheckoutStep('payment_form', 3, totalAmount);
+
+    // Upgrade session for checkout
+    clarity.upgradeSession('checkout_payment_form');
+
+    console.log('🔮 Clarity checkout payment form tracking initialized');
+  }, []);
+
+  // 🔮 Track payment method selection
+  const handlePaymentMethodChange = (method: PaymentMethod) => {
+    setSelectedPaymentMethod(method);
+    
+    // Track payment method selection in Clarity
+    clarity.setTag('selected_payment_method', method);
+    clarity.trackEvent(`payment_method_selected_${method}`);
+    
+    // Track payment method preference
+    clarity.trackUserPreference('payment_method', method);
+    
+    console.log('🔮 Payment method selection tracked:', method);
+  };
 
   const handleTabbyPayment = async () => {
     setProcessing(true);
     setError('');
+
+    // 🔮 Track Tabby payment initiation
+    clarity.setTag('payment_processor', 'tabby');
+    clarity.setTag('payment_action', 'initiate');
+    clarity.trackEvent('tabby_payment_initiated');
+    clarity.upgradeSession('tabby_payment_attempt');
 
     try {
       // Track add payment info
@@ -264,7 +398,11 @@ function CheckoutForm({
         (window as any).trackFacebookAddPaymentInfo(totalAmount, 'AED');
       }
 
-      // Create Tabby payment session
+      // ✅ NEW TABBY FLOW: Don't create order in database until payment is confirmed
+      // Store order data temporarily for webhook processing
+      console.log('🛒 Preparing Tabby payment session (order will be created by webhook after payment)...');
+      
+      // Create Tabby payment session directly without creating order first
       const response = await fetch('/api/payments/tabby', {
         method: 'POST',
         headers: {
@@ -280,49 +418,80 @@ function CheckoutForm({
           tax,
           shippingCost,
           discount,
+          appliedCoupon,
+          // Don't pass orderId - it will be created by webhook
         }),
       });
 
       const data = await response.json();
 
       if (data.success && data.checkout_url) {
-        // Redirect to Tabby checkout
+        console.log('✅ Tabby payment session created');
+        
+        // 🔮 Track successful Tabby session creation
+        clarity.setTag('tabby_session_created', 'yes');
+        clarity.setTag('tabby_payment_id', data.payment_id || 'unknown');
+        clarity.trackEvent('tabby_session_created');
+        
+        // ✅ CRITICAL: Store complete order data in localStorage for webhook order creation
+        const tempOrderData = {
+          customerInfo,
+          shippingInfo,
+          items,
+          totalAmount,
+          subtotal,
+          tax,
+          shippingCost,
+          discount,
+          appliedCoupon,
+          paymentProvider: 'TABBY',
+          timestamp: Date.now(),
+          sessionId: data.payment_id // For tracking
+        };
+
+        localStorage.setItem('tabbyOrderData', JSON.stringify(tempOrderData));
+        console.log('✅ Order data stored for webhook processing');
+
+        // Track lead conversion for Tabby payments  
+        trackLeadConversion({
+          email: customerInfo.email,
+          name: customerInfo.fullName,
+          phone: customerInfo.phone,
+          value: totalAmount,
+          currency: 'AED',
+          items: items.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity
+          }))
+        });
+
+        // 🔮 Track redirect to Tabby
+        clarity.setTag('tabby_redirect', 'initiated');
+        clarity.trackEvent('tabby_redirect_started');
+        
+        console.log('🔄 Redirecting to Tabby payment...');
         window.location.href = data.checkout_url;
       } else {
-        // Handle Tabby-specific rejections per documentation
-        if (data.type === 'TABBY_REJECTION') {
-          console.log('Tabby rejection detected:', {
-            reason: data.rejectionReason,
-            sessionId: data.sessionId
-          });
-          
-          // Use Tabby's exact rejection messages based on rejection reason
-          let rejectionMessage = '';
-          switch (data.rejectionReason) {
-            case 'not_available':
-            case 'customer_not_eligible':
-              rejectionMessage = t('tabby_general_rejection', 'Sorry, Tabby is unable to approve this purchase. Please use an alternative payment method for your order.');
-              break;
-            case 'order_amount_too_high':
-              rejectionMessage = t('tabby_amount_too_high', 'This purchase is above your current spending limit with Tabby, try a smaller cart or use another payment method');
-              break;
-            case 'order_amount_too_low':
-              rejectionMessage = t('tabby_amount_too_low', 'The purchase amount is below the minimum amount required to use Tabby, try adding more items or use another payment method');
-              break;
-            default:
-              rejectionMessage = t('tabby_general_rejection', 'Sorry, Tabby is unable to approve this purchase. Please use an alternative payment method for your order.');
-          }
-          
-          // Hide Tabby option and switch to card payment
-          setTabbyAvailable(false);
-          setSelectedPaymentMethod('stripe');
-          setError(rejectionMessage);
-      } else {
+        // 🔮 Track Tabby session creation failure
+        clarity.setTag('tabby_session_error', data.error || 'unknown_error');
+        clarity.trackEvent('tabby_session_failed');
+        clarity.trackErrorOccurred('tabby_session_creation', data.error || 'Failed to create Tabby payment session', 'checkout_payment');
+        
         setError(data.error || 'Failed to create Tabby payment session');
-        }
+        console.error('❌ Tabby payment session failed:', data);
       }
-    } catch (err) {
-      setError('Failed to initialize Tabby payment');
+    } catch (error) {
+      console.error('❌ Tabby payment error:', error);
+      
+      // 🔮 Track Tabby network error
+      const errorMessage = error instanceof Error ? error.message : 'Network error';
+      clarity.setTag('tabby_network_error', errorMessage);
+      clarity.trackEvent('tabby_network_error');
+      clarity.trackErrorOccurred('tabby_network', errorMessage, 'checkout_payment');
+      
+      setError('Network error. Please try again.');
     }
 
     setProcessing(false);
@@ -331,13 +500,26 @@ function CheckoutForm({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    // 🔮 Track form submission attempt
+    clarity.setTag('payment_form_submitted', 'yes');
+    clarity.setTag('payment_method_on_submit', selectedPaymentMethod);
+    clarity.trackEvent('payment_form_submitted');
+
     if (selectedPaymentMethod === 'tabby') {
       await handleTabbyPayment();
       return;
     }
 
+    // 🔮 Track Stripe payment initiation
+    clarity.setTag('payment_processor', 'stripe');
+    clarity.setTag('payment_action', 'initiate');
+    clarity.trackEvent('stripe_payment_initiated');
+    clarity.upgradeSession('stripe_payment_attempt');
+
     // Stripe payment handling
     if (!stripe || !elements || !clientSecret) {
+      // 🔮 Track Stripe initialization error
+      clarity.trackErrorOccurred('stripe_init', 'Stripe not initialized or client secret missing', 'checkout_payment');
       return;
     }
 
@@ -394,10 +576,16 @@ function CheckoutForm({
     const cardElement = elements.getElement(CardElement);
 
     if (!cardElement) {
+      // 🔮 Track card element error
+      clarity.trackErrorOccurred('stripe_card_element', 'Card element not found', 'checkout_payment');
       setError('Card element not found');
       setProcessing(false);
       return;
     }
+
+    // 🔮 Track card payment confirmation attempt
+    clarity.setTag('stripe_confirmation_attempt', 'yes');
+    clarity.trackEvent('stripe_card_confirmation_started');
 
     // Confirm payment with Stripe
     const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
@@ -419,9 +607,21 @@ function CheckoutForm({
     );
 
     if (stripeError) {
+      // 🔮 Track Stripe payment error
+      clarity.setTag('stripe_error_code', stripeError.code || 'unknown');
+      clarity.setTag('stripe_error_type', stripeError.type || 'unknown');
+      clarity.trackEvent('stripe_payment_failed');
+      clarity.trackErrorOccurred('stripe_payment', stripeError.message || 'Payment failed', 'checkout_payment');
+      
       setError(stripeError.message || 'Payment failed');
       setProcessing(false);
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+      // 🔮 Track successful Stripe payment
+      clarity.setTag('stripe_payment_succeeded', 'yes');
+      clarity.setTag('stripe_payment_intent_id', paymentIntent.id);
+      clarity.trackEvent('stripe_payment_succeeded');
+      clarity.upgradeSession('successful_payment');
+
       // Create order in database
       try {
         const orderResponse = await fetch('/api/orders', {
@@ -438,6 +638,7 @@ function CheckoutForm({
             tax,
             shippingCost,
             discount,
+            appliedCoupon,
             paymentIntentId: paymentIntent.id,
           }),
         });
@@ -445,6 +646,13 @@ function CheckoutForm({
         const orderData = await orderResponse.json();
 
         if (orderData.success) {
+          // 🔮 Track successful order creation
+          clarity.setTag('order_created', 'yes');
+          clarity.setTag('order_id', orderData.orderId);
+          clarity.setTag('customer_type', orderData.isNewCustomer ? 'new' : 'returning');
+          clarity.trackEvent('order_created_successfully');
+          clarity.upgradeSession('successful_order_completion');
+
           // Convert lead to customer
           const convertLead = async () => {
             try {
@@ -472,15 +680,36 @@ function CheckoutForm({
           
           onSuccess(orderData.orderId, orderData.isNewCustomer);
         } else {
+          // 🔮 Track order creation failure
+          clarity.trackErrorOccurred('order_creation', orderData.error || 'Failed to create order', 'checkout_payment');
           setError(orderData.error || 'Failed to create order');
         }
       } catch (err) {
+        // 🔮 Track order creation network error
+        const errorMessage = err instanceof Error ? err.message : 'Failed to create order';
+        clarity.trackErrorOccurred('order_creation_network', errorMessage, 'checkout_payment');
         setError('Failed to create order');
       }
     }
 
     setProcessing(false);
   };
+
+  // 🔮 Track processing state changes
+  useEffect(() => {
+    clarity.setTag('payment_processing', processing ? 'yes' : 'no');
+    if (processing) {
+      clarity.trackEvent('payment_processing_started');
+    }
+  }, [processing]);
+
+  // 🔮 Track errors
+  useEffect(() => {
+    if (error) {
+      clarity.setTag('payment_form_error', error.substring(0, 100));
+      clarity.trackEvent('payment_form_error_displayed');
+    }
+  }, [error]);
 
   const cardElementOptions = {
     style: {
@@ -548,7 +777,7 @@ function CheckoutForm({
                     ? 'border-black bg-gray-50' 
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
-                onClick={() => setSelectedPaymentMethod('stripe')}
+                onClick={() => handlePaymentMethodChange('stripe')}
               >
                 <div className="flex items-center">
                   <input
@@ -557,7 +786,7 @@ function CheckoutForm({
                     name="paymentMethod"
                     value="stripe"
                     checked={selectedPaymentMethod === 'stripe'}
-                    onChange={() => setSelectedPaymentMethod('stripe')}
+                    onChange={() => handlePaymentMethodChange('stripe')}
                     className="mr-3"
                   />
                   <div className="flex-1">
@@ -592,7 +821,7 @@ function CheckoutForm({
                       ? 'border-black bg-gray-50' 
                       : 'border-gray-300 hover:border-gray-400'
                   }`}
-                  onClick={() => setSelectedPaymentMethod('tabby')}
+                  onClick={() => handlePaymentMethodChange('tabby')}
                 >
                   <div className="flex items-center">
                     <input
@@ -601,7 +830,7 @@ function CheckoutForm({
                       name="paymentMethod"
                       value="tabby"
                       checked={selectedPaymentMethod === 'tabby'}
-                      onChange={() => setSelectedPaymentMethod('tabby')}
+                      onChange={() => handlePaymentMethodChange('tabby')}
                       className="mr-3"
                     />
                     <div className="flex-1">

@@ -10,6 +10,7 @@ import { useCart } from '../../contexts/CartContext';
 import { useToast } from '../../contexts/ToastContext';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useCartSidebar } from '../../components/CartSidebarProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import UAEDirhamSymbol from '../../components/UAEDirhamSymbol';
 import { trackViewContent, trackAddToCart } from '../../lib/tracking-integration';
@@ -53,6 +54,14 @@ interface Product {
   viewCount?: number;
   rating?: number;
   reviews?: number;
+  promotions?: Array<{
+    promotion: {
+      id: string;
+      type: string;
+      value: number;
+      code?: string;
+    };
+  }>;
 }
 
 interface SelectedVariation extends ProductVariation {
@@ -195,6 +204,7 @@ export default function ProductPage() {
   const { addItem } = useCart();
   const { showToast } = useToast();
   const router = useRouter();
+  const { openCartSidebar } = useCartSidebar();
   
   // Format price with UAE Dirham symbol
   const formatPrice = (price: number) => {
@@ -1001,6 +1011,15 @@ export default function ProductPage() {
   };
   
   const getDiscountPercentage = () => {
+    // Check if this product has any promotions with coupon codes
+    // If so, don't show discount percentage (they should only be applied when user enters the coupon)
+    if (product?.promotions && product.promotions.length > 0) {
+      const hasPromotionWithCode = product.promotions.some((promo: any) => promo.promotion.code);
+      if (hasPromotionWithCode) {
+        return 0; // Don't show discount percentage for coupon codes
+      }
+    }
+    
     // Check for variation-specific discount
     if (selectedVariation && selectedVariation.discount && selectedVariation.discount > 0) {
       if (selectedVariation.discountType === 'PERCENTAGE') {
@@ -1042,6 +1061,15 @@ export default function ProductPage() {
   
   // Check if product has any discounted variations or is discounted itself
   const hasDiscounts = () => {
+    // Check if this product has any promotions with coupon codes
+    // If so, don't show discount labels (they should only be applied when user enters the coupon)
+    if (product?.promotions && product.promotions.length > 0) {
+      const hasPromotionWithCode = product.promotions.some((promo: any) => promo.promotion.code);
+      if (hasPromotionWithCode) {
+        return false; // Don't show discount labels for coupon codes
+      }
+    }
+    
     // Check if product itself has a discount
     if (product?.discount && product.discount > 0) {
       return true;
@@ -1109,6 +1137,11 @@ export default function ProductPage() {
     
     // Show success message with toast
     showToast(`${quantity} × ${product.name} ${t('added_to_cart', 'added to cart')}`, 'success');
+    
+    // Open cart sidebar after a short delay
+    setTimeout(() => {
+      openCartSidebar();
+    }, 300);
   };
   
   const handleBuyNow = () => {
@@ -1148,8 +1181,11 @@ export default function ProductPage() {
     // Show success message with toast
     showToast(`${quantity} × ${product.name} ${t('added_to_cart', 'added to cart')}`, 'success');
     
-    // Redirect to checkout
-    router.push('/checkout');
+    // Briefly show cart sidebar before redirecting to checkout
+    openCartSidebar();
+    setTimeout(() => {
+      router.push('/checkout');
+    }, 1000); // Give user a moment to see the cart sidebar
   };
   
   // Get category name from category (could be string or object)

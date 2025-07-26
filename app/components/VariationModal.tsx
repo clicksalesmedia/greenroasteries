@@ -272,17 +272,16 @@ export default function VariationModal({ isOpen, onClose, product, onAddToCart }
     }
     
     // Track add to cart
-    trackAddToCart({
-      id: product.id,
-      name: product.name,
-      price: finalPrice,
-      quantity: quantity,
-      category: typeof product.category === 'string' 
+    trackAddToCart(
+      product.id,
+      product.name,
+      finalPrice,
+      typeof product.category === 'string' 
         ? product.category 
         : (typeof product.category === 'object' && product.category && 'name' in product.category 
            ? (product.category as { name: string }).name 
-           : 'Unknown')
-    });
+           : 'Coffee')
+    );
 
     // Add to cart
     addItem({

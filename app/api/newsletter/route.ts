@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '../../generated/prisma';
 import { getServerSession } from 'next-auth';
+import { emailService } from '../../../lib/email';
 import crypto from 'crypto';
 
 const prisma = new PrismaClient();
@@ -93,7 +94,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email } = body;
+    const { email, name, phone, city, emirate } = body;
 
     // Validate email
     if (!email || !email.includes('@')) {
@@ -137,6 +138,85 @@ export async function POST(request: NextRequest) {
           }
         });
 
+        // Create or update lead from newsletter signup (non-blocking)
+        const createLeadFromNewsletter = async () => {
+          try {
+            // Check if lead already exists
+            const existingLead = await prisma.customerLead.findUnique({
+              where: { email: email.toLowerCase() }
+            });
+
+            if (existingLead) {
+              // Update existing lead with newsletter info
+              const updatedLead = await prisma.customerLead.update({
+                where: { email: email.toLowerCase() },
+                data: {
+                  fullName: name?.trim() || existingLead.fullName,
+                  phone: phone?.trim() || existingLead.phone,
+                  city: city?.trim() || existingLead.city,
+                  emirate: emirate?.trim() || existingLead.emirate,
+                  source: existingLead.source || 'newsletter',
+                  leadScore: (existingLead.leadScore || 0) + 3, // Add score for newsletter subscription
+                  updatedAt: new Date()
+                }
+              });
+
+              // Update lead in Brevo
+              await emailService.addLeadToBrevo({
+                email: updatedLead.email,
+                fullName: updatedLead.fullName,
+                phone: updatedLead.phone || undefined,
+                city: updatedLead.city || undefined,
+                emirate: updatedLead.emirate || undefined,
+                status: updatedLead.status,
+                leadScore: updatedLead.leadScore || 0,
+                cartValue: updatedLead.cartValue || undefined
+              });
+
+              console.log('✅ Lead updated from newsletter resubscription:', updatedLead.email);
+            } else if (name) {
+              // Create new lead only if name is provided
+              const newLead = await prisma.customerLead.create({
+                data: {
+                  fullName: name.trim(),
+                  email: email.toLowerCase(),
+                  phone: phone?.trim() || null,
+                  city: city?.trim() || null,
+                  emirate: emirate?.trim() || null,
+                  source: 'newsletter',
+                  status: 'LEAD',
+                  hasContactInfo: true,
+                  contactStep: new Date(),
+                  leadScore: 3, // Initial score for newsletter subscription
+                  notes: 'Newsletter subscription',
+                  userAgent,
+                  ipAddress,
+                  referrer: request.headers.get('referer') || undefined
+                }
+              });
+
+              // Add lead to Brevo
+              await emailService.addLeadToBrevo({
+                email: newLead.email,
+                fullName: newLead.fullName,
+                phone: newLead.phone || undefined,
+                city: newLead.city || undefined,
+                emirate: newLead.emirate || undefined,
+                status: newLead.status,
+                leadScore: newLead.leadScore || 0,
+                cartValue: newLead.cartValue || undefined
+              });
+
+              console.log('✅ Lead created from newsletter resubscription:', newLead.email);
+            }
+          } catch (error) {
+            console.error('⚠️ Failed to create/update lead from newsletter (non-critical):', error);
+          }
+        };
+
+        // Create lead (non-blocking)
+        createLeadFromNewsletter();
+
         return NextResponse.json({
           message: 'Successfully resubscribed to newsletter!',
           subscriber: { email: email.toLowerCase() }
@@ -156,6 +236,85 @@ export async function POST(request: NextRequest) {
         confirmedAt: new Date()
       }
     });
+
+    // Create or update lead from newsletter signup (non-blocking)
+    const createLeadFromNewsletter = async () => {
+      try {
+        // Check if lead already exists
+        const existingLead = await prisma.customerLead.findUnique({
+          where: { email: email.toLowerCase() }
+        });
+
+        if (existingLead) {
+          // Update existing lead with newsletter info
+          const updatedLead = await prisma.customerLead.update({
+            where: { email: email.toLowerCase() },
+            data: {
+              fullName: name?.trim() || existingLead.fullName,
+              phone: phone?.trim() || existingLead.phone,
+              city: city?.trim() || existingLead.city,
+              emirate: emirate?.trim() || existingLead.emirate,
+              source: existingLead.source || 'newsletter',
+              leadScore: (existingLead.leadScore || 0) + 3, // Add score for newsletter subscription
+              updatedAt: new Date()
+            }
+          });
+
+          // Update lead in Brevo
+          await emailService.addLeadToBrevo({
+            email: updatedLead.email,
+            fullName: updatedLead.fullName,
+            phone: updatedLead.phone || undefined,
+            city: updatedLead.city || undefined,
+            emirate: updatedLead.emirate || undefined,
+            status: updatedLead.status,
+            leadScore: updatedLead.leadScore || 0,
+            cartValue: updatedLead.cartValue || undefined
+          });
+
+          console.log('✅ Lead updated from newsletter signup:', updatedLead.email);
+        } else if (name) {
+          // Create new lead only if name is provided
+          const newLead = await prisma.customerLead.create({
+            data: {
+              fullName: name.trim(),
+              email: email.toLowerCase(),
+              phone: phone?.trim() || null,
+              city: city?.trim() || null,
+              emirate: emirate?.trim() || null,
+              source: 'newsletter',
+              status: 'LEAD',
+              hasContactInfo: true,
+              contactStep: new Date(),
+              leadScore: 3, // Initial score for newsletter subscription
+              notes: 'Newsletter subscription',
+              userAgent,
+              ipAddress,
+              referrer: request.headers.get('referer') || undefined
+            }
+          });
+
+          // Add lead to Brevo
+          await emailService.addLeadToBrevo({
+            email: newLead.email,
+            fullName: newLead.fullName,
+            phone: newLead.phone || undefined,
+            city: newLead.city || undefined,
+            emirate: newLead.emirate || undefined,
+            status: newLead.status,
+            leadScore: newLead.leadScore || 0,
+            cartValue: newLead.cartValue || undefined
+          });
+
+          console.log('✅ Lead created from newsletter signup:', newLead.email);
+        }
+      } catch (error) {
+        console.error('⚠️ Failed to create/update lead from newsletter (non-critical):', error);
+      }
+    };
+
+    // Create lead (non-blocking)
+    createLeadFromNewsletter();
 
     return NextResponse.json({
       message: 'Successfully subscribed to newsletter!',

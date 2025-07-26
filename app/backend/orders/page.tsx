@@ -378,6 +378,9 @@ export default function OrdersPage() {
                           {t('total', 'Total')}
                         </th>
                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                          {t('payment_method', 'Payment Method')}
+                        </th>
+                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                           {t('status', 'Status')}
                         </th>
                         <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
@@ -401,6 +404,37 @@ export default function OrdersPage() {
                             </td>
                             <td className="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">
                               {formatPrice(order.total)} AED
+                            </td>
+                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                              {/* Payment Method Label */}
+                              {(() => {
+                                // Handle payment data (can be array or single object)
+                                const paymentArray = order.payment ? (Array.isArray(order.payment) ? order.payment : [order.payment]) : [];
+                                
+                                // Determine payment provider from order data
+                                const hasStripePayment = order.stripePaymentIntentId || paymentArray.some(p => p.stripePaymentIntentId);
+                                const hasTabbyPayment = paymentArray.some(p => p.paymentMethod === 'tabby') || order.paymentMethod === 'tabby';
+                                
+                                if (hasTabbyPayment) {
+                                  return (
+                                    <span className="inline-flex px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
+                                      🔮 TABBY
+                                    </span>
+                                  );
+                                } else if (hasStripePayment) {
+                                  return (
+                                    <span className="inline-flex px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                                      💳 STRIPE
+                                    </span>
+                                  );
+                                } else {
+                                  return (
+                                    <span className="inline-flex px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">
+                                      ❓ UNKNOWN
+                                    </span>
+                                  );
+                                }
+                              })()}
                             </td>
                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                               <select
@@ -450,7 +484,7 @@ export default function OrdersPage() {
                           </tr>
                           {expandedOrderId === order.id && (
                             <tr>
-                              <td colSpan={6} className="px-4 py-6 sm:px-6">
+                              <td colSpan={7} className="px-4 py-6 sm:px-6">
                                 <div className="bg-gray-50 p-6 rounded-lg space-y-6">
                                   
                                   {/* Order Summary Header */}
@@ -546,69 +580,102 @@ export default function OrdersPage() {
                                     </div>
 
                                     {/* Payment Information */}
-                                    <div className="bg-white p-4 rounded-lg border">
-                                      <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-                                        <svg className="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                        </svg>
-                                        {t('payment_information', 'Payment Information')}
-                                      </h4>
-                                      <div className="space-y-2 text-sm">
-                                        <div>
-                                          <span className="font-medium text-gray-900">{t('payment_method', 'Payment Method')}</span>
-                                          <div className="text-gray-600">
-                                            {order.paymentMethod || 'Stripe'}
-                                            {order.payment && order.payment[0] && (
-                                              <span className="ml-2">
-                                                {order.payment[0].brand && order.payment[0].last4 
-                                                  ? `${order.payment[0].brand.toUpperCase()} ****${order.payment[0].last4}`
-                                                  : ''
-                                                }
-                                              </span>
-                                            )}
-                                          </div>
-                                        </div>
-                                        {(order.stripePaymentIntentId || order.paymentId) && (
-                                          <div>
-                                            <span className="font-medium text-gray-900">{t('payment_id', 'Payment ID')}</span>
-                                            <div className="text-gray-600 font-mono text-xs">
-                                              {order.stripePaymentIntentId || order.paymentId}
-                                            </div>
-                                          </div>
-                                        )}
-                                        {order.payment && order.payment[0] && (
-                                          <>
+                                    {(() => {
+                                      // Handle payment data (can be array or single object) - define at section level
+                                      const paymentArray = order.payment ? (Array.isArray(order.payment) ? order.payment : [order.payment]) : [];
+                                      
+                                      return (
+                                        <div className="bg-white p-4 rounded-lg border">
+                                          <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                                            <svg className="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                            </svg>
+                                            {t('payment_information', 'Payment Information')}
+                                          </h4>
+                                          <div className="space-y-2 text-sm">
                                             <div>
-                                              <span className="font-medium text-gray-900">{t('payment_status', 'Payment Status')}</span>
-                                              <div className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ml-2 ${
-                                                order.payment[0].status === 'SUCCEEDED' 
-                                                  ? 'bg-green-100 text-green-800' 
-                                                  : 'bg-yellow-100 text-yellow-800'
-                                              }`}>
-                                                {order.payment[0].status}
+                                              <span className="font-medium text-gray-900">{t('payment_method', 'Payment Method')}</span>
+                                              <div className="text-gray-600 space-y-1">
+                                                {/* Payment Provider Label */}
+                                                {(() => {
+                                                  const hasStripePayment = order.stripePaymentIntentId || paymentArray.some(p => p.stripePaymentIntentId);
+                                                  const hasTabbyPayment = paymentArray.some(p => p.paymentMethod === 'tabby') || order.paymentMethod === 'tabby';
+                                                  
+                                                  if (hasTabbyPayment) {
+                                                    return (
+                                                      <div>
+                                                        <span className="inline-flex px-3 py-1 text-sm font-medium bg-purple-100 text-purple-800 rounded-full">
+                                                          🔮 TABBY - Split in 4
+                                                        </span>
+                                                      </div>
+                                                    );
+                                                  } else if (hasStripePayment) {
+                                                    const firstPayment = paymentArray[0];
+                                                    return (
+                                                      <div className="space-y-1">
+                                                        <span className="inline-flex px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full">
+                                                          💳 STRIPE
+                                                        </span>
+                                                        {firstPayment && firstPayment.brand && firstPayment.last4 && (
+                                                          <div className="text-sm text-gray-600">
+                                                            {firstPayment.brand.toUpperCase()} ****{firstPayment.last4}
+                                                          </div>
+                                                        )}
+                                                      </div>
+                                                    );
+                                                  } else {
+                                                    return (
+                                                      <span className="inline-flex px-3 py-1 text-sm font-medium bg-gray-100 text-gray-600 rounded-full">
+                                                        ❓ UNKNOWN PAYMENT METHOD
+                                                      </span>
+                                                    );
+                                                  }
+                                                })()}
                                               </div>
                                             </div>
-                                            {order.payment[0].receiptUrl && (
+                                            {(order.stripePaymentIntentId || order.paymentId) && (
                                               <div>
-                                                <a 
-                                                  href={order.payment[0].receiptUrl} 
-                                                  target="_blank" 
-                                                  rel="noopener noreferrer"
-                                                  className="text-blue-600 hover:text-blue-800 text-xs font-medium"
-                                                >
-                                                  📄 {t('view_receipt', 'View Receipt')}
-                                                </a>
+                                                <span className="font-medium text-gray-900">{t('payment_id', 'Payment ID')}</span>
+                                                <div className="text-gray-600 font-mono text-xs">
+                                                  {order.stripePaymentIntentId || order.paymentId}
+                                                </div>
                                               </div>
                                             )}
-                                          </>
-                                        )}
-                                        <div className="pt-2 border-t border-gray-100">
-                                          <div className="text-xs text-gray-500">
-                                            {t('email_sent', 'Email Sent')}: {order.emailSent ? '✅ Yes' : '❌ No'}
+                                            {paymentArray.length > 0 && (
+                                              <>
+                                                <div>
+                                                  <span className="font-medium text-gray-900">{t('payment_status', 'Payment Status')}</span>
+                                                  <div className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ml-2 ${
+                                                    paymentArray[0].status === 'SUCCEEDED' 
+                                                      ? 'bg-green-100 text-green-800' 
+                                                      : 'bg-yellow-100 text-yellow-800'
+                                                  }`}>
+                                                    {paymentArray[0].status}
+                                                  </div>
+                                                </div>
+                                                {paymentArray[0].receiptUrl && (
+                                                  <div>
+                                                    <a 
+                                                      href={paymentArray[0].receiptUrl} 
+                                                      target="_blank" 
+                                                      rel="noopener noreferrer"
+                                                      className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                                                    >
+                                                      📄 {t('view_receipt', 'View Receipt')}
+                                                    </a>
+                                                  </div>
+                                                )}
+                                              </>
+                                            )}
+                                            <div className="pt-2 border-t border-gray-100">
+                                              <div className="text-xs text-gray-500">
+                                                {t('email_sent', 'Email Sent')}: {order.emailSent ? '✅ Yes' : '❌ No'}
+                                              </div>
+                                            </div>
                                           </div>
                                         </div>
-                                      </div>
-                                    </div>
+                                      );
+                                    })()}
                                   </div>
 
                                   {/* Order Items with Enhanced Details */}

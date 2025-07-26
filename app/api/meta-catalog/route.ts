@@ -99,7 +99,8 @@ class MetaCatalogAPI {
     const brand = isArabic ? this.brandAr : this.brand;
 
     const slug = this.generateSlug(product.name);
-    const link = `${this.baseUrl}/product/${slug}${isArabic ? '?lang=ar' : ''}`;
+    // Updated to use /ar/product/... format for Arabic links
+    const link = isArabic ? `${this.baseUrl}/ar/product/${slug}` : `${this.baseUrl}/product/${slug}`;
 
     const mainImage = this.makeAbsoluteUrl(product.imageUrl || (product.images[0]?.url || ''));
 

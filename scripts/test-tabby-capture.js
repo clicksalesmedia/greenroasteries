@@ -1,178 +1,195 @@
-#!/usr/bin/env node
-
 /**
- * Test Tabby Capture Implementation
+ * Tabby Payment Capture Test Script
  * 
- * This script validates that our capture request format matches
- * the official Tabby API specification.
+ * This script tests the Tabby payment capture functionality
+ * according to the API specification provided.
+ * 
+ * Usage:
+ *   node scripts/test-tabby-capture.js <payment_id> [amount] [partial]
+ * 
+ * Examples:
+ *   node scripts/test-tabby-capture.js payment_123456789 100.00
+ *   node scripts/test-tabby-capture.js payment_123456789 50.00 partial
  */
 
-// Mock payment details (similar to what Tabby returns)
-const mockPaymentDetails = {
-  id: "payment_test_123",
-  status: "AUTHORIZED",
-  amount: "150.75",
-  currency: "AED",
-  order: {
-    tax_amount: "12.50",
-    shipping_amount: "15.00", 
-    discount_amount: "5.25",
-    reference_id: "order_12345",
-    items: [
-      {
-        title: "Ethiopian Coffee Beans",
-        description: "Premium Grade A, 250g",
-        quantity: 2,
-        unit_price: "45.00",
-        discount_amount: "2.50",
-        reference_id: "item_001",
-        image_url: "https://example.com/coffee1.jpg",
-        product_url: "https://example.com/product/001",
-        gender: "Other",
-        category: "Coffee",
-        color: "brown",
-        product_material: "organic",
-        size_type: "weight", 
-        size: "250g",
-        brand: "Green Roasteries"
-      },
-      {
-        title: "Colombian Coffee Beans",
-        description: "Single Origin, 500g", 
-        quantity: 1,
-        unit_price: "60.75",
-        discount_amount: "2.75",
-        reference_id: "item_002",
-        image_url: "https://example.com/coffee2.jpg",
-        product_url: "https://example.com/product/002",
-        gender: "Other",
-        category: "Coffee", 
-        color: "brown",
-        product_material: "organic",
-        size_type: "weight",
-        size: "500g", 
-        brand: "Green Roasteries"
-      }
-    ]
-  }
-};
+const https = require('https');
 
-// Build capture payload according to Tabby API spec
-function buildCapturePayload(paymentDetails) {
-  const paymentId = paymentDetails.id;
-  
-  return {
-    // Required: Total payment amount captured
-    amount: paymentDetails.amount,
-    
-    // Idempotency key to avoid duplicate captures  
-    reference_id: `capture_${paymentId}_${Date.now()}`,
-    
-    // Breakdown amounts from original payment
-    tax_amount: paymentDetails.order?.tax_amount || "0.00",
-    shipping_amount: paymentDetails.order?.shipping_amount || "0.00",
-    discount_amount: paymentDetails.order?.discount_amount || "0.00",
-    
-    // Timestamp in ISO format
-    created_at: new Date().toISOString(),
-    
-    // Order items being captured
-    items: paymentDetails.order?.items?.map(item => ({
-      title: item.title,
-      description: item.description,
-      quantity: item.quantity,
-      unit_price: item.unit_price,
-      discount_amount: item.discount_amount || "0.00",
-      reference_id: item.reference_id,
-      image_url: item.image_url,
-      product_url: item.product_url,
-      ordered: item.quantity,
-      captured: item.quantity, // Full capture
-      shipped: 0,
-      refunded: 0,
-      gender: item.gender || "Other",
-      category: item.category,
-      color: item.color || "brown", 
-      product_material: item.product_material || "organic",
-      size_type: item.size_type || "weight",
-      size: item.size || "M",
-      brand: item.brand || "Green Roasteries"
-    })) || []
-  };
-}
+// Configuration
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegreenroasteries.com';
+const API_ENDPOINT = `${BASE_URL}/api/payments`;
 
-// Validate capture payload
-function validateCapturePayload(payload) {
-  const errors = [];
-  
-  // Required fields
-  if (!payload.amount) errors.push("Missing required field: amount");
-  if (!payload.reference_id) errors.push("Missing required field: reference_id");
-  
-  // Amount format validation (up to 2 decimals for AED)
-  if (payload.amount && !/^\d+\.\d{2}$/.test(payload.amount)) {
-    errors.push("Amount should have exactly 2 decimal places");
-  }
-  
-  // Breakdown amounts validation
-  const amounts = [payload.tax_amount, payload.shipping_amount, payload.discount_amount];
-  amounts.forEach((amount, index) => {
-    const fields = ['tax_amount', 'shipping_amount', 'discount_amount'];
-    if (amount && !/^\d+\.\d{2}$/.test(amount)) {
-      errors.push(`${fields[index]} should have exactly 2 decimal places`);
-    }
-  });
-  
-  // Items validation
-  if (!Array.isArray(payload.items)) {
-    errors.push("Items should be an array");
-  } else {
-    payload.items.forEach((item, index) => {
-      if (!item.title) errors.push(`Item ${index}: missing title`);
-      if (!item.quantity || item.quantity < 1) errors.push(`Item ${index}: invalid quantity`);
-      if (!item.unit_price) errors.push(`Item ${index}: missing unit_price`);
-      if (item.unit_price && !/^\d+\.\d{2}$/.test(item.unit_price)) {
-        errors.push(`Item ${index}: unit_price should have exactly 2 decimal places`);
-      }
-    });
-  }
-  
-  return errors;
-}
-
-// Main test
-console.log('🧪 Testing Tabby Capture Implementation');
-console.log('=====================================\n');
-
-console.log('📋 Mock Payment Details:');
-console.log(JSON.stringify(mockPaymentDetails, null, 2));
-console.log('\n');
-
-console.log('🔧 Building Capture Payload...');
-const capturePayload = buildCapturePayload(mockPaymentDetails);
-
-console.log('📤 Generated Capture Payload:');
-console.log(JSON.stringify(capturePayload, null, 2));
-console.log('\n');
-
-console.log('✅ Validating Payload...');
-const errors = validateCapturePayload(capturePayload);
-
-if (errors.length === 0) {
-  console.log('🎉 SUCCESS: Capture payload is valid!');
-  console.log('\n📊 Summary:');
-  console.log(`- Total Amount: ${capturePayload.amount} AED`);
-  console.log(`- Tax: ${capturePayload.tax_amount} AED`);
-  console.log(`- Shipping: ${capturePayload.shipping_amount} AED`);
-  console.log(`- Discount: ${capturePayload.discount_amount} AED`);
-  console.log(`- Items: ${capturePayload.items.length}`);
-  console.log(`- Reference ID: ${capturePayload.reference_id}`);
-  console.log('\n🚀 Ready for production deployment!');
-} else {
-  console.log('❌ VALIDATION ERRORS:');
-  errors.forEach(error => console.log(`   - ${error}`));
+// Get command line arguments
+const args = process.argv.slice(2);
+if (args.length < 1) {
+  console.error('❌ Usage: node test-tabby-capture.js <payment_id> [amount] [partial]');
+  console.error('   Examples:');
+  console.error('     node test-tabby-capture.js payment_123456789 100.00');
+  console.error('     node test-tabby-capture.js payment_123456789 50.00 partial');
   process.exit(1);
 }
 
-console.log('\n📚 API Endpoint: POST /api/v2/payments/{id}/captures');
-console.log('📚 Documentation: https://api-docs.tabby.ai/#operation/postPaymentCapture'); 
+const paymentId = args[0];
+const amount = args[1] || '100.00';
+const isPartial = args[2] === 'partial';
+
+console.log('🧪 TABBY CAPTURE TEST');
+console.log('=====================');
+console.log(`Payment ID: ${paymentId}`);
+console.log(`Amount: ${amount} AED`);
+console.log(`Type: ${isPartial ? 'Partial' : 'Full'} capture`);
+console.log('');
+
+// Test payload according to Tabby API specification
+const testPayload = {
+  amount: amount,
+  reference_id: `test_capture_${paymentId}_${Date.now()}`,
+  tax_amount: "5.00",
+  shipping_amount: "0.00", 
+  discount_amount: "0.00",
+  created_at: new Date().toISOString(),
+  items: [
+    {
+      title: "Green Roasteries Premium Coffee",
+      description: "Premium Arabica coffee blend",
+      quantity: 1,
+      unit_price: amount,
+      discount_amount: "0.00",
+      reference_id: "GR-COFFEE-001",
+      image_url: `${BASE_URL}/images/coffee-premium.jpg`,
+      product_url: `${BASE_URL}/shop`,
+      gender: "Other",
+      category: "Coffee",
+      color: "brown",
+      product_material: "organic",
+      size_type: "weight",
+      size: "250g",
+      brand: "Green Roasteries",
+      is_refundable: true,
+      barcode: `GR${Date.now()}`,
+      ppn: "GR-COFFEE-001",
+      seller: "Green Roasteries"
+    }
+  ]
+};
+
+// Test function
+async function testCapture() {
+  try {
+    console.log('📞 Step 1: Testing capture API endpoint...');
+    console.log(`POST ${API_ENDPOINT}/${paymentId}/captures`);
+    console.log('Payload:', JSON.stringify(testPayload, null, 2));
+    console.log('');
+
+    const response = await makeRequest('POST', `${API_ENDPOINT}/${paymentId}/captures`, testPayload);
+    
+    if (response.error) {
+      console.error('❌ CAPTURE FAILED:');
+      console.error('Status:', response.status);
+      console.error('Error:', response.error);
+      console.error('Details:', response.details || 'No additional details');
+      
+      if (response.status === 400) {
+        console.log('');
+        console.log('💡 Common issues:');
+        console.log('   - Payment must be in AUTHORIZED status');
+        console.log('   - Amount format must be correct (e.g., "100.00")');
+        console.log('   - Payment ID must exist in Tabby system');
+      }
+      
+      return;
+    }
+
+    console.log('✅ CAPTURE SUCCESSFUL!');
+    console.log('');
+    console.log('📋 RESPONSE DETAILS:');
+    console.log('====================');
+    console.log(`Payment ID: ${response.id}`);
+    console.log(`Status: ${response.status}`);
+    console.log(`Amount: ${response.amount} ${response.currency}`);
+    console.log(`Created: ${response.created_at}`);
+    console.log(`Expires: ${response.expires_at}`);
+    console.log(`Test Mode: ${response.is_test}`);
+    console.log('');
+
+    if (response.captures && response.captures.length > 0) {
+      console.log('📦 CAPTURES:');
+      response.captures.forEach((capture, index) => {
+        console.log(`  Capture ${index + 1}:`);
+        console.log(`    ID: ${capture.id}`);
+        console.log(`    Amount: ${capture.amount}`);
+        console.log(`    Reference: ${capture.reference_id}`);
+        console.log(`    Created: ${capture.created_at}`);
+      });
+      console.log('');
+    }
+
+    console.log('🔍 Step 2: Verifying capture details...');
+    const verifyResponse = await makeRequest('GET', `${API_ENDPOINT}/${paymentId}/captures`);
+    
+    if (verifyResponse.error) {
+      console.warn('⚠️ Could not verify capture details:', verifyResponse.error);
+    } else {
+      console.log('✅ VERIFICATION SUCCESSFUL:');
+      console.log(`Total Captured: ${verifyResponse.total_captured} AED`);
+      console.log(`Number of Captures: ${verifyResponse.captures.length}`);
+    }
+
+  } catch (error) {
+    console.error('❌ TEST FAILED:', error.message);
+    console.error('Full error:', error);
+  }
+}
+
+// Helper function to make HTTP requests
+function makeRequest(method, url, data = null) {
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+    const options = {
+      hostname: urlObj.hostname,
+      port: urlObj.port || (urlObj.protocol === 'https:' ? 443 : 80),
+      path: urlObj.pathname,
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Tabby-Capture-Test/1.0'
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let body = '';
+      
+      res.on('data', (chunk) => {
+        body += chunk;
+      });
+      
+      res.on('end', () => {
+        try {
+          const response = JSON.parse(body);
+          
+          if (res.statusCode >= 400) {
+            response.status = res.statusCode;
+          }
+          
+          resolve(response);
+        } catch (error) {
+          reject(new Error(`Failed to parse response: ${body}`));
+        }
+      });
+    });
+
+    req.on('error', (error) => {
+      reject(error);
+    });
+
+    if (data) {
+      req.write(JSON.stringify(data));
+    }
+    
+    req.end();
+  });
+}
+
+// Run the test
+console.log('🚀 Starting Tabby capture test...');
+console.log('');
+testCapture().catch(console.error); 

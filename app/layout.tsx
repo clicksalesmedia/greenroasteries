@@ -9,6 +9,7 @@ import { ToastProvider } from './contexts/ToastContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { Suspense } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
+import CartSidebarProvider from './components/CartSidebarProvider';
 
 export default async function RootLayout({
   children,
@@ -101,7 +102,9 @@ export default async function RootLayout({
             }>
               <ToastProvider>
                 <CartProvider>
-                  <LayoutClient>{children}</LayoutClient>
+                  <CartSidebarProvider>
+                    <LayoutClient>{children}</LayoutClient>
+                  </CartSidebarProvider>
                 </CartProvider>
               </ToastProvider>
             </Suspense>

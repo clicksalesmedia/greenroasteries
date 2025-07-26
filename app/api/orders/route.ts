@@ -45,7 +45,8 @@ export async function POST(request: NextRequest) {
       subtotal,
       tax,
       shippingCost,
-      discount = 0
+      discount = 0,
+      appliedCoupon
     } = await request.json();
 
     // Verify payment based on provider
@@ -67,14 +68,9 @@ export async function POST(request: NextRequest) {
         );
       }
     } else if (paymentProvider === 'TABBY') {
-      // For Tabby payments, we'll create the order in PENDING state
-      // The webhook will update it when payment is confirmed
-      if (!tabbyPaymentId) {
-        return NextResponse.json(
-          { error: 'Tabby payment ID required for Tabby payments' },
-          { status: 400 }
-        );
-      }
+      // ✅ NEW FLOW: For Tabby payments, we create the order BEFORE getting the payment ID
+      // The payment ID will be added later by the payment creation API and updated by webhook
+      // No validation needed here - tabbyPaymentId is optional at order creation time
     } else {
       return NextResponse.json(
         { error: 'Invalid payment provider' },
@@ -337,6 +333,7 @@ export async function POST(request: NextRequest) {
           status: 'PROCESSING',
           paymentMethod: 'stripe',
           stripePaymentIntentId: paymentIntentId,
+          appliedPromoId: appliedCoupon?.promotionId || null,
           items: {
             create: orderItems
           }
@@ -349,6 +346,18 @@ export async function POST(request: NextRequest) {
           }
         }
       });
+
+      // Update promotion usage count if coupon was applied
+      if (appliedCoupon) {
+        await tx.promotion.update({
+          where: { id: appliedCoupon.promotionId },
+          data: {
+            currentUses: {
+              increment: 1
+            }
+          }
+        });
+      }
 
       // Update stock quantities
       for (const stockUpdate of stockUpdates) {
@@ -400,12 +409,14 @@ export async function POST(request: NextRequest) {
         }
       });
     } else if (paymentProvider === 'TABBY') {
+      // ✅ NEW FLOW: Create payment record without tabbyPaymentId initially
+      // The payment ID will be added later by the /api/payments/tabby route
       await prisma.payment.create({
         data: {
           orderId: result.id,
           userId: user.id,
           paymentProvider: 'TABBY',
-          tabbyPaymentId: tabbyPaymentId,
+          tabbyPaymentId: tabbyPaymentId || null, // Allow null for new flow
           amount: totalAmount,
           currency: 'aed',
           status: 'PENDING', // Will be updated by webhook

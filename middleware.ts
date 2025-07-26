@@ -61,6 +61,7 @@ const PUBLIC_PATHS = [
   '/api/webhooks/stripe-test',
   '/api/payments/check-incomplete',
   '/api/payments/recover-missing',
+  '/api/promotions/validate',
 ];
 
 // Cache control helper function

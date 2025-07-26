@@ -25,6 +25,14 @@ interface Product {
   discount?: number;
   discountType?: string;
   hasVariationDiscount?: boolean;
+  promotions?: Array<{
+    promotion: {
+      id: string;
+      type: string;
+      value: number;
+      code?: string;
+    };
+  }>;
 }
 
 export default function ShopContent() {
@@ -83,6 +91,15 @@ export default function ShopContent() {
   const getDiscountDisplay = (product: Product) => {
     // Return null if no discount or discount is 0 or invalid
     if (!product.discount || product.discount <= 0) return null;
+    
+    // Check if this product has any promotions with coupon codes
+    // If so, don't show discount labels (they should only be applied when user enters the coupon)
+    if (product.promotions && product.promotions.length > 0) {
+      const hasPromotionWithCode = product.promotions.some((promo: any) => promo.promotion.code);
+      if (hasPromotionWithCode) {
+        return null; // Don't show discount label for coupon codes
+      }
+    }
     
     if (product.discountType === 'PERCENTAGE') {
       const discountValue = Math.round(product.discount);

@@ -14,7 +14,8 @@ export async function POST(request: NextRequest) {
       tax,
       shippingCost,
       discount = 0,
-      orderId
+      appliedCoupon,
+    orderId // Optional: May not be provided in new flow
     } = body;
 
     // Validate required fields
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
       merchant_code: process.env.TABBY_MERCHANT_CODE || 'GR',
       lang: 'en',
       merchant_urls: {
-        success: `${process.env.NEXT_PUBLIC_SITE_URL}/checkout/thank-you?payment=tabby&session_id={payment.id}`,
+        success: `${process.env.NEXT_PUBLIC_SITE_URL}/checkout/thank-you?payment_provider=tabby&session_id={payment.id}`,
         cancel: `${process.env.NEXT_PUBLIC_SITE_URL}/checkout?payment=cancelled`,
         failure: `${process.env.NEXT_PUBLIC_SITE_URL}/checkout?payment=failed`,
       },
@@ -116,6 +117,13 @@ export async function POST(request: NextRequest) {
 
     // Create Tabby payment session
     const tabbyResponse = await tabbyService.createPayment(tabbyPaymentData);
+
+    // ✅ NEW FLOW: Don't update payment records here - orders will be created by webhook
+    console.log('✅ Tabby payment session created:', {
+      payment_id: tabbyResponse.payment?.id,
+      checkout_url: tabbyResponse.configuration?.available_products?.installments?.[0]?.web_url,
+      expires_at: tabbyResponse.payment?.expires_at
+    });
 
     return NextResponse.json({
       success: true,
@@ -126,6 +134,7 @@ export async function POST(request: NextRequest) {
       expires_at: tabbyResponse.configuration.expires_at, // From configuration object
       payment_expires_at: tabbyResponse.payment.expires_at, // From payment object
       is_available: tabbyResponse.configuration.products.installments.is_available,
+      message: 'Payment session created. Order will be created after successful payment.',
       tabbyResponse,
     });
 

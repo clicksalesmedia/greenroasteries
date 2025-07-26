@@ -117,7 +117,8 @@ class MetaCatalogGenerator {
 
     // Generate URLs
     const slug = this.generateSlug(product.name); // Keep English slug for consistency
-    const link = `${this.baseUrl}/product/${slug}${isArabic ? '?lang=ar' : ''}`;
+    // Updated to use /ar/product/... format for Arabic links
+    const link = isArabic ? `${this.baseUrl}/ar/product/${slug}` : `${this.baseUrl}/product/${slug}`;
 
     // Process images
     const mainImage = this.makeAbsoluteUrl(product.imageUrl || (product.images[0]?.url || ''));

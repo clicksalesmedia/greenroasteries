@@ -7,6 +7,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { trackAddToCart } from '../lib/tracking-integration';
 import { useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
+import { useCartSidebar } from './CartSidebarProvider';
 import UAEDirhamSymbol from './UAEDirhamSymbol';
 
 interface ProductVariation {
@@ -83,6 +84,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({ isOpen, o
   const { language, t, contentByLang } = useLanguage();
   const { addItem } = useCart();
   const { showToast } = useToast();
+  const { openCartSidebar } = useCartSidebar();
   
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -468,6 +470,11 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({ isOpen, o
     
     // Close the modal
     onClose();
+    
+    // Open cart sidebar to show the added item
+    setTimeout(() => {
+      openCartSidebar();
+    }, 300); // Small delay to allow modal close animation
   };
 
   // Format price to 2 decimal places with UAE Dirham symbol

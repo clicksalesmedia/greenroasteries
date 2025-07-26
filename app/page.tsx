@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { useLanguage } from './contexts/LanguageContext';
+import { useCart } from './contexts/CartContext';
+import { useToast } from './contexts/ToastContext';
 import MaintenanceMode from './components/MaintenanceMode';
 import ProductVariationModal from './components/ProductVariationModal';
 import { ShoppingCartIcon, ArrowRightIcon, SparklesIcon } from '@heroicons/react/24/outline';
@@ -16,6 +18,7 @@ import CategoryBanner from './components/CategoryBanner';
 import DiscountedVariationsCarousel from './components/DiscountedVariationsCarousel';
 import FOMOCountdown, { useFOMOSettings } from './components/FOMOCountdown';
 import { addCacheBuster, getOptimizedImageUrl, handleImageError } from './utils/image-cache';
+import { useCartSidebar } from './components/CartSidebarProvider';
 
 interface Product {
   id: string;
@@ -29,6 +32,11 @@ interface Product {
   category?: string | { name: string; nameAr?: string };
   discount?: number;
   discountType?: string;
+  variations?: Array<{
+    id: string;
+    price: number;
+    [key: string]: any;
+  }>;
 }
 
 // Hero banner slide interface
@@ -180,6 +188,9 @@ const getButtonAlignment = (layout?: string) => {
 export default function Home() {
   // Add language context
   const { language, t, contentByLang } = useLanguage();
+  const { openCartSidebar } = useCartSidebar();
+  const { addItem } = useCart();
+  const { showToast } = useToast();
   
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -239,15 +250,7 @@ export default function Home() {
     setCurrentSlide((prev) => (prev === 0 ? heroSlides.length - 1 : prev - 1));
   }, [heroSlides.length]);
 
-  // Function to open the variation modal - memoized to prevent rerenders
-  const openVariationModal = useCallback((productId: string, e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation to product page
-    e.stopPropagation(); // Prevent event bubbling
-    setSelectedProductId(productId);
-    setIsModalOpen(true);
-  }, []);
-
-  // Function to close the variation modal - memoized to prevent rerenders
+    // Function to close the variation modal - memoized to prevent rerenders
   const closeVariationModal = useCallback(() => {
     setIsModalOpen(false);
   }, []);
@@ -639,6 +642,76 @@ export default function Home() {
     // If no mapping exists, format English to uppercase or return Arabic as is
     return language === 'ar' ? categoryName : categoryName.toUpperCase();
   }, [language]);
+
+  // Function to handle add to cart - can either open variation modal or add directly to cart
+  const openVariationModal = useCallback(async (productId: string, e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation to product page
+    e.stopPropagation(); // Prevent event bubbling
+    
+    // Find the product to check if it has variations
+    let product = featuredProducts.find(p => p.id === productId) || 
+                  discountedProducts.find(p => p.id === productId);
+    
+    // If product not found in cached lists, fetch it
+    if (!product) {
+      try {
+        const response = await fetch(`/api/products/${productId}`);
+        if (response.ok) {
+          product = await response.json();
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error);
+        showToast(t('error_adding_to_cart', 'Error adding to cart'), 'error');
+        return;
+      }
+    }
+    
+    if (!product) {
+      showToast(t('product_not_found', 'Product not found'), 'error');
+      return;
+    }
+    
+    // Check if product has variations that require selection
+    const hasVariations = product.variations && product.variations.length > 1;
+    
+    if (hasVariations) {
+      // Product has variations, open the variation modal
+      setSelectedProductId(productId);
+      setIsModalOpen(true);
+    } else {
+      // Simple product without variations, add directly to cart
+      const productName = getProductName(product);
+      const finalPrice = product.discount ? getDiscountedPrice(product.price, product.discount, product.discountType) : product.price;
+      
+      // Add item to cart with default variation
+      const imageUrl = product.imageUrl || 
+        (product.images && product.images.length > 0 ? 
+          (typeof product.images[0] === 'string' ? product.images[0] : product.images[0].url) : 
+          '');
+      
+      addItem({
+        id: `${product.id}-default`,
+        productId: product.id,
+        name: productName,
+        price: finalPrice,
+        quantity: 1,
+        image: imageUrl,
+        variation: {
+          weight: '',
+          beans: '',
+          additions: ''
+        }
+      });
+      
+      // Show success message
+      showToast(`${productName} ${t('added_to_cart', 'added to cart')}`, 'success');
+      
+      // Open cart sidebar after a short delay
+      setTimeout(() => {
+        openCartSidebar();
+      }, 300);
+    }
+  }, [featuredProducts, discountedProducts, getProductName, getDiscountedPrice, addItem, showToast, t, openCartSidebar]);
 
   // Check maintenance mode and admin status
   useEffect(() => {

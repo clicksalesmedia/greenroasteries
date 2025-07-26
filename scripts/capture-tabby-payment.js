@@ -141,7 +141,7 @@ async function main() {
   console.log('=====================================\n');
   
   // Payment ID from Tabby team feedback
-  const paymentId = 'b166f2b0-373d-4c98-a801-ee062523f664';
+  const paymentId = 'c34d8d7a-eb03-4785-8c52-837fa59d637b';
   
   console.log('📋 Payment ID to capture:', paymentId);
   console.log('🎯 This is the payment mentioned by Tabby team as stuck in AUTHORIZED state\n');

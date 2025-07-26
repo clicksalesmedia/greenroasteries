@@ -2,119 +2,122 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { PrismaClient } from '@/app/generated/prisma';
 import { emailService } from '@/lib/email';
+import FacebookCapiService, { 
+  type FacebookCapiUserData, 
+  type FacebookCapiOrderData, 
+  type FacebookCapiProduct 
+} from '@/app/lib/facebook-capi';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-// Helper function to track purchase events from webhooks
+// Helper function to track purchase events from webhooks using enhanced Facebook CAPI
 async function trackPurchaseFromWebhook(order: any, user: any, orderItems: any[], total: number) {
   try {
-    // Track with Facebook Pixel (Server-side via API)
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/facebook`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        event_name: 'Purchase',
-        event_time: Math.floor(Date.now() / 1000),
-        action_source: 'system_api',
-        user_data: {
-          email: user.email,
-          first_name: user.name?.split(' ')[0],
-          last_name: user.name?.split(' ').slice(1).join(' '),
-          phone: user.phone,
-        },
-        custom_data: {
-          value: total,
-          currency: 'AED',
-          content_ids: orderItems.map(item => item.productId),
-          content_type: 'product',
-          order_id: order.id,
-          num_items: orderItems.length
-        },
-        event_id: 'purchase_webhook_' + order.id + '_' + Date.now()
-      })
-    });
-
-    // Track with Google Ads Enhanced Conversions (Server-side)
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/google-ads-enhanced`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        event_name: 'conversion',
-        send_to: 'AW-17214709280/rRb1CIv4r-waEKC8zpBA',
-        value: total,
-        currency: 'AED',
-        transaction_id: order.id,
-        user_data: {
-          email: user.email,
-          phone: user.phone,
-          first_name: user.name?.split(' ')[0],
-          last_name: user.name?.split(' ').slice(1).join(' ')
-        },
-        custom_data: {
-          content_ids: orderItems.map(item => item.productId),
-          content_type: 'product',
-          num_items: orderItems.length
+    console.log(`[Stripe Webhook] Starting enhanced Facebook CAPI tracking for order ${order.id}, total: ${total}`);
+    
+    // Get actual product data for better tracking
+    const products = await prisma.product.findMany({
+      where: {
+        id: {
+          in: orderItems.map(item => item.productId)
         }
-      })
+      },
+      include: {
+        category: true // Include category data
+      }
     });
 
-    // Track with GA4 Measurement Protocol (Server-side)
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/google`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        method: 'ga4',
-        conversion_action: 'purchase',
-        conversion_date_time: new Date().toISOString(),
-        conversion_value: total,
-        currency_code: 'AED',
-        order_id: order.id,
-        items: orderItems.map(item => ({
-          item_id: item.productId,
-          item_name: 'Product',
-          category: 'Coffee',
-          quantity: item.quantity,
-          price: item.unitPrice
-        })),
-        user_data: {
-          email: user.email,
-          phone: user.phone,
-          first_name: user.name?.split(' ')[0],
-          last_name: user.name?.split(' ').slice(1).join(' ')
+    // Convert to FacebookCapiUserData format
+    const userData: FacebookCapiUserData = {
+      email: user.email,
+      phone: user.phone,
+      firstName: user.name?.split(' ')[0] || undefined,
+      lastName: user.name?.split(' ').slice(1).join(' ') || undefined,
+      city: order.city || undefined,
+      country: 'AE',
+      externalId: user.id,
+      // Add server-side data
+      clientIpAddress: '127.0.0.1', // Would be better to get from request
+      clientUserAgent: 'Server-Side-Webhook'
+    };
+
+    // Convert to FacebookCapiProduct format with real product data
+    const productData: FacebookCapiProduct[] = orderItems.map(item => {
+      const product = products.find(p => p.id === item.productId);
+      return {
+        id: item.productId,
+        name: product?.name || 'Coffee Product',
+        price: item.unitPrice,
+        quantity: item.quantity,
+        category: product?.category?.name || 'Coffee',
+        brand: 'Green Roasteries',
+        description: product?.description || product?.name || 'Coffee Product'
+      };
+    });
+
+    // Convert to FacebookCapiOrderData format
+    const orderData: FacebookCapiOrderData = {
+      orderId: order.id,
+      total: total,
+      subtotal: order.subtotal || total * 0.85,
+      tax: order.tax || total * 0.05,
+      shippingCost: order.shippingCost || 0,
+      discount: order.discount || 0,
+      currency: 'AED',
+      items: productData,
+      paymentMethod: 'stripe',
+      isNewCustomer: user.isNewCustomer || false
+    };
+
+    // Track purchase with enhanced Facebook CAPI
+    await FacebookCapiService.trackPurchase(orderData, userData, 'stripe');
+
+    // Also track with Google Analytics (existing implementation)
+    const ga4MeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+    const ga4ApiSecret = process.env.GA4_API_SECRET;
+    
+    if (ga4MeasurementId && ga4ApiSecret) {
+      try {
+        const ga4Response = await fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${ga4MeasurementId}&api_secret=${ga4ApiSecret}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            client_id: 'webhook_stripe_' + Date.now(),
+            events: [{
+              name: 'purchase',
+              params: {
+                transaction_id: order.id,
+                value: total,
+                currency: 'AED',
+                items: orderItems.map(item => ({
+                  item_id: item.productId,
+                  item_name: 'Coffee Product',
+                  item_category: 'Coffee',
+                  quantity: item.quantity,
+                  price: item.unitPrice
+                }))
+              }
+            }]
+          })
+        });
+        
+        if (ga4Response.ok) {
+          console.log(`[Stripe Webhook] GA4 tracking successful`);
+        } else {
+          console.error(`[Stripe Webhook] GA4 tracking failed:`, ga4Response.status);
         }
-      })
-    });
+      } catch (gaError) {
+        console.error(`[Stripe Webhook] Google Analytics tracking error:`, gaError);
+      }
+    }
 
-    // Track with Google Analytics (Internal tracking system)
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tracking/events`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId: 'webhook_session_' + Date.now(),
-        userId: user.id,
-        eventName: 'purchase',
-        eventType: 'PURCHASE',
-        platform: 'SERVER_SIDE',
-        transactionId: order.id,
-        value: total,
-        currency: 'AED',
-        items: orderItems.map(item => ({
-          item_id: item.productId,
-          item_name: 'Product', // We don't have product names in webhook context
-          quantity: item.quantity,
-          price: item.unitPrice
-        })),
-        userAgent: 'Webhook/Server',
-        pageUrl: 'webhook://stripe-payment-confirmed',
-        pageTitle: 'Payment Confirmed'
-      })
-    });
-
-    console.log(`[Stripe Webhook] Purchase tracking completed for order ${order.id}`);
+    console.log(`[Stripe Webhook] Enhanced purchase tracking completed for order ${order.id}`);
   } catch (error) {
-    console.error('[Stripe Webhook] Purchase tracking error:', error);
-    throw error; // Re-throw so it can be caught and logged as non-critical
+    console.error('[Stripe Webhook] Enhanced purchase tracking error:', error);
+    // Don't re-throw - this is non-critical and shouldn't break webhook processing
   }
 }
 

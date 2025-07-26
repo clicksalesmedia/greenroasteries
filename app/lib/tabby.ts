@@ -211,15 +211,42 @@ class TabbyService {
         paymentData.order.reference_id
       );
       
+      // ✅ FIX: Ensure email is acceptable for Tabby (avoid test emails)
+      const processedEmail = paymentData.buyer.email.toLowerCase().trim();
+      
+      // Check if email is likely to be rejected by Tabby
+      const testEmailPatterns = [
+        /^test@/,
+        /^example@/,
+        /^demo@/,
+        /\+test/,
+        /test\./,
+        /^.*@test\./,
+        /^.*@example\./
+      ];
+      
+      const isTestEmail = testEmailPatterns.some(pattern => pattern.test(processedEmail));
+      
+      if (isTestEmail) {
+        console.log('⚠️ Test email detected, may cause Tabby rejection:', processedEmail);
+        // For testing purposes, we'll still try but log a warning
+      }
+      
+      // ✅ FIX: Ensure amount is within Tabby's acceptable range (1-5000 AED)
+      const amount = parseFloat(paymentData.amount.toString());
+      if (amount < 1 || amount > 5000) {
+        throw new Error(`Amount ${amount} AED is outside Tabby's acceptable range (1-5000 AED)`);
+      }
+      
       // Format the payload according to Tabby's API requirements
       const tabbyPayload = {
         payment: {
-          amount: parseFloat(paymentData.amount.toString()).toFixed(2), // Ensure proper decimal formatting
+          amount: amount.toFixed(2), // Ensure proper decimal formatting
           currency: paymentData.currency.toUpperCase(), // Ensure uppercase currency
           description: paymentData.description || 'Green Roasteries Order',
           buyer: {
             phone: paymentData.buyer.phone, // Already formatted in the route (9 digits, no country code)
-            email: paymentData.buyer.email.toLowerCase().trim(), // Normalize email
+            email: processedEmail, // Use processed email
             name: paymentData.buyer.name.trim() || 'Customer', // Ensure name is not empty
             dob: "1990-01-01T00:00:00.000Z" // Default DOB in correct ISO format
           },
@@ -396,6 +423,7 @@ class TabbyService {
     tax_amount?: string;
     shipping_amount?: string;
     discount_amount?: string;
+    created_at?: string;
     items?: Array<any>;
   }): Promise<any> {
     try {
@@ -420,29 +448,29 @@ class TabbyService {
         discount_amount: captureData?.discount_amount || paymentDetails?.order?.discount_amount || "0.00",
         
         // Timestamp in ISO format
-        created_at: new Date().toISOString(),
+        created_at: captureData?.created_at || new Date().toISOString(),
         
         // Order items being captured (all items by default for full capture)
         items: captureData?.items || paymentDetails?.order?.items?.map((item: any) => ({
-          title: item.title,
-          description: item.description,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
+          title: item.title || "Green Roasteries Coffee Product",
+          description: item.description || "Premium coffee blend from Green Roasteries",
+          quantity: item.quantity || 1,
+          unit_price: item.unit_price || "0.00",
           discount_amount: item.discount_amount || "0.00",
-          reference_id: item.reference_id,
-          image_url: item.image_url,
-          product_url: item.product_url,
-          ordered: item.quantity,
-          captured: item.quantity, // Capturing full quantity
-          shipped: 0,
-          refunded: 0,
+          reference_id: item.reference_id || `GR-${Date.now()}`,
+          image_url: item.image_url || "https://thegreenroasteries.com/images/coffee-1.jpg",
+          product_url: item.product_url || "https://thegreenroasteries.com/shop",
           gender: item.gender || "Other",
-          category: item.category,
+          category: item.category || "Coffee",
           color: item.color || "brown",
           product_material: item.product_material || "organic",
           size_type: item.size_type || "weight",
-          size: item.size || "M",
-          brand: item.brand || "Green Roasteries"
+          size: item.size || "250g",
+          brand: item.brand || "Green Roasteries",
+          is_refundable: item.is_refundable !== false,
+          barcode: item.barcode || `GR${Date.now()}`,
+          ppn: item.ppn || `GR-${item.reference_id || Date.now()}`,
+          seller: item.seller || "Green Roasteries"
         })) || []
       };
 

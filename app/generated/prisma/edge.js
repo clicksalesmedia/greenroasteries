@@ -783,7 +783,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/mounirbennassar/Documents/clients/greenroasteries/website/app/generated/prisma",
+      "value": "/var/www/greenroasteries/app/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -792,7 +792,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin-arm64",
+        "value": "debian-openssl-1.1.x",
         "native": true
       },
       {
@@ -801,7 +801,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/mounirbennassar/Documents/clients/greenroasteries/website/prisma/schema.prisma",
+    "sourceFilePath": "/var/www/greenroasteries/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -815,6 +815,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@microsoft/clarity": "^1.0.0",
     "@prisma/client": "^6.7.0",
     "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^7.3.0",
@@ -27,6 +28,7 @@
     "chart.js": "^4.4.9",
     "cloudinary": "^2.7.0",
     "dotenv": "^17.2.0",
+    "facebook-nodejs-business-sdk": "^23.0.0",
     "form-data": "^4.0.3",
     "framer-motion": "^12.11.0",
     "googleapis": "^150.0.1",
@@ -39,6 +41,7 @@
     "react": "^19.0.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.0.0",
+    "react-facebook-pixel": "^1.0.4",
     "react-hot-toast": "^2.5.2",
     "stripe": "^18.1.1",
     "uuid": "^11.1.0"

@@ -25,7 +25,18 @@ interface ShippingCalculation {
   amountToFreeShipping?: number;
 }
 
-export default function OrderSummary() {
+interface OrderSummaryProps {
+  appliedCoupon?: {
+    code: string;
+    discountAmount: number;
+    discountType: string;
+    promotionId: string;
+    name: string;
+    description?: string;
+  } | null;
+}
+
+export default function OrderSummary({ appliedCoupon }: OrderSummaryProps) {
   const { items, totalItems, totalPrice } = useCart();
   const { t, language } = useLanguage();
   const [shippingCalculation, setShippingCalculation] = useState<ShippingCalculation>({
@@ -42,6 +53,24 @@ export default function OrderSummary() {
         <UAEDirhamSymbol size={14} />
       </span>
     );
+  };
+
+  // Helper function to safely extract variation info
+  const getVariationDisplay = (variation: any) => {
+    try {
+      if (!variation) return '';
+      if (typeof variation === 'string') return variation;
+      if (typeof variation === 'object' && variation !== null && !Array.isArray(variation)) {
+        const values = Object.values(variation);
+        if (values && values.length > 0) {
+          return values.filter(Boolean).join(', ');
+        }
+      }
+      return '';
+    } catch (error) {
+      console.error('Error processing variation:', error);
+      return '';
+    }
   };
 
   // Calculate shipping when total price changes
@@ -121,7 +150,9 @@ export default function OrderSummary() {
     calculateShipping();
   }, [totalPrice, items]);
 
-  const finalTotal = totalPrice + shippingCalculation.shippingCost;
+  // Calculate final total with coupon discount
+  const couponDiscount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const finalTotal = Math.max(0, totalPrice + shippingCalculation.shippingCost - couponDiscount);
 
   return (
     <div className={`bg-white rounded-lg shadow-sm p-6 sticky top-24 ${language === 'ar' ? 'text-right' : ''}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
@@ -159,7 +190,7 @@ export default function OrderSummary() {
             <div className={`${language === 'ar' ? 'mr-4' : 'ml-4'} flex-1`}>
               <h4 className={`font-medium text-gray-900 text-sm ${language === 'ar' ? 'text-right' : ''}`}>{item.name}</h4>
               <p className={`text-xs text-gray-500 mt-0.5 ${language === 'ar' ? 'text-right' : ''}`}>
-                {Object.values(item.variation).filter(Boolean).join(', ')}
+                {getVariationDisplay(item.variation)}
               </p>
               <div className={`mt-1 text-sm font-medium ${language === 'ar' ? 'text-right' : ''}`}>{formatPrice(item.price)}</div>
             </div>
@@ -185,6 +216,16 @@ export default function OrderSummary() {
             )}
           </span>
         </div>
+        
+        {/* Coupon discount */}
+        {appliedCoupon && (
+          <div className={`flex justify-between text-green-600 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+            <span className="text-sm">
+              {t('coupon_discount', 'Coupon discount')} ({appliedCoupon.code})
+            </span>
+            <span className="font-medium">-{formatPrice(appliedCoupon.discountAmount)}</span>
+          </div>
+        )}
         
         {/* Shipping rule description */}
         {shippingCalculation.shippingRule && (
